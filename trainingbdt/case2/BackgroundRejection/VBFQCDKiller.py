@@ -102,19 +102,19 @@ dataloader.AddSignalTree(ch_sig, 1.0)
 dataloader.AddBackgroundTree(ch_bkg, 1.0)
 dataloader.SetSignalWeightExpression('XS')
 dataloader.SetBackgroundWeightExpression('XS')
-dataloader.PrepareTrainingAndTestTree(TCut('VBFEvent==1'),'nTrain_Signal=%i:nTrain_Background=%i:SplitMode=Random:!V:SplitSeed=1'%(nTrain_Signal,nTrain_Background))
+dataloader.PrepareTrainingAndTestTree(TCut('VBFEvent==1'),'nTrain_Signal=%i:nTrain_Background=%i:SplitMode=Random:!V:SplitSeed=10'%(nTrain_Signal,nTrain_Background))
 
 #nTrees =[200,250,300,350,400,450]
 #nCuts = [200,250,300,350,400,450]
 #nDepth = [2]
 
-#nTrees = [150,175,200,225,250]
-#nCuts  = [200,225,250,275,300]
-#nDepth = [2]
-
-nTrees =[225]
-nCuts = [250]
+nTrees = [250]
+nCuts  = [200]
 nDepth = [2]
+
+#nTrees =[225]
+#nCuts = [200,250]
+#nDepth = [2]
 
 for i in nTrees:
   for j in nCuts:

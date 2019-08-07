@@ -1,1 +1,1 @@
-/uscms/home/guerrero/nobackup/Run2/HH2019/newcommit/CMSSW_10_2_5/src/bbbbAnalysis/mlskim/outputskims/2017case2/SKIM_QCD_HT2000toInf_TuneCP5_13TeV-madgraph-pythia8.root
+mlskim/outputskims/2017case2/SKIM_QCD_HT2000toInf_TuneCP5_13TeV-madgraph-pythia8.root

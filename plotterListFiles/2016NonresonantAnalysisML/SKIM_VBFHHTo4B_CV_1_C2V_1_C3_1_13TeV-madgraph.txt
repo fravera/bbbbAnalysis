@@ -1,1 +1,1 @@
-/uscms/home/guerrero/nobackup/Run2/HH2019/newcommit/CMSSW_10_2_5/src/bbbbAnalysis/mlskim/outputskims/2016case2/SKIM_VBFHHTo4B_CV_1_C2V_1_C3_1_13TeV-madgraph.root
+mlskim/outputskims/2016case2/SKIM_VBFHHTo4B_CV_1_C2V_1_C3_1_13TeV-madgraph.root

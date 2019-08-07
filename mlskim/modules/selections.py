@@ -24,11 +24,11 @@ def eventbtagregion(data,btagregion):
 	
 def eventcategory(data,category):
 	if category   == 'VBF':
-		 selected = data[data.BDT1 >=0]
-		 rejected = data[data.BDT1 < 0]
+		 selected = data[  ((data.BDT1 >=0) & (data.JJ_j1_jetId>0) & (data.JJ_j2_jetId>0) & (data.JJ_j1_puId>0) & (data.JJ_j2_puId>0)) ]
+		 rejected = data[ ~((data.BDT1 >=0) & (data.JJ_j1_jetId>0) & (data.JJ_j2_jetId>0) & (data.JJ_j1_puId>0) & (data.JJ_j2_puId>0)) ]
 	elif category == 'GGF':
-		 selected = data[data.BDT1 < 0]    	
-		 rejected = data[data.BDT1 >=0]
+		 selected = data[ ~((data.BDT1 >=0) & (data.JJ_j1_jetId>0) & (data.JJ_j2_jetId>0) & (data.JJ_j1_puId>0) & (data.JJ_j2_puId>0)) ]   	
+		 rejected = data[  ((data.BDT1 >=0) & (data.JJ_j1_jetId>0) & (data.JJ_j2_jetId>0) & (data.JJ_j1_puId>0) & (data.JJ_j2_puId>0)) ]
 	else:
 		 selected = data
 		 rejected = pandas.DataFrame()
@@ -38,10 +38,10 @@ def eventcategory(data,category):
 def eventmassregion(data,massregion,validation=False):
 	# 2016 is (115,)
 	if validation:
-		center1 = 220
-		center2 = 210
+		center1 = 205
+		center2 = 190
 	else:
-		center1 = 115
+		center1 = 120
 		center2 = 110    	
 	radius1  = 45
 	radius2  = 60

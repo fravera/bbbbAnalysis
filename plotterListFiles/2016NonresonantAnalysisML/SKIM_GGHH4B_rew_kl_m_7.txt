@@ -1,1 +1,1 @@
-/uscms/home/lcadamur/nobackup/bbbbAnalysis_4Lug2019/CMSSW_10_2_5/src/bbbbAnalysis/mlskim/outputskims/klambdarew_2016_8Lug2019_v2/SKIM_GGHH4B_rew_kl_m_7.root
+mlskim/outputskims/2016case2/SKIM_GGHH4B_rew_kl_m_7.root

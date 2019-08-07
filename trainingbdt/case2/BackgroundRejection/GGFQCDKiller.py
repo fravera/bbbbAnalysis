@@ -95,20 +95,21 @@ trainingsamplefraction = 0.50 #next,also try 0.5 0.6
 nTrain_Signal          = int(ch_sig.GetEntries('VBFEvent==0 || (VBFEvent==1 && BDT1<0)')*trainingsamplefraction) 
 nTrain_Background      = int(ch_bkg.GetEntries('VBFEvent==0 || (VBFEvent==1 && BDT1<0)')*trainingsamplefraction)
 print("[INFO] ML TRAINING STARTING . . .")
-print("[INFO] Signal/Background Training Fraction is %f"%trainingsamplefraction)
+print("[INFO] Signal/Background Training Fraction is %f"%trainingsamplefraction) 
+#999
 dataloader.AddSignalTree(ch_sig, 1.0)
 dataloader.AddBackgroundTree(ch_bkg, 1.0)
 dataloader.SetSignalWeightExpression('XS')
 dataloader.SetBackgroundWeightExpression('XS')
 dataloader.PrepareTrainingAndTestTree(TCut('VBFEvent==0 || (VBFEvent==1 && BDT1<0)'),'nTrain_Signal=%i:nTrain_Background=%i:SplitMode=Random:!V:SplitSeed=999'%(nTrain_Signal,nTrain_Background))
 
-#nTrees =[300]
-#nCuts = [200,250,300,350,400]
-#nDepth = [2]
-
-nTrees =[300]
-nCuts = [200]
+nTrees =[350]
+nCuts = [400]
 nDepth = [2]
+
+#nTrees =[300]
+#nCuts = [200]
+#nDepth = [2]
 
 for i in nTrees:
   for j in nCuts:

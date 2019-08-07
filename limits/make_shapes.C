@@ -73,7 +73,7 @@ using namespace RooFit ;
 void make_shapes(float range_lo, float range_hi, string signal, string categ, string var, string tag,int seed) {
 
     //Get File
-    TFile *file=new TFile(Form("../MyHistos/Histos%s/outPlotter.root",tag.c_str()));
+    TFile *file=new TFile(Form("../MyHistosNominal/Histos%s/outPlotter.root",tag.c_str()));
     //Get Signal histogram and normalization   
     TH1F *h_S=(TH1F*)file->Get( Form("%s/Btag4_%s_SR_110_Histogram/%s_Btag4_%s_SR_110_Histogram_%s",signal.c_str(), categ.c_str(), signal.c_str(),categ.c_str(),var.c_str() ));
     //Get Background histogram and normalization
@@ -118,12 +118,10 @@ void make_shapes(float range_lo, float range_hi, string signal, string categ, st
     data_s->plotOn(frame);
     w->pdf("model_s")->plotOn(frame, LineColor(kRed));
     frame->Draw();
-    c1->Print("data_s.png");
     frame = w->var("x")->frame();
     data_b->plotOn(frame);
     w->pdf("model_b")->plotOn(frame);
     frame->Draw();
-    c1->Print("data_b.png");//
     RooDataHist *bdata_b = new RooDataHist("data_obs", "", obs, *data_b);
     RooDataHist *bdata_s = new RooDataHist("data_sig", "", obs, *data_s);//
 
@@ -135,13 +133,11 @@ void make_shapes(float range_lo, float range_hi, string signal, string categ, st
     signal_nominal->SetName("signal"); signal_nominal->Scale(nS/signal_nominal->Integral());
     c1->Clear();
     signal_nominal->Draw("H"); signal_nominal->SetLineColor(kBlack); signal_nominal->SetLineWidth(3);
-    c1->Print(Form("myplots/signal_model_binned_%s_%s.png",categ.c_str(),tag.c_str()) );
     // background model 
     frame = w->var("x")->frame();
     TH1 *background = w->pdf("Bkgpredpdf")->createHistogram("x"); 
     background->SetName("background"); background->Scale(nB/background->Integral());
     background->Draw("H");             background->SetLineColor(kBlack); background->SetLineWidth(3);
-    c1->Print(Form("myplots/background_model_binned_%s_%s.png",signal.c_str(),tag.c_str()) );
 
     // data
     TH1 *hdata_b = bdata_b->createHistogram("x"); hdata_b->SetName("data_obs");

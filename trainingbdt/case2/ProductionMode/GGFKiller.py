@@ -3,9 +3,9 @@
 # Select Tensorflow as backend for Keras
 from os import environ
 import os 
-environ['KERAS_BACKEND'] = 'tensorflow'
+#environ['KERAS_BACKEND'] = 'tensorflow'
 # Set architecture of system (AVX instruction set is not supported on SWAN)
-environ['THEANO_FLAGS'] = 'gcc.cxxflags=-march=corei7'
+#environ['THEANO_FLAGS'] = 'gcc.cxxflags=-march=corei7'
 from ROOT import TMVA, TFile, TTree, TCut,TChain
 from subprocess import call
 from os.path import isfile
@@ -24,10 +24,10 @@ output = TFile.Open('GGFKiller.root', 'RECREATE')
 factory = TMVA.Factory('TMVAClassification', output,
         '!V:!Silent:Color:DrawProgressBar:Transformations=I:AnalysisType=Classification')
 #Locate and add data files
-file_VBF_HH_2016 = "../../inputsamples/2016altjobs/SKIM_VBFHHTo4B_CV_1_C2V_1_C3_1_13TeV-madgraph.root"
-file_VBF_HH_2017 = "../../inputsamples/2017altjobs/SKIM_VBFHHTo4B_CV_1_C2V_1_C3_1_13TeV-madgraph.root"
-file_GGF_HH_2016 = "../../inputsamples/2016altjobs/SKIM_GluGluToHHTo4B_node_SM_13TeV-madgraph.root"
-file_GGF_HH_2017 = "../../inputsamples/2017altjobs/SKIM_GluGluToHHTo4B_node_SM_13TeV-madgraph_correctedcfg.root"
+file_VBF_HH_2016 = "../../inputsamples/BDT1/2016vbf.root"
+file_VBF_HH_2017 = "../../inputsamples/BDT1/2017vbf.root"
+file_GGF_HH_2016 = "../../inputsamples/BDT1/2016ggf.root"
+file_GGF_HH_2017 = "../../inputsamples/BDT1/2017ggf.root"
 ch_sig = TChain("bbbbTree")
 ch_bkg = TChain("bbbbTree")
 ch_sig.AddFile(file_VBF_HH_2016)
@@ -60,7 +60,7 @@ print("[INFO] ML TRAINING STARTING . . .")
 print("[INFO] Signal/Background Training Fraction is %f"%trainingsamplefraction)
 dataloader.AddSignalTree(ch_sig, 1.0)
 dataloader.AddBackgroundTree(ch_bkg, 1.0)
-dataloader.PrepareTrainingAndTestTree(TCut('VBFEvent==1'),'nTrain_Signal=%i:nTrain_Background=%i:SplitMode=Random:!V:SplitSeed=100'%(nTrain_Signal,nTrain_Background))
+dataloader.PrepareTrainingAndTestTree(TCut('VBFEvent==1'),'nTrain_Signal=%i:nTrain_Background=%i:SplitMode=Random:!V:SplitSeed=10000'%(nTrain_Signal,nTrain_Background))
 
 print("[INFO] Boosted Decision Tree Training Starting . . .")
 #best options
@@ -71,8 +71,12 @@ print("[INFO] Boosted Decision Tree Training Starting . . .")
 #nCuts = [100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400]
 #nDepth = [2]
 
-nTrees =[300]
-nCuts = [300]
+#nTrees =[350,375]
+#nCuts = [275,300,325,350,375]
+#nDepth = [2]
+
+nTrees =[350]
+nCuts = [275]
 nDepth = [2]
 
 for i in nTrees:

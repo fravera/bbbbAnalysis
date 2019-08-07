@@ -1,4 +1,6 @@
-selections=("altjobs")
+
+##HADD DATA AND SM MC SAMPLES
+selections=("case2")
 
 for selection in ${selections[@]}
 do
@@ -6,7 +8,6 @@ do
      rm 2016$selection/*.root
      hadd 2016$selection/SKIM_Data.root                                                    `xrdfsls -u /eos/uscms/store/user/guerrero/bbbb_ntuples/2016$selection/SKIM_Data_BTagCSV/output/ | grep '\.root'`
      hadd 2016$selection/SKIM_VBFHHTo4B_CV_1_C2V_1_C3_1_13TeV-madgraph.root                `xrdfsls -u /eos/uscms/store/user/guerrero/bbbb_ntuples/2016$selection/SKIM_VBFHHTo4B_CV_1_C2V_1_C3_1_13TeV-madgraph/output/ | grep '\.root'`
-     hadd 2016$selection/SKIM_VBFHHTo4B_CV_1_C2V_2_C3_1_13TeV-madgraph.root                `xrdfsls -u /eos/uscms/store/user/guerrero/bbbb_ntuples/2016$selection/SKIM_VBFHHTo4B_CV_1_C2V_2_C3_1_13TeV-madgraph/output/ | grep '\.root'`
      hadd 2016$selection/SKIM_GluGluToHHTo4B_node_SM_13TeV-madgraph.root                   `xrdfsls -u /eos/uscms/store/user/guerrero/bbbb_ntuples/2016$selection/SKIM_GluGluToHHTo4B_node_SM_13TeV-madgraph/output/ | grep '\.root'`
      hadd 2016$selection/SKIM_QCD_HT200to300_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root   `xrdfsls -u /eos/uscms/store/user/guerrero/bbbb_ntuples/2016$selection/SKIM_QCD_HT200to300_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/output/ | grep '\.root'`
      hadd 2016$selection/SKIM_QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root   `xrdfsls -u /eos/uscms/store/user/guerrero/bbbb_ntuples/2016$selection/SKIM_QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/output/ | grep '\.root'`
@@ -21,7 +22,6 @@ do
      rm 2017$selection/*.root
      hadd 2017$selection/SKIM_Data.root                                                    `xrdfsls -u /eos/uscms/store/user/guerrero/bbbb_ntuples/2017$selection/SKIM_Data_BTagCSV/output/ | grep '\.root'`
      hadd 2017$selection/SKIM_VBFHHTo4B_CV_1_C2V_1_C3_1_13TeV-madgraph.root                `xrdfsls -u /eos/uscms/store/user/guerrero/bbbb_ntuples/2017$selection/SKIM_VBFHHTo4B_CV_1_C2V_1_C3_1_13TeV-madgraph/output/ | grep '\.root'`
-     hadd 2017$selection/SKIM_VBFHHTo4B_CV_1_C2V_2_C3_1_13TeV-madgraph.root                `xrdfsls -u /eos/uscms/store/user/guerrero/bbbb_ntuples/2017$selection/SKIM_VBFHHTo4B_CV_1_C2V_2_C3_1_13TeV-madgraph/output/ | grep '\.root'`
      hadd 2017$selection/SKIM_GluGluToHHTo4B_node_SM_13TeV-madgraph_correctedcfg.root      `xrdfsls -u /eos/uscms/store/user/guerrero/bbbb_ntuples/2017$selection/SKIM_GluGluToHHTo4B_node_SM_13TeV-madgraph_correctedcfg/output/ | grep '\.root'`
      hadd 2017$selection/SKIM_QCD_HT200to300_TuneCP5_13TeV-madgraph-pythia8.root           `xrdfsls -u /eos/uscms/store/user/guerrero/bbbb_ntuples/2017$selection/SKIM_QCD_HT200to300_TuneCP5_13TeV-madgraph-pythia8/output/ | grep '\.root'`
      hadd 2017$selection/SKIM_QCD_HT300to500_TuneCP5_13TeV-madgraph-pythia8.root           `xrdfsls -u /eos/uscms/store/user/guerrero/bbbb_ntuples/2017$selection/SKIM_QCD_HT300to500_TuneCP5_13TeV-madgraph-pythia8/output/ | grep '\.root'`
@@ -48,7 +48,38 @@ do
      hadd 2018$selection/SKIM_TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8.root      `xrdfsls -u /eos/uscms/store/user/guerrero/bbbb_ntuples/2018$selection/SKIM_TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8/output/ | grep '\.root'`
 done 
 
-#here case1 refers to closer to mh mass pairing, whereas case2 refers to a la ATLAS pairing
-mv 2016altjobs 2016case2
-mv 2017altjobs 2017case2
-mv 2018altjobs 2018case2
+
+##HADD: VBF-HH Coupling variations
+hadd 2016case2/SKIM_VBFHHTo4B_CV_0_5_C2V_1_C3_1_13TeV-madgraph.root   `xrdfsls -u /eos/uscms/store/user/guerrero/bbbb_ntuples/2016case2/SKIM_VBFHHTo4B_CV_0_5_C2V_1_C3_1_13TeV-madgraph//output/ | grep '\.root'`
+hadd 2016case2/SKIM_VBFHHTo4B_CV_1_5_C2V_1_C3_1_13TeV-madgraph.root   `xrdfsls -u /eos/uscms/store/user/guerrero/bbbb_ntuples/2016case2/SKIM_VBFHHTo4B_CV_1_5_C2V_1_C3_1_13TeV-madgraph//output/ | grep '\.root'`
+hadd 2016case2/SKIM_VBFHHTo4B_CV_1_C2V_1_C3_0_13TeV-madgraph.root     `xrdfsls -u /eos/uscms/store/user/guerrero/bbbb_ntuples/2016case2/SKIM_VBFHHTo4B_CV_1_C2V_1_C3_0_13TeV-madgraph//output/ | grep '\.root'`
+hadd 2016case2/SKIM_VBFHHTo4B_CV_1_C2V_1_C3_2_13TeV-madgraph.root     `xrdfsls -u /eos/uscms/store/user/guerrero/bbbb_ntuples/2016case2/SKIM_VBFHHTo4B_CV_1_C2V_1_C3_2_13TeV-madgraph//output/ | grep '\.root'`
+hadd 2016case2/SKIM_VBFHHTo4B_CV_1_C2V_2_C3_1_13TeV-madgraph.root     `xrdfsls -u /eos/uscms/store/user/guerrero/bbbb_ntuples/2016case2/SKIM_VBFHHTo4B_CV_1_C2V_2_C3_1_13TeV-madgraph/output/ | grep '\.root'`
+hadd 2017case2/SKIM_VBFHHTo4B_CV_1_C2V_2_C3_1_13TeV-madgraph.root     `xrdfsls -u /eos/uscms/store/user/guerrero/bbbb_ntuples/2017case2/SKIM_VBFHHTo4B_CV_1_C2V_2_C3_1_13TeV-madgraph/output/ | grep '\.root'`
+hadd 2017case2/SKIM_VBFHHTo4B_CV_1_5_C2V_1_C3_1_13TeV-madgraph.root   `xrdfsls -u /eos/uscms/store/user/guerrero/bbbb_ntuples/2017case2/SKIM_VBFHHTo4B_CV_1_5_C2V_1_C3_1_13TeV-madgraph//output/ | grep '\.root'`
+hadd 2017case2/SKIM_VBFHHTo4B_CV_1_C2V_1_C3_0_13TeV-madgraph.root     `xrdfsls -u /eos/uscms/store/user/guerrero/bbbb_ntuples/2017case2/SKIM_VBFHHTo4B_CV_1_C2V_1_C3_0_13TeV-madgraph//output/ | grep '\.root'`
+hadd 2017case2/SKIM_VBFHHTo4B_CV_1_C2V_1_C3_2_13TeV-madgraph.root     `xrdfsls -u /eos/uscms/store/user/guerrero/bbbb_ntuples/2017case2/SKIM_VBFHHTo4B_CV_1_C2V_1_C3_2_13TeV-madgraph//output/ | grep '\.root'`
+
+
+##HADD: klambda variations
+for kl in `seq -f %g -10 1 10`; do
+     klname=${kl/./d}
+     if [[ $klname == *-* ]]; then
+         klname=${klname/-/m_};
+     else
+         klname=p_${klname}
+     fi
+
+     hadd 2016case2/SKIM_GGHH4B_rew_kl_${klname}.root   `xrdfsls -u /eos/uscms/store/user/guerrero/bbbb_ntuples/2016case2/SKIM_GGHH4B_rew_kl_${klname}/output/ | grep '\.root'`
+done
+
+for kl in `seq -f %g -10 1 10`; do
+     klname=${kl/./d}
+     if [[ $klname == *-* ]]; then
+         klname=${klname/-/m_};
+     else
+         klname=p_${klname}
+     fi
+
+     hadd 2017case2/SKIM_GGHH4B_rew_kl_${klname}.root   `xrdfsls -u /eos/uscms/store/user/guerrero/bbbb_ntuples/2017case2/SKIM_GGHH4B_rew_kl_${klname}/output/ | grep '\.root'`
+done

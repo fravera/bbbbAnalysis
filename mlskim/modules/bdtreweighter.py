@@ -15,10 +15,11 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_auc_score
 from matplotlib.colors import LogNorm
 
-def reweightermodel(original,target,original_weights,target_weights,args): 
+def reweightermodel(ioriginal,itarget,ioriginal_weights,itarget_weights,args): 
+	numpy.random.seed(args[5]) #Fix any random seed using numpy arrays
 	reweighter_base = reweight.GBReweighter(n_estimators=args[0], learning_rate=args[1], max_depth=args[2], min_samples_leaf=args[3],gb_args={'subsample': args[4]})
-	reweighter = reweight.FoldingReweighter(reweighter_base,random_state=2019, n_folds=2, verbose=True)
-	reweighter.fit(original,target,original_weights,target_weights)
+	reweighter = reweight.FoldingReweighter(reweighter_base, random_state=args[5], n_folds=2, verbose=True)
+	reweighter.fit(ioriginal,itarget,ioriginal_weights,itarget_weights)
 	return reweighter
 
 def check_ks_of_expression(expression):
@@ -42,3 +43,4 @@ def roc_auc_measurement(original,target,original_weights,folding_weights):
 		Xtr, Xts, Ytr, Yts, Wtr, Wts = train_test_split(data, labels, W, random_state=42, train_size=0.51)
 		clf = GradientBoostingClassifier(subsample=0.3, n_estimators=30).fit(Xtr, Ytr, sample_weight=Wtr)
 		print("ROC AUC in %s: "%name, roc_auc_score(Yts, clf.predict_proba(Xts)[:, 1], sample_weight=Wts))
+

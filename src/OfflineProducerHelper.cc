@@ -3114,7 +3114,7 @@ bool OfflineProducerHelper::select_gen_HH (NanoAODTree& nat, EventInfo& ei)
         if (gp.isFirstCopy())
         {
             if (!assign_to_uninit(gp, {&ei.gen_H1, &ei.gen_H2} )) {
-                //cout << "** [WARNING] : select_gen_HH : more than two Higgs found" << endl;
+                cout << "** [WARNING] : select_gen_HH : more than two Higgs found" << endl;
                 all_ok = false;
             }
 
@@ -3129,7 +3129,7 @@ bool OfflineProducerHelper::select_gen_HH (NanoAODTree& nat, EventInfo& ei)
         if (gp.isLastCopy())
         {
             if (!assign_to_uninit(gp, {&ei.gen_H1_last, &ei.gen_H2_last} )) {
-                //cout << "** [WARNING] : select_gen_HH : more than two Higgs found (last copy)" << endl;
+                cout << "** [WARNING] : select_gen_HH : more than two Higgs found (last copy)" << endl;
                 all_ok = false;
             }
 
@@ -3161,7 +3161,7 @@ bool OfflineProducerHelper::select_gen_bb_bb (NanoAODTree& nat, EventInfo& ei)
 {
     if (!ei.gen_H1 || !ei.gen_H2)
     {
-        //cout << "** [WARNING] : select_gen_bb_bb : you need to search for H1 and H2 before" << endl;
+        cout << "** [WARNING] : select_gen_bb_bb : you need to search for H1 and H2 before" << endl;
         return false;
     }
 
@@ -3178,7 +3178,7 @@ bool OfflineProducerHelper::select_gen_bb_bb (NanoAODTree& nat, EventInfo& ei)
         if (idxMoth == ei.gen_H1_last->getIdx())
         {
             if (!assign_to_uninit(gp, {&ei.gen_H1_b1, &ei.gen_H1_b2} )) {
-                //cout << "** [WARNING] : select_gen_bb_bb : more than two b from H1 found" << endl;
+                cout << "** [WARNING] : select_gen_bb_bb : more than two b from H1 found" << endl;
                 all_ok = false;
             }
             // if      (!ei.gen_H1_b1) ei.gen_H1_b1 = gp;
@@ -3191,7 +3191,7 @@ bool OfflineProducerHelper::select_gen_bb_bb (NanoAODTree& nat, EventInfo& ei)
         else if (idxMoth == ei.gen_H2_last->getIdx())
         {
             if (!assign_to_uninit(gp, {&ei.gen_H2_b1, &ei.gen_H2_b2} )) {
-                //cout << "** [WARNING] : select_gen_bb_bb : more than two b from H2 found" << endl;
+                cout << "** [WARNING] : select_gen_bb_bb : more than two b from H2 found" << endl;
                 all_ok = false;
             }
 
