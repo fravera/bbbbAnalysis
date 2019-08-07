@@ -60,7 +60,7 @@ class OfflineProducerHelper{
         std::unique_ptr<HHReweight5D> hhreweighter_;
         float hhreweighter_kl_;
 
-        bool debug = true;
+        bool debug = false;
         // Load configurations to match the b jets
         // bool loadConfiguration(CfgParser config);
         ///static bacause if not I got a glibc detected when the execution is completed
@@ -257,6 +257,7 @@ class OfflineProducerHelper{
         BTagCalibrationReader *btagCalibrationReader_bJets_;
         //functions fo apply preselection cuts:
         void bJets_PreselectionCut(std::vector<Jet> &jets);
+        void fourBjetCut_PreselectionCut(std::vector<Jet> &jets);
         std::vector<Jet> bjJets_PreselectionCut(NanoAODTree& nat, EventInfo& ei, OutputTree &ot, std::vector<Jet> jets);
         std::vector<Jet> bjJets_2016_PreselectionCut(NanoAODTree& nat, EventInfo& ei, OutputTree &ot, std::vector<Jet> jets);
         std::vector<int> QuarkToJetMatcher(const std::vector<GenPart> quarks,const std::vector<Jet> jets);
@@ -285,6 +286,8 @@ class OfflineProducerHelper{
         std::vector<Jet> bbbb_jets_idxs_MostBackToBack(const std::vector<Jet> *presel_jets);
         //pair by ordering the jets by CSV and then finding the compination closer to targetmH for both candidates
         std::vector<Jet> bbbb_jets_idxs_HighestCSVandClosestToMh(const std::vector<Jet> *presel_jets);
+        // Select among the 4 jets the couple cloasest to the SM Higgs
+        std::vector<Jet> bbbb_jets_XYHselection(const std::vector<Jet> *presel_jets);
         //A la ATLAS
         std::vector<Jet> bbbb_jets_idxs_BothClosestToDiagonal(const std::vector<Jet> *presel_jets);
         // A la 2016 paper

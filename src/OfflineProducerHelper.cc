@@ -60,6 +60,7 @@ void OfflineProducerHelper::initializeObjectsForCuts(OutputTree &ot)
         ot.declareUserFloatBranch("ThirdJetPt", -1.);
         ot.declareUserFloatBranch("ForthJetPt", -1.);
         ot.declareUserFloatBranch("FourHighetJetPtSum", -1.);
+        ot.declareUserFloatBranch("FirstJetDeepCSV", -1.);
         ot.declareUserFloatBranch("ThirdJetDeepCSV", -1.);
         ot.declareUserFloatBranch("ForthJetCMVA", -1.);
         ot.declareUserFloatBranch("HighestIsoMuonPt", -1.);
@@ -742,9 +743,13 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
     if(preselectionCutStrategy=="bJetCut"){
         bJets_PreselectionCut(unsmearedJets);
     }
+    else if(preselectionCutStrategy=="FourBjetCut")
+    {
+        fourBjetCut_PreselectionCut(unsmearedJets);
+    }
     else if(preselectionCutStrategy=="None")
     {
-        //do nothing
+        bJets_PreselectionCut(unsmearedJets);
     }
     else throw std::runtime_error("cannot recognize cut strategy --" + preselectionCutStrategy + "--");
 
@@ -816,6 +821,8 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
                 ordered_jets = bbbb_jets_idxs_BothClosestToMh(&presel_jets);
             else if(strategy == "MostBackToBack")
                 ordered_jets = bbbb_jets_idxs_MostBackToBack(&presel_jets);
+            else if(strategy == "XYH_4B_selection")
+                ordered_jets = bbbb_jets_XYHselection(&presel_jets);
             else if(strategy == "HighestCSVandClosestToMh")
             {
                 ordered_jets = bbbb_jets_idxs_HighestCSVandClosestToMh(&jets.second);
@@ -922,6 +929,7 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
                     return ( get_property(a, Jet_btagDeepB) > get_property(b, Jet_btagDeepB) );
                 });
 
+                ot.userFloat("FirstJetDeepCSV") = get_property(jetsForTriggerStudies[0],Jet_btagDeepB);
                 ot.userFloat("ThirdJetDeepCSV") = get_property(jetsForTriggerStudies[2],Jet_btagDeepB);
                 // std::cout << __PRETTY_FUNCTION__ << get_property(jetsForTriggerStudies[0],Jet_btagDeepB) << " " << get_property(jetsForTriggerStudies[1],Jet_btagDeepB) << " " << get_property(jetsForTriggerStudies[2],Jet_btagDeepB) << " " << get_property(jetsForTriggerStudies[3],Jet_btagDeepB) << " " << std::endl;
 
@@ -995,9 +1003,8 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
             CompositeCandidate H2 = CompositeCandidate(ordered_jets.at(2), ordered_jets.at(3));
             H2.rebuildP4UsingRegressedPt(true,true);
 
-// std::cout<<"culo8\n";
             //Do a random swap to be sure that the m1 and m2 are simmetric
-            bool swapped = (int(H1.P4().Pt()*100.) % 2 == 1);
+            bool swapped = false;//(int(H1.P4().Pt()*100.) % 2 == 1);
 
             if (!swapped)
             {
@@ -1185,6 +1192,96 @@ void OfflineProducerHelper::bJets_PreselectionCut(std::vector<Jet> &jets)
 }
 
 
+//functions for apply preselection cuts and selecting excactly 4 jets (4 or 3 btagged depenging on the antitag flag):
+void OfflineProducerHelper::fourBjetCut_PreselectionCut(std::vector<Jet> &jets)
+{
+    float minimumDeepCSVaccepted            = any_cast<float>(parameterList_->at("MinDeepCSV"          ));
+    float maximumPtAccepted                 = any_cast<float>(parameterList_->at("MinPt"               ));
+    float maximumAbsEtaCSVaccepted          = any_cast<float>(parameterList_->at("MaxAbsEta"           ));
+    bool  antiBtagOneJet                    = any_cast<bool >(parameterList_->at("UseAntiTagOnOneBjet" ));
+
+    //If I will select also an antibitag jet, I temporary do not remove jets based on their btag
+    float minimumDeepCSVacceptedForJetCleanup =  antiBtagOneJet ? -1. : minimumDeepCSVaccepted;
+
+    //remove all Jets not 
+    auto it = jets.begin();
+    while (it != jets.end()){
+        if(minimumDeepCSVacceptedForJetCleanup>=0.){
+            if(get_property((*it),Jet_btagDeepB)<minimumDeepCSVacceptedForJetCleanup){
+                it=jets.erase(it);
+                continue;
+            }
+        }
+        if(maximumPtAccepted>=0.){
+            if(it->P4().Pt()<maximumPtAccepted){
+                it=jets.erase(it);
+                continue;
+            }
+        }
+        if(maximumAbsEtaCSVaccepted>=0.){
+            if(abs(it->P4().Eta())>maximumAbsEtaCSVaccepted){
+                it=jets.erase(it);
+                continue;
+            }
+        }
+        ++it;
+    }
+
+    if(jets.size() < 4)
+    {
+        jets.erase(jets.begin(),jets.end());
+        return;
+    }
+
+    stable_sort(jets.begin(), jets.end(), [](const Jet & a, const Jet & b) -> bool
+    {
+        return ( get_property(a, Jet_btagDeepB) > get_property(b, Jet_btagDeepB) );
+    });
+
+    size_t numberOfBjetsToSelect = antiBtagOneJet ? 3 : 4;
+
+    // Not enough bjets passing the preselection:
+    if(get_property(jets[numberOfBjetsToSelect-1], Jet_btagDeepB) < minimumDeepCSVaccepted)
+    {
+        jets.erase(jets.begin(),jets.end());
+        return;
+    }
+    if(antiBtagOneJet)
+    {
+        std::vector<Jet> antibTaggedJets;
+        for(auto& theJet : jets)
+        {
+            if(get_property(theJet, Jet_btagDeepB) < minimumDeepCSVaccepted) antibTaggedJets.emplace_back(theJet);
+        }
+        //No antibtagged jet found
+        if(antibTaggedJets.size() == 0)
+        {
+            jets.erase(jets.begin(),jets.end());
+            return;
+        }
+
+        //Sort antibTaggedJets by pt and I take the highest one
+        stable_sort(antibTaggedJets.begin(), antibTaggedJets.end(), [](const Jet & a, const Jet & b) -> bool
+        {
+            return ( a.P4().Pt() >  b.P4().Pt() );
+        });
+
+        jets.erase(jets.begin()+3,jets.end());
+        jets.emplace_back(antibTaggedJets[0]);
+        return;
+    }
+    else
+    {
+        jets.erase(jets.begin()+4,jets.end());
+        return;
+    }
+
+    return;
+
+}
+
+
+
 // one pair is closest to the Higgs mass, the other follows
 std::vector<Jet> OfflineProducerHelper::bbbb_jets_idxs_OneClosestToMh(const std::vector<Jet> *presel_jets)
 {
@@ -1364,6 +1461,46 @@ std::vector<Jet> OfflineProducerHelper::bbbb_jets_idxs_HighestCSVandClosestToMh(
 
     return output_jets;
 }
+
+std::vector<Jet> OfflineProducerHelper::bbbb_jets_XYHselection(const std::vector<Jet> *jets)
+{
+    float targetHiggsMass = any_cast<float>(parameterList_->at("HiggsMass"));
+    size_t numberOfJets = jets->size();
+    assert(numberOfJets == 4);
+
+    std::pair<size_t,size_t> jetsPairClosestToHiggsMass;
+    float deltaMass = 99999.;
+    //find
+    for(unsigned int hb1it = 0; hb1it< numberOfJets-1; ++hb1it)
+    {
+        for(unsigned int hb2it = hb1it+1; hb2it< numberOfJets; ++hb2it)
+        {
+            std::pair<size_t,size_t> currentPair = std::make_pair(hb1it,hb2it);
+            float currentDeltaMass = abs(targetHiggsMass - (jets->at(hb1it).P4Regressed() + jets->at(hb2it).P4Regressed()).M() );
+            if(currentDeltaMass < deltaMass)
+            {
+                jetsPairClosestToHiggsMass = currentPair;
+                deltaMass = currentDeltaMass;
+            }
+        }
+    }
+
+    std::vector<Jet> output_jets;
+    //Push SM higgs Jets
+    output_jets.emplace_back(jets->at(jetsPairClosestToHiggsMass.first));
+    output_jets.emplace_back(jets->at(jetsPairClosestToHiggsMass.second));
+    //Push remaining jets
+    for(unsigned int bIt = 0; bIt< numberOfJets; ++bIt)
+    {
+        if(bIt == jetsPairClosestToHiggsMass.first || bIt == jetsPairClosestToHiggsMass.second) continue;
+        output_jets.emplace_back(jets->at(bIt));
+    }
+
+    return output_jets;
+
+}
+
+
 
 // Minimizes distance to the diagonal (a la ATLAS)
 std::vector<Jet> OfflineProducerHelper::bbbb_jets_idxs_BothClosestToDiagonal(const std::vector<Jet> *presel_jets)

@@ -107,7 +107,7 @@ int main(int argc, char** argv)
     
     parameterList.emplace("bbbbChoice",bbbbChoice);
     if(bbbbChoice == "OneClosestToMh"){
-        parameterList.emplace("bbbbChoice""HiggsMass",config.readFloatOpt("parameters::HiggsMass"));
+        parameterList.emplace("HiggsMass",config.readFloatOpt("parameters::HiggsMass"));
     }
     else if(bbbbChoice == "BothClosestToMh"){
         parameterList.emplace("HiggsMass",config.readFloatOpt("parameters::HiggsMass"));
@@ -129,6 +129,13 @@ int main(int argc, char** argv)
             throw std::runtime_error("UseAntiTagOnOneBjet can be done only using PreselectionCut = bJetCut");
         }
     }
+    else if(bbbbChoice == "XYH_4B_selection"){
+        parameterList.emplace("HiggsMass",config.readFloatOpt("parameters::HiggsMass"));
+        if(config.readStringOpt("parameters::PreselectionCut") != "FourBjetCut")
+        {
+            throw std::runtime_error("XYH_4B_selection can be done only using PreselectionCut = FourBjetCut");
+        }
+    }
     // else if(other selection type){
     //     parameters fo be retreived;
     // }  
@@ -139,12 +146,21 @@ int main(int argc, char** argv)
 
     const string preselectionCutStrategy = config.readStringOpt("parameters::PreselectionCut");
     parameterList.emplace("PreselectionCut",preselectionCutStrategy);
-    if(preselectionCutStrategy == "bJetCut"){
+    if(preselectionCutStrategy == "bJetCut")
+    {
         parameterList.emplace("MinDeepCSV"          ,config.readFloatOpt("parameters::MinDeepCSV"          ));
         parameterList.emplace("MinPt"               ,config.readFloatOpt("parameters::MinPt"               ));
         parameterList.emplace("MaxAbsEta"           ,config.readFloatOpt("parameters::MaxAbsEta"           ));
     }
-    else if(preselectionCutStrategy == "None"){
+    else if(preselectionCutStrategy == "None")
+    {
+    }  
+    else if(preselectionCutStrategy == "FourBjetCut")
+    {
+        parameterList.emplace("MinDeepCSV"          ,config.readFloatOpt("parameters::MinDeepCSV"          ));
+        parameterList.emplace("MinPt"               ,config.readFloatOpt("parameters::MinPt"               ));
+        parameterList.emplace("MaxAbsEta"           ,config.readFloatOpt("parameters::MaxAbsEta"           ));
+        parameterList.emplace("UseAntiTagOnOneBjet" ,config.readBoolOpt ("parameters::UseAntiTagOnOneBjet" ));
     }  
     // else if(other selection type){
     //     parameters fo be retreived;
