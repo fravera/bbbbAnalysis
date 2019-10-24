@@ -70,6 +70,7 @@ void OfflineProducerHelper::initializeObjectsForCuts(OutputTree &ot)
         ot.declareUserFloatBranch("SecondPtOrderedJetDeepCSV", -1.);
         ot.declareUserIntBranch  ("FirstPtOrderedJetOnlineBtag", 0);
 
+        ot.declareUserFloatBranch("CaloPtMinimumDeltaR", -999.);
         ot.declareUserFloatBranch("ResolutionOnlineCaloJetPt", -999.);
         ot.declareUserFloatBranch("OfflineJetPtForCaloResolution", -999.);
         ot.declareUserFloatBranch("ResolutionOnlinePFJetPt", -999.);
@@ -724,10 +725,29 @@ void OfflineProducerHelper::fillJetEnergyVariationBranch(OutputTree &ot, std::st
     return;
 }
 
+
+void OfflineProducerHelper::doAll2JetCombinations (std::vector<TLorentzVector>& jetList, std::vector<float>& valueList, float (*function)(TLorentzVector&, TLorentzVector&))
+{
+    if(jetList.size() == 1) return;
+    else
+    {
+        TLorentzVector& firstJet = jetList.at(0);
+        std::vector<TLorentzVector>&& subList = std::vector<TLorentzVector>(jetList.begin()+1,jetList.end());
+        for(auto& jet : subList)
+        {
+            valueList.emplace_back(function(firstJet,jet));
+        }
+        doAll2JetCombinations(subList,valueList,function);
+    }
+}
+
 bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, OutputTree &ot, std::vector<std::string> listOfPassedTriggers)
 {
     if (*(nat.nJet) < 4)
+    {
+        // std::cout << __PRETTY_FUNCTION__ << __LINE__ << "Njets less then 4" << std::endl;
         return false;
+    }
     std::vector<Jet> unsmearedJets;
     unsmearedJets.reserve(*(nat.nJet));
 
@@ -745,7 +765,7 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
     }
     else if(preselectionCutStrategy=="FourBjetCut")
     {
-        fourBjetCut_PreselectionCut(unsmearedJets);
+        fourBjetCut_PreselectionCut(unsmearedJets, ei);
     }
     else if(preselectionCutStrategy=="None")
     {
@@ -754,7 +774,11 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
     else throw std::runtime_error("cannot recognize cut strategy --" + preselectionCutStrategy + "--");
 
     //at least 4 jets required
-    if(unsmearedJets.size()<4) return false;
+    if(unsmearedJets.size()<4)
+    {
+        // std::cout << __PRETTY_FUNCTION__ << __LINE__ << "N preselected less then 4" << std::endl;
+        return false;
+    }
 
     // sort by deepCSV (highest to lowest)
     stable_sort(unsmearedJets.begin(), unsmearedJets.end(), [](const Jet & a, const Jet & b) -> bool
@@ -822,7 +846,27 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
             else if(strategy == "MostBackToBack")
                 ordered_jets = bbbb_jets_idxs_MostBackToBack(&presel_jets);
             else if(strategy == "XYH_4B_selection")
+            {
                 ordered_jets = bbbb_jets_XYHselection(&presel_jets);
+
+                std::vector<TLorentzVector> theJetVector;
+                TLorentzVector theTotalVector(0.,0.,0.,0.);
+
+                for(auto &jet : ordered_jets)
+                {
+                    theJetVector.emplace_back(jet.P4Regressed());
+                    theTotalVector += jet.P4Regressed();
+                }
+                ei.TotalFourJetPt = theTotalVector.Pt();
+
+                std::vector<float> deltaEtaList;
+                doAll2JetCombinations (theJetVector, deltaEtaList, 
+                [](TLorentzVector& jet1, TLorentzVector& jet2) ->float {return abs(jet1.Eta() - jet2.Eta());}
+                );
+
+                ei.MinDeltaEtaJJ = *std::min_element(deltaEtaList.begin(), deltaEtaList.end());
+
+            }
             else if(strategy == "HighestCSVandClosestToMh")
             {
                 ordered_jets = bbbb_jets_idxs_HighestCSVandClosestToMh(&jets.second);
@@ -837,6 +881,7 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
                 {
                     throw std::runtime_error("OfflineProducerHelper::select_bbbb_jets -> candidates not found -> this should never happen to use jet energy variations");
                 }
+                std::cout << __PRETTY_FUNCTION__ << __LINE__ << "N ordered jets less then 4" << std::endl;
                 return false;
             }
 
@@ -1193,7 +1238,7 @@ void OfflineProducerHelper::bJets_PreselectionCut(std::vector<Jet> &jets)
 
 
 //functions for apply preselection cuts and selecting excactly 4 jets (4 or 3 btagged depenging on the antitag flag):
-void OfflineProducerHelper::fourBjetCut_PreselectionCut(std::vector<Jet> &jets)
+void OfflineProducerHelper::fourBjetCut_PreselectionCut(std::vector<Jet> &jets, EventInfo& ei)
 {
     float minimumDeepCSVaccepted            = any_cast<float>(parameterList_->at("MinDeepCSV"          ));
     float maximumPtAccepted                 = any_cast<float>(parameterList_->at("MinPt"               ));
@@ -1202,6 +1247,12 @@ void OfflineProducerHelper::fourBjetCut_PreselectionCut(std::vector<Jet> &jets)
 
     //If I will select also an antibitag jet, I temporary do not remove jets based on their btag
     float minimumDeepCSVacceptedForJetCleanup =  antiBtagOneJet ? -1. : minimumDeepCSVaccepted;
+
+    // for(auto &jet : jets)
+    // {
+    //     std::cout << get_property(jet, Jet_btagDeepB) << " - ";
+    // }
+    // std::cout << std::endl;
 
     //remove all Jets not 
     auto it = jets.begin();
@@ -1238,7 +1289,17 @@ void OfflineProducerHelper::fourBjetCut_PreselectionCut(std::vector<Jet> &jets)
         return ( get_property(a, Jet_btagDeepB) > get_property(b, Jet_btagDeepB) );
     });
 
+    //get Number of b-tagged jets:
+    ei.NpreCutJets = jets.size();
+    
     size_t numberOfBjetsToSelect = antiBtagOneJet ? 3 : 4;
+
+    // if antiBtagOneJet flag is enable I remove events with more than 3 btagged jets
+    if(antiBtagOneJet && get_property(jets[numberOfBjetsToSelect], Jet_btagDeepB) >= minimumDeepCSVaccepted)
+    {
+        jets.erase(jets.begin(),jets.end());
+        return;
+    }
 
     // Not enough bjets passing the preselection:
     if(get_property(jets[numberOfBjetsToSelect-1], Jet_btagDeepB) < minimumDeepCSVaccepted)
@@ -1260,11 +1321,17 @@ void OfflineProducerHelper::fourBjetCut_PreselectionCut(std::vector<Jet> &jets)
             return;
         }
 
-        //Sort antibTaggedJets by pt and I take the highest one
+        //Sort antibTaggedJets by deepCSV and I take the highest one
         stable_sort(antibTaggedJets.begin(), antibTaggedJets.end(), [](const Jet & a, const Jet & b) -> bool
         {
-            return ( a.P4().Pt() >  b.P4().Pt() );
+            return ( get_property(a, Jet_btagDeepB) > get_property(b, Jet_btagDeepB) );
         });
+
+        // //Sort antibTaggedJets by pt and I take the highest one
+        // stable_sort(antibTaggedJets.begin(), antibTaggedJets.end(), [](const Jet & a, const Jet & b) -> bool
+        // {
+        //     return ( a.P4().Pt() >  b.P4().Pt() );
+        // });
 
         jets.erase(jets.begin()+3,jets.end());
         jets.emplace_back(antibTaggedJets[0]);
@@ -3049,7 +3116,9 @@ void OfflineProducerHelper::calculateTriggerMatching(const std::vector< std::uni
 
                         ++tmpCandidateNumber;
                     }
-        
+
+                    if(triggerObjectId == 1  && filterBit == 7 ) ot.userFloat("CaloPtMinimumDeltaR") = sqrt(deltaR);
+
                     if(triggerObjectId == 1 && !any_cast<bool>(parameterList_->at("MatchWithSelectedObjects"))) 
                     {
                         deltaR = 0;
@@ -3155,6 +3224,64 @@ bool OfflineProducerHelper::select_gen_HH (NanoAODTree& nat, EventInfo& ei)
     return all_ok;
 }
 
+bool OfflineProducerHelper::select_gen_YH (NanoAODTree& nat, EventInfo& ei)
+{
+    bool all_ok = true;
+    for (uint igp = 0; igp < *(nat.nGenPart); ++igp)
+    {
+        GenPart gp (igp, &nat);
+        if (abs(get_property(gp, GenPart_pdgId)) != 25 && abs(get_property(gp, GenPart_pdgId)) != 35) continue;
+        // bool isFirst = checkBit(get_property(gp, GenPart_statusFlags), 12); // 12: isFirstCopy
+        // if (!isFirst) continue;
+        if(abs(get_property(gp, GenPart_pdgId)) == 25)
+        {
+            if (gp.isFirstCopy())
+            {
+                if (!assign_to_uninit(gp, {&ei.gen_H1} )) {
+                    cout << "** [WARNING] : select_gen_HH : more than two Higgs found" << endl;
+                    all_ok = false;
+                }
+            }
+            if (gp.isLastCopy())
+            {
+                if (!assign_to_uninit(gp, {&ei.gen_H1_last} )) {
+                    cout << "** [WARNING] : select_gen_HH : more than two Higgs found (last copy)" << endl;
+                    all_ok = false;
+                }
+            }
+        }
+        else if(abs(get_property(gp, GenPart_pdgId)) == 35)
+        {
+            if (gp.isFirstCopy())
+            {
+                if (!assign_to_uninit(gp, {&ei.gen_H2} )) {
+                    cout << "** [WARNING] : select_gen_HH : more than two Higgs found" << endl;
+                    all_ok = false;
+                }
+            }
+            if (gp.isLastCopy())
+            {
+                if (!assign_to_uninit(gp, {&ei.gen_H2_last} )) {
+                    cout << "** [WARNING] : select_gen_HH : more than two Higgs found (last copy)" << endl;
+                    all_ok = false;
+                }
+            }
+        }
+        
+    }
+
+    if (!ei.gen_H1 || !ei.gen_H2){
+       cout << "** [WARNING] : select_gen_HH : didn't find two Higgs : "
+            << std::boolalpha
+            << "H1 :" << ei.gen_H1.is_initialized()
+            << "H2 :" << ei.gen_H2.is_initialized()
+            << std::noboolalpha
+            << endl;
+        all_ok = false;
+    }
+    return all_ok;
+}
+
 
 
 bool OfflineProducerHelper::select_gen_bb_bb (NanoAODTree& nat, EventInfo& ei)
@@ -3217,8 +3344,7 @@ bool OfflineProducerHelper::select_gen_bb_bb (NanoAODTree& nat, EventInfo& ei)
         dump_gen_part(nat, true);
     }
 
-/*
-// std::cout<<"culo1\n";
+
     //match generated
     std::vector<double> candidatePhi {ei.H1_b1->P4().Phi()    , ei.H1_b2->P4().Phi()    , ei.H2_b1->P4().Phi()    , ei.H2_b2->P4().Phi()    };
     std::vector<double> candidateEta {ei.H1_b1->P4().Eta()    , ei.H1_b2->P4().Eta()    , ei.H2_b1->P4().Eta()    , ei.H2_b2->P4().Eta()    };
@@ -3226,44 +3352,313 @@ bool OfflineProducerHelper::select_gen_bb_bb (NanoAODTree& nat, EventInfo& ei)
     std::vector<double> genBJetEta   {ei.gen_H1_b1->P4().Eta(), ei.gen_H1_b2->P4().Eta(), ei.gen_H2_b1->P4().Eta(), ei.gen_H2_b2->P4().Eta()};
     std::vector<bool> isCandidaterMatched(4,false);
     std::vector<int>  matchedCandidate(4,-1);
-// std::cout<<"culo2\n";
 
     for(uint8_t itGenBJet=0; itGenBJet<4; ++itGenBJet)
     {
-// std::cout<<"culo3\n";
         double deltaR = 1024;
         int    candidateMatched=-1;
         for(uint8_t itCandidate=0; itCandidate<4; ++itCandidate)
         {
-// std::cout<<"culo4\n";
             if(isCandidaterMatched[itCandidate]) continue;
             double tmpDeltaR = deltaPhi(candidatePhi[itCandidate],genBJetPhi[itGenBJet])*deltaPhi(candidatePhi[itCandidate],genBJetPhi[itGenBJet]) + (candidateEta[itCandidate]-genBJetEta[itGenBJet])*(candidateEta[itCandidate]-genBJetEta[itGenBJet]);
             if(tmpDeltaR<deltaR)
             {
-// std::cout<<"culo5\n";
                 deltaR = tmpDeltaR;
                 candidateMatched = itCandidate;
             }
         }
         if(deltaR< (0.3*0.3))
         {
-// std::cout<<"culo6\n";
             isCandidaterMatched[candidateMatched] = true;
             matchedCandidate[itGenBJet] = candidateMatched;
         }
 
     }
 
-// std::cout<<"culo7\n";
     ei.gen_H1_b1_matchedflag = matchedCandidate[0];
     ei.gen_H1_b2_matchedflag = matchedCandidate[1];
     ei.gen_H2_b1_matchedflag = matchedCandidate[2];
     ei.gen_H2_b2_matchedflag = matchedCandidate[3];
     // std::cout<<ei.gen_H1_b1_matchedflag.get()<<"  "<<ei.gen_H1_b2_matchedflag.get()<<"  "<<ei.gen_H2_b1_matchedflag.get()<<"  "<<ei.gen_H2_b2_matchedflag.get()<<std::endl;
-// std::cout<<"culo8\n";
-*/
+
 
     return all_ok;
+}
+
+
+bool OfflineProducerHelper::select_gen_bb_bb_forXYH (NanoAODTree& nat, EventInfo& ei)
+{
+    if (!ei.gen_H1 || !ei.gen_H2)
+    {
+        cout << "** [WARNING] : select_gen_bb_bb : you need to search for H1 and H2 before" << endl;
+        return false;
+    }
+
+    bool all_ok = true;
+    for (uint igp = 0; igp < *(nat.nGenPart); ++igp)
+    {
+        GenPart gp (igp, &nat);
+        if (abs(get_property(gp, GenPart_pdgId)) != 5) continue;
+        // bool isFirst = checkBit(get_property(gp, GenPart_statusFlags), 12); // 12: isFirstCopy
+        // if (!isFirst) continue;
+        if (!gp.isFirstCopy()) continue;
+
+        int idxMoth = get_property(gp, GenPart_genPartIdxMother);
+        if (idxMoth == ei.gen_H1_last->getIdx())
+        {
+            if (!assign_to_uninit(gp, {&ei.gen_H1_b1, &ei.gen_H1_b2} )) {
+                cout << "** [WARNING] : select_gen_bb_bb : more than two b from H1 found" << endl;
+                all_ok = false;
+            }
+            // if      (!ei.gen_H1_b1) ei.gen_H1_b1 = gp;
+            // else if (!ei.gen_H1_b2) ei.gen_H1_b2 = gp;
+            // else{
+            //     cout << "** [WARNING] : select_gen_bb_bb : more than two b from H1 found" << endl;
+            //     all_ok = false;
+            // }
+        }
+        else if (idxMoth == ei.gen_H2_last->getIdx())
+        {
+            if (!assign_to_uninit(gp, {&ei.gen_H2_b1, &ei.gen_H2_b2} )) {
+                cout << "** [WARNING] : select_gen_bb_bb : more than two b from H2 found" << endl;
+                all_ok = false;
+            }
+
+            // if      (!ei.gen_H2_b1) ei.gen_H2_b1 = gp;
+            // else if (!ei.gen_H2_b2) ei.gen_H2_b2 = gp;
+            // else{
+            //     cout << "** [WARNING] : select_gen_bb_bb : more than two b from H2 found" << endl;
+            //     all_ok = false;
+            // }
+        }
+        else
+        {
+            // cout << "** [WARNING] : select_gen_bb_bb : found a b quark of idx " << gp.getIdx() << " and mother " << idxMoth
+            //      << " that does not match last H1 H2 idx " << ei.gen_H1_last->getIdx() << " " << ei.gen_H2_last->getIdx()
+            //      << endl;
+            //      all_ok = false;
+            // possibly something that has b --> b + g --> b + (other stuff)
+        }
+    }
+    if (!all_ok)
+    {
+        cout << "** [DEBUG] : select_gen_bb_bb : something went wrong, dumping gen parts" << endl;
+        dump_gen_part(nat, true);
+    }
+
+
+    //match generated H1
+    std::vector<double> candidateFromH1Phi {ei.H1_b1->P4().Phi()    , ei.H1_b2->P4().Phi()    };
+    std::vector<double> candidateFromH1Eta {ei.H1_b1->P4().Eta()    , ei.H1_b2->P4().Eta()    };
+    std::vector<double> genBJetFromH1Phi   {ei.gen_H1_b1->P4().Phi(), ei.gen_H1_b2->P4().Phi()};
+    std::vector<double> genBJetFromH1Eta   {ei.gen_H1_b1->P4().Eta(), ei.gen_H1_b2->P4().Eta()};
+    std::vector<bool> isCandidateFromH1Matched(2,false);
+    std::vector<int>  matchedCandidateFromH1(2,-1);
+
+    for(uint8_t itGenBJet=0; itGenBJet<2; ++itGenBJet)
+    {
+        double deltaR = 1024;
+        int    candidateMatched=-1;
+        for(uint8_t itCandidate=0; itCandidate<2; ++itCandidate)
+        {
+            if(isCandidateFromH1Matched[itCandidate]) continue;
+            double tmpDeltaR = deltaPhi(candidateFromH1Phi[itCandidate],genBJetFromH1Phi[itGenBJet])*deltaPhi(candidateFromH1Phi[itCandidate],genBJetFromH1Phi[itGenBJet]) + (candidateFromH1Eta[itCandidate]-genBJetFromH1Eta[itGenBJet])*(candidateFromH1Eta[itCandidate]-genBJetFromH1Eta[itGenBJet]);
+            if(tmpDeltaR<deltaR)
+            {
+                deltaR = tmpDeltaR;
+                candidateMatched = itCandidate;
+            }
+        }
+        if(deltaR< (0.15*0.15))
+        {
+            isCandidateFromH1Matched[candidateMatched] = true;
+            matchedCandidateFromH1[itGenBJet] = candidateMatched;
+        }
+
+    }
+
+    ei.gen_H1_b1_matchedflag = matchedCandidateFromH1[0];
+    ei.gen_H1_b2_matchedflag = matchedCandidateFromH1[1];
+    if(matchedCandidateFromH1[0] == matchedCandidateFromH1[1] && matchedCandidateFromH1[0]!=-1) std::cout<< "Something went really bad\n";
+    
+    
+    //match generated H2
+    std::vector<double> candidateFromH2Phi {ei.H2_b1->P4().Phi()    , ei.H2_b2->P4().Phi()    };
+    std::vector<double> candidateFromH2Eta {ei.H2_b1->P4().Eta()    , ei.H2_b2->P4().Eta()    };
+    std::vector<double> genBJetFromH2Phi   {ei.gen_H2_b1->P4().Phi(), ei.gen_H2_b2->P4().Phi()};
+    std::vector<double> genBJetFromH2Eta   {ei.gen_H2_b1->P4().Eta(), ei.gen_H2_b2->P4().Eta()};
+    std::vector<bool> isCandidateFromH2Matched(2,false);
+    std::vector<int>  matchedCandidateFromH2(2,-1);
+
+    for(uint8_t itGenBJet=0; itGenBJet<2; ++itGenBJet)
+    {
+        double deltaR = 1024;
+        int    candidateMatched=-1;
+        for(uint8_t itCandidate=0; itCandidate<2; ++itCandidate)
+        {
+            if(isCandidateFromH2Matched[itCandidate]) continue;
+            double tmpDeltaR = deltaPhi(candidateFromH2Phi[itCandidate],genBJetFromH2Phi[itGenBJet])*deltaPhi(candidateFromH2Phi[itCandidate],genBJetFromH2Phi[itGenBJet]) + (candidateFromH2Eta[itCandidate]-genBJetFromH2Eta[itGenBJet])*(candidateFromH2Eta[itCandidate]-genBJetFromH2Eta[itGenBJet]);
+            if(tmpDeltaR<deltaR)
+            {
+                deltaR = tmpDeltaR;
+                candidateMatched = itCandidate;
+            }
+        }
+        if(deltaR< (0.15*0.15))
+        {
+            isCandidateFromH2Matched[candidateMatched] = true;
+            matchedCandidateFromH2[itGenBJet] = candidateMatched;
+        }
+
+    }
+
+    ei.gen_H2_b1_matchedflag = matchedCandidateFromH2[0];
+    ei.gen_H2_b2_matchedflag = matchedCandidateFromH2[1];
+    if(matchedCandidateFromH2[0] == matchedCandidateFromH2[1] && matchedCandidateFromH2[0]!=-1) std::cout<< "Something went really bad\n";
+    
+    
+
+    return all_ok;
+}
+
+
+bool OfflineProducerHelper::checkReco_gen_bbbb (NanoAODTree& nat, EventInfo& ei)
+{
+    // if (*(nat.nJet) < 4)
+    // {
+    //     // std::cout << __PRETTY_FUNCTION__ << __LINE__ << "Njets less then 4" << std::endl;
+    //     return false;
+    // }
+    std::vector<Jet> unsmearedJets;
+    // unsmearedJets.reserve(*(nat.nJet));
+
+    for (uint ij = 0; ij < *(nat.nJet); ++ij){
+        Jet theJet(ij, &nat);
+        if(theJet.P4().Pt()<30) continue;
+        if(abs(theJet.P4().Eta())>2.4) continue;
+        // if(get_property(theJet, Jet_btagDeepB) < 0.6324) continue;
+        unsmearedJets.emplace_back(theJet);
+    }
+
+    // fourBjetCut_PreselectionCut(unsmearedJets, ei);
+    // if(unsmearedJets.size()==0) return false;
+
+    // stable_sort(unsmearedJets.begin(), unsmearedJets.end(), [](const Jet & a, const Jet & b) -> bool
+    // {
+    //     return ( get_property(a, Jet_btagDeepB) > get_property(b, Jet_btagDeepB) );
+    // });
+
+
+    std::vector<GenPart> theGeneratedBjetsFromX;
+    std::vector<GenPart> theGeneratedBjetsFromH;
+
+    for (uint igp = 0; igp < *(nat.nGenPart); ++igp)
+    {
+        GenPart gp (igp, &nat);
+        if (abs(get_property(gp, GenPart_pdgId)) != 5) continue;
+        // bool isFirst = checkBit(get_property(gp, GenPart_statusFlags), 12); // 12: isFirstCopy
+        // if (!isFirst) continue;
+        if (!gp.isFirstCopy()) continue;
+
+        int idxMoth = get_property(gp, GenPart_genPartIdxMother);
+        if ( idxMoth<0 ) continue; //no mother
+        GenPart mother(idxMoth, &nat);
+        if ( abs(get_property(mother, GenPart_pdgId)) != 25 && abs(get_property(mother, GenPart_pdgId)) != 35 ) continue; //no correct mother
+        if ( abs(get_property(mother, GenPart_pdgId)) == 35) theGeneratedBjetsFromX.emplace_back(gp);
+        if ( abs(get_property(mother, GenPart_pdgId)) == 25) theGeneratedBjetsFromH.emplace_back(gp);
+    }
+    if (theGeneratedBjetsFromX.size() != 2 || theGeneratedBjetsFromH.size() != 2)
+    {
+        cout << "** [DEBUG] : select_gen_bb_bb : something went wrong, number of bjets found = " << theGeneratedBjetsFromX.size() + theGeneratedBjetsFromH.size() << endl;
+        // dump_gen_part(nat, true);
+    }
+
+    std::stable_sort(theGeneratedBjetsFromX.begin(), theGeneratedBjetsFromX.end(), 
+        [](const GenPart &firstGen, const GenPart &secondGen) -> bool { return firstGen.P4().Pt() > secondGen.P4().Pt(); }
+        );
+
+    std::stable_sort(theGeneratedBjetsFromH.begin(), theGeneratedBjetsFromH.end(), 
+        [](const GenPart &firstGen, const GenPart &secondGen) -> bool { return firstGen.P4().Pt() > secondGen.P4().Pt(); }
+        );
+
+    std::vector<GenPart> theGeneratedBjets;
+
+    theGeneratedBjets.insert( theGeneratedBjets.end(), theGeneratedBjetsFromX.begin(), theGeneratedBjetsFromX.end() );
+    theGeneratedBjets.insert( theGeneratedBjets.end(), theGeneratedBjetsFromH.begin(), theGeneratedBjetsFromH.end() );
+
+    ei.X_b_1 = theGeneratedBjets[0] ; 
+    ei.X_b_2 = theGeneratedBjets[1] ; 
+    ei.H_b_1 = theGeneratedBjets[2] ; 
+    ei.H_b_2 = theGeneratedBjets[3] ; 
+
+    // std::cout << "Generated" << std::endl;
+    // for(const auto& genParticle : theGeneratedBjets)
+    // {
+    //     std::cout<<genParticle.P4().Eta()<<"\t\t"<< genParticle.P4().Phi()<< std::endl;
+    // }
+
+    // std::cout << "Reconstructed" << std::endl;
+    // for(const auto& theJet : unsmearedJets)
+    // {
+    //     std::cout<<theJet.P4().Eta()<<"\t\t"<< theJet.P4().Phi()<< std::endl;
+    // }
+
+    //match generated
+    std::vector<std::pair<int,float>> candidateMatchedList;
+    
+    for(const auto& genParticle : theGeneratedBjets)
+    {
+        double deltaR = 1024;
+        int    candidateMatched=-1;
+        // std::cout<<"GenParticle index = " << candidateMatchedList.size() << std::endl;
+        candidateMatchedList.emplace_back(std::make_pair(candidateMatched,deltaR));
+        for(size_t index = 0; index < unsmearedJets.size(); ++index)
+        {
+            // std::cout<<"RecoParticle index = " << index << std::endl;
+            if( std::any_of(candidateMatchedList.begin(),candidateMatchedList.end(), [index](const std::pair<int,float>& theJet){return theJet.first == int(index);} ) ) continue;
+            double tmpDeltaR = deltaPhi(unsmearedJets[index].P4().Phi(),genParticle.P4().Phi())*deltaPhi(unsmearedJets[index].P4().Phi(),genParticle.P4().Phi()) + (unsmearedJets[index].P4().Eta()-genParticle.P4().Eta())*(unsmearedJets[index].P4().Eta()-genParticle.P4().Eta());
+            if(tmpDeltaR<deltaR)
+            {
+                deltaR = tmpDeltaR;
+                candidateMatched = index;
+            }
+            // std::cout<<"Measured deltaR = " << tmpDeltaR << std::endl;
+            // std::cout<<"Current best deltaR = " << deltaR << std::endl;
+            // std::cout<<"Current best candidate = " << candidateMatched << std::endl;
+        }
+        if(deltaR< (0.15*0.15))
+        {
+            candidateMatchedList.back() = std::make_pair(candidateMatched,deltaR);
+        }
+    }
+
+    if(candidateMatchedList[0].first>=0)
+    {
+        ei.RecoMatched_X_b_1 = unsmearedJets[candidateMatchedList[0].first] ;
+        ei.RecoMatched_X_b_1_deltaR = sqrt(candidateMatchedList[0].second);
+        // std::cout<<candidateMatchedList[0].first << "\t\t" <<*ei.RecoMatched_X_b_1_deltaR<<std::endl;
+    }
+    if(candidateMatchedList[1].first>=0)
+    {
+        ei.RecoMatched_X_b_2 = unsmearedJets[candidateMatchedList[1].first] ;
+        ei.RecoMatched_X_b_2_deltaR = sqrt(candidateMatchedList[1].second);
+        // std::cout<<candidateMatchedList[1].first << "\t\t" <<*ei.RecoMatched_X_b_2_deltaR<<std::endl;
+    }
+    if(candidateMatchedList[2].first>=0)
+    {
+        ei.RecoMatched_H_b_1 = unsmearedJets[candidateMatchedList[2].first] ;
+        ei.RecoMatched_H_b_1_deltaR = sqrt(candidateMatchedList[2].second);
+        // std::cout<<candidateMatchedList[2].first << "\t\t" <<*ei.RecoMatched_H_b_1_deltaR<<std::endl;
+    }
+    if(candidateMatchedList[3].first>=0)
+    {
+        ei.RecoMatched_H_b_2 = unsmearedJets[candidateMatchedList[3].first] ;
+        ei.RecoMatched_H_b_2_deltaR = sqrt(candidateMatchedList[3].second);
+        // std::cout<<candidateMatchedList[3].first << "\t\t" <<*ei.RecoMatched_H_b_2_deltaR<<std::endl;
+    }
+
+
+    return true;
 }
 
 bool OfflineProducerHelper::select_gen_VBF_partons (NanoAODTree& nat, EventInfo& ei)

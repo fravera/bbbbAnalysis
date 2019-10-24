@@ -444,9 +444,12 @@ int main(int argc, char** argv)
 // std::cout<<"pirla6\n";
 
         if (is_signal){
-            oph.select_gen_HH(nat, ei);
-            if (!oph.select_gen_bb_bb(nat, ei))
+            oph.select_gen_YH(nat, ei);
+            if (!oph.select_gen_bb_bb_forXYH(nat, ei))
+            {
+                std::cout << __PRETTY_FUNCTION__ << __LINE__ << "no gen matching found!!!" << std::endl;
                 continue; 
+            }
         }
 
         if (is_VBF_sig){

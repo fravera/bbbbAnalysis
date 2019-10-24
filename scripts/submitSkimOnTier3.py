@@ -81,6 +81,7 @@ args, unknown = parser.parse_known_args()
 # executable = 'bin/skim_ntuple_nonresonant.exe' ##If resonant analysis 'bin/skim_ntuple.exe'
 # if "2016ResonantDiHiggs4BDataSets" in args.input : # dangerous for future
 executable = 'bin/skim_ntuple.exe'
+# executable = 'bin/resonant_NMSSM_XYH_bbb_studies.exe'
 ##################
 
 username = getpass.getuser()

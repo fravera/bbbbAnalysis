@@ -304,6 +304,22 @@ class OutputTree {
         float ExtraVBFJetEta;  
         DECLARE_m_pt_eta_phi_p4(H1rand);
         DECLARE_m_pt_eta_phi_p4(H2rand);
+        DECLARE_m_pt_eta_phi_p4(X_b_1)
+        DECLARE_m_pt_eta_phi_p4(X_b_2)
+        DECLARE_m_pt_eta_phi_p4(H_b_1)
+        DECLARE_m_pt_eta_phi_p4(H_b_2)
+        DECLARE_m_pt_eta_phi_p4(RecoMatched_X_b_1)
+        float RecoMatched_X_b_1_deepCSV;
+        float RecoMatched_X_b_1_deltaR;
+        DECLARE_m_pt_eta_phi_p4(RecoMatched_X_b_2)
+        float RecoMatched_X_b_2_deepCSV;
+        float RecoMatched_X_b_2_deltaR;
+        DECLARE_m_pt_eta_phi_p4(RecoMatched_H_b_1)
+        float RecoMatched_H_b_1_deepCSV;
+        float RecoMatched_H_b_1_deltaR;
+        DECLARE_m_pt_eta_phi_p4(RecoMatched_H_b_2)
+        float RecoMatched_H_b_2_deepCSV;
+        float RecoMatched_H_b_2_deltaR;
         float costh_H1_cm   ;
         float costh_H2_cm   ;
         float costh_HH_cm   ;
@@ -320,6 +336,9 @@ class OutputTree {
         float H2_bb_deltaPhi;
         float H1_bb_deltaEta;
         float H2_bb_deltaEta;
+        int   NpreCutJets;
+        float TotalFourJetPt;
+        float MinDeltaEtaJJ;
         float b1b2_deltaR; 
         float b1b3_deltaR; 
         float b1b4_deltaR; 

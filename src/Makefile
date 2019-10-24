@@ -36,9 +36,9 @@ ROOTGLIBS     = $(shell root-config --glibs)
 
 ARCHL = -m64
 CXX  =  g++
-CXXFLAGS  = $(ROOTCFLAGS) -Wall -O -fPIC -I$(HDR)
+CXXFLAGS  = $(ROOTCFLAGS) -Wall -g -O -fPIC -I$(HDR)
 CPP  =  g++
-CPPFLAGS  = $(ROOTCFLAGS) -Wall  $(ARCHL) -I$(HDR)
+CPPFLAGS  = $(ROOTCFLAGS) -Wall -g  $(ARCHL) -I$(HDR)
 
 F    = gfortran
 FFLAGS = -c

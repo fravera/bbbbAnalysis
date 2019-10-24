@@ -293,28 +293,47 @@ void OutputTree::init_branches(bool initAllBranches)
     // tree_->Branch("HHJJ_quality", &HHJJ_quality);
     // BRANCH_m_pt_eta_phi_p4(H1rand)
     // BRANCH_m_pt_eta_phi_p4(H2rand)
+    BRANCH_m_pt_eta_phi_p4(X_b_1)
+    BRANCH_m_pt_eta_phi_p4(X_b_2)
+    BRANCH_m_pt_eta_phi_p4(H_b_1)
+    BRANCH_m_pt_eta_phi_p4(H_b_2)
+    BRANCH_m_pt_eta_phi_p4(RecoMatched_X_b_1)
+    tree_->Branch("RecoMatched_X_b_1_deepCSV", &RecoMatched_X_b_1_deepCSV);
+    tree_->Branch("RecoMatched_X_b_1_deltaR", &RecoMatched_X_b_1_deltaR);
+    BRANCH_m_pt_eta_phi_p4(RecoMatched_X_b_2)
+    tree_->Branch("RecoMatched_X_b_2_deepCSV", &RecoMatched_X_b_2_deepCSV);
+    tree_->Branch("RecoMatched_X_b_2_deltaR", &RecoMatched_X_b_2_deltaR);
+    BRANCH_m_pt_eta_phi_p4(RecoMatched_H_b_1)
+    tree_->Branch("RecoMatched_H_b_1_deepCSV", &RecoMatched_H_b_1_deepCSV);
+    tree_->Branch("RecoMatched_H_b_1_deltaR", &RecoMatched_H_b_1_deltaR);
+    BRANCH_m_pt_eta_phi_p4(RecoMatched_H_b_2)
+    tree_->Branch("RecoMatched_H_b_2_deepCSV", &RecoMatched_H_b_2_deepCSV);
+    tree_->Branch("RecoMatched_H_b_2_deltaR", &RecoMatched_H_b_2_deltaR);
     tree_->Branch("H1_bb_deltaR", &H1_bb_deltaR);
     tree_->Branch("H2_bb_deltaR", &H2_bb_deltaR);    
     tree_->Branch("H1_bb_deltaPhi", &H1_bb_deltaPhi);
     tree_->Branch("H2_bb_deltaPhi", &H2_bb_deltaPhi);  
     tree_->Branch("H1_bb_deltaEta", &H1_bb_deltaEta);
     tree_->Branch("H2_bb_deltaEta", &H2_bb_deltaEta);  
+    tree_->Branch("NpreCutJets", &NpreCutJets);  
+    tree_->Branch("TotalFourJetPt", &TotalFourJetPt);  
+    tree_->Branch("MinDeltaEtaJJ", &MinDeltaEtaJJ);  
     // //generator level information
     // tree_->Branch("gen_mJJ", &gen_mJJ);
     // tree_->Branch("gen_deltaEtaJJ", &gen_deltaEtaJJ);
     // tree_->Branch("gen_mHH", &gen_mHH);
-    // BRANCH_m_pt_eta_phi_p4(gen_H1)
-    // BRANCH_m_pt_eta_phi_p4(gen_H2)
-    // BRANCH_m_pt_eta_phi_p4(gen_H1_last)
-    // BRANCH_m_pt_eta_phi_p4(gen_H2_last)
-    // BRANCH_m_pt_eta_phi_p4(gen_H1_b1)
-    // tree_->Branch("gen_H1_b1_matchedflag", &gen_H1_b1_matchedflag);
-    // BRANCH_m_pt_eta_phi_p4(gen_H1_b2)
-    // tree_->Branch("gen_H1_b2_matchedflag", &gen_H1_b2_matchedflag);
-    // BRANCH_m_pt_eta_phi_p4(gen_H2_b1)
-    // tree_->Branch("gen_H2_b1_matchedflag", &gen_H2_b1_matchedflag);
-    // BRANCH_m_pt_eta_phi_p4(gen_H2_b2)
-    // tree_->Branch("gen_H2_b2_matchedflag", &gen_H2_b2_matchedflag);
+    BRANCH_m_pt_eta_phi_p4(gen_H1)
+    BRANCH_m_pt_eta_phi_p4(gen_H2)
+    BRANCH_m_pt_eta_phi_p4(gen_H1_last)
+    BRANCH_m_pt_eta_phi_p4(gen_H2_last)
+    BRANCH_m_pt_eta_phi_p4(gen_H1_b1)
+    tree_->Branch("gen_H1_b1_matchedflag", &gen_H1_b1_matchedflag);
+    BRANCH_m_pt_eta_phi_p4(gen_H1_b2)
+    tree_->Branch("gen_H1_b2_matchedflag", &gen_H1_b2_matchedflag);
+    BRANCH_m_pt_eta_phi_p4(gen_H2_b1)
+    tree_->Branch("gen_H2_b1_matchedflag", &gen_H2_b1_matchedflag);
+    BRANCH_m_pt_eta_phi_p4(gen_H2_b2)
+    tree_->Branch("gen_H2_b2_matchedflag", &gen_H2_b2_matchedflag);
     // BRANCH_m_pt_eta_phi_p4(gen_q1_in)
     // BRANCH_m_pt_eta_phi_p4(gen_q2_in)
     // BRANCH_m_pt_eta_phi_p4(gen_q1_out)
@@ -531,10 +550,29 @@ void OutputTree::clear()
     HHJJ_quality  = -1;
     CLEAR_m_pt_eta_phi_p4(H1rand)
     CLEAR_m_pt_eta_phi_p4(H2rand)
+    CLEAR_m_pt_eta_phi_p4(X_b_1)
+    CLEAR_m_pt_eta_phi_p4(X_b_2)
+    CLEAR_m_pt_eta_phi_p4(H_b_1)
+    CLEAR_m_pt_eta_phi_p4(H_b_2)
+    CLEAR_m_pt_eta_phi_p4(RecoMatched_X_b_1)
+    RecoMatched_X_b_1_deepCSV = -1.;
+    RecoMatched_X_b_1_deltaR = -1.;
+    CLEAR_m_pt_eta_phi_p4(RecoMatched_X_b_2)
+    RecoMatched_X_b_2_deepCSV = -1.;
+    RecoMatched_X_b_2_deltaR = -1.;
+    CLEAR_m_pt_eta_phi_p4(RecoMatched_H_b_1)
+    RecoMatched_H_b_1_deepCSV = -1.;
+    RecoMatched_H_b_1_deltaR = -1.;
+    CLEAR_m_pt_eta_phi_p4(RecoMatched_H_b_2)
+    RecoMatched_H_b_2_deepCSV = -1.;
+    RecoMatched_H_b_2_deltaR = -1.;
     H1_bb_deltaR = 0.;
     H2_bb_deltaR = 0.;
     H1_bb_deltaEta = 0.;
     H2_bb_deltaEta = 0.;
+    NpreCutJets = 0;
+    TotalFourJetPt = -1.;
+    MinDeltaEtaJJ = -1.;
     H1_bb_deltaPhi = 0.;
     H2_bb_deltaPhi = 0.;
     b1b2_deltaR = 0.; 

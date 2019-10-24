@@ -24,7 +24,7 @@ done
 
 if [ "$pathunset" = true ] ; then
     export THISDIR=`pwd`
-
+    
     ## note : the CPP_BOOST_PATH is also fed to the makefile to use the boost libraries under $(CPP_BOOST_PATH)/lib
     ## comment it to use system default libraries in compilation and linking 
     if [ -d /cvmfs/sft.cern.ch/lcg/views/LCG_89/x86_64-slc6-gcc62-opt ]; then

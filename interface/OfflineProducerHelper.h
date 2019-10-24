@@ -256,8 +256,9 @@ class OfflineProducerHelper{
         BTagCalibrationReader *btagCalibrationReader_cJets_;
         BTagCalibrationReader *btagCalibrationReader_bJets_;
         //functions fo apply preselection cuts:
+        void doAll2JetCombinations (std::vector<TLorentzVector>& jetList, std::vector<float>& valueList, float (*function)(TLorentzVector&, TLorentzVector&));
         void bJets_PreselectionCut(std::vector<Jet> &jets);
-        void fourBjetCut_PreselectionCut(std::vector<Jet> &jets);
+        void fourBjetCut_PreselectionCut(std::vector<Jet> &jets, EventInfo& ei);
         std::vector<Jet> bjJets_PreselectionCut(NanoAODTree& nat, EventInfo& ei, OutputTree &ot, std::vector<Jet> jets);
         std::vector<Jet> bjJets_2016_PreselectionCut(NanoAODTree& nat, EventInfo& ei, OutputTree &ot, std::vector<Jet> jets);
         std::vector<int> QuarkToJetMatcher(const std::vector<GenPart> quarks,const std::vector<Jet> jets);
@@ -330,9 +331,12 @@ class OfflineProducerHelper{
             bool get_smallest = true);
 
 
-        bool select_gen_HH    (NanoAODTree& nat, EventInfo& ei);
-        bool select_gen_bb_bb (NanoAODTree& nat, EventInfo& ei);
-        bool select_gen_VBF_partons (NanoAODTree& nat, EventInfo& ei);
+        bool select_gen_HH           (NanoAODTree& nat, EventInfo& ei);
+        bool select_gen_YH           (NanoAODTree& nat, EventInfo& ei);
+        bool select_gen_bb_bb        (NanoAODTree& nat, EventInfo& ei);
+        bool select_gen_bb_bb_forXYH (NanoAODTree& nat, EventInfo& ei);
+        bool checkReco_gen_bbbb      (NanoAODTree& nat, EventInfo& ei);
+        bool select_gen_VBF_partons  (NanoAODTree& nat, EventInfo& ei);
 
         // other utilities
         void dump_gen_part (NanoAODTree& nat, bool printFlags = true);

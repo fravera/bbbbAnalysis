@@ -341,12 +341,31 @@ void SkimUtils::fill_output_tree(OutputTree& ot, NanoAODTree& nat, EventInfo& ei
     if(ei.costh_JJ_j2_cm) ot.costh_JJ_j2_cm= *ei.costh_JJ_j2_cm;
     COPY_OPTIONAL_m_pt_eta_phi_p4(H1rand)
     COPY_OPTIONAL_m_pt_eta_phi_p4(H2rand)
+    COPY_OPTIONAL_m_pt_eta_phi_p4(X_b_1)
+    COPY_OPTIONAL_m_pt_eta_phi_p4(X_b_2)
+    COPY_OPTIONAL_m_pt_eta_phi_p4(H_b_1)
+    COPY_OPTIONAL_m_pt_eta_phi_p4(H_b_2)
+    COPY_OPTIONAL_m_pt_eta_phi_p4(RecoMatched_X_b_1)
+    if (ei.RecoMatched_X_b_1) ot.RecoMatched_X_b_1_deepCSV = get_property(ei.RecoMatched_X_b_1.get(),Jet_btagDeepB);
+    if (ei.RecoMatched_X_b_1_deltaR) ot.RecoMatched_X_b_1_deltaR = *ei.RecoMatched_X_b_1_deltaR; 
+    COPY_OPTIONAL_m_pt_eta_phi_p4(RecoMatched_X_b_2)
+    if (ei.RecoMatched_X_b_2) ot.RecoMatched_X_b_2_deepCSV = get_property(ei.RecoMatched_X_b_2.get(),Jet_btagDeepB);
+    if (ei.RecoMatched_X_b_2_deltaR) ot.RecoMatched_X_b_2_deltaR = *ei.RecoMatched_X_b_2_deltaR; 
+    COPY_OPTIONAL_m_pt_eta_phi_p4(RecoMatched_H_b_1)
+    if (ei.RecoMatched_H_b_1) ot.RecoMatched_H_b_1_deepCSV = get_property(ei.RecoMatched_H_b_1.get(),Jet_btagDeepB);
+    if (ei.RecoMatched_H_b_1_deltaR) ot.RecoMatched_H_b_1_deltaR = *ei.RecoMatched_H_b_1_deltaR; 
+    COPY_OPTIONAL_m_pt_eta_phi_p4(RecoMatched_H_b_2)
+    if (ei.RecoMatched_H_b_2) ot.RecoMatched_H_b_2_deepCSV = get_property(ei.RecoMatched_H_b_2.get(),Jet_btagDeepB);
+    if (ei.RecoMatched_H_b_2_deltaR) ot.RecoMatched_H_b_2_deltaR = *ei.RecoMatched_H_b_2_deltaR; 
     if(ei.H1_bb_deltaR) ot.H1_bb_deltaR= *ei.H1_bb_deltaR;
     if(ei.H2_bb_deltaR) ot.H2_bb_deltaR= *ei.H2_bb_deltaR;
     if(ei.H1_bb_deltaPhi) ot.H1_bb_deltaPhi= *ei.H1_bb_deltaPhi;
     if(ei.H2_bb_deltaPhi) ot.H2_bb_deltaPhi= *ei.H2_bb_deltaPhi;
     if(ei.H1_bb_deltaEta) ot.H1_bb_deltaEta= *ei.H1_bb_deltaEta;
     if(ei.H2_bb_deltaEta) ot.H2_bb_deltaEta= *ei.H2_bb_deltaEta;
+    if(ei.NpreCutJets) ot.NpreCutJets= *ei.NpreCutJets;
+    if(ei.TotalFourJetPt) ot.TotalFourJetPt= *ei.TotalFourJetPt;
+    if(ei.MinDeltaEtaJJ) ot.MinDeltaEtaJJ= *ei.MinDeltaEtaJJ;
 
     // gen info are not stored for all samples --> set only if initialized (macro checks if object is initialized, else does not set)
     COPY_OPTIONAL_m_pt_eta_phi_p4(gen_H1)
