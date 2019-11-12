@@ -1,3 +1,1 @@
-root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/2016AnalysisSample_03Feb2017_v21//SKIM_MCSignal_GluGluToBulkGravitonToHHTo4B_M-260_narrow_13TeV-madgraph/output/bbbbNtuple_0.root
-root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/2016AnalysisSample_03Feb2017_v21//SKIM_MCSignal_GluGluToBulkGravitonToHHTo4B_M-260_narrow_13TeV-madgraph/output/bbbbNtuple_1.root
-root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/2016AnalysisSample_03Feb2017_v21//SKIM_MCSignal_GluGluToBulkGravitonToHHTo4B_M-260_narrow_13TeV-madgraph/output/bbbbNtuple_2.root
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/2016SampleWithNewAnalysis_v6//SKIM_MCSignal_GluGluToBulkGravitonToHHTo4B_M-260_narrow_13TeV-madgraph/output/bbbbNtuple_0.root

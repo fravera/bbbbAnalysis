@@ -1,1 +1,1 @@
-root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/2016AnalysisSample_03Feb2017_v21//SKIM_MCSignal_BulkGravTohhTohbbhbb_narrow_M-1200_13TeV-madgraph/output/bbbbNtuple_0.root
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/2016SampleWithNewAnalysis_v6//SKIM_MCSignal_BulkGravTohhTohbbhbb_narrow_M-1200_13TeV-madgraph/output/bbbbNtuple_0.root

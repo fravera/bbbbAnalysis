@@ -28,6 +28,7 @@ namespace su = SkimUtils;
 #include "jsonLumiFilter.h"
 
 #include "TFile.h"
+#include "TSystem.h"
 
 using namespace std;
 
@@ -35,6 +36,8 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
+    gSystem->ResetSignal(kSigSegmentationViolation, kTRUE);
+    
     cout << "[INFO] ... starting program" << endl;
 
     ////////////////////////////////////////////////////////////////////////
@@ -182,6 +185,7 @@ int main(int argc, char** argv)
     else if(objectsForCut == "TriggerObjects"){
 
         parameterList.emplace("MaxDeltaR"           ,config.readFloatOpt("parameters::MaxDeltaR"           ));
+
         std::map<std::pair<int,int>, std::string > triggerObjectsForStudies;   
 
         std::vector<std::string> triggerObjectMatchingVector = config.readStringListOpt("parameters::ListOfTriggerObjectsAndBit");
@@ -309,8 +313,8 @@ int main(int argc, char** argv)
     cout << "[INFO] ... creating tree reader" << endl;
 
     // The TChain is passed to the NanoAODTree_SetBranchImpl to parse all the brances
-    NanoAODTree nat (&ch);
-    // NanoAODTree nat (&ch, (!is_data && config.readBoolOpt("parameters::is2016Sample")));
+    // NanoAODTree nat (&ch);
+    NanoAODTree nat (&ch, (!is_data && config.readBoolOpt("parameters::is2016Sample")));
 
     cout << "[INFO] ... loading the following triggers" << endl;
 
@@ -413,6 +417,8 @@ int main(int argc, char** argv)
     if (maxEvts >= 0)
         cout << "[INFO] ... running on : " << maxEvts << " events" << endl;
 
+    ot.declareUserFloatBranch("XS",-1);
+
     for (int iEv = 0; true; ++iEv)
     {
         if (maxEvts >= 0 && iEv >= maxEvts)
@@ -431,7 +437,7 @@ int main(int argc, char** argv)
         
         double weight = 1.;
         if(!is_data) weight = oph.calculateEventWeight(nat, ei, ot, ec);
-// std::cout<<"pirla1\n";
+
         ec.updateProcessed(weight);
 
         std::vector<std::string> listOfPassedTriggers = nat.getTrgPassed();
@@ -441,9 +447,9 @@ int main(int argc, char** argv)
         ec.updateTriggered(weight);
 
         if (!oph.select_bbbb_jets(nat, ei, ot, listOfPassedTriggers)) continue;
-// std::cout<<"pirla6\n";
+        if(!is_data){ot.userFloat("XS")=xs;}
 
-        if (is_signal){
+        if (is_signal && !config.readBoolOpt("parameters::is2016Sample")){
             oph.select_gen_YH(nat, ei);
             if (!oph.select_gen_bb_bb_forXYH(nat, ei))
             {

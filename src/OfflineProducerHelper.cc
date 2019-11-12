@@ -4,6 +4,7 @@
 #include <cmath>
 #include <stdlib.h>
 #include <any>
+#include <numeric>
 
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "CompositeCandidate.h"
@@ -43,6 +44,8 @@ void OfflineProducerHelper::initializeObjectsForCuts(OutputTree &ot)
 
     else if(objectsForCut == "TriggerObjects"){
         save_objects_for_cut = [=] (NanoAODTree& nat, OutputTree &ot, EventInfo& ei) -> void {this -> save_TriggerObjects(nat, ot, ei);};
+        std::vector<std::string> listOfVariables = {"DeltaR","DeltaPt","nMatched","candId","etaTriggerObj","phiTriggerObj","ptTriggerObj"};
+        
         for(const auto & triggerObject : any_cast< std::map< std::pair<int,int>, std::string > >(parameterList_->at("TriggerObjectsForStudies")))
         {
             if(mapTriggerObjectIdAndFilter_.find(triggerObject.first.first) == mapTriggerObjectIdAndFilter_.end())
@@ -53,6 +56,15 @@ void OfflineProducerHelper::initializeObjectsForCuts(OutputTree &ot)
             if(std::find(mapTriggerObjectIdAndFilter_[triggerObject.first.first].begin(),mapTriggerObjectIdAndFilter_[triggerObject.first.first].end(),triggerObject.first.second) == mapTriggerObjectIdAndFilter_[triggerObject.first.first].end())
                 mapTriggerObjectIdAndFilter_[triggerObject.first.first].emplace_back(triggerObject.first.second);
             ot.declareUserIntBranch(triggerObject.second, 0);
+
+            for(uint cId = 0; cId<4; ++cId)
+            {
+                for(auto &var : listOfVariables)
+                {
+                    ot.declareUserFloatBranch("Candididate" + to_string(cId) + "_" + triggerObject.second + "_" + var , -999);
+                }
+            }
+
         }
 
         ot.declareUserFloatBranch("FirstJetPt", -1.);
@@ -71,6 +83,8 @@ void OfflineProducerHelper::initializeObjectsForCuts(OutputTree &ot)
         ot.declareUserIntBranch  ("FirstPtOrderedJetOnlineBtag", 0);
 
         ot.declareUserFloatBranch("CaloPtMinimumDeltaR", -999.);
+        ot.declareUserFloatBranch("PFPtMinimumDeltaR", -999.);
+        ot.declareUserIntBranch  ("CaloJetMatchingResult", -1); // 0 -> no 4 matching, 1 ->ok, 2 -> multiple match, 3 -> 4 matches but double count
         ot.declareUserFloatBranch("ResolutionOnlineCaloJetPt", -999.);
         ot.declareUserFloatBranch("OfflineJetPtForCaloResolution", -999.);
         ot.declareUserFloatBranch("ResolutionOnlinePFJetPt", -999.);
@@ -1006,7 +1020,8 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
 
             }
 
-            calculateTriggerMatching(candidatesForTriggerMatching,nat,ot);
+            if(any_cast<string>(parameterList_->at("ObjectsForCut")) == "TriggerObjects" 
+                || any_cast<bool>(parameterList_->at("MatchWithSelectedObjects")) ) calculateTriggerMatching(candidatesForTriggerMatching,nat,ot);
 
         
             for(auto & triggerFired : listOfPassedTriggers)
@@ -3054,6 +3069,9 @@ void OfflineProducerHelper::calculateTriggerMatching(const std::vector< std::uni
 {
     if(debug) std::cout<<"Matching triggers, Objects found:\n";
     if(debug) std::cout<<"\t\tPt\t\tEta\t\tPhi\t\tObjId\t\tBit\t\tMatchedJetId\n";
+    std::vector<float> vCaloPtMinimumDeltaR;
+    std::vector<float> vPFPtMinimumDeltaR;
+    std::vector<uint> vectorOfCaloJetMatching(4,0);
 
     mapTriggerMatching_.clear();
 
@@ -3090,6 +3108,7 @@ void OfflineProducerHelper::calculateTriggerMatching(const std::vector< std::uni
                     float offlinePt = -999;
                     int tmpCandidateIdx=-1;
                     int tmpCandidateNumber=0;
+                    int closestJetID=-1;
                     bool firstCandidadeMatched = false;
                     float firstCandidadeMatchedDeltaR = deltaR; //easy to do square root
 
@@ -3104,6 +3123,7 @@ void OfflineProducerHelper::calculateTriggerMatching(const std::vector< std::uni
 
                         if(tmpdeltaR < deltaR)
                         {
+                            closestJetID = tmpCandidateNumber;
                             if(tmpCandidateNumber == 0) firstCandidadeMatched = true;
                             else firstCandidadeMatched = false;
                             deltaR = tmpdeltaR;
@@ -3117,14 +3137,18 @@ void OfflineProducerHelper::calculateTriggerMatching(const std::vector< std::uni
                         ++tmpCandidateNumber;
                     }
 
-                    if(triggerObjectId == 1  && filterBit == 7 ) ot.userFloat("CaloPtMinimumDeltaR") = sqrt(deltaR);
+                    if(triggerObjectId == 1  && filterBit == 7 ) vCaloPtMinimumDeltaR.push_back(sqrt(deltaR));
+                    if(triggerObjectId == 1  && filterBit == 8 ) vPFPtMinimumDeltaR  .push_back(sqrt(deltaR));
 
                     if(triggerObjectId == 1 && !any_cast<bool>(parameterList_->at("MatchWithSelectedObjects"))) 
                     {
                         deltaR = 0;
                     }
-                    if(sqrt(deltaR) < any_cast<float>(parameterList_->at("MaxDeltaR"))) // check if a matching was found
+
+                    float currentDeltaR = sqrt(deltaR);
+                    if(currentDeltaR < any_cast<float>(parameterList_->at("MaxDeltaR"))) // check if a matching was found
                     {
+                        if(triggerObjectId == 1  && filterBit == 7 ) ++vectorOfCaloJetMatching[closestJetID];
                         std::pair<int,int> particleAndFilter(triggerObjectId,filterBit);
                         if(mapTriggerMatching_.find(particleAndFilter) == mapTriggerMatching_.end())
                         {
@@ -3132,6 +3156,26 @@ void OfflineProducerHelper::calculateTriggerMatching(const std::vector< std::uni
                         }
                         ++mapTriggerMatching_[particleAndFilter];
                         candidateIdx=tmpCandidateIdx;
+
+ 
+                        if(triggerObjectId == 1)  // Only jets
+                        {
+                            auto theTriggerMap = any_cast< std::map< std::pair<int,int>, std::string > >(parameterList_->at("TriggerObjectsForStudies"));
+                            float &previousDeltaR = ot.userFloat("Candididate" + to_string(closestJetID) + "_" + theTriggerMap[particleAndFilter] + "_DeltaR");
+                            if(previousDeltaR<0. || previousDeltaR>currentDeltaR)
+                            {
+                                previousDeltaR = currentDeltaR;
+                                float &numberOfMatches = ot.userFloat("Candididate" + to_string(closestJetID) + "_" + theTriggerMap[particleAndFilter] + "_nMatched");
+                                if(numberOfMatches<0) numberOfMatches=0;
+                                ++numberOfMatches;
+                                ot.userFloat("Candididate" + to_string(closestJetID) + "_" + theTriggerMap[particleAndFilter] + "_DeltaPt") = deltaPt;
+                                ot.userFloat("Candididate" + to_string(closestJetID) + "_" + theTriggerMap[particleAndFilter] + "_candId")  = tmpCandidateIdx;
+                                ot.userFloat("Candididate" + to_string(closestJetID) + "_" + theTriggerMap[particleAndFilter] + "_ptTriggerObj")  = triggerObjectPt;
+                                ot.userFloat("Candididate" + to_string(closestJetID) + "_" + theTriggerMap[particleAndFilter] + "_etaTriggerObj")  = triggerObjectEta;
+                                ot.userFloat("Candididate" + to_string(closestJetID) + "_" + theTriggerMap[particleAndFilter] + "_phiTriggerObj")  = triggerObjectPhi;
+
+                            }
+                        }
 
                         //Plot for online vs offline jet pt resolution
                         if(any_cast<string>(parameterList_->at("ObjectsForCut")) == "TriggerObjects")
@@ -3166,6 +3210,16 @@ void OfflineProducerHelper::calculateTriggerMatching(const std::vector< std::uni
             if(isNeeded) if(debug)  std::cout <<"\t\t"<<candidateIdx<<std::endl;
         }
     }
+
+    std::sort(vCaloPtMinimumDeltaR.begin(),vCaloPtMinimumDeltaR.end());
+    std::sort(vPFPtMinimumDeltaR  .begin(),vPFPtMinimumDeltaR  .end());
+    std::sort(vectorOfCaloJetMatching  .begin(),vectorOfCaloJetMatching  .end());
+    if(vCaloPtMinimumDeltaR.size()>=4) ot.userFloat("CaloPtMinimumDeltaR") = vCaloPtMinimumDeltaR[3];
+    if(vPFPtMinimumDeltaR  .size()>=4) ot.userFloat("PFPtMinimumDeltaR")   = vPFPtMinimumDeltaR  [3];
+    if(std::accumulate(vectorOfCaloJetMatching.begin(), vectorOfCaloJetMatching.end(), 0) < 4)  ot.userInt("CaloJetMatchingResult") = 0;
+    if(vectorOfCaloJetMatching[3] == 1 && vectorOfCaloJetMatching[0] == 1) ot.userInt("CaloJetMatchingResult") = 1;
+    if(vectorOfCaloJetMatching[3] > 1  && vectorOfCaloJetMatching[0] > 0) ot.userInt("CaloJetMatchingResult") = 2;
+    if(vectorOfCaloJetMatching[3] > 1  && vectorOfCaloJetMatching[0] == 0 && std::accumulate(vectorOfCaloJetMatching.begin(), vectorOfCaloJetMatching.end(), 0) == 4 )  ot.userInt("CaloJetMatchingResult") = 3;
 
     return;
 }
