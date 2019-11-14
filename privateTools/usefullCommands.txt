@@ -1,0 +1,83 @@
+while true; do echo "`date +%Y\/%m\/%d---%H-%M-%S`"; condor_q | grep 'Total\ for\ fravera:'; echo; sleep 5; done
+
+sed -i 's/2016AnalysisSample_03Feb2017_v19/2016AnalysisSample_03Feb2017_v21/g' plotterListFiles/2016Analysis/*
+
+skim_ntuple.exe --cfg config/skim_2016ResonantDiHiggs4B.cfg --input inputFiles/2016ResonantDiHiggs4BDataSets/MCSignal_GluGluToBulkGravitonToHHTo4B_M-750_narrow_13TeV-madgraph.txt --output test_BTagCSV_MC.root --is-signal --xs=1 --puWeight weights/MCSignal_GluGluToBulkGravitonToHHTo4B_M-750_narrow_13TeV-madgraph_PUweights.root --maxEvt 100000
+
+skim_ntuple.exe --cfg config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb.cfg --input inputFiles/2016ResonantDiHiggs4BDataSets/MCSignal_GluGluToBulkGravitonToHHTo4B_M-750_narrow_13TeV-madgraph_triggerTest.txt --output test_BTagCSV_MC.root --is-signal --xs=1 --puWeight weights/MCSignal_GluGluToBulkGravitonToHHTo4B_M-750_narrow_13TeV-madgraph_PUweights.root --maxEvt 100000
+
+skim_ntuple.exe --cfg config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb.cfg --input inputFiles/2016_NMSSM_XYH_bbbb_Datasets/NMSSM_XYH_bbbb_MX_700_MY_300_privateMC.txt --output test_NMSSM_XYH_bbbb_MC.root --is-signal --xs=1 --puWeight weights/2016_NMSSM_XYH_bbbb_weights/NMSSM_XYH_bbbb_MX_700_MY_300_privateMC_PUweights.root --maxEvt 100000
+
+skim_ntuple.exe --input inputFiles/2016ResonantDiHiggs4BDataSets/BTagCSV_Data_FileList_80x_reprocess.txt --cfg config/skim_2016ResonantDiHiggs4B.cfg --is-data --output test_BTagCSV.root --maxEvts 1000000
+
+skim_ntuple.exe --input inputFiles/2016ResonantDiHiggs4BDataSets/BTagCSV_Data_FileList_80x_reprocess.txt --cfg config/skim_2016ResonantDiHiggs4B.cfg --is-data --output test_BTagCSV.root --maxEvts 1000000
+
+skim_ntuple.exe --input inputFiles/2016_NMSSM_XYH_bbbb_Datasets/BTagCSV_Data.txt --cfg config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb_AntiBtag.cfg --is-data --output test_NMSSM_XYH_bbbb_MC.root --maxEvts 1000000
+
+cmsDriver.py myNanoProdData -s NANO --data --eventcontent NANOAOD --datatier NANOAOD  --no_exec  --conditions 80X_dataRun2_2016LegacyRepro_v4 --era Run2_2016,run2_nanoAOD_94X2016 --customise_commands="process.add_(cms.Service('InitRootHandlers', EnableIMT = cms.untracked.bool(False)))"
+
+skim_ntuple.exe --input inputFiles/2016ResonantDiHiggs4BDataSets/BTagCSV_Data_FileList_triggerTest.txt  --cfg config/skim_2016ResonantDiHiggs4B.cfg --is-data --output test_BTagCSV.root --maxEvts 50000
+
+skim_ntuple.exe --input inputFiles/2016ResonantDiHiggs4BDataSets/SingleMuon_Data_RunBF.txt  --cfg config/skim_2016ResonantDiHiggs4B_triggerStudies.cfg --is-data --output test_SingleMuon.root --maxEvts 100
+
+skim_ntuple.exe --input inputFiles/2016ResonantDiHiggs4BDataSets/SingleMuon_Data.txt  --cfg config/skim_2016ResonantDiHiggs4B_triggerStudies.cfg --is-data --output test_SingleMuon.root --maxEvts 100
+
+skim_ntuple.exe --cfg config/skim_2016ResonantDiHiggs4B_triggerStudies.cfg --input inputFiles/2016ResonantDiHiggs4BDataSets/MC_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8.txt --output test_TTbar_MC.root --xs=1 --puWeight weights/MC_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8_PUweights.root --maxEvt 20000
+
+
+//SingleMuon_RunBF
+OverlapFile<>("TriggerEfficiency_SingleMuon_RunBF_MuonPt40_ForthJetPt30_IsoMu24.root","IsoMu24",kBlue,"TriggerEfficiency_SingleMuon_RunBF_MuonPt40_ForthJetPt30_IsoMu24_Matched.root","IsoMu24_Matched",kRed,"TriggerEfficiency_SingleMuon_RunBF_MuonPt40_ForthJetPt30_IsoMu20.root","IsoMu20",kGreen,"TriggerEfficiency_SingleMuon_RunBF_MuonPt40_ForthJetPt30_IsoMu20_Matched.root","IsoMu20_Matched",kOrange, "TriggerEfficiency_SingleMuon_RunBF_MuonPt40_ForthJetPt30.root")
+
+OverlapFile<>("TriggerEfficiency_SingleMuon_RunBF_4bLooseSelection_IsoMu24.root","IsoMu24",kBlue,"TriggerEfficiency_SingleMuon_RunBF_4bLooseSelection_IsoMu24_Matched.root","IsoMu24_Matched",kRed,"TriggerEfficiency_SingleMuon_RunBF_4bLooseSelection_IsoMu20.root","IsoMu20",kGreen,"TriggerEfficiency_SingleMuon_RunBF_4bLooseSelection_IsoMu20_Matched.root","IsoMu20_Matched",kOrange)
+
+OverlapFile<>("TriggerEfficiency_SingleMuon_RunBF_4bSelection_IsoMu24.root","IsoMu24",kBlue,"TriggerEfficiency_SingleMuon_RunBF_4bSelection_IsoMu24_Matched.root","IsoMu24_Matched",kRed,"TriggerEfficiency_SingleMuon_RunBF_4bSelection_IsoMu20.root","IsoMu20",kGreen,"TriggerEfficiency_SingleMuon_RunBF_4bSelection_IsoMu20_Matched.root","IsoMu20_Matched",kOrange)
+
+OverlapFile<>("TriggerEfficiency_SingleMuon_RunBF_MuonPt40_ForthJetPt30_IsoMu24.root","LQS",kBlue,"TriggerEfficiency_SingleMuon_RunBF_4bLooseSelection_IsoMu24.root","MQS",kGreen,"TriggerEfficiency_SingleMuon_RunBF_4bSelection_IsoMu24.root","HQS",kRed)
+
+
+//SingleMuon_RunGH
+OverlapFile<>("TriggerEfficiency_SingleMuon_RunGH_MuonPt40_ForthJetPt30_IsoMu24.root","IsoMu24",kBlue,"TriggerEfficiency_SingleMuon_RunGH_MuonPt40_ForthJetPt30_IsoMu24_Matched.root","IsoMu24_Matched",kRed,"TriggerEfficiency_SingleMuon_RunGH_MuonPt40_ForthJetPt30_IsoMu20.root","IsoMu20",kGreen,"TriggerEfficiency_SingleMuon_RunGH_MuonPt40_ForthJetPt30_IsoMu20_Matched.root","IsoMu20_Matched",kOrange)
+
+OverlapFile<>("TriggerEfficiency_SingleMuon_RunGH_4bLooseSelection_IsoMu24.root","IsoMu24",kBlue,"TriggerEfficiency_SingleMuon_RunGH_4bLooseSelection_IsoMu24_Matched.root","IsoMu24_Matched",kRed,"TriggerEfficiency_SingleMuon_RunGH_4bLooseSelection_IsoMu20.root","IsoMu20",kGreen,"TriggerEfficiency_SingleMuon_RunGH_4bLooseSelection_IsoMu20_Matched.root","IsoMu20_Matched",kOrange)
+
+OverlapFile<>("TriggerEfficiency_SingleMuon_RunGH_4bSelection_IsoMu24.root","IsoMu24",kBlue,"TriggerEfficiency_SingleMuon_RunGH_4bSelection_IsoMu24_Matched.root","IsoMu24_Matched",kRed,"TriggerEfficiency_SingleMuon_RunGH_4bSelection_IsoMu20.root","IsoMu20",kGreen,"TriggerEfficiency_SingleMuon_RunGH_4bSelection_IsoMu20_Matched.root","IsoMu20_Matched",kOrange)
+
+OverlapFile<>("TriggerEfficiency_SingleMuon_RunGH_MuonPt40_ForthJetPt30_IsoMu24.root","LQS",kBlue,"TriggerEfficiency_SingleMuon_RunGH_4bLooseSelection_IsoMu24.root","MQS",kGreen,"TriggerEfficiency_SingleMuon_RunGH_4bSelection_IsoMu24.root","HQS",kRed)
+
+
+//TTbar
+OverlapFile<>("TriggerEfficiency_TTbar_MuonPt40_ForthJetPt30_IsoMu24.root","IsoMu24",kBlue,"TriggerEfficiency_TTbar_MuonPt40_ForthJetPt30_IsoMu24_Matched.root","IsoMu24_Matched",kRed,"TriggerEfficiency_TTbar_MuonPt40_ForthJetPt30_IsoMu20.root","IsoMu20",kGreen,"TriggerEfficiency_TTbar_MuonPt40_ForthJetPt30_IsoMu20_Matched.root","IsoMu20_Matched",kOrange)
+
+OverlapFile<>("TriggerEfficiency_TTbar_4bLooseSelection_IsoMu24.root","IsoMu24",kBlue,"TriggerEfficiency_TTbar_4bLooseSelection_IsoMu24_Matched.root","IsoMu24_Matched",kRed,"TriggerEfficiency_TTbar_4bLooseSelection_IsoMu20.root","IsoMu20",kGreen,"TriggerEfficiency_TTbar_4bLooseSelection_IsoMu20_Matched.root","IsoMu20_Matched",kOrange)
+
+OverlapFile<>("TriggerEfficiency_TTbar_4bSelection_IsoMu24.root","IsoMu24",kBlue,"TriggerEfficiency_TTbar_4bSelection_IsoMu24_Matched.root","IsoMu24_Matched",kRed,"TriggerEfficiency_TTbar_4bSelection_IsoMu20.root","IsoMu20",kGreen,"TriggerEfficiency_TTbar_4bSelection_IsoMu20_Matched.root","IsoMu20_Matched",kOrange)
+
+OverlapFile<>("TriggerEfficiency_TTbar_MuonPt40_ForthJetPt30_IsoMu24.root","LQS",kBlue,"TriggerEfficiency_TTbar_4bLooseSelection_IsoMu24.root","MQS",kGreen,"TriggerEfficiency_TTbar_4bSelection_IsoMu24.root","HQS",kRed)
+
+//SingleMuon_RunBF vs TTbar
+OverlapFile<>("TriggerEfficiency_TTbar_MuonPt40_ForthJetPt30_IsoMu24.root","TTbar LQS",kCyan, "TriggerEfficiency_TTbar_4bLooseSelection_IsoMu24.root","TTbar MQS",kGreen, "TriggerEfficiency_TTbar_4bSelection_IsoMu24.root","TTbar HQS",kRed, "TriggerEfficiency_SingleMuon_RunBF_MuonPt40_ForthJetPt30_IsoMu24.root","SingleMuon_RunBF LQS",kBlue, "TriggerEfficiency_SingleMuon_RunBF_4bLooseSelection_IsoMu24.root","SingleMuon_RunBF MQS",EColor(kGreen+3), "TriggerEfficiency_SingleMuon_RunBF_4bSelection_IsoMu24.root","SingleMuon_RunBF HQS",EColor(kRed+2))
+
+//SingleMuon_RunGH vs TTbar
+OverlapFile<>("TriggerEfficiency_TTbar_MuonPt40_ForthJetPt30_IsoMu24.root","TTbar LQS",kCyan, "TriggerEfficiency_TTbar_4bLooseSelection_IsoMu24.root","TTbar MQS",kGreen, "TriggerEfficiency_TTbar_4bSelection_IsoMu24.root","TTbar HQS",kRed, "TriggerEfficiency_SingleMuon_RunGH_MuonPt40_ForthJetPt30_IsoMu24.root","SingleMuon_RunGH LQS",kBlue, "TriggerEfficiency_SingleMuon_RunGH_4bLooseSelection_IsoMu24.root","SingleMuon_RunGH MQS",EColor(kGreen+3), "TriggerEfficiency_SingleMuon_RunGH_4bSelection_IsoMu24.root","SingleMuon_RunGH HQS",EColor(kRed+2))
+
+
+//ScaleFactors RunBF
+OverlapFile<>("TriggerScaleFactor_RunBF_MuonPt40_ForthJetPt30_IsoMu24.root","LQS",kRed, "TriggerScaleFactor_RunBF_4bLooseSelection_IsoMu24.root","MQS",kBlue, "TriggerScaleFactor_RunBF_4bSelection_IsoMu24.root","HQS",kGreen)
+
+//ScaleFactors RunGH
+OverlapFile<>("TriggerScaleFactor_RunGH_MuonPt40_ForthJetPt30_IsoMu24.root","LQS",kRed, "TriggerScaleFactor_RunGH_4bLooseSelection_IsoMu24.root","MQS",kBlue, "TriggerScaleFactor_RunGH_4bSelection_IsoMu24.root","HQS",kGreen)
+
+
+//Merge Efficiency canvas
+MergeCanvas<>("Efficiency_L1triggerDouble90Double30AndPrevious_FourHighetJetPtSum", "Efficiency_QuadCentralJet30AndPrevious_FirstJetPt", "Efficiency_QuadCentralJet30AndPrevious_SecondJetPt", "Efficiency_QuadCentralJet30AndPrevious_ThirdJetPt", "Efficiency_QuadCentralJet30AndPrevious_ForthJetPt", "Efficiency_DoubleCentralJet90AndPrevious_FirstJetPt", "Efficiency_DoubleCentralJet90AndPrevious_SecondJetPt", "Efficiency_BTagCaloCSVp087TripleDouble90Double30AndPrevious_ThirdJetDeepCSV", "Efficiency_QuadPFCentralJetLooseID30AndPrevious_FirstJetPt", "Efficiency_QuadPFCentralJetLooseID30AndPrevious_SecondJetPt", "Efficiency_QuadPFCentralJetLooseID30AndPrevious_ThirdJetPt", "Efficiency_QuadPFCentralJetLooseID30AndPrevious_ForthJetPt", "Efficiency_DoublePFCentralJetLooseID90AndPrevious_FirstJetPt", "Efficiency_DoublePFCentralJetLooseID90AndPrevious_SecondJetPt")
+
+MergeCanvas<>("Efficiency_L1triggerQuad45AndPrevious_FourHighetJetPtSum", "Efficiency_QuadCentralJet45AndPrevious_FirstJetPt", "Efficiency_QuadCentralJet45AndPrevious_SecondJetPt", "Efficiency_QuadCentralJet45AndPrevious_ThirdJetPt", "Efficiency_QuadCentralJet45AndPrevious_ForthJetPt", "Efficiency_BTagCaloCSVp087TripleQuad45AndPrevious_ThirdJetDeepCSV", "Efficiency_QuadPFCentralJetLooseID45AndPrevious_FirstJetPt", "Efficiency_QuadPFCentralJetLooseID45AndPrevious_SecondJetPt", "Efficiency_QuadPFCentralJetLooseID45AndPrevious_ThirdJetPt", "Efficiency_QuadPFCentralJetLooseID45AndPrevious_ForthJetPt")
+
+
+//Merge Scale factor canvas
+MergeCanvas<>("ScaleFactor_L1triggerDouble90Double30AndPrevious_FourHighetJetPtSum", "ScaleFactor_QuadCentralJet30AndPrevious_FirstJetPt", "ScaleFactor_QuadCentralJet30AndPrevious_SecondJetPt", "ScaleFactor_QuadCentralJet30AndPrevious_ThirdJetPt", "ScaleFactor_QuadCentralJet30AndPrevious_ForthJetPt", "ScaleFactor_DoubleCentralJet90AndPrevious_FirstJetPt", "ScaleFactor_DoubleCentralJet90AndPrevious_SecondJetPt", "ScaleFactor_BTagCaloCSVp087TripleDouble90Double30AndPrevious_ThirdJetDeepCSV", "ScaleFactor_QuadPFCentralJetLooseID30AndPrevious_FirstJetPt", "ScaleFactor_QuadPFCentralJetLooseID30AndPrevious_SecondJetPt", "ScaleFactor_QuadPFCentralJetLooseID30AndPrevious_ThirdJetPt", "ScaleFactor_QuadPFCentralJetLooseID30AndPrevious_ForthJetPt", "ScaleFactor_DoublePFCentralJetLooseID90AndPrevious_FirstJetPt", "ScaleFactor_DoublePFCentralJetLooseID90AndPrevious_SecondJetPt")
+
+MergeCanvas<>("ScaleFactor_L1triggerQuad45AndPrevious_FourHighetJetPtSum", "ScaleFactor_QuadCentralJet45AndPrevious_FirstJetPt", "ScaleFactor_QuadCentralJet45AndPrevious_SecondJetPt", "ScaleFactor_QuadCentralJet45AndPrevious_ThirdJetPt", "ScaleFactor_QuadCentralJet45AndPrevious_ForthJetPt", "ScaleFactor_BTagCaloCSVp087TripleQuad45AndPrevious_ThirdJetDeepCSV", "ScaleFactor_QuadPFCentralJetLooseID45AndPrevious_FirstJetPt", "ScaleFactor_QuadPFCentralJetLooseID45AndPrevious_SecondJetPt", "ScaleFactor_QuadPFCentralJetLooseID45AndPrevious_ThirdJetPt", "ScaleFactor_QuadPFCentralJetLooseID45AndPrevious_ForthJetPt")
+
+
+python mlskim_NMSSM_XYH_bbbb/BackgroundModel.py --config=mlskim_NMSSM_XYH_bbbb/config/outputskim_2016.cfg 
