@@ -3158,7 +3158,7 @@ void OfflineProducerHelper::calculateTriggerMatching(const std::vector< std::uni
                         candidateIdx=tmpCandidateIdx;
 
  
-                        if(triggerObjectId == 1)  // Only jets
+                        if(triggerObjectId == 1 && any_cast<string>(parameterList_->at("ObjectsForCut")) == "TriggerObjects" )  // Only jets
                         {
                             auto theTriggerMap = any_cast< std::map< std::pair<int,int>, std::string > >(parameterList_->at("TriggerObjectsForStudies"));
                             float &previousDeltaR = ot.userFloat("Candididate" + to_string(closestJetID) + "_" + theTriggerMap[particleAndFilter] + "_DeltaR");
@@ -3211,15 +3211,18 @@ void OfflineProducerHelper::calculateTriggerMatching(const std::vector< std::uni
         }
     }
 
-    std::sort(vCaloPtMinimumDeltaR.begin(),vCaloPtMinimumDeltaR.end());
-    std::sort(vPFPtMinimumDeltaR  .begin(),vPFPtMinimumDeltaR  .end());
-    std::sort(vectorOfCaloJetMatching  .begin(),vectorOfCaloJetMatching  .end());
-    if(vCaloPtMinimumDeltaR.size()>=4) ot.userFloat("CaloPtMinimumDeltaR") = vCaloPtMinimumDeltaR[3];
-    if(vPFPtMinimumDeltaR  .size()>=4) ot.userFloat("PFPtMinimumDeltaR")   = vPFPtMinimumDeltaR  [3];
-    if(std::accumulate(vectorOfCaloJetMatching.begin(), vectorOfCaloJetMatching.end(), 0) < 4)  ot.userInt("CaloJetMatchingResult") = 0;
-    if(vectorOfCaloJetMatching[3] == 1 && vectorOfCaloJetMatching[0] == 1) ot.userInt("CaloJetMatchingResult") = 1;
-    if(vectorOfCaloJetMatching[3] > 1  && vectorOfCaloJetMatching[0] > 0) ot.userInt("CaloJetMatchingResult") = 2;
-    if(vectorOfCaloJetMatching[3] > 1  && vectorOfCaloJetMatching[0] == 0 && std::accumulate(vectorOfCaloJetMatching.begin(), vectorOfCaloJetMatching.end(), 0) == 4 )  ot.userInt("CaloJetMatchingResult") = 3;
+    if(any_cast<string>(parameterList_->at("ObjectsForCut")) == "TriggerObjects")
+    {
+        std::sort(vCaloPtMinimumDeltaR.begin(),vCaloPtMinimumDeltaR.end());
+        std::sort(vPFPtMinimumDeltaR  .begin(),vPFPtMinimumDeltaR  .end());
+        std::sort(vectorOfCaloJetMatching  .begin(),vectorOfCaloJetMatching  .end());
+        if(vCaloPtMinimumDeltaR.size()>=4) ot.userFloat("CaloPtMinimumDeltaR") = vCaloPtMinimumDeltaR[3];
+        if(vPFPtMinimumDeltaR  .size()>=4) ot.userFloat("PFPtMinimumDeltaR")   = vPFPtMinimumDeltaR  [3];
+        if(std::accumulate(vectorOfCaloJetMatching.begin(), vectorOfCaloJetMatching.end(), 0) < 4)  ot.userInt("CaloJetMatchingResult") = 0;
+        if(vectorOfCaloJetMatching[3] == 1 && vectorOfCaloJetMatching[0] == 1) ot.userInt("CaloJetMatchingResult") = 1;
+        if(vectorOfCaloJetMatching[3] > 1  && vectorOfCaloJetMatching[0] > 0) ot.userInt("CaloJetMatchingResult") = 2;
+        if(vectorOfCaloJetMatching[3] > 1  && vectorOfCaloJetMatching[0] == 0 && std::accumulate(vectorOfCaloJetMatching.begin(), vectorOfCaloJetMatching.end(), 0) == 4 )  ot.userInt("CaloJetMatchingResult") = 3;
+    }
 
     return;
 }

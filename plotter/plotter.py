@@ -168,7 +168,7 @@ for name in replacements:
 rootFile = ROOT.TFile.Open (args.dir+"/"+outplotterName)
 print '... opened file' , rootFile.GetName()
 sel = args.sel
-if not '_SR' in sel and args.srnamecompl: sel += '_SR'
+if not '_SR' in sel and args.srnamecompl: sel += '_SignalRegionPlusBlinded'
 
 hSigs         = Tools.retrieveHistos  (rootFile, sigList,        args.var, sel) #, "sig": tags are unused now
 hBkgs         = Tools.retrieveHistos  (rootFile, bkgList,        args.var, sel) #, "bkg": tags are unused now
