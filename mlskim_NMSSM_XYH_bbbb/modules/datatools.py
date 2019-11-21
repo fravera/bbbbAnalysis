@@ -39,12 +39,9 @@ def PrepareModel(tag):
 
 def root2pandas(files_path, tree_name, **kwargs):
 	# -- create list of .root files to process
-	print files_path
 
-	files = glob.glob(files_path)
-	
 	# -- process ntuples into rec arrays
-	ss = stack_arrays([root2array(fpath, tree_name, **kwargs).view(numpy.recarray) for fpath in files])
+	ss = stack_arrays([root2array(fpath, tree_name, **kwargs).view(numpy.recarray) for fpath in files_path])
 
 	try:
 		return pandas.DataFrame(ss)
@@ -89,15 +86,15 @@ def fitreweightermodel(original,target,original_weights,target_weights,tfactor, 
 def getmodelweights(original,original_weights,model,tfactor,factor):
 	ws = model.predict_weights(original,original_weights,lambda x: numpy.mean(x, axis=0))
 	weights = numpy.multiply(ws,tfactor)
-	print "The sum of model weights (before reweighting)                       = ",original_weights.sum(),"+/-",math.sqrt(numpy.square(original_weights).sum() )
-	print "The sum of model weights (after reweighting, before renorm. factor) = ",weights.sum(),"+/-",math.sqrt(numpy.square(weights).sum() )
-	print "The renormalization factor                                          = ",factor
-	print "The sum of model weights (after renorm. factor)                     = ",weights.sum()*factor
+	# print "The sum of model weights (before reweighting)                       = ",original_weights.sum(),"+/-",math.sqrt(numpy.square(original_weights).sum() )
+	# print "The sum of model weights (after reweighting, before renorm. factor) = ",weights.sum(),"+/-",math.sqrt(numpy.square(weights).sum() )
+	# print "The renormalization factor                                          = ",factor
+	# print "The sum of model weights (after renorm. factor)                     = ",weights.sum()*factor
 	weights = numpy.multiply(weights,factor)
 	return weights
 
-def pandas2root(tree_dataframe, tree_name, rootfile_name):
-	tree_dataframe.to_root('%s'%rootfile_name, key='%s'%tree_name)
+def pandas2root(tree_dataframe, tree_name, rootfile_name, mode="w"):
+	tree_dataframe.to_root('%s'%rootfile_name, key='%s'%tree_name, mode=mode, store_index=False)
 
 def roothist2root(year,region,hist_name, rootfile_name, inputSkim = False):
 	if inputSkim:

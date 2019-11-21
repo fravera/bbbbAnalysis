@@ -10,3 +10,6 @@ jobs_*/
 *_C.d
 *_C_ACLiC_dict_rdict.pcm
 *.pdf
+*.png
+plotResults/*
+crabJobs/*

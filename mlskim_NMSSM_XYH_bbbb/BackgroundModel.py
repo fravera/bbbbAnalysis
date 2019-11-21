@@ -40,6 +40,7 @@ def BuildReweightingModel(data_3b, data_4b,seed):
 	variablescr = trainingVariables
 	modelargs= [100, 0.1, 5, 300, 0.5, seed]
 	originalcr,targetcr,originalcr_weights,targetcr_weights,transferfactor = data.preparedataformodel(data_3b,data_4b,variablescr)
+	print "transfer factor = ", transferfactor
 	# plotter.Draw1DHistosComparison(originalcr, targetcr, variablescr, originalcr_weights,True,"original")
 	#######################################
 	##Folding Gradient Boosted Reweighter
@@ -57,7 +58,7 @@ def BuildReweightingModel(data_3b, data_4b,seed):
 	with open(modelFileName, 'w') as reweighterOutputFile:
 		pickle.dump(theReweightModelAndTransferFactors, reweighterOutputFile)
 
-	return foldingcr_weights
+	return foldingcr_weights,reweightermodel,transferfactor,renormtransferfactor
 
 def CreatePredictionModel(reweightermodel,transferfactor,renormtransferfactor,data_3b):
 	############################################################################
@@ -78,14 +79,14 @@ def addModelWeight(dataset,datasetAntiBtag,valFlag,selection, seed):
 	data_cr_4b_categ,data_rest_4b_categ = SelectControlRegion(dataset,valFlag,selection)
 	#Get weights ,model, transferfactor for CR data
 	print "[INFO] Building BDT-reweighting model for Weight_forBackground in the CR data"
-	weights_cr_categ=BuildReweightingModel(data_cr_3b_categ,data_cr_4b_categ,seed)
-	#loading formula
-	with open(modelFileName) as reweighterInputFile:
-		theReweightModelAndTransferFactors = pickle.load(reweighterInputFile)
+	weights_cr_categ,reweightermodel_categ,transferfactor_categ,renormtransferfactor_categ=BuildReweightingModel(data_cr_3b_categ,data_cr_4b_categ,seed)
+	# #loading formula
+	# with open(modelFileName) as reweighterInputFile:
+	# 	theReweightModelAndTransferFactors = pickle.load(reweighterInputFile)
 
-	reweightermodel_categ      = theReweightModelAndTransferFactors.reweightMethod 
-	transferfactor_categ       = theReweightModelAndTransferFactors.transferFactor
-	renormtransferfactor_categ = theReweightModelAndTransferFactors.renormalizationTransferFactor 
+	# reweightermodel_categ      = theReweightModelAndTransferFactors.reweightMethod 
+	# transferfactor_categ       = theReweightModelAndTransferFactors.transferFactor
+	# renormtransferfactor_categ = theReweightModelAndTransferFactors.renormalizationTransferFactor 
 
 	#Get weights for the dataset
 	print "[INFO] Calculating BDT-reweighting model prediction Weight_forBackground in the other data"
@@ -163,13 +164,13 @@ print "      *",randseed
 minpt       = ast.literal_eval(cfgparser.get("configuration","minbjetpt"))
 print "    -The min b-jet pt (OPTION TO BE REMOVED FOR THE NEXT JOBS (changing PT>25 GeV to PT>MinPT)!):"
 print "      *",minpt 
-selection   = ast.literal_eval(cfgparser.get("configuration","selection"))
+selection   = "fullRegion" #ast.literal_eval(cfgparser.get("configuration","selection"))
 print "    -The selection:"
 print "      *",selection
-minMY       = ast.literal_eval(cfgparser.get("configuration","minMY"))
+minMY       = 140 #ast.literal_eval(cfgparser.get("configuration","minMY"))
 print "    -The minMY:"
 print "      *",minMY
-maxMX       = ast.literal_eval(cfgparser.get("configuration","maxMX"))
+maxMX       = 1000 #ast.literal_eval(cfgparser.get("configuration","maxMX"))
 print "    -The maxMX:"
 print "      *",maxMX
 ##########Make microskims
@@ -177,17 +178,17 @@ print "[INFO] Making background model . . . "
 
 # dataset_Plus          = data.root2pandas('/eos/uscms/store/user/fravera/bbbb_ntuples/NMSSM_XYH_bbbb_basicSelection_Plus_v12/SKIM_BTagCSV_Data/output/bbbbNtuple_0.root'         ,'bbbbTree')
 # dataset_Plus_AntiBtag = data.root2pandas('/eos/uscms/store/user/fravera/bbbb_ntuples/NMSSM_XYH_bbbb_basicSelection_Plus_AntiBtag_v12/SKIM_BTagCSV_Data/output/bbbbNtuple_0.root','bbbbTree')
-dataset_Plus               = data.root2pandas('outputskims/%s/SKIM_Data_Plus.root'%directory[0]         ,'bbbbTree')
-dataset_Plus_AntiBtag      = data.root2pandas('outputskims/%s/SKIM_Data_Plus_AntiBtag.root'%directory[0],'bbbbTree')
+dataset_Plus               = data.root2pandas(['outputskims/%s/SKIM_Data_Plus.root'%directory[0]]         ,'bbbbTree')
+dataset_Plus_AntiBtag      = data.root2pandas(['outputskims/%s/SKIM_Data_Plus_AntiBtag.root'%directory[0]],'bbbbTree')
 dataset_skim_Plus          = dataset_Plus[ (dataset_Plus.H1_b1_pt > minpt) & (dataset_Plus.H1_b2_pt > minpt) & (dataset_Plus.H2_b1_pt > minpt) & (dataset_Plus.H2_b2_pt > minpt) & (dataset_Plus.H2_m > minMY) & (dataset_Plus.HH_m < maxMX) ]
 dataset_skim_Plus_AntiBtag = dataset_Plus_AntiBtag[ (dataset_Plus_AntiBtag.H1_b1_pt > minpt) & (dataset_Plus_AntiBtag.H1_b2_pt > minpt) & (dataset_Plus_AntiBtag.H2_b1_pt > minpt) & (dataset_Plus_AntiBtag.H2_b2_pt > minpt)  & (dataset_Plus_AntiBtag.H2_m > minMY) & (dataset_Plus_AntiBtag.HH_m < maxMX) ]
 RunReweightingModel(dataset_skim_Plus, dataset_skim_Plus_AntiBtag,directory[0],"Data_Plus_AntiBtag",True,selection,randseed)
 
 
-# dataset          = data.root2pandas('/eos/uscms/store/user/fravera/bbbb_ntuples/NMSSM_XYH_bbbb_basicSelection_v12/SKIM_BTagCSV_Data/output/bbbbNtuple_0.root'         ,'bbbbTree')
-# dataset_AntiBtag = data.root2pandas('/eos/uscms/store/user/fravera/bbbb_ntuples/NMSSM_XYH_bbbb_basicSelection_AntiBtag_v12/SKIM_BTagCSV_Data/output/bbbbNtuple_0.root','bbbbTree')
-dataset               = data.root2pandas('outputskims/%s/SKIM_Data.root'%directory[0]         ,'bbbbTree')
-dataset_AntiBtag      = data.root2pandas('outputskims/%s/SKIM_Data_AntiBtag.root'%directory[0],'bbbbTree')
-dataset_skim          = dataset[ (dataset.H1_b1_pt > minpt) & (dataset.H1_b2_pt > minpt) & (dataset.H2_b1_pt > minpt) & (dataset.H2_b2_pt > minpt)  & (dataset_Plus.H2_m > minMY) & (dataset_Plus.HH_m < maxMX) ]
-dataset_skim_AntiBtag = dataset_AntiBtag[ (dataset_AntiBtag.H1_b1_pt > minpt) & (dataset_AntiBtag.H1_b2_pt > minpt) & (dataset_AntiBtag.H2_b1_pt > minpt) & (dataset_AntiBtag.H2_b2_pt > minpt)  & (dataset_AntiBtag.H2_m > minMY) & (dataset_AntiBtag.HH_m < maxMX) ]
-RunReweightingModel(dataset_skim, dataset_skim_AntiBtag,directory[0],"Data_AntiBtag",False,selection,randseed)
+# # dataset          = data.root2pandas('/eos/uscms/store/user/fravera/bbbb_ntuples/NMSSM_XYH_bbbb_basicSelection_v12/SKIM_BTagCSV_Data/output/bbbbNtuple_0.root'         ,'bbbbTree')
+# # dataset_AntiBtag = data.root2pandas('/eos/uscms/store/user/fravera/bbbb_ntuples/NMSSM_XYH_bbbb_basicSelection_AntiBtag_v12/SKIM_BTagCSV_Data/output/bbbbNtuple_0.root','bbbbTree')
+# dataset               = data.root2pandas('outputskims/%s/SKIM_Data.root'%directory[0]         ,'bbbbTree')
+# dataset_AntiBtag      = data.root2pandas('outputskims/%s/SKIM_Data_AntiBtag.root'%directory[0],'bbbbTree')
+# dataset_skim          = dataset[ (dataset.H1_b1_pt > minpt) & (dataset.H1_b2_pt > minpt) & (dataset.H2_b1_pt > minpt) & (dataset.H2_b2_pt > minpt)  & (dataset_Plus.H2_m > minMY) & (dataset_Plus.HH_m < maxMX) ]
+# dataset_skim_AntiBtag = dataset_AntiBtag[ (dataset_AntiBtag.H1_b1_pt > minpt) & (dataset_AntiBtag.H1_b2_pt > minpt) & (dataset_AntiBtag.H2_b1_pt > minpt) & (dataset_AntiBtag.H2_b2_pt > minpt)  & (dataset_AntiBtag.H2_m > minMY) & (dataset_AntiBtag.HH_m < maxMX) ]
+# RunReweightingModel(dataset_skim, dataset_skim_AntiBtag,directory[0],"Data_AntiBtag",False,selection,randseed)

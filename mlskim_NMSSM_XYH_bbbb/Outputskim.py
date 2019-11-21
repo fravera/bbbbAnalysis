@@ -21,7 +21,7 @@ def TreeDevelopment(sample,columns_input,case):
 	#Correct acccording to the type of data
 	columns = copy.copy(columns_input)
 	#Common branches
-	skim  = data.root2pandas('inputskims/%s/SKIM_%s.root'%(case,sample),'bbbbTree', branches=columns)
+	skim  = data.root2pandas(['inputskims/%s/SKIM_%s.root'%(case,sample)],'bbbbTree', branches=columns)
 	value  = numpy.ones(dtype='float64',shape=len(skim))
 	skim['Weight_forBackground'] = value
 	skim['Weight_forBackground_tfactor'] = value
