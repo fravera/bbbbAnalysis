@@ -1208,7 +1208,7 @@ void OfflineProducerHelper::bJets_PreselectionCut(std::vector<Jet> &jets)
 {
 
     float minimumDeepCSVaccepted            = any_cast<float>(parameterList_->at("MinDeepCSV"          ));
-    float maximumPtAccepted                 = any_cast<float>(parameterList_->at("MinPt"               ));
+    float minimumPtAccepted                 = any_cast<float>(parameterList_->at("MinPt"               ));
     float maximumAbsEtaCSVaccepted          = any_cast<float>(parameterList_->at("MaxAbsEta"           ));
 
     if(parameterList_->find("bbbbChoice") != parameterList_->end())
@@ -1222,7 +1222,7 @@ void OfflineProducerHelper::bJets_PreselectionCut(std::vector<Jet> &jets)
         }
     }
 
-    if(minimumDeepCSVaccepted<=0. && maximumPtAccepted<=0. && maximumAbsEtaCSVaccepted<=0.) return;
+    if(minimumDeepCSVaccepted<=0. && minimumPtAccepted<=0. && maximumAbsEtaCSVaccepted<=0.) return;
 
     auto it = jets.begin();
     while (it != jets.end()){
@@ -1232,8 +1232,8 @@ void OfflineProducerHelper::bJets_PreselectionCut(std::vector<Jet> &jets)
                 continue;
             }
         }
-        if(maximumPtAccepted>=0.){
-            if(it->P4().Pt()<maximumPtAccepted){
+        if(minimumPtAccepted>=0.){
+            if(it->P4().Pt()<minimumPtAccepted){
                 it=jets.erase(it);
                 continue;
             }
@@ -1252,16 +1252,123 @@ void OfflineProducerHelper::bJets_PreselectionCut(std::vector<Jet> &jets)
 }
 
 
+// //functions for apply preselection cuts and selecting excactly 4 jets (4 or 3 btagged depenging on the antitag flag):
+// void OfflineProducerHelper::fourBjetCut_PreselectionCut(std::vector<Jet> &jets, EventInfo& ei)
+// {
+//     float minimumDeepCSVaccepted            = any_cast<float>(parameterList_->at("MinDeepCSV"          ));
+//     float minimumPtAccepted                 = any_cast<float>(parameterList_->at("MinPt"               ));
+//     float maximumAbsEtaCSVaccepted          = any_cast<float>(parameterList_->at("MaxAbsEta"           ));
+//     bool  antiBtagOneJet                    = any_cast<bool >(parameterList_->at("UseAntiTagOnOneBjet" ));
+
+//     //If I will select also an antibitag jet, I temporary do not remove jets based on their btag
+//     float minimumDeepCSVacceptedForJetCleanup =  antiBtagOneJet ? -1. : minimumDeepCSVaccepted;
+
+//     // for(auto &jet : jets)
+//     // {
+//     //     std::cout << get_property(jet, Jet_btagDeepB) << " - ";
+//     // }
+//     // std::cout << std::endl;
+
+//     //remove all Jets not 
+//     auto it = jets.begin();
+//     while (it != jets.end()){
+//         if(minimumDeepCSVacceptedForJetCleanup>=0.){
+//             if(get_property((*it),Jet_btagDeepB)<minimumDeepCSVacceptedForJetCleanup){
+//                 it=jets.erase(it);
+//                 continue;
+//             }
+//         }
+//         if(minimumPtAccepted>=0.){
+//             if(it->P4().Pt()<minimumPtAccepted){
+//                 it=jets.erase(it);
+//                 continue;
+//             }
+//         }
+//         if(maximumAbsEtaCSVaccepted>=0.){
+//             if(abs(it->P4().Eta())>maximumAbsEtaCSVaccepted){
+//                 it=jets.erase(it);
+//                 continue;
+//             }
+//         }
+//         ++it;
+//     }
+
+//     if(jets.size() < 4)
+//     {
+//         jets.erase(jets.begin(),jets.end());
+//         return;
+//     }
+
+//     stable_sort(jets.begin(), jets.end(), [](const Jet & a, const Jet & b) -> bool
+//     {
+//         return ( get_property(a, Jet_btagDeepB) > get_property(b, Jet_btagDeepB) );
+//     });
+
+//     //get Number of b-tagged jets:
+//     ei.NpreCutJets = jets.size();
+    
+//     size_t numberOfBjetsToSelect = antiBtagOneJet ? 3 : 4;
+
+//     // if antiBtagOneJet flag is enable I remove events with more than 3 btagged jets
+//     if(antiBtagOneJet && get_property(jets[numberOfBjetsToSelect], Jet_btagDeepB) >= minimumDeepCSVaccepted)
+//     {
+//         jets.erase(jets.begin(),jets.end());
+//         return;
+//     }
+
+//     // Not enough bjets passing the preselection:
+//     if(get_property(jets[numberOfBjetsToSelect-1], Jet_btagDeepB) < minimumDeepCSVaccepted)
+//     {
+//         jets.erase(jets.begin(),jets.end());
+//         return;
+//     }
+//     if(antiBtagOneJet)
+//     {
+//         std::vector<Jet> antibTaggedJets;
+//         for(auto& theJet : jets)
+//         {
+//             if(get_property(theJet, Jet_btagDeepB) < minimumDeepCSVaccepted) antibTaggedJets.emplace_back(theJet);
+//         }
+//         //No antibtagged jet found
+//         if(antibTaggedJets.size() == 0)
+//         {
+//             jets.erase(jets.begin(),jets.end());
+//             return;
+//         }
+
+//         //Sort antibTaggedJets by deepCSV and I take the highest one
+//         stable_sort(antibTaggedJets.begin(), antibTaggedJets.end(), [](const Jet & a, const Jet & b) -> bool
+//         {
+//             return ( get_property(a, Jet_btagDeepB) > get_property(b, Jet_btagDeepB) );
+//         });
+
+//         // //Sort antibTaggedJets by pt and I take the highest one
+//         // stable_sort(antibTaggedJets.begin(), antibTaggedJets.end(), [](const Jet & a, const Jet & b) -> bool
+//         // {
+//         //     return ( a.P4().Pt() >  b.P4().Pt() );
+//         // });
+
+//         jets.erase(jets.begin()+3,jets.end());
+//         jets.emplace_back(antibTaggedJets[0]);
+//         return;
+//     }
+//     else
+//     {
+//         jets.erase(jets.begin()+4,jets.end());
+//         return;
+//     }
+
+//     return;
+
+// }
+
+
 //functions for apply preselection cuts and selecting excactly 4 jets (4 or 3 btagged depenging on the antitag flag):
 void OfflineProducerHelper::fourBjetCut_PreselectionCut(std::vector<Jet> &jets, EventInfo& ei)
 {
     float minimumDeepCSVaccepted            = any_cast<float>(parameterList_->at("MinDeepCSV"          ));
-    float maximumPtAccepted                 = any_cast<float>(parameterList_->at("MinPt"               ));
+    float minimumPtAccepted                 = any_cast<float>(parameterList_->at("MinPt"               ));
     float maximumAbsEtaCSVaccepted          = any_cast<float>(parameterList_->at("MaxAbsEta"           ));
-    bool  antiBtagOneJet                    = any_cast<bool >(parameterList_->at("UseAntiTagOnOneBjet" ));
-
-    //If I will select also an antibitag jet, I temporary do not remove jets based on their btag
-    float minimumDeepCSVacceptedForJetCleanup =  antiBtagOneJet ? -1. : minimumDeepCSVaccepted;
 
     // for(auto &jet : jets)
     // {
@@ -1272,14 +1379,8 @@ void OfflineProducerHelper::fourBjetCut_PreselectionCut(std::vector<Jet> &jets, 
     //remove all Jets not 
     auto it = jets.begin();
     while (it != jets.end()){
-        if(minimumDeepCSVacceptedForJetCleanup>=0.){
-            if(get_property((*it),Jet_btagDeepB)<minimumDeepCSVacceptedForJetCleanup){
-                it=jets.erase(it);
-                continue;
-            }
-        }
-        if(maximumPtAccepted>=0.){
-            if(it->P4().Pt()<maximumPtAccepted){
+        if(minimumPtAccepted>=0.){
+            if(it->P4().Pt()<minimumPtAccepted){
                 it=jets.erase(it);
                 continue;
             }
@@ -1304,57 +1405,15 @@ void OfflineProducerHelper::fourBjetCut_PreselectionCut(std::vector<Jet> &jets, 
         return ( get_property(a, Jet_btagDeepB) > get_property(b, Jet_btagDeepB) );
     });
 
-    //get Number of b-tagged jets:
-    ei.NpreCutJets = jets.size();
-    
-    size_t numberOfBjetsToSelect = antiBtagOneJet ? 3 : 4;
-
-    // if antiBtagOneJet flag is enable I remove events with more than 3 btagged jets
-    if(antiBtagOneJet && get_property(jets[numberOfBjetsToSelect], Jet_btagDeepB) >= minimumDeepCSVaccepted)
+    ei.NbJets = 0;
+    for(const auto &jet : jets)
+    {
+        if(get_property(jet, Jet_btagDeepB) >= minimumDeepCSVaccepted) ++(*ei.NbJets);
+        else break;
+    }
+    if(*ei.NbJets < 3)
     {
         jets.erase(jets.begin(),jets.end());
-        return;
-    }
-
-    // Not enough bjets passing the preselection:
-    if(get_property(jets[numberOfBjetsToSelect-1], Jet_btagDeepB) < minimumDeepCSVaccepted)
-    {
-        jets.erase(jets.begin(),jets.end());
-        return;
-    }
-    if(antiBtagOneJet)
-    {
-        std::vector<Jet> antibTaggedJets;
-        for(auto& theJet : jets)
-        {
-            if(get_property(theJet, Jet_btagDeepB) < minimumDeepCSVaccepted) antibTaggedJets.emplace_back(theJet);
-        }
-        //No antibtagged jet found
-        if(antibTaggedJets.size() == 0)
-        {
-            jets.erase(jets.begin(),jets.end());
-            return;
-        }
-
-        //Sort antibTaggedJets by deepCSV and I take the highest one
-        stable_sort(antibTaggedJets.begin(), antibTaggedJets.end(), [](const Jet & a, const Jet & b) -> bool
-        {
-            return ( get_property(a, Jet_btagDeepB) > get_property(b, Jet_btagDeepB) );
-        });
-
-        // //Sort antibTaggedJets by pt and I take the highest one
-        // stable_sort(antibTaggedJets.begin(), antibTaggedJets.end(), [](const Jet & a, const Jet & b) -> bool
-        // {
-        //     return ( a.P4().Pt() >  b.P4().Pt() );
-        // });
-
-        jets.erase(jets.begin()+3,jets.end());
-        jets.emplace_back(antibTaggedJets[0]);
-        return;
-    }
-    else
-    {
-        jets.erase(jets.begin()+4,jets.end());
         return;
     }
 

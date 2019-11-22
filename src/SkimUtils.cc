@@ -363,7 +363,7 @@ void SkimUtils::fill_output_tree(OutputTree& ot, NanoAODTree& nat, EventInfo& ei
     if(ei.H2_bb_deltaPhi) ot.H2_bb_deltaPhi= *ei.H2_bb_deltaPhi;
     if(ei.H1_bb_deltaEta) ot.H1_bb_deltaEta= *ei.H1_bb_deltaEta;
     if(ei.H2_bb_deltaEta) ot.H2_bb_deltaEta= *ei.H2_bb_deltaEta;
-    if(ei.NpreCutJets) ot.NpreCutJets= *ei.NpreCutJets;
+    if(ei.NbJets) ot.NbJets= *ei.NbJets;
     if(ei.TotalFourJetPt) ot.TotalFourJetPt= *ei.TotalFourJetPt;
     if(ei.MinDeltaEtaJJ) ot.MinDeltaEtaJJ= *ei.MinDeltaEtaJJ;
 

@@ -279,7 +279,7 @@ struct EventInfo{
     boost::optional<float> H2_bb_deltaPhi;   
     boost::optional<float> H1_bb_deltaEta;
     boost::optional<float> H2_bb_deltaEta; 
-    boost::optional<int>   NpreCutJets; 
+    boost::optional<int>   NbJets; 
     boost::optional<float> TotalFourJetPt; 
     boost::optional<float> MinDeltaEtaJJ; 
     boost::optional<GenPart> X_b_1; 

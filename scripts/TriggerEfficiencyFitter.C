@@ -49,19 +49,19 @@ void MeasureTriggerEfficiency(std::string inputFileName, std::string sampleName,
         "L1 Trigger", "p_{1}^{T} + p_{2}^{T} + p_{3}^{T} + p_{4}^{T}", lineColor);
     efficiency->Write();
 
-    efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "FirstJetPt", 
-        "QuadCentralJet30AndPrevious", "L1triggerDouble90Double30AndPrevious", dummyFormula, dummyParameters,
-        "Quad Central Jet 30 GeV", "p_{1}^{T}", lineColor);
-    efficiency->Write();
+    // efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "FirstJetPt", 
+    //     "QuadCentralJet30AndPrevious", "L1triggerDouble90Double30AndPrevious", dummyFormula, dummyParameters,
+    //     "Quad Central Jet 30 GeV", "p_{1}^{T}", lineColor);
+    // efficiency->Write();
 
-    efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "SecondJetPt", 
-        "QuadCentralJet30AndPrevious", "L1triggerDouble90Double30AndPrevious", dummyFormula, dummyParameters,
-        "Quad Central Jet 30 GeV", "p_{2}^{T}", lineColor);
-    efficiency->Write();
+    // efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "SecondJetPt", 
+    //     "QuadCentralJet30AndPrevious", "L1triggerDouble90Double30AndPrevious", dummyFormula, dummyParameters,
+    //     "Quad Central Jet 30 GeV", "p_{2}^{T}", lineColor);
+    // efficiency->Write();
 
-    efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "ThirdJetPt", 
-        "QuadCentralJet30AndPrevious", "L1triggerDouble90Double30AndPrevious", dummyFormula, dummyParameters,
-        "Quad Central Jet 30 GeV", "p_{3}^{T}", lineColor);
+    // efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "ThirdJetPt", 
+    //     "QuadCentralJet30AndPrevious", "L1triggerDouble90Double30AndPrevious", dummyFormula, dummyParameters,
+    //     "Quad Central Jet 30 GeV", "p_{3}^{T}", lineColor);
     efficiency->Write();
 
     efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "ForthJetPt", 
@@ -69,19 +69,19 @@ void MeasureTriggerEfficiency(std::string inputFileName, std::string sampleName,
         "Quad Central Jet 30 GeV", "p_{4}^{T}", lineColor);
     efficiency->Write();
 
-    efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "FirstJetPt", 
-        "DoubleCentralJet90AndPrevious", "QuadCentralJet30AndPrevious", dummyFormula, dummyParameters,
-        "Double Central Jet 90 GeV", "p_{1}^{T}", lineColor);
-    efficiency->Write();
+    // efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "FirstJetPt", 
+    //     "DoubleCentralJet90AndPrevious", "QuadCentralJet30AndPrevious", dummyFormula, dummyParameters,
+    //     "Double Central Jet 90 GeV", "p_{1}^{T}", lineColor);
+    // efficiency->Write();
 
     efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "SecondJetPt", 
         "DoubleCentralJet90AndPrevious", "QuadCentralJet30AndPrevious", dummyFormula, dummyParameters,
         "Double Central Jet 90 GeV", "p_{2}^{T}", lineColor);
     efficiency->Write();
 
-    efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "ThirdJetDeepCSV", 
+    efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "FirstJetDeepCSV", 
         "BTagCaloCSVp087TripleDouble90Double30AndPrevious", "DoubleCentralJet90AndPrevious", dummyFormula, dummyParameters,
-        "BTag CaloCSV p087 Triple", "DeepCSV_{3}", lineColor);
+        "BTag CaloCSV p087 Triple", "DeepCSV_{1}", lineColor);
     efficiency->Write();
 
     // efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "FirstPtOrderedJetDeepCSV", 
@@ -89,30 +89,30 @@ void MeasureTriggerEfficiency(std::string inputFileName, std::string sampleName,
     //     "BTag CaloCSV p087 Single", "DeepCSV", lineColor);
     // efficiency->Write();
 
-    efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "FirstJetPt", 
-        "QuadPFCentralJetLooseID30AndPrevious", "BTagCaloCSVp087TripleDouble90Double30AndPrevious", dummyFormula, dummyParameters,
-        "Quad PF Central Jet Loose ID 30 GeV", "p_{1}^{T}", lineColor);
-    efficiency->Write();
+    // efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "FirstJetPt", 
+    //     "QuadPFCentralJetLooseID30AndPrevious", "BTagCaloCSVp087TripleDouble90Double30AndPrevious", dummyFormula, dummyParameters,
+    //     "Quad PF Central Jet Loose ID 30 GeV", "p_{1}^{T}", lineColor);
+    // efficiency->Write();
 
-    efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "SecondJetPt", 
-        "QuadPFCentralJetLooseID30AndPrevious", "BTagCaloCSVp087TripleDouble90Double30AndPrevious", dummyFormula, dummyParameters,
-        "Quad PF Central Jet Loose ID 30 GeV", "p_{2}^{T}", lineColor);
-    efficiency->Write();
+    // efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "SecondJetPt", 
+    //     "QuadPFCentralJetLooseID30AndPrevious", "BTagCaloCSVp087TripleDouble90Double30AndPrevious", dummyFormula, dummyParameters,
+    //     "Quad PF Central Jet Loose ID 30 GeV", "p_{2}^{T}", lineColor);
+    // efficiency->Write();
 
-    efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "ThirdJetPt", 
-        "QuadPFCentralJetLooseID30AndPrevious", "BTagCaloCSVp087TripleDouble90Double30AndPrevious", dummyFormula, dummyParameters,
-        "Quad PF Central Jet Loose ID 30 GeV", "p_{3}^{T}", lineColor);
-    efficiency->Write();
+    // efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "ThirdJetPt", 
+    //     "QuadPFCentralJetLooseID30AndPrevious", "BTagCaloCSVp087TripleDouble90Double30AndPrevious", dummyFormula, dummyParameters,
+    //     "Quad PF Central Jet Loose ID 30 GeV", "p_{3}^{T}", lineColor);
+    // efficiency->Write();
 
     efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "ForthJetPt", 
         "QuadPFCentralJetLooseID30AndPrevious", "BTagCaloCSVp087TripleDouble90Double30AndPrevious", dummyFormula, dummyParameters,
         "Quad PF Central Jet Loose ID 30 GeV", "p_{4}^{T}", lineColor);
     efficiency->Write();
 
-    efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "FirstJetPt", 
-        "DoublePFCentralJetLooseID90AndPrevious", "QuadPFCentralJetLooseID30AndPrevious", dummyFormula, dummyParameters,
-        "Double PF Central Jet Loose ID 90 GeV", "p_{1}^{T}", lineColor);
-    efficiency->Write();
+    // efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "FirstJetPt", 
+    //     "DoublePFCentralJetLooseID90AndPrevious", "QuadPFCentralJetLooseID30AndPrevious", dummyFormula, dummyParameters,
+    //     "Double PF Central Jet Loose ID 90 GeV", "p_{1}^{T}", lineColor);
+    // efficiency->Write();
 
     efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "SecondJetPt", 
         "DoublePFCentralJetLooseID90AndPrevious", "QuadPFCentralJetLooseID30AndPrevious", dummyFormula, dummyParameters,
@@ -127,19 +127,19 @@ void MeasureTriggerEfficiency(std::string inputFileName, std::string sampleName,
         "L1 Trigger", "p_{1}^{T} + p_{2}^{T} + p_{3}^{T} + p_{4}^{T}", lineColor);
     efficiency->Write();
 
-    efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "FirstJetPt", 
-        "QuadCentralJet45AndPrevious", "L1triggerQuad45AndPrevious", dummyFormula, dummyParameters,
-        "Quad Central Jet 45 GeV", "p_{1}^{T}", lineColor);
-    efficiency->Write();
+    // efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "FirstJetPt", 
+    //     "QuadCentralJet45AndPrevious", "L1triggerQuad45AndPrevious", dummyFormula, dummyParameters,
+    //     "Quad Central Jet 45 GeV", "p_{1}^{T}", lineColor);
+    // efficiency->Write();
 
-    efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "SecondJetPt", 
-        "QuadCentralJet45AndPrevious", "L1triggerQuad45AndPrevious", dummyFormula, dummyParameters,
-        "Quad Central Jet 45 GeV", "p_{2}^{T}", lineColor);
-    efficiency->Write();
+    // efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "SecondJetPt", 
+    //     "QuadCentralJet45AndPrevious", "L1triggerQuad45AndPrevious", dummyFormula, dummyParameters,
+    //     "Quad Central Jet 45 GeV", "p_{2}^{T}", lineColor);
+    // efficiency->Write();
 
-    efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "ThirdJetPt", 
-        "QuadCentralJet45AndPrevious", "L1triggerQuad45AndPrevious", dummyFormula, dummyParameters,
-        "Quad Central Jet 45 GeV", "p_{3}^{T}", lineColor);
+    // efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "ThirdJetPt", 
+    //     "QuadCentralJet45AndPrevious", "L1triggerQuad45AndPrevious", dummyFormula, dummyParameters,
+    //     "Quad Central Jet 45 GeV", "p_{3}^{T}", lineColor);
     
     efficiency->Write();
     efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "ForthJetPt", 
@@ -147,9 +147,9 @@ void MeasureTriggerEfficiency(std::string inputFileName, std::string sampleName,
         "Quad Central Jet 45 GeV", "p_{4}^{T}", lineColor);
     efficiency->Write();
 
-    efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "ThirdJetDeepCSV", 
+    efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "FirstJetDeepCSV", 
         "BTagCaloCSVp087TripleQuad45AndPrevious", "QuadCentralJet45AndPrevious", dummyFormula, dummyParameters,
-        "BTag CaloCSV p087 Triple", "DeepCSV_{3}", lineColor);
+        "BTag CaloCSV p087 Triple", "DeepCSV_{1}", lineColor);
     efficiency->Write();
 
     // efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "FirstPtOrderedJetDeepCSV", 
@@ -157,20 +157,20 @@ void MeasureTriggerEfficiency(std::string inputFileName, std::string sampleName,
     //     "BTag CaloCSV p087 Single", "DeepCSV", lineColor);
     // efficiency->Write();
 
-    efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "FirstJetPt", 
-        "QuadPFCentralJetLooseID45AndPrevious", "BTagCaloCSVp087TripleQuad45AndPrevious", dummyFormula, dummyParameters,
-        "Quad PF Central Jet Loose ID 45 GeV", "p_{1}^{T}", lineColor);
-    efficiency->Write();
+    // efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "FirstJetPt", 
+    //     "QuadPFCentralJetLooseID45AndPrevious", "BTagCaloCSVp087TripleQuad45AndPrevious", dummyFormula, dummyParameters,
+    //     "Quad PF Central Jet Loose ID 45 GeV", "p_{1}^{T}", lineColor);
+    // efficiency->Write();
 
-    efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "SecondJetPt", 
-        "QuadPFCentralJetLooseID45AndPrevious", "BTagCaloCSVp087TripleQuad45AndPrevious", dummyFormula, dummyParameters,
-        "Quad PF Central Jet Loose ID 45 GeV", "p_{2}^{T}", lineColor);
-    efficiency->Write();
+    // efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "SecondJetPt", 
+    //     "QuadPFCentralJetLooseID45AndPrevious", "BTagCaloCSVp087TripleQuad45AndPrevious", dummyFormula, dummyParameters,
+    //     "Quad PF Central Jet Loose ID 45 GeV", "p_{2}^{T}", lineColor);
+    // efficiency->Write();
 
-    efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "ThirdJetPt", 
-        "QuadPFCentralJetLooseID45AndPrevious", "BTagCaloCSVp087TripleQuad45AndPrevious", dummyFormula, dummyParameters,
-        "Quad PF Central Jet Loose ID 45 GeV", "p_{3}^{T}", lineColor);
-    efficiency->Write();
+    // efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "ThirdJetPt", 
+    //     "QuadPFCentralJetLooseID45AndPrevious", "BTagCaloCSVp087TripleQuad45AndPrevious", dummyFormula, dummyParameters,
+    //     "Quad PF Central Jet Loose ID 45 GeV", "p_{3}^{T}", lineColor);
+    // efficiency->Write();
 
     efficiency = TriggerEfficiencyFitter(inputFile, sampleName, referenceTriggerName, "ForthJetPt", 
         "QuadPFCentralJetLooseID45AndPrevious", "BTagCaloCSVp087TripleQuad45AndPrevious", dummyFormula, dummyParameters,
@@ -254,47 +254,47 @@ void ProduceAllTriggerEfficiencies()
     // MeasureTriggerEfficiency("2016DataPlots_4bSelection/outPlotter.root","TTbar","HLT_IsoMu20_Matched","TriggerEfficiency_TTbar_4bSelection_IsoMu20_Matched.root",kBlue);
 
 
-   SingleMuon
-    MeasureTriggerEfficiency("2016DataPlots_MuonPt40_ForthJetPt30_CMVAM/outPlotter.root","SingleMuon","HLT_IsoMu24","TriggerEfficiency_SingleMuon_MuonPt40_ForthJetPt30_CMVAM_IsoMu24.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_MuonPt40_ForthJetPt30_CMVAM/outPlotter.root","SingleMuon","HLT_IsoMu24_Matched","TriggerEfficiency_SingleMuon_MuonPt40_ForthJetPt30_CMVAM_IsoMu24_Matched.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_MuonPt40_ForthJetPt30_CMVAM/outPlotter.root","SingleMuon","HLT_IsoMu20","TriggerEfficiency_SingleMuon_MuonPt40_ForthJetPt30_CMVAM_IsoMu20.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_MuonPt40_ForthJetPt30_CMVAM/outPlotter.root","SingleMuon","HLT_IsoMu20_Matched","TriggerEfficiency_SingleMuon_MuonPt40_ForthJetPt30_CMVAM_IsoMu20_Matched.root",kBlue);
+//    SingleMuon
+    MeasureTriggerEfficiency("2016DataPlots_triggerEfficiencies/outPlotter.root","SingleMuon_triggerMatched","HLT_IsoMu24","TriggerEfficiency_SingleMuon_triggerMatched_MuonPt40_ForthJetPt30_CMVAM_IsoMu24.root",kBlue);
+    MeasureTriggerEfficiency("2016DataPlots_triggerEfficiencies/outPlotter.root","SingleMuon_triggerMatched","HLT_IsoMu24_Matched","TriggerEfficiency_SingleMuon_triggerMatched_MuonPt40_ForthJetPt30_CMVAM_IsoMu24_Matched.root",kBlue);
+    MeasureTriggerEfficiency("2016DataPlots_triggerEfficiencies/outPlotter.root","SingleMuon_triggerMatched","HLT_IsoMu20","TriggerEfficiency_SingleMuon_triggerMatched_MuonPt40_ForthJetPt30_CMVAM_IsoMu20.root",kBlue);
+    MeasureTriggerEfficiency("2016DataPlots_triggerEfficiencies/outPlotter.root","SingleMuon_triggerMatched","HLT_IsoMu20_Matched","TriggerEfficiency_SingleMuon_triggerMatched_MuonPt40_ForthJetPt30_CMVAM_IsoMu20_Matched.root",kBlue);
 
-    MeasureTriggerEfficiency("2016DataPlots_MuonPt40_ForthJetPt30/outPlotter.root","SingleMuon","HLT_IsoMu24","TriggerEfficiency_SingleMuon_MuonPt40_ForthJetPt30_IsoMu24.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_MuonPt40_ForthJetPt30/outPlotter.root","SingleMuon","HLT_IsoMu24_Matched","TriggerEfficiency_SingleMuon_MuonPt40_ForthJetPt30_IsoMu24_Matched.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_MuonPt40_ForthJetPt30/outPlotter.root","SingleMuon","HLT_IsoMu20","TriggerEfficiency_SingleMuon_MuonPt40_ForthJetPt30_IsoMu20.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_MuonPt40_ForthJetPt30/outPlotter.root","SingleMuon","HLT_IsoMu20_Matched","TriggerEfficiency_SingleMuon_MuonPt40_ForthJetPt30_IsoMu20_Matched.root",kBlue);
+    // MeasureTriggerEfficiency("2016DataPlots_MuonPt40_ForthJetPt30/outPlotter.root","SingleMuon_triggerMatched","HLT_IsoMu24","TriggerEfficiency_SingleMuon_triggerMatched_MuonPt40_ForthJetPt30_IsoMu24.root",kBlue);
+    // MeasureTriggerEfficiency("2016DataPlots_MuonPt40_ForthJetPt30/outPlotter.root","SingleMuon_triggerMatched","HLT_IsoMu24_Matched","TriggerEfficiency_SingleMuon_triggerMatched_MuonPt40_ForthJetPt30_IsoMu24_Matched.root",kBlue);
+    // MeasureTriggerEfficiency("2016DataPlots_MuonPt40_ForthJetPt30/outPlotter.root","SingleMuon_triggerMatched","HLT_IsoMu20","TriggerEfficiency_SingleMuon_triggerMatched_MuonPt40_ForthJetPt30_IsoMu20.root",kBlue);
+    // MeasureTriggerEfficiency("2016DataPlots_MuonPt40_ForthJetPt30/outPlotter.root","SingleMuon_triggerMatched","HLT_IsoMu20_Matched","TriggerEfficiency_SingleMuon_triggerMatched_MuonPt40_ForthJetPt30_IsoMu20_Matched.root",kBlue);
 
-    MeasureTriggerEfficiency("2016DataPlots_4bLooseSelection/outPlotter.root","SingleMuon","HLT_IsoMu24","TriggerEfficiency_SingleMuon_4bLooseSelection_IsoMu24.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_4bLooseSelection/outPlotter.root","SingleMuon","HLT_IsoMu24_Matched","TriggerEfficiency_SingleMuon_4bLooseSelection_IsoMu24_Matched.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_4bLooseSelection/outPlotter.root","SingleMuon","HLT_IsoMu20","TriggerEfficiency_SingleMuon_4bLooseSelection_IsoMu20.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_4bLooseSelection/outPlotter.root","SingleMuon","HLT_IsoMu20_Matched","TriggerEfficiency_SingleMuon_4bLooseSelection_IsoMu20_Matched.root",kBlue);
+    // MeasureTriggerEfficiency("2016DataPlots_4bLooseSelection/outPlotter.root","SingleMuon_triggerMatched","HLT_IsoMu24","TriggerEfficiency_SingleMuon_triggerMatched_4bLooseSelection_IsoMu24.root",kBlue);
+    // MeasureTriggerEfficiency("2016DataPlots_4bLooseSelection/outPlotter.root","SingleMuon_triggerMatched","HLT_IsoMu24_Matched","TriggerEfficiency_SingleMuon_triggerMatched_4bLooseSelection_IsoMu24_Matched.root",kBlue);
+    // MeasureTriggerEfficiency("2016DataPlots_4bLooseSelection/outPlotter.root","SingleMuon_triggerMatched","HLT_IsoMu20","TriggerEfficiency_SingleMuon_triggerMatched_4bLooseSelection_IsoMu20.root",kBlue);
+    // MeasureTriggerEfficiency("2016DataPlots_4bLooseSelection/outPlotter.root","SingleMuon_triggerMatched","HLT_IsoMu20_Matched","TriggerEfficiency_SingleMuon_triggerMatched_4bLooseSelection_IsoMu20_Matched.root",kBlue);
 
-    MeasureTriggerEfficiency("2016DataPlots_4bSelection/outPlotter.root","SingleMuon","HLT_IsoMu24","TriggerEfficiency_SingleMuon_4bSelection_IsoMu24.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_4bSelection/outPlotter.root","SingleMuon","HLT_IsoMu24_Matched","TriggerEfficiency_SingleMuon_4bSelection_IsoMu24_Matched.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_4bSelection/outPlotter.root","SingleMuon","HLT_IsoMu20","TriggerEfficiency_SingleMuon_4bSelection_IsoMu20.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_4bSelection/outPlotter.root","SingleMuon","HLT_IsoMu20_Matched","TriggerEfficiency_SingleMuon_4bSelection_IsoMu20_Matched.root",kBlue);
+    // MeasureTriggerEfficiency("2016DataPlots_4bSelection/outPlotter.root","SingleMuon_triggerMatched","HLT_IsoMu24","TriggerEfficiency_SingleMuon_triggerMatched_4bSelection_IsoMu24.root",kBlue);
+    // MeasureTriggerEfficiency("2016DataPlots_4bSelection/outPlotter.root","SingleMuon_triggerMatched","HLT_IsoMu24_Matched","TriggerEfficiency_SingleMuon_triggerMatched_4bSelection_IsoMu24_Matched.root",kBlue);
+    // MeasureTriggerEfficiency("2016DataPlots_4bSelection/outPlotter.root","SingleMuon_triggerMatched","HLT_IsoMu20","TriggerEfficiency_SingleMuon_triggerMatched_4bSelection_IsoMu20.root",kBlue);
+    // MeasureTriggerEfficiency("2016DataPlots_4bSelection/outPlotter.root","SingleMuon_triggerMatched","HLT_IsoMu20_Matched","TriggerEfficiency_SingleMuon_triggerMatched_4bSelection_IsoMu20_Matched.root",kBlue);
 
-    TTbar
-    MeasureTriggerEfficiency("2016DataPlots_MuonPt40_ForthJetPt30_CMVAM/outPlotter.root","TTbar","HLT_IsoMu24","TriggerEfficiency_TTbar_MuonPt40_ForthJetPt30_CMVAM_IsoMu24.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_MuonPt40_ForthJetPt30_CMVAM/outPlotter.root","TTbar","HLT_IsoMu24_Matched","TriggerEfficiency_TTbar_MuonPt40_ForthJetPt30_CMVAM_IsoMu24_Matched.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_MuonPt40_ForthJetPt30_CMVAM/outPlotter.root","TTbar","HLT_IsoMu20","TriggerEfficiency_TTbar_MuonPt40_ForthJetPt30_CMVAM_IsoMu20.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_MuonPt40_ForthJetPt30_CMVAM/outPlotter.root","TTbar","HLT_IsoMu20_Matched","TriggerEfficiency_TTbar_MuonPt40_ForthJetPt30_CMVAM_IsoMu20_Matched.root",kBlue);
+    // TTbar
+    MeasureTriggerEfficiency("2016DataPlots_triggerEfficiencies/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu24","TriggerEfficiency_TTbar_triggerMatched_MuonPt40_ForthJetPt30_CMVAM_IsoMu24.root",kBlue);
+    MeasureTriggerEfficiency("2016DataPlots_triggerEfficiencies/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu24_Matched","TriggerEfficiency_TTbar_triggerMatched_MuonPt40_ForthJetPt30_CMVAM_IsoMu24_Matched.root",kBlue);
+    MeasureTriggerEfficiency("2016DataPlots_triggerEfficiencies/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu20","TriggerEfficiency_TTbar_triggerMatched_MuonPt40_ForthJetPt30_CMVAM_IsoMu20.root",kBlue);
+    MeasureTriggerEfficiency("2016DataPlots_triggerEfficiencies/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu20_Matched","TriggerEfficiency_TTbar_triggerMatched_MuonPt40_ForthJetPt30_CMVAM_IsoMu20_Matched.root",kBlue);
 
-    MeasureTriggerEfficiency("2016DataPlots_MuonPt40_ForthJetPt30/outPlotter.root","TTbar","HLT_IsoMu24","TriggerEfficiency_TTbar_MuonPt40_ForthJetPt30_IsoMu24.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_MuonPt40_ForthJetPt30/outPlotter.root","TTbar","HLT_IsoMu24_Matched","TriggerEfficiency_TTbar_MuonPt40_ForthJetPt30_IsoMu24_Matched.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_MuonPt40_ForthJetPt30/outPlotter.root","TTbar","HLT_IsoMu20","TriggerEfficiency_TTbar_MuonPt40_ForthJetPt30_IsoMu20.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_MuonPt40_ForthJetPt30/outPlotter.root","TTbar","HLT_IsoMu20_Matched","TriggerEfficiency_TTbar_MuonPt40_ForthJetPt30_IsoMu20_Matched.root",kBlue);
+    // MeasureTriggerEfficiency("2016DataPlots_MuonPt40_ForthJetPt30/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu24","TriggerEfficiency_TTbar_triggerMatched_MuonPt40_ForthJetPt30_IsoMu24.root",kBlue);
+    // MeasureTriggerEfficiency("2016DataPlots_MuonPt40_ForthJetPt30/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu24_Matched","TriggerEfficiency_TTbar_triggerMatched_MuonPt40_ForthJetPt30_IsoMu24_Matched.root",kBlue);
+    // MeasureTriggerEfficiency("2016DataPlots_MuonPt40_ForthJetPt30/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu20","TriggerEfficiency_TTbar_triggerMatched_MuonPt40_ForthJetPt30_IsoMu20.root",kBlue);
+    // MeasureTriggerEfficiency("2016DataPlots_MuonPt40_ForthJetPt30/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu20_Matched","TriggerEfficiency_TTbar_triggerMatched_MuonPt40_ForthJetPt30_IsoMu20_Matched.root",kBlue);
 
-    MeasureTriggerEfficiency("2016DataPlots_4bLooseSelection/outPlotter.root","TTbar","HLT_IsoMu24","TriggerEfficiency_TTbar_4bLooseSelection_IsoMu24.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_4bLooseSelection/outPlotter.root","TTbar","HLT_IsoMu24_Matched","TriggerEfficiency_TTbar_4bLooseSelection_IsoMu24_Matched.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_4bLooseSelection/outPlotter.root","TTbar","HLT_IsoMu20","TriggerEfficiency_TTbar_4bLooseSelection_IsoMu20.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_4bLooseSelection/outPlotter.root","TTbar","HLT_IsoMu20_Matched","TriggerEfficiency_TTbar_4bLooseSelection_IsoMu20_Matched.root",kBlue);
+    // MeasureTriggerEfficiency("2016DataPlots_4bLooseSelection/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu24","TriggerEfficiency_TTbar_triggerMatched_4bLooseSelection_IsoMu24.root",kBlue);
+    // MeasureTriggerEfficiency("2016DataPlots_4bLooseSelection/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu24_Matched","TriggerEfficiency_TTbar_triggerMatched_4bLooseSelection_IsoMu24_Matched.root",kBlue);
+    // MeasureTriggerEfficiency("2016DataPlots_4bLooseSelection/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu20","TriggerEfficiency_TTbar_triggerMatched_4bLooseSelection_IsoMu20.root",kBlue);
+    // MeasureTriggerEfficiency("2016DataPlots_4bLooseSelection/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu20_Matched","TriggerEfficiency_TTbar_triggerMatched_4bLooseSelection_IsoMu20_Matched.root",kBlue);
 
-    MeasureTriggerEfficiency("2016DataPlots_4bSelection/outPlotter.root","TTbar","HLT_IsoMu24","TriggerEfficiency_TTbar_4bSelection_IsoMu24.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_4bSelection/outPlotter.root","TTbar","HLT_IsoMu24_Matched","TriggerEfficiency_TTbar_4bSelection_IsoMu24_Matched.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_4bSelection/outPlotter.root","TTbar","HLT_IsoMu20","TriggerEfficiency_TTbar_4bSelection_IsoMu20.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_4bSelection/outPlotter.root","TTbar","HLT_IsoMu20_Matched","TriggerEfficiency_TTbar_4bSelection_IsoMu20_Matched.root",kBlue);
+    // MeasureTriggerEfficiency("2016DataPlots_4bSelection/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu24","TriggerEfficiency_TTbar_triggerMatched_4bSelection_IsoMu24.root",kBlue);
+    // MeasureTriggerEfficiency("2016DataPlots_4bSelection/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu24_Matched","TriggerEfficiency_TTbar_triggerMatched_4bSelection_IsoMu24_Matched.root",kBlue);
+    // MeasureTriggerEfficiency("2016DataPlots_4bSelection/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu20","TriggerEfficiency_TTbar_triggerMatched_4bSelection_IsoMu20.root",kBlue);
+    // MeasureTriggerEfficiency("2016DataPlots_4bSelection/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu20_Matched","TriggerEfficiency_TTbar_triggerMatched_4bSelection_IsoMu20_Matched.root",kBlue);
 
 
 }

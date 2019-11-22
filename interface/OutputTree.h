@@ -336,7 +336,7 @@ class OutputTree {
         float H2_bb_deltaPhi;
         float H1_bb_deltaEta;
         float H2_bb_deltaEta;
-        int   NpreCutJets;
+        int   NbJets;
         float TotalFourJetPt;
         float MinDeltaEtaJJ;
         float b1b2_deltaR; 

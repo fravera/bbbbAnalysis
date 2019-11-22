@@ -315,7 +315,7 @@ void OutputTree::init_branches(bool initAllBranches)
     tree_->Branch("H2_bb_deltaPhi", &H2_bb_deltaPhi);  
     tree_->Branch("H1_bb_deltaEta", &H1_bb_deltaEta);
     tree_->Branch("H2_bb_deltaEta", &H2_bb_deltaEta);  
-    tree_->Branch("NpreCutJets", &NpreCutJets);  
+    tree_->Branch("NbJets", &NbJets);  
     tree_->Branch("TotalFourJetPt", &TotalFourJetPt);  
     tree_->Branch("MinDeltaEtaJJ", &MinDeltaEtaJJ);  
     // //generator level information
@@ -570,7 +570,7 @@ void OutputTree::clear()
     H2_bb_deltaR = 0.;
     H1_bb_deltaEta = 0.;
     H2_bb_deltaEta = 0.;
-    NpreCutJets = 0;
+    NbJets = 0;
     TotalFourJetPt = -1.;
     MinDeltaEtaJJ = -1.;
     H1_bb_deltaPhi = 0.;
