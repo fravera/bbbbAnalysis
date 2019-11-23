@@ -67,29 +67,30 @@ void OfflineProducerHelper::initializeObjectsForCuts(OutputTree &ot)
 
         }
 
-        ot.declareUserFloatBranch("FirstJetPt", -1.);
-        ot.declareUserFloatBranch("SecondJetPt", -1.);
-        ot.declareUserFloatBranch("ThirdJetPt", -1.);
-        ot.declareUserFloatBranch("ForthJetPt", -1.);
-        ot.declareUserFloatBranch("FourHighetJetPtSum", -1.);
-        ot.declareUserFloatBranch("FirstJetDeepCSV", -1.);
-        ot.declareUserFloatBranch("ThirdJetDeepCSV", -1.);
-        ot.declareUserFloatBranch("ForthJetCMVA", -1.);
-        ot.declareUserFloatBranch("HighestIsoMuonPt", -1.);
-        ot.declareUserFloatBranch("HighestIsoElectronPt", -1.);
-        ot.declareUserIntBranch  ("MuonElectronChargeMultiplication", 0);
-        ot.declareUserFloatBranch("FirstPtOrderedJetDeepCSV", -1.);
-        ot.declareUserFloatBranch("SecondPtOrderedJetDeepCSV", -1.);
-        ot.declareUserIntBranch  ("FirstPtOrderedJetOnlineBtag", 0);
+        ot.declareUserFloatBranch("FirstJetPt"                             ,   -1.);
+        ot.declareUserFloatBranch("SecondJetPt"                            ,   -1.);
+        ot.declareUserFloatBranch("ThirdJetPt"                             ,   -1.);
+        ot.declareUserFloatBranch("ForthJetPt"                             ,   -1.);
+        ot.declareUserFloatBranch("FourHighetJetPtSum"                     ,   -1.);
+        ot.declareUserFloatBranch("FirstJetDeepCSV"                        ,   -1.);
+        ot.declareUserFloatBranch("ThirdJetDeepCSV"                        ,   -1.);
+        ot.declareUserFloatBranch("ForthJetCMVA"                           ,   -1.);
+        ot.declareUserFloatBranch("HighestIsoMuonPt"                       ,   -1.);
+        ot.declareUserFloatBranch("HighestIsoElectronPt"                   ,   -1.);
+        ot.declareUserIntBranch  ("MuonElectronChargeMultiplication"       ,     0);
+        ot.declareUserFloatBranch("FirstPtOrderedJetDeepCSV"               ,   -1.);
+        ot.declareUserFloatBranch("SecondPtOrderedJetDeepCSV"              ,   -1.);
+        ot.declareUserIntBranch  ("FirstPtOrderedJetOnlineBtag"            ,     0);
+        ot.declareUserIntBranch  ("CandididateHighestdeepCSV_nBtagMatching",     0);
 
-        ot.declareUserFloatBranch("CaloPtMinimumDeltaR", -999.);
-        ot.declareUserFloatBranch("PFPtMinimumDeltaR", -999.);
-        ot.declareUserIntBranch  ("CaloJetMatchingResult", -1); // 0 -> no 4 matching, 1 ->ok, 2 -> multiple match, 3 -> 4 matches but double count
-        ot.declareUserFloatBranch("ResolutionOnlineCaloJetPt", -999.);
-        ot.declareUserFloatBranch("OfflineJetPtForCaloResolution", -999.);
-        ot.declareUserFloatBranch("ResolutionOnlinePFJetPt", -999.);
-        ot.declareUserFloatBranch("OfflineJetPtForPFResolution", -999.);
-        ot.declareUserIntBranch  ("NumberOfJetsPassingPreselection", -1);
+        ot.declareUserFloatBranch("CaloPtMinimumDeltaR"                    , -999.);
+        ot.declareUserFloatBranch("PFPtMinimumDeltaR"                      , -999.);
+        ot.declareUserIntBranch  ("CaloJetMatchingResult"                  ,    -1); // 0 -> no 4 matching, 1 ->ok, 2 -> multiple match, 3 -> 4 matches but double count
+        ot.declareUserFloatBranch("ResolutionOnlineCaloJetPt"              , -999.);
+        ot.declareUserFloatBranch("OfflineJetPtForCaloResolution"          , -999.);
+        ot.declareUserFloatBranch("ResolutionOnlinePFJetPt"                , -999.);
+        ot.declareUserFloatBranch("OfflineJetPtForPFResolution"            , -999.);
+        ot.declareUserIntBranch  ("NumberOfJetsPassingPreselection"        ,    -1);
 
     }
 
@@ -862,6 +863,7 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
             else if(strategy == "XYH_4B_selection")
             {
                 ordered_jets = bbbb_jets_XYHselection(&presel_jets);
+                if(ordered_jets.size()==0) return false;
 
                 std::vector<TLorentzVector> theJetVector;
                 TLorentzVector theTotalVector(0.,0.,0.,0.);
@@ -910,6 +912,7 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
             
 
 
+            Jet *highestDeepCSVjet;
             if(any_cast<string>(parameterList_->at("ObjectsForCut")) == "TriggerObjects")
             {
                 
@@ -988,6 +991,8 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
                     return ( get_property(a, Jet_btagDeepB) > get_property(b, Jet_btagDeepB) );
                 });
 
+                highestDeepCSVjet = &jetsForTriggerStudies[0];
+
                 ot.userFloat("FirstJetDeepCSV") = get_property(jetsForTriggerStudies[0],Jet_btagDeepB);
                 ot.userFloat("ThirdJetDeepCSV") = get_property(jetsForTriggerStudies[2],Jet_btagDeepB);
                 // std::cout << __PRETTY_FUNCTION__ << get_property(jetsForTriggerStudies[0],Jet_btagDeepB) << " " << get_property(jetsForTriggerStudies[1],Jet_btagDeepB) << " " << get_property(jetsForTriggerStudies[2],Jet_btagDeepB) << " " << get_property(jetsForTriggerStudies[3],Jet_btagDeepB) << " " << std::endl;
@@ -1021,7 +1026,7 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
             }
 
             if(any_cast<string>(parameterList_->at("ObjectsForCut")) == "TriggerObjects" 
-                || any_cast<bool>(parameterList_->at("MatchWithSelectedObjects")) ) calculateTriggerMatching(candidatesForTriggerMatching,nat,ot);
+                || any_cast<bool>(parameterList_->at("MatchWithSelectedObjects")) ) calculateTriggerMatching(candidatesForTriggerMatching,*highestDeepCSVjet,nat,ot);
 
         
             for(auto & triggerFired : listOfPassedTriggers)
@@ -1369,6 +1374,9 @@ void OfflineProducerHelper::fourBjetCut_PreselectionCut(std::vector<Jet> &jets, 
     float minimumDeepCSVaccepted            = any_cast<float>(parameterList_->at("MinDeepCSV"          ));
     float minimumPtAccepted                 = any_cast<float>(parameterList_->at("MinPt"               ));
     float maximumAbsEtaCSVaccepted          = any_cast<float>(parameterList_->at("MaxAbsEta"           ));
+    bool  antiBtagOneJet                    = any_cast<bool >(parameterList_->at("UseAntiTagOnOneBjet" ));
+
+    int minimumNumberDeepCSVaccepted =  antiBtagOneJet ? 3 : 4;
 
     // for(auto &jet : jets)
     // {
@@ -1411,7 +1419,7 @@ void OfflineProducerHelper::fourBjetCut_PreselectionCut(std::vector<Jet> &jets, 
         if(get_property(jet, Jet_btagDeepB) >= minimumDeepCSVaccepted) ++(*ei.NbJets);
         else break;
     }
-    if(*ei.NbJets < 3)
+    if(*ei.NbJets < minimumNumberDeepCSVaccepted)
     {
         jets.erase(jets.begin(),jets.end());
         return;
@@ -1420,7 +1428,6 @@ void OfflineProducerHelper::fourBjetCut_PreselectionCut(std::vector<Jet> &jets, 
     return;
 
 }
-
 
 
 // one pair is closest to the Higgs mass, the other follows
@@ -1608,6 +1615,7 @@ std::vector<Jet> OfflineProducerHelper::bbbb_jets_XYHselection(const std::vector
     float targetHiggsMass = any_cast<float>(parameterList_->at("HiggsMass"));
     size_t numberOfJets = jets->size();
     assert(numberOfJets == 4);
+    std::vector<Jet> output_jets;
 
     std::pair<size_t,size_t> jetsPairClosestToHiggsMass;
     float deltaMass = 99999.;
@@ -1617,7 +1625,9 @@ std::vector<Jet> OfflineProducerHelper::bbbb_jets_XYHselection(const std::vector
         for(unsigned int hb2it = hb1it+1; hb2it< numberOfJets; ++hb2it)
         {
             std::pair<size_t,size_t> currentPair = std::make_pair(hb1it,hb2it);
-            float currentDeltaMass = abs(targetHiggsMass - (jets->at(hb1it).P4Regressed() + jets->at(hb2it).P4Regressed()).M() );
+            float combinationMass = (jets->at(hb1it).P4Regressed() + jets->at(hb2it).P4Regressed()).M();
+            // if(targetHiggsMass==220 && combinationMass>100 && combinationMass<140) return output_jets;
+            float currentDeltaMass = abs(targetHiggsMass - combinationMass );
             if(currentDeltaMass < deltaMass)
             {
                 jetsPairClosestToHiggsMass = currentPair;
@@ -1626,7 +1636,6 @@ std::vector<Jet> OfflineProducerHelper::bbbb_jets_XYHselection(const std::vector
         }
     }
 
-    std::vector<Jet> output_jets;
     //Push SM higgs Jets
     output_jets.emplace_back(jets->at(jetsPairClosestToHiggsMass.first));
     output_jets.emplace_back(jets->at(jetsPairClosestToHiggsMass.second));
@@ -3124,7 +3133,7 @@ bool OfflineProducerHelper::checkTriggerObjectMatching(std::vector<std::string> 
     return triggerMatched; // no matching trigger found among the fired ones
 }
 
-void OfflineProducerHelper::calculateTriggerMatching(const std::vector< std::unique_ptr<Candidate> > &candidateList, NanoAODTree& nat, OutputTree &ot)
+void OfflineProducerHelper::calculateTriggerMatching(const std::vector< std::unique_ptr<Candidate> > &candidateList, const Jet& highestDeepCSVjet, NanoAODTree& nat, OutputTree &ot)
 {
     if(debug) std::cout<<"Matching triggers, Objects found:\n";
     if(debug) std::cout<<"\t\tPt\t\tEta\t\tPhi\t\tObjId\t\tBit\t\tMatchedJetId\n";
@@ -3170,6 +3179,16 @@ void OfflineProducerHelper::calculateTriggerMatching(const std::vector< std::uni
                     int closestJetID=-1;
                     bool firstCandidadeMatched = false;
                     float firstCandidadeMatchedDeltaR = deltaR; //easy to do square root
+
+                    if(any_cast<string>(parameterList_->at("ObjectsForCut")) == "TriggerObjects")
+                    {
+                        std::pair<int,int> bTagFilterBitPair = any_cast<std::pair<int,int>>(parameterList_->at("bTagFilterBitPair"));
+                        if(triggerObjectId == bTagFilterBitPair.first && filterBit == bTagFilterBitPair.second)
+                        {
+                            if((highestDeepCSVjet.P4().Eta() - triggerObjectEta)*(highestDeepCSVjet.P4().Eta() - triggerObjectEta) + deltaPhi(highestDeepCSVjet.P4().Phi(),triggerObjectPhi)*deltaPhi(highestDeepCSVjet.P4().Phi(),triggerObjectPhi))
+                                ++ot.userInt("CandididateHighestdeepCSV_nBtagMatching");
+                        }
+                    }
 
                     for(const auto & candidate : candidateList) //loop to find best Candidate matching DeltaR
                     {

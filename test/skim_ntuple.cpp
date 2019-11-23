@@ -211,7 +211,27 @@ int main(int argc, char** argv)
             triggerObjectsForStudies[std::pair<int,int>(atoi(triggerObjectTokens[0].data()),atoi(triggerObjectTokens[1].data()))] = triggerObjectTokens[2];
         }
 
+        
         parameterList.emplace("TriggerObjectsForStudies", triggerObjectsForStudies);
+
+        std::string bTagFilterBit = config.readStringOpt("parameters::bTagFilterBit");
+        std::vector<std::string> bJetTriggerObjectTokens;
+
+        while ((pos = bTagFilterBit.find(delimiter)) != std::string::npos)
+        {
+            bJetTriggerObjectTokens.push_back(bTagFilterBit.substr(0, pos));
+            bTagFilterBit.erase(0, pos + delimiter.length());
+        }
+        bJetTriggerObjectTokens.push_back(bTagFilterBit); // last part splitted
+        if (bJetTriggerObjectTokens.size() != 2)
+        {
+            throw std::runtime_error("** skim_ntuple : could not parse bTagFilterBit for Cuts entry " + bTagFilterBit + " , aborting");
+        }
+
+        std::pair<int,int> bTagFilterBitPair = std::make_pair(atoi(bJetTriggerObjectTokens[0].data()),atoi(bJetTriggerObjectTokens[1].data()));
+        parameterList.emplace("bTagFilterBitPair", bTagFilterBitPair);
+
+
 
     } 
     else if(objectsForCut == "None"){

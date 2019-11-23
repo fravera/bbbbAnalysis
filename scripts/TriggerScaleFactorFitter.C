@@ -140,23 +140,23 @@ void MeasureTriggerScaleFactor(std::string dataInputFileName, std::string dataSa
     scaleFactor->Write();
     dummyFormula = nullptr;
 
-    scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "FirstJetPt", 
-        "QuadCentralJet30AndPrevious", "L1triggerDouble90Double30AndPrevious", dummyFormula,
-        "Quad Central Jet 30 GeV", "p_{1}^{T}", lineColor);
-    scaleFactor->Write();
-    dummyFormula = nullptr;
+    // scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "FirstJetPt", 
+    //     "QuadCentralJet30AndPrevious", "L1triggerDouble90Double30AndPrevious", dummyFormula,
+    //     "Quad Central Jet 30 GeV", "p_{1}^{T}", lineColor);
+    // scaleFactor->Write();
+    // dummyFormula = nullptr;
 
-    scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "SecondJetPt", 
-        "QuadCentralJet30AndPrevious", "L1triggerDouble90Double30AndPrevious", dummyFormula,
-        "Quad Central Jet 30 GeV", "p_{2}^{T}", lineColor);
-    scaleFactor->Write();
-    dummyFormula = nullptr;
+    // scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "SecondJetPt", 
+    //     "QuadCentralJet30AndPrevious", "L1triggerDouble90Double30AndPrevious", dummyFormula,
+    //     "Quad Central Jet 30 GeV", "p_{2}^{T}", lineColor);
+    // scaleFactor->Write();
+    // dummyFormula = nullptr;
 
-    scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "ThirdJetPt", 
-        "QuadCentralJet30AndPrevious", "L1triggerDouble90Double30AndPrevious", dummyFormula,
-        "Quad Central Jet 30 GeV", "p_{3}^{T}", lineColor);
-    scaleFactor->Write();
-    dummyFormula = nullptr;
+    // scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "ThirdJetPt", 
+    //     "QuadCentralJet30AndPrevious", "L1triggerDouble90Double30AndPrevious", dummyFormula,
+    //     "Quad Central Jet 30 GeV", "p_{3}^{T}", lineColor);
+    // scaleFactor->Write();
+    // dummyFormula = nullptr;
 
     scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "ForthJetPt", 
         "QuadCentralJet30AndPrevious", "L1triggerDouble90Double30AndPrevious", dummyFormula,
@@ -164,11 +164,11 @@ void MeasureTriggerScaleFactor(std::string dataInputFileName, std::string dataSa
     scaleFactor->Write();
     dummyFormula = nullptr;
 
-    scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "FirstJetPt", 
-        "DoubleCentralJet90AndPrevious", "QuadCentralJet30AndPrevious", dummyFormula,
-        "Double Central Jet 90 GeV", "p_{1}^{T}", lineColor);
-    scaleFactor->Write();
-    dummyFormula = nullptr;
+    // scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "FirstJetPt", 
+    //     "DoubleCentralJet90AndPrevious", "QuadCentralJet30AndPrevious", dummyFormula,
+    //     "Double Central Jet 90 GeV", "p_{1}^{T}", lineColor);
+    // scaleFactor->Write();
+    // dummyFormula = nullptr;
 
     scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "SecondJetPt", 
         "DoubleCentralJet90AndPrevious", "QuadCentralJet30AndPrevious", dummyFormula,
@@ -176,29 +176,29 @@ void MeasureTriggerScaleFactor(std::string dataInputFileName, std::string dataSa
     scaleFactor->Write();
     dummyFormula = nullptr;
 
-    scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "ThirdJetDeepCSV", 
+    scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "FirstJetDeepCSV", 
         "BTagCaloCSVp087TripleDouble90Double30AndPrevious", "DoubleCentralJet90AndPrevious", dummyFormula,
-        "BTag CaloCSV p087 Triple", "DeepCSV_{3}", lineColor);
+        "BTag CaloCSV p087 Triple", "DeepCSV_{1}", lineColor);
     scaleFactor->Write();
     dummyFormula = nullptr;
 
-    scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "FirstJetPt", 
-        "QuadPFCentralJetLooseID30AndPrevious", "BTagCaloCSVp087TripleDouble90Double30AndPrevious", dummyFormula,
-        "Quad PF Central Jet Loose ID 30 GeV", "p_{1}^{T}", lineColor);
-    scaleFactor->Write();
-    dummyFormula = nullptr;
+    // scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "FirstJetPt", 
+    //     "QuadPFCentralJetLooseID30AndPrevious", "BTagCaloCSVp087TripleDouble90Double30AndPrevious", dummyFormula,
+    //     "Quad PF Central Jet Loose ID 30 GeV", "p_{1}^{T}", lineColor);
+    // scaleFactor->Write();
+    // dummyFormula = nullptr;
 
-    scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "SecondJetPt", 
-        "QuadPFCentralJetLooseID30AndPrevious", "BTagCaloCSVp087TripleDouble90Double30AndPrevious", dummyFormula,
-        "Quad PF Central Jet Loose ID 30 GeV", "p_{2}^{T}", lineColor);
-    scaleFactor->Write();
-    dummyFormula = nullptr;
+    // scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "SecondJetPt", 
+    //     "QuadPFCentralJetLooseID30AndPrevious", "BTagCaloCSVp087TripleDouble90Double30AndPrevious", dummyFormula,
+    //     "Quad PF Central Jet Loose ID 30 GeV", "p_{2}^{T}", lineColor);
+    // scaleFactor->Write();
+    // dummyFormula = nullptr;
 
-    scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "ThirdJetPt", 
-        "QuadPFCentralJetLooseID30AndPrevious", "BTagCaloCSVp087TripleDouble90Double30AndPrevious", dummyFormula,
-        "Quad PF Central Jet Loose ID 30 GeV", "p_{3}^{T}", lineColor);
-    scaleFactor->Write();
-    dummyFormula = nullptr;
+    // scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "ThirdJetPt", 
+    //     "QuadPFCentralJetLooseID30AndPrevious", "BTagCaloCSVp087TripleDouble90Double30AndPrevious", dummyFormula,
+    //     "Quad PF Central Jet Loose ID 30 GeV", "p_{3}^{T}", lineColor);
+    // scaleFactor->Write();
+    // dummyFormula = nullptr;
 
     scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "ForthJetPt", 
         "QuadPFCentralJetLooseID30AndPrevious", "BTagCaloCSVp087TripleDouble90Double30AndPrevious", dummyFormula,
@@ -206,11 +206,11 @@ void MeasureTriggerScaleFactor(std::string dataInputFileName, std::string dataSa
     scaleFactor->Write();
     dummyFormula = nullptr;
 
-    scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "FirstJetPt", 
-        "DoublePFCentralJetLooseID90AndPrevious", "QuadPFCentralJetLooseID30AndPrevious", dummyFormula,
-        "Double PF Central Jet Loose ID 90 GeV", "p_{1}^{T}", lineColor);
-    scaleFactor->Write();
-    dummyFormula = nullptr;
+    // scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "FirstJetPt", 
+    //     "DoublePFCentralJetLooseID90AndPrevious", "QuadPFCentralJetLooseID30AndPrevious", dummyFormula,
+    //     "Double PF Central Jet Loose ID 90 GeV", "p_{1}^{T}", lineColor);
+    // scaleFactor->Write();
+    // dummyFormula = nullptr;
 
     scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "SecondJetPt", 
         "DoublePFCentralJetLooseID90AndPrevious", "QuadPFCentralJetLooseID30AndPrevious", dummyFormula,
@@ -227,23 +227,23 @@ void MeasureTriggerScaleFactor(std::string dataInputFileName, std::string dataSa
     scaleFactor->Write();
     dummyFormula = nullptr;
 
-    scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "FirstJetPt", 
-        "QuadCentralJet45AndPrevious", "L1triggerQuad45AndPrevious", dummyFormula,
-        "Quad Central Jet 45 GeV", "p_{1}^{T}", lineColor);
-    scaleFactor->Write();
-    dummyFormula = nullptr;
+    // scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "FirstJetPt", 
+    //     "QuadCentralJet45AndPrevious", "L1triggerQuad45AndPrevious", dummyFormula,
+    //     "Quad Central Jet 45 GeV", "p_{1}^{T}", lineColor);
+    // scaleFactor->Write();
+    // dummyFormula = nullptr;
 
-    scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "SecondJetPt", 
-        "QuadCentralJet45AndPrevious", "L1triggerQuad45AndPrevious", dummyFormula,
-        "Quad Central Jet 45 GeV", "p_{2}^{T}", lineColor);
-    scaleFactor->Write();
-    dummyFormula = nullptr;
+    // scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "SecondJetPt", 
+    //     "QuadCentralJet45AndPrevious", "L1triggerQuad45AndPrevious", dummyFormula,
+    //     "Quad Central Jet 45 GeV", "p_{2}^{T}", lineColor);
+    // scaleFactor->Write();
+    // dummyFormula = nullptr;
 
-    scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "ThirdJetPt", 
-        "QuadCentralJet45AndPrevious", "L1triggerQuad45AndPrevious", dummyFormula,
-        "Quad Central Jet 45 GeV", "p_{3}^{T}", lineColor);
-    scaleFactor->Write();
-    dummyFormula = nullptr;
+    // scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "ThirdJetPt", 
+    //     "QuadCentralJet45AndPrevious", "L1triggerQuad45AndPrevious", dummyFormula,
+    //     "Quad Central Jet 45 GeV", "p_{3}^{T}", lineColor);
+    // scaleFactor->Write();
+    // dummyFormula = nullptr;
 
     scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "ForthJetPt", 
         "QuadCentralJet45AndPrevious", "L1triggerQuad45AndPrevious", dummyFormula,
@@ -251,29 +251,29 @@ void MeasureTriggerScaleFactor(std::string dataInputFileName, std::string dataSa
     scaleFactor->Write();
     dummyFormula = nullptr;
 
-    scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "ThirdJetDeepCSV", 
+    scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "FirstJetDeepCSV", 
         "BTagCaloCSVp087TripleQuad45AndPrevious", "QuadCentralJet45AndPrevious", dummyFormula,
-        "BTag CaloCSV p087 Triple", "DeepCSV_{3}", lineColor);
+        "BTag CaloCSV p087 Triple", "DeepCSV_{1}", lineColor);
     scaleFactor->Write();
     dummyFormula = nullptr;
 
-    scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "FirstJetPt", 
-        "QuadPFCentralJetLooseID45AndPrevious", "BTagCaloCSVp087TripleQuad45AndPrevious", dummyFormula,
-        "Quad PF Central Jet Loose ID 45 GeV", "p_{1}^{T}", lineColor);
-    scaleFactor->Write();
-    dummyFormula = nullptr;
+    // scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "FirstJetPt", 
+    //     "QuadPFCentralJetLooseID45AndPrevious", "BTagCaloCSVp087TripleQuad45AndPrevious", dummyFormula,
+    //     "Quad PF Central Jet Loose ID 45 GeV", "p_{1}^{T}", lineColor);
+    // scaleFactor->Write();
+    // dummyFormula = nullptr;
 
-    scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "SecondJetPt", 
-        "QuadPFCentralJetLooseID45AndPrevious", "BTagCaloCSVp087TripleQuad45AndPrevious", dummyFormula,
-        "Quad PF Central Jet Loose ID 45 GeV", "p_{2}^{T}", lineColor);
-    scaleFactor->Write();
-    dummyFormula = nullptr;
+    // scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "SecondJetPt", 
+    //     "QuadPFCentralJetLooseID45AndPrevious", "BTagCaloCSVp087TripleQuad45AndPrevious", dummyFormula,
+    //     "Quad PF Central Jet Loose ID 45 GeV", "p_{2}^{T}", lineColor);
+    // scaleFactor->Write();
+    // dummyFormula = nullptr;
 
-    scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "ThirdJetPt", 
-        "QuadPFCentralJetLooseID45AndPrevious", "BTagCaloCSVp087TripleQuad45AndPrevious", dummyFormula,
-        "Quad PF Central Jet Loose ID 45 GeV", "p_{3}^{T}", lineColor);
-    scaleFactor->Write();
-    dummyFormula = nullptr;
+    // scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "ThirdJetPt", 
+    //     "QuadPFCentralJetLooseID45AndPrevious", "BTagCaloCSVp087TripleQuad45AndPrevious", dummyFormula,
+    //     "Quad PF Central Jet Loose ID 45 GeV", "p_{3}^{T}", lineColor);
+    // scaleFactor->Write();
+    // dummyFormula = nullptr;
 
     scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "ForthJetPt", 
         "QuadPFCentralJetLooseID45AndPrevious", "BTagCaloCSVp087TripleQuad45AndPrevious", dummyFormula,
@@ -304,8 +304,11 @@ void ProduceAllScaleFactors()
 
 
     // MeasureTriggerScaleFactor("2016DataPlots_MuonPt40_ForthJetPt30/outPlotter.root","SingleMuon","2016DataPlots_MuonPt40_ForthJetPt30/outPlotter.root","TTbar","HLT_IsoMu24","TriggerScaleFactor_RunBF_MuonPt40_ForthJetPt30_IsoMu24.root",kBlue);
-    MeasureTriggerScaleFactor("2016DataPlots_4bLooseSelection/outPlotter.root","SingleMuon","2016DataPlots_4bLooseSelection/outPlotter.root","TTbar","HLT_IsoMu24","TriggerScaleFactor_RunBF_4bLooseSelection_IsoMu24.root",kBlue);
+    // MeasureTriggerScaleFactor("2016DataPlots_4bLooseSelection/outPlotter.root","SingleMuon","2016DataPlots_4bLooseSelection/outPlotter.root","TTbar","HLT_IsoMu24","TriggerScaleFactor_RunBF_4bLooseSelection_IsoMu24.root",kBlue);
     // MeasureTriggerScaleFactor("2016DataPlots_4bSelection/outPlotter.root","SingleMuon","2016DataPlots_4bSelection/outPlotter.root","TTbar","HLT_IsoMu24","TriggerScaleFactor_RunBF_4bSelection_IsoMu24.root",kBlue);
+
+    MeasureTriggerScaleFactor("2016DataPlots_triggerEfficienciesAll/outPlotter.root","SingleMuon_triggerMatched","2016DataPlots_triggerEfficienciesAll/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu24","TriggerScaleFactor_triggerMatched_IsoMu24.root",kBlue);
+    MeasureTriggerScaleFactor("2016DataPlots_triggerEfficienciesAll/outPlotter.root","SingleMuon_triggerUnMatched","2016DataPlots_triggerEfficienciesAll/outPlotter.root","TTbar_triggerUnMatched","HLT_IsoMu24","TriggerScaleFactor_triggerUnMatched_IsoMu24.root",kBlue);
 
 }
 

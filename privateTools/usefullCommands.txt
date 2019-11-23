@@ -45,10 +45,18 @@ OverlapFile<>("TriggerEfficiency_SingleMuon_RunGH_4bSelection_IsoMu24.root","Iso
 OverlapFile<>("TriggerEfficiency_SingleMuon_RunGH_MuonPt40_ForthJetPt30_IsoMu24.root","LQS",kBlue,"TriggerEfficiency_SingleMuon_RunGH_4bLooseSelection_IsoMu24.root","MQS",kGreen,"TriggerEfficiency_SingleMuon_RunGH_4bSelection_IsoMu24.root","HQS",kRed)
 
 
-//TTbar
-OverlapFile<>("TriggerEfficiency_TTbar_MuonPt40_ForthJetPt30_IsoMu24.root","IsoMu24",kBlue,"TriggerEfficiency_TTbar_MuonPt40_ForthJetPt30_IsoMu24_Matched.root","IsoMu24_Matched",kRed,"TriggerEfficiency_TTbar_MuonPt40_ForthJetPt30_IsoMu20.root","IsoMu20",kGreen,"TriggerEfficiency_TTbar_MuonPt40_ForthJetPt30_IsoMu20_Matched.root","IsoMu20_Matched",kOrange)
+//SingleMuon
+OverlapFile<>("TriggerEfficiency_SingleMuon_triggerMatched_IsoMu24.root","IsoMu24",kBlue,"TriggerEfficiency_SingleMuon_triggerMatched_IsoMu24_Matched.root","IsoMu24_Matched",kRed,"TriggerEfficiency_SingleMuon_triggerMatched_IsoMu20.root","IsoMu20",kGreen,"TriggerEfficiency_SingleMuon_triggerMatched_IsoMu20_Matched.root","IsoMu20_Matched",kOrange,"OverlapTriggerEfficiency_SingleMuon_triggerMatched.root")
 
-OverlapFile<>("TriggerEfficiency_TTbar_4bLooseSelection_IsoMu24.root","IsoMu24",kBlue,"TriggerEfficiency_TTbar_4bLooseSelection_IsoMu24_Matched.root","IsoMu24_Matched",kRed,"TriggerEfficiency_TTbar_4bLooseSelection_IsoMu20.root","IsoMu20",kGreen,"TriggerEfficiency_TTbar_4bLooseSelection_IsoMu20_Matched.root","IsoMu20_Matched",kOrange)
+OverlapFile<>("TriggerEfficiency_SingleMuon_triggerMatched_IsoMu24.root","IsoMu24",kBlue,"TriggerEfficiency_SingleMuon_triggerMatched_IsoMu24_Matched.root","IsoMu24_Matched",kRed,"TriggerEfficiency_SingleMuon_triggerMatched_IsoMu20.root","IsoMu20",kGreen,"TriggerEfficiency_SingleMuon_triggerMatched_IsoMu20_Matched.root","IsoMu20_Matched",kOrange,"OverlapTriggerEfficiency_SingleMuon_triggerUnMatched.root")
+
+
+//TTbar
+OverlapFile<>("TriggerEfficiency_TTbar_triggerMatched_IsoMu24.root","IsoMu24",kBlue,"TriggerEfficiency_TTbar_triggerMatched_IsoMu24_Matched.root","IsoMu24_Matched",kRed,"TriggerEfficiency_TTbar_triggerMatched_IsoMu20.root","IsoMu20",kGreen,"TriggerEfficiency_TTbar_triggerMatched_IsoMu20_Matched.root","IsoMu20_Matched",kOrange,"OverlapTriggerEfficiency_TTbar_triggerMatched.root")
+
+OverlapFile<>("TriggerEfficiency_TTbar_triggerUnMatched_IsoMu24.root","IsoMu24",kBlue,"TriggerEfficiency_TTbar_triggerUnMatched_IsoMu24_Matched.root","IsoMu24_Matched",kRed,"TriggerEfficiency_TTbar_triggerUnMatched_IsoMu20.root","IsoMu20",kGreen,"TriggerEfficiency_TTbar_triggerUnMatched_IsoMu20_Matched.root","IsoMu20_Matched",kOrange,"OverlapTriggerEfficiency_TTbar_triggerUnMatched.root")
+
+
 
 OverlapFile<>("TriggerEfficiency_TTbar_4bSelection_IsoMu24.root","IsoMu24",kBlue,"TriggerEfficiency_TTbar_4bSelection_IsoMu24_Matched.root","IsoMu24_Matched",kRed,"TriggerEfficiency_TTbar_4bSelection_IsoMu20.root","IsoMu20",kGreen,"TriggerEfficiency_TTbar_4bSelection_IsoMu20_Matched.root","IsoMu20_Matched",kOrange)
 
