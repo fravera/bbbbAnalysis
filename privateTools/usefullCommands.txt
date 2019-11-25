@@ -20,9 +20,9 @@ skim_ntuple.exe --input inputFiles/2016ResonantDiHiggs4BDataSets/BTagCSV_Data_Fi
 
 skim_ntuple.exe --input inputFiles/2016ResonantDiHiggs4BDataSets/SingleMuon_Data_RunBF.txt  --cfg config/skim_2016ResonantDiHiggs4B_triggerStudies.cfg --is-data --output test_SingleMuon.root --maxEvts 100
 
-skim_ntuple.exe --input inputFiles/2016ResonantDiHiggs4BDataSets/SingleMuon_Data.txt  --cfg config/skim_2016ResonantDiHiggs4B_triggerStudies.cfg --is-data --output test_SingleMuon.root --maxEvts 100
+skim_ntuple.exe --input inputFiles/2016ResonantDiHiggs4BDataSets/SingleMuon_Data.txt  --cfg config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb_triggerStudies.cfg --is-data --output test_SingleMuon.root --maxEvts 100
 
-skim_ntuple.exe --cfg config/skim_2016ResonantDiHiggs4B_triggerStudies.cfg --input inputFiles/2016ResonantDiHiggs4BDataSets/MC_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8.txt --output test_TTbar_MC.root --xs=1 --puWeight weights/MC_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8_PUweights.root --maxEvt 20000
+skim_ntuple.exe --cfg config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb_triggerStudies.cfg --input inputFiles/2016ResonantDiHiggs4BDataSets/MC_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8.txt --output test_TTbar_MC.root --xs=1 --puWeight weights/MC_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8_PUweights.root --maxEvt 20000
 
 
 //SingleMuon_RunBF

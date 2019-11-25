@@ -177,7 +177,7 @@ void MeasureTriggerScaleFactor(std::string dataInputFileName, std::string dataSa
     dummyFormula = nullptr;
 
     scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "FirstJetDeepCSV", 
-        "BTagCaloCSVp087TripleDouble90Double30AndPrevious", "DoubleCentralJet90AndPrevious", dummyFormula,
+        "BTagCaloCSVp087SingleDouble90Double30AndPrevious", "DoubleCentralJet90AndPrevious", dummyFormula,
         "BTag CaloCSV p087 Triple", "DeepCSV_{1}", lineColor);
     scaleFactor->Write();
     dummyFormula = nullptr;
@@ -252,7 +252,7 @@ void MeasureTriggerScaleFactor(std::string dataInputFileName, std::string dataSa
     dummyFormula = nullptr;
 
     scaleFactor = TriggerScaleFactor(dataInputFile, dataSampleName, mcInputFile, mcSampleName, referenceTriggerName, "FirstJetDeepCSV", 
-        "BTagCaloCSVp087TripleQuad45AndPrevious", "QuadCentralJet45AndPrevious", dummyFormula,
+        "BTagCaloCSVp087SingleQuad45AndPrevious", "QuadCentralJet45AndPrevious", dummyFormula,
         "BTag CaloCSV p087 Triple", "DeepCSV_{1}", lineColor);
     scaleFactor->Write();
     dummyFormula = nullptr;
@@ -307,8 +307,8 @@ void ProduceAllScaleFactors()
     // MeasureTriggerScaleFactor("2016DataPlots_4bLooseSelection/outPlotter.root","SingleMuon","2016DataPlots_4bLooseSelection/outPlotter.root","TTbar","HLT_IsoMu24","TriggerScaleFactor_RunBF_4bLooseSelection_IsoMu24.root",kBlue);
     // MeasureTriggerScaleFactor("2016DataPlots_4bSelection/outPlotter.root","SingleMuon","2016DataPlots_4bSelection/outPlotter.root","TTbar","HLT_IsoMu24","TriggerScaleFactor_RunBF_4bSelection_IsoMu24.root",kBlue);
 
-    MeasureTriggerScaleFactor("2016DataPlots_triggerEfficienciesAll/outPlotter.root","SingleMuon_triggerMatched","2016DataPlots_triggerEfficienciesAll/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu24","TriggerScaleFactor_triggerMatched_IsoMu24.root",kBlue);
-    MeasureTriggerScaleFactor("2016DataPlots_triggerEfficienciesAll/outPlotter.root","SingleMuon_triggerUnMatched","2016DataPlots_triggerEfficienciesAll/outPlotter.root","TTbar_triggerUnMatched","HLT_IsoMu24","TriggerScaleFactor_triggerUnMatched_IsoMu24.root",kBlue);
+    MeasureTriggerScaleFactor("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","SingleMuon_triggerMatched","2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu24","TriggerScaleFactor_triggerMatched_IsoMu24.root",kBlue);
+    MeasureTriggerScaleFactor("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","SingleMuon_triggerUnMatched","2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","TTbar_triggerUnMatched","HLT_IsoMu24","TriggerScaleFactor_triggerUnMatched_IsoMu24.root",kBlue);
 
 }
 

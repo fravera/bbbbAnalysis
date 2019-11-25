@@ -937,16 +937,19 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
                     {
                         int muonJetId = nat.Muon_jetIdx[muonIt];
                         bool matchingJetFound = false;
-                        if(muonJetId >= 0)
+                        if(any_cast<bool>(parameterList_->at("MatchWithSelectedObjects")))
                         {
-                            for(auto jet : jetsForTriggerStudies)
+                            if(muonJetId >= 0)
                             {
-                                if(jet.getIdx() == muonJetId)
+                                for(auto jet : jetsForTriggerStudies)
                                 {
-                                    matchingJetFound = true;
-                                    break;  
-                                }
-                            } 
+                                    if(jet.getIdx() == muonJetId)
+                                    {
+                                        matchingJetFound = true;
+                                        break;  
+                                    }
+                                } 
+                            }
                         }
                         if(!matchingJetFound)
                         {
@@ -965,16 +968,19 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
 
                         int electronJetId = nat.Electron_jetIdx[electronIt];
                         bool matchingJetFound = false;
-                        if(electronJetId >= 0)
+                        if(any_cast<bool>(parameterList_->at("MatchWithSelectedObjects")))
                         {
-                            for(auto jet : jetsForTriggerStudies)
+                            if(electronJetId >= 0)
                             {
-                                if(jet.getIdx() == electronJetId)
+                                for(auto jet : jetsForTriggerStudies)
                                 {
-                                    matchingJetFound = true;
-                                    break;  
-                                }
-                            } 
+                                    if(jet.getIdx() == electronJetId)
+                                    {
+                                        matchingJetFound = true;
+                                        break;  
+                                    }
+                                } 
+                            }
                         }
                         if(!matchingJetFound)
                         {
@@ -1425,6 +1431,7 @@ void OfflineProducerHelper::fourBjetCut_PreselectionCut(std::vector<Jet> &jets, 
         return;
     }
 
+    jets.erase(jets.begin()+4,jets.end());
     return;
 
 }
@@ -3185,7 +3192,7 @@ void OfflineProducerHelper::calculateTriggerMatching(const std::vector< std::uni
                         std::pair<int,int> bTagFilterBitPair = any_cast<std::pair<int,int>>(parameterList_->at("bTagFilterBitPair"));
                         if(triggerObjectId == bTagFilterBitPair.first && filterBit == bTagFilterBitPair.second)
                         {
-                            if((highestDeepCSVjet.P4().Eta() - triggerObjectEta)*(highestDeepCSVjet.P4().Eta() - triggerObjectEta) + deltaPhi(highestDeepCSVjet.P4().Phi(),triggerObjectPhi)*deltaPhi(highestDeepCSVjet.P4().Phi(),triggerObjectPhi))
+                            if((highestDeepCSVjet.P4().Eta() - triggerObjectEta)*(highestDeepCSVjet.P4().Eta() - triggerObjectEta) + deltaPhi(highestDeepCSVjet.P4().Phi(),triggerObjectPhi)*deltaPhi(highestDeepCSVjet.P4().Phi(),triggerObjectPhi) <= any_cast<float>(parameterList_->at("MaxDeltaR")))
                                 ++ot.userInt("CandididateHighestdeepCSV_nBtagMatching");
                         }
                     }
