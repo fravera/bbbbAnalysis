@@ -769,6 +769,7 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
     for (uint ij = 0; ij < *(nat.nJet); ++ij){
         unsmearedJets.emplace_back(Jet(ij, &nat));
     }
+    std::vector<Jet>& theOriginalFullUnsmearedJets = unsmearedJets;
     
     //if some montecarlo weight are applied via a reshaping of the jets variables, they must be applied here
 
@@ -928,7 +929,7 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
                 }
                 else
                 {
-                    jetsForTriggerStudies = jets.second;
+                    jetsForTriggerStudies = theOriginalFullUnsmearedJets;
                 }
 
                 for (uint muonIt = 0; muonIt < *(nat.nMuon); ++muonIt)

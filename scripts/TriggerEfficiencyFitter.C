@@ -254,17 +254,6 @@ void ProduceAllTriggerEfficiencies()
     // MeasureTriggerEfficiency("2016DataPlots_4bSelection/outPlotter.root","TTbar","HLT_IsoMu20_Matched","TriggerEfficiency_TTbar_4bSelection_IsoMu20_Matched.root",kBlue);
 
 
-//    SingleMuon
-    MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","SingleMuon_triggerMatched","HLT_IsoMu24","TriggerEfficiency_SingleMuon_triggerMatched_IsoMu24.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","SingleMuon_triggerMatched","HLT_IsoMu24_Matched","TriggerEfficiency_SingleMuon_triggerMatched_IsoMu24_Matched.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","SingleMuon_triggerMatched","HLT_IsoMu20","TriggerEfficiency_SingleMuon_triggerMatched_IsoMu20.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","SingleMuon_triggerMatched","HLT_IsoMu20_Matched","TriggerEfficiency_SingleMuon_triggerMatched_IsoMu20_Matched.root",kBlue);
-
-    MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","SingleMuon_triggerUnMatched","HLT_IsoMu24","TriggerEfficiency_SingleMuon_triggerUnMatched_IsoMu24.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","SingleMuon_triggerUnMatched","HLT_IsoMu24_Matched","TriggerEfficiency_SingleMuon_triggerUnMatched_IsoMu24_Matched.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","SingleMuon_triggerUnMatched","HLT_IsoMu20","TriggerEfficiency_SingleMuon_triggerUnMatched_IsoMu20.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","SingleMuon_triggerUnMatched","HLT_IsoMu20_Matched","TriggerEfficiency_SingleMuon_triggerUnMatched_IsoMu20_Matched.root",kBlue);
-
     // MeasureTriggerEfficiency("2016DataPlots_MuonPt40_ForthJetPt30/outPlotter.root","SingleMuon_triggerMatched","HLT_IsoMu24","TriggerEfficiency_SingleMuon_triggerMatched_MuonPt40_ForthJetPt30_IsoMu24.root",kBlue);
     // MeasureTriggerEfficiency("2016DataPlots_MuonPt40_ForthJetPt30/outPlotter.root","SingleMuon_triggerMatched","HLT_IsoMu24_Matched","TriggerEfficiency_SingleMuon_triggerMatched_MuonPt40_ForthJetPt30_IsoMu24_Matched.root",kBlue);
     // MeasureTriggerEfficiency("2016DataPlots_MuonPt40_ForthJetPt30/outPlotter.root","SingleMuon_triggerMatched","HLT_IsoMu20","TriggerEfficiency_SingleMuon_triggerMatched_MuonPt40_ForthJetPt30_IsoMu20.root",kBlue);
@@ -280,17 +269,6 @@ void ProduceAllTriggerEfficiencies()
     // MeasureTriggerEfficiency("2016DataPlots_4bSelection/outPlotter.root","SingleMuon_triggerMatched","HLT_IsoMu20","TriggerEfficiency_SingleMuon_triggerMatched_4bSelection_IsoMu20.root",kBlue);
     // MeasureTriggerEfficiency("2016DataPlots_4bSelection/outPlotter.root","SingleMuon_triggerMatched","HLT_IsoMu20_Matched","TriggerEfficiency_SingleMuon_triggerMatched_4bSelection_IsoMu20_Matched.root",kBlue);
 
-    // TTbar
-    MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu24","TriggerEfficiency_TTbar_triggerMatched_IsoMu24.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu24_Matched","TriggerEfficiency_TTbar_triggerMatched_IsoMu24_Matched.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu20","TriggerEfficiency_TTbar_triggerMatched_IsoMu20.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu20_Matched","TriggerEfficiency_TTbar_triggerMatched_IsoMu20_Matched.root",kBlue);
-
-    MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","TTbar_triggerUnMatched","HLT_IsoMu24","TriggerEfficiency_TTbar_triggerUnMatched_IsoMu24.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","TTbar_triggerUnMatched","HLT_IsoMu24_Matched","TriggerEfficiency_TTbar_triggerUnMatched_IsoMu24_Matched.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","TTbar_triggerUnMatched","HLT_IsoMu20","TriggerEfficiency_TTbar_triggerUnMatched_IsoMu20.root",kBlue);
-    MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","TTbar_triggerUnMatched","HLT_IsoMu20_Matched","TriggerEfficiency_TTbar_triggerUnMatched_IsoMu20_Matched.root",kBlue);
-
     // MeasureTriggerEfficiency("2016DataPlots_MuonPt40_ForthJetPt30/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu24","TriggerEfficiency_TTbar_triggerMatched_MuonPt40_ForthJetPt30_IsoMu24.root",kBlue);
     // MeasureTriggerEfficiency("2016DataPlots_MuonPt40_ForthJetPt30/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu24_Matched","TriggerEfficiency_TTbar_triggerMatched_MuonPt40_ForthJetPt30_IsoMu24_Matched.root",kBlue);
     // MeasureTriggerEfficiency("2016DataPlots_MuonPt40_ForthJetPt30/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu20","TriggerEfficiency_TTbar_triggerMatched_MuonPt40_ForthJetPt30_IsoMu20.root",kBlue);
@@ -305,6 +283,39 @@ void ProduceAllTriggerEfficiencies()
     // MeasureTriggerEfficiency("2016DataPlots_4bSelection/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu24_Matched","TriggerEfficiency_TTbar_triggerMatched_4bSelection_IsoMu24_Matched.root",kBlue);
     // MeasureTriggerEfficiency("2016DataPlots_4bSelection/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu20","TriggerEfficiency_TTbar_triggerMatched_4bSelection_IsoMu20.root",kBlue);
     // MeasureTriggerEfficiency("2016DataPlots_4bSelection/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu20_Matched","TriggerEfficiency_TTbar_triggerMatched_4bSelection_IsoMu20_Matched.root",kBlue);
+
+
+
+
+
+
+    // SingleMuon
+    MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","SingleMuon_triggerMatched","HLT_IsoMu24","TriggerEfficiency_SingleMuon_triggerMatched_IsoMu24.root",kBlue);
+    MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","SingleMuon_triggerMatched","HLT_IsoMu24_Matched","TriggerEfficiency_SingleMuon_triggerMatched_IsoMu24_Matched.root",kBlue);
+    MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","SingleMuon_triggerMatched","HLT_IsoMu20","TriggerEfficiency_SingleMuon_triggerMatched_IsoMu20.root",kBlue);
+    MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","SingleMuon_triggerMatched","HLT_IsoMu20_Matched","TriggerEfficiency_SingleMuon_triggerMatched_IsoMu20_Matched.root",kBlue);
+
+    MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","SingleMuon_triggerUnMatched","HLT_IsoMu24","TriggerEfficiency_SingleMuon_triggerUnMatched_IsoMu24.root",kBlue);
+    MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","SingleMuon_triggerUnMatched","HLT_IsoMu24_Matched","TriggerEfficiency_SingleMuon_triggerUnMatched_IsoMu24_Matched.root",kBlue);
+    MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","SingleMuon_triggerUnMatched","HLT_IsoMu20","TriggerEfficiency_SingleMuon_triggerUnMatched_IsoMu20.root",kBlue);
+    MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","SingleMuon_triggerUnMatched","HLT_IsoMu20_Matched","TriggerEfficiency_SingleMuon_triggerUnMatched_IsoMu20_Matched.root",kBlue);
+
+    // MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_oldTriggerEfficiencies/outPlotter.root","SingleMuon_oldTriggerUnMatched","HLT_IsoMu24","TriggerEfficiency_SingleMuon_oldTriggerUnMatched_IsoMu24.root",kBlue);
+    // MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_oldTriggerEfficiencies/outPlotter.root","SingleMuon_oldTriggerUnMatched","HLT_IsoMu24_Matched","TriggerEfficiency_SingleMuon_oldTriggerUnMatched_IsoMu24_Matched.root",kBlue);
+    // MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_oldTriggerEfficiencies/outPlotter.root","SingleMuon_oldTriggerUnMatched","HLT_IsoMu20","TriggerEfficiency_SingleMuon_oldTriggerUnMatched_IsoMu20.root",kBlue);
+    // MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_oldTriggerEfficiencies/outPlotter.root","SingleMuon_oldTriggerUnMatched","HLT_IsoMu20_Matched","TriggerEfficiency_SingleMuon_oldTriggerUnMatched_IsoMu20_Matched.root",kBlue);
+
+    // TTbar
+    MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu24","TriggerEfficiency_TTbar_triggerMatched_IsoMu24.root",kBlue);
+    MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu24_Matched","TriggerEfficiency_TTbar_triggerMatched_IsoMu24_Matched.root",kBlue);
+    MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu20","TriggerEfficiency_TTbar_triggerMatched_IsoMu20.root",kBlue);
+    MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","TTbar_triggerMatched","HLT_IsoMu20_Matched","TriggerEfficiency_TTbar_triggerMatched_IsoMu20_Matched.root",kBlue);
+
+    MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","TTbar_triggerUnMatched","HLT_IsoMu24","TriggerEfficiency_TTbar_triggerUnMatched_IsoMu24.root",kBlue);
+    MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","TTbar_triggerUnMatched","HLT_IsoMu24_Matched","TriggerEfficiency_TTbar_triggerUnMatched_IsoMu24_Matched.root",kBlue);
+    MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","TTbar_triggerUnMatched","HLT_IsoMu20","TriggerEfficiency_TTbar_triggerUnMatched_IsoMu20.root",kBlue);
+    MeasureTriggerEfficiency("2016DataPlots_NMSSM_XYH_bbbb_triggerEfficienciesAll/outPlotter.root","TTbar_triggerUnMatched","HLT_IsoMu20_Matched","TriggerEfficiency_TTbar_triggerUnMatched_IsoMu20_Matched.root",kBlue);
+
 
 
 }
