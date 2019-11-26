@@ -931,7 +931,7 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
                 }
                 else
                 {
-                    jetsForTriggerStudies = theOriginalFullUnsmearedJets;
+                    jetsForTriggerStudies = jets.second;
                 }
 
                 for (uint muonIt = 0; muonIt < *(nat.nMuon); ++muonIt)
@@ -1236,7 +1236,7 @@ void OfflineProducerHelper::bJets_PreselectionCut(std::vector<Jet> &jets)
         }
     }
 
-    if(minimumDeepCSVaccepted<=0. && minimumPtAccepted<=0. && maximumAbsEtaCSVaccepted<=0.) return;
+    if(minimumDeepCSVaccepted<0. && minimumPtAccepted<0. && maximumAbsEtaCSVaccepted<0.) return;
 
     auto it = jets.begin();
     while (it != jets.end()){
