@@ -765,12 +765,9 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
     }
     std::vector<Jet> unsmearedJets;
     unsmearedJets.reserve(*(nat.nJet));
-    std::vector<Jet> theOriginalFullUnsmearedJets;
-    theOriginalFullUnsmearedJets.reserve(*(nat.nJet));
 
     for (uint ij = 0; ij < *(nat.nJet); ++ij){
         unsmearedJets.emplace_back(Jet(ij, &nat));
-        theOriginalFullUnsmearedJets.emplace_back(Jet(ij, &nat));
     }
     
     //if some montecarlo weight are applied via a reshaping of the jets variables, they must be applied here
@@ -866,7 +863,6 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
             else if(strategy == "XYH_4B_selection")
             {
                 ordered_jets = bbbb_jets_XYHselection(&presel_jets);
-                if(ordered_jets.size()==0) return false;
 
                 std::vector<TLorentzVector> theJetVector;
                 TLorentzVector theTotalVector(0.,0.,0.,0.);
@@ -915,7 +911,7 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
             
 
 
-            Jet *highestDeepCSVjet;
+            Jet *highestDeepCSVjet = nullptr;
             if(any_cast<string>(parameterList_->at("ObjectsForCut")) == "TriggerObjects")
             {
                 
@@ -940,19 +936,16 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
                     {
                         int muonJetId = nat.Muon_jetIdx[muonIt];
                         bool matchingJetFound = false;
-                        if(any_cast<bool>(parameterList_->at("MatchWithSelectedObjects")))
+                        if(muonJetId >= 0)
                         {
-                            if(muonJetId >= 0)
+                            for(auto jet : jetsForTriggerStudies)
                             {
-                                for(auto jet : jetsForTriggerStudies)
+                                if(jet.getIdx() == muonJetId)
                                 {
-                                    if(jet.getIdx() == muonJetId)
-                                    {
-                                        matchingJetFound = true;
-                                        break;  
-                                    }
-                                } 
-                            }
+                                    matchingJetFound = true;
+                                    break;  
+                                }
+                            } 
                         }
                         if(!matchingJetFound)
                         {
@@ -971,19 +964,16 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
 
                         int electronJetId = nat.Electron_jetIdx[electronIt];
                         bool matchingJetFound = false;
-                        if(any_cast<bool>(parameterList_->at("MatchWithSelectedObjects")))
+                        if(electronJetId >= 0)
                         {
-                            if(electronJetId >= 0)
+                            for(auto jet : jetsForTriggerStudies)
                             {
-                                for(auto jet : jetsForTriggerStudies)
+                                if(jet.getIdx() == electronJetId)
                                 {
-                                    if(jet.getIdx() == electronJetId)
-                                    {
-                                        matchingJetFound = true;
-                                        break;  
-                                    }
-                                } 
-                            }
+                                    matchingJetFound = true;
+                                    break;  
+                                }
+                            } 
                         }
                         if(!matchingJetFound)
                         {
@@ -1266,6 +1256,7 @@ void OfflineProducerHelper::bJets_PreselectionCut(std::vector<Jet> &jets)
 }
 
 
+
 // //functions for apply preselection cuts and selecting excactly 4 jets (4 or 3 btagged depenging on the antitag flag):
 // void OfflineProducerHelper::fourBjetCut_PreselectionCut(std::vector<Jet> &jets, EventInfo& ei)
 // {
@@ -1387,12 +1378,6 @@ void OfflineProducerHelper::fourBjetCut_PreselectionCut(std::vector<Jet> &jets, 
 
     int minimumNumberDeepCSVaccepted =  antiBtagOneJet ? 3 : 4;
 
-    // for(auto &jet : jets)
-    // {
-    //     std::cout << get_property(jet, Jet_btagDeepB) << " - ";
-    // }
-    // std::cout << std::endl;
-
     //remove all Jets not 
     auto it = jets.begin();
     while (it != jets.end()){
@@ -1434,7 +1419,6 @@ void OfflineProducerHelper::fourBjetCut_PreselectionCut(std::vector<Jet> &jets, 
         return;
     }
 
-    jets.erase(jets.begin()+4,jets.end());
     return;
 
 }
@@ -1625,7 +1609,6 @@ std::vector<Jet> OfflineProducerHelper::bbbb_jets_XYHselection(const std::vector
     float targetHiggsMass = any_cast<float>(parameterList_->at("HiggsMass"));
     size_t numberOfJets = jets->size();
     assert(numberOfJets == 4);
-    std::vector<Jet> output_jets;
 
     std::pair<size_t,size_t> jetsPairClosestToHiggsMass;
     float deltaMass = 99999.;
@@ -1635,9 +1618,7 @@ std::vector<Jet> OfflineProducerHelper::bbbb_jets_XYHselection(const std::vector
         for(unsigned int hb2it = hb1it+1; hb2it< numberOfJets; ++hb2it)
         {
             std::pair<size_t,size_t> currentPair = std::make_pair(hb1it,hb2it);
-            float combinationMass = (jets->at(hb1it).P4Regressed() + jets->at(hb2it).P4Regressed()).M();
-            // if(targetHiggsMass==220 && combinationMass>100 && combinationMass<140) return output_jets;
-            float currentDeltaMass = abs(targetHiggsMass - combinationMass );
+            float currentDeltaMass = abs(targetHiggsMass - (jets->at(hb1it).P4Regressed() + jets->at(hb2it).P4Regressed()).M() );
             if(currentDeltaMass < deltaMass)
             {
                 jetsPairClosestToHiggsMass = currentPair;
@@ -1646,6 +1627,7 @@ std::vector<Jet> OfflineProducerHelper::bbbb_jets_XYHselection(const std::vector
         }
     }
 
+    std::vector<Jet> output_jets;
     //Push SM higgs Jets
     output_jets.emplace_back(jets->at(jetsPairClosestToHiggsMass.first));
     output_jets.emplace_back(jets->at(jetsPairClosestToHiggsMass.second));
