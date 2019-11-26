@@ -765,11 +765,13 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
     }
     std::vector<Jet> unsmearedJets;
     unsmearedJets.reserve(*(nat.nJet));
+    std::vector<Jet> theOriginalFullUnsmearedJets;
+    theOriginalFullUnsmearedJets.reserve(*(nat.nJet));
 
     for (uint ij = 0; ij < *(nat.nJet); ++ij){
         unsmearedJets.emplace_back(Jet(ij, &nat));
+        theOriginalFullUnsmearedJets.emplace_back(Jet(ij, &nat));
     }
-    std::vector<Jet>& theOriginalFullUnsmearedJets = unsmearedJets;
     
     //if some montecarlo weight are applied via a reshaping of the jets variables, they must be applied here
 

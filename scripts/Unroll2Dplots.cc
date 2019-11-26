@@ -242,6 +242,7 @@ TH1F* UnrollPlot(TH2F* the2Dplot)
         for(uint xBin = 1; xBin <= nXbin; xBin++)
         {
             the1Dplot->SetBinContent(xBin+(yBin-1)*nXbin, the2Dplot->GetBinContent(xBin,yBin));
+            the1Dplot->SetBinError(xBin+(yBin-1)*nXbin, the2Dplot->GetBinError(xBin,yBin));
         }
     }
     return the1Dplot;
