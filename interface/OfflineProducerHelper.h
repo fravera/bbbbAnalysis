@@ -22,6 +22,7 @@
 #include "JetMETCorrections/Modules/interface/JetResolution.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 #include "Jet.h"
+#include "Photon.h"
 #include "GenJet.h"
 #include "SkimEffCounter.h"
 #include "BDTEval.h"
@@ -350,6 +351,14 @@ class OfflineProducerHelper{
         template <typename T>
         bool order_by_pT(T& val1, T& val2, bool max_first = true);
 
+
+        static float deltaPhi(float phi1, float phi2)
+        {
+            float delphi = TMath::Abs(TMath::Abs(TMath::Abs(phi1 - phi2) - TMath::Pi())-TMath::Pi());
+            return delphi;
+        }
+
+
 };
 
 template <typename C>
@@ -483,12 +492,6 @@ bool OfflineProducerHelper::order_by_pT(T& val1, T& val2, bool max_first)
         return false;
     std::swap(val1, val2);
     return true;
-}
-
-float deltaPhi(float phi1, float phi2)
-{
-    float delphi = TMath::Abs(TMath::Abs(TMath::Abs(phi1 - phi2) - TMath::Pi())-TMath::Pi());
-    return delphi;
 }
 
 #endif

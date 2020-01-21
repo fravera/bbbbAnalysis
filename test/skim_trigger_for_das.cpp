@@ -122,6 +122,36 @@ computeBtagSF(std::vector<Jet> jets, BTagCalibrationReader* btcr)
 
 }
 
+
+std::tuple<int,float,float> getClosestJetIndexToTriggerObject(float triggerObjectEta, float triggerObjectPhi, std::vector<Jet>& theJetList, float maxDeltaRaccepted)
+{
+    int closestJetIndex = -1;
+    int currentJetIndex = 0;
+    float minDeltaR = 1024;
+    float minDeltaRjetPt = -1;
+    for(const auto & theJet : theJetList)
+    {
+        float tmpDeltaR = OfflineProducerHelper::deltaPhi(theJet.P4().Phi(),triggerObjectPhi)*OfflineProducerHelper::deltaPhi(theJet.P4().Phi(),triggerObjectPhi) + (theJet.P4().Eta()-triggerObjectEta)*(theJet.P4().Eta()-triggerObjectEta);
+        if( tmpDeltaR<minDeltaR)
+        {
+            minDeltaR = tmpDeltaR;
+            closestJetIndex = currentJetIndex;
+            minDeltaRjetPt = theJet.P4().Pt();
+        }
+        currentJetIndex++;
+    }
+    if(minDeltaR > (maxDeltaRaccepted*maxDeltaRaccepted))
+    {
+        // if(debug) std::cout<<"minDeltaR = "<<sqrt(minDeltaR)<<std::endl;
+        // if(debug) std::cout<<"Gen particle (Pt, Eta, Phi) = "<<theGenParticle.P4().Pt() << "\t\t" << theGenParticle.P4().Eta() << "\t\t" << triggerObjectPhi <<std::endl;
+        // if(debug) std::cout<<"Closest Jet  (Pt, Eta, Phi) = "<<theJetList[closestJetIndex].P4().Pt() << "\t\t" << theJetList[closestJetIndex].P4().Eta() << "\t\t" << theJetList[closestJetIndex].P4().Phi() <<std::endl;
+        closestJetIndex = -1;
+    }
+
+    return {closestJetIndex, minDeltaR, minDeltaRjetPt};
+}
+
+
 int main(int argc, char** argv)
 {
     cout << "[INFO] ... starting program" << endl;
@@ -142,6 +172,7 @@ int main(int argc, char** argv)
         ("puWeight" , po::value<string>()->default_value(""), "PU weight file name")
         // flags
         ("is-data",    po::value<bool>()->zero_tokens()->implicit_value(true)->default_value(false), "mark as a data sample (default is false)")
+        ("match",      po::value<bool>()->zero_tokens()->implicit_value(true)->default_value(false), "match with four highest b-Jets")
     ;
 
     po::variables_map opts;
@@ -164,6 +195,8 @@ int main(int argc, char** argv)
 
     const bool is_data = opts["is-data"].as<bool>();
     cout << "[INFO] ... is a data sample? " << std::boolalpha << is_data << std::noboolalpha << endl;
+
+    const bool matchWithFourHighestBjets =  opts["match"].as<bool>();
 
     CfgParser config;
     if (!config.init(opts["cfg"].as<string>())) return 1;
@@ -258,7 +291,7 @@ int main(int argc, char** argv)
     float jetForthHighestPt_pt_;
     float fourHighestJetPt_sum_;
     float jetFirstHighestDeepCSV_deepCSV_;
-    float jetThirdHighestDeepCSV_deepCSV_;
+    // float jetThirdHighestDeepCSV_deepCSV_;
 
     tOut->Branch("run",              &run_);
     tOut->Branch("luminosityBlock",  &luminosityBlock_);
@@ -274,11 +307,29 @@ int main(int argc, char** argv)
     tOut->Branch("jetForthHighestPt_pt" , &jetForthHighestPt_pt_ );
     tOut->Branch("fourHighestJetPt_sum" , &fourHighestJetPt_sum_ );
     tOut->Branch("jetFirstHighestDeepCSV_deepCSV" , &jetFirstHighestDeepCSV_deepCSV_ );
-    tOut->Branch("jetThirdHighestDeepCSV_deepCSV" , &jetThirdHighestDeepCSV_deepCSV_ );
+    // tOut->Branch("jetThirdHighestDeepCSV_deepCSV" , &jetThirdHighestDeepCSV_deepCSV_ );
 
-    //enagle trigger filters
+    //enable trigger filters
     std::map<std::pair<int,int>, std::string > triggerObjectsForStudies;   
-    std::map<std::pair<int,int>, int > triggerObjectsForStudiesCount;   
+    std::map<std::pair<int,int>, int > triggerObjectsForStudiesCount; 
+    std::map<std::pair<int,int>, float > triggerObjectsForStudiesMaxDeltaR;   
+    std::map<std::pair<int,int>, float > triggerObjectsForStudiesMaxDeltaRjetPt;
+
+    std::vector<std::map<std::pair<int,int>, bool  >> triggerObjectPerJetCount  (4); 
+    std::vector<std::map<std::pair<int,int>, float >> triggerObjectPerJetDeltaR (4);
+    std::vector<std::map<std::pair<int,int>, float >> triggerObjectPerJetDeltaPt(4);
+    std::vector<std::tuple<float,float,float>>        selectedJetPtEtaPhiVector (4);
+    // std::vector< std::map<string,bool> >              filterForMatchedJets      (4);
+
+    for(uint i=0; i<4; ++i)
+    {
+        selectedJetPtEtaPhiVector.at(i) = {-999,-999,-999};
+    
+        tOut->Branch(std::string( "Jet" + to_string(i) + "_pt" ).data(), &std::get<0>(selectedJetPtEtaPhiVector[i]));
+        tOut->Branch(std::string( "Jet" + to_string(i) + "_eta").data(), &std::get<1>(selectedJetPtEtaPhiVector[i]));
+        tOut->Branch(std::string( "Jet" + to_string(i) + "_phi").data(), &std::get<2>(selectedJetPtEtaPhiVector[i]));
+    }
+
     const string objectsForCut = config.readStringOpt("parameters::ObjectsForCut");
     if(objectsForCut == "TriggerObjects"){
 
@@ -306,7 +357,26 @@ int main(int argc, char** argv)
             std::pair<int,int> objectAndFilter = std::make_pair(atoi(triggerObjectTokens[0].data()),atoi(triggerObjectTokens[1].data()));
             triggerObjectsForStudies[objectAndFilter] = triggerObjectTokens[2];
             triggerObjectsForStudiesCount[objectAndFilter] = 0;
-            tOut->Branch(triggerObjectsForStudies[objectAndFilter].data(), &triggerObjectsForStudiesCount[objectAndFilter]); 
+            triggerObjectsForStudiesCount[objectAndFilter] = 0;
+            triggerObjectsForStudiesMaxDeltaR     [objectAndFilter] = -1;
+            triggerObjectsForStudiesMaxDeltaRjetPt[objectAndFilter] = -1;
+            tOut->Branch(triggerObjectsForStudies[objectAndFilter].data(), &triggerObjectsForStudiesCount[objectAndFilter]);
+            if(matchWithFourHighestBjets)
+            {
+                tOut->Branch(std::string(triggerObjectTokens[2] + "_minDeltaR"      ).data(), &triggerObjectsForStudiesMaxDeltaR     [objectAndFilter]);
+                tOut->Branch(std::string(triggerObjectTokens[2] + "_minDeltaR_jetPt").data(), &triggerObjectsForStudiesMaxDeltaRjetPt[objectAndFilter]);
+                for(uint i=0; i<4; ++i)
+                {
+                    // filterForMatchedJets.at(i)[triggerObjectsForStudies[objectAndFilter]] = false;
+                    triggerObjectPerJetCount  .at(i)[objectAndFilter] = false; 
+                    triggerObjectPerJetDeltaR .at(i)[objectAndFilter] =  999.;
+                    triggerObjectPerJetDeltaPt.at(i)[objectAndFilter] = -999.;
+
+                    tOut->Branch(std::string( "Jet" + to_string(i) +  "_" + triggerObjectTokens[2]             ).data(), &triggerObjectPerJetCount  [i][objectAndFilter]);
+                    tOut->Branch(std::string( "Jet" + to_string(i) +  "_" + triggerObjectTokens[2] + "_deltaR" ).data(), &triggerObjectPerJetDeltaR [i][objectAndFilter]);
+                    tOut->Branch(std::string( "Jet" + to_string(i) +  "_" + triggerObjectTokens[2] + "_deltaPt").data(), &triggerObjectPerJetDeltaPt[i][objectAndFilter]);
+                }
+            }
         }
     }
 
@@ -364,6 +434,7 @@ int main(int argc, char** argv)
             // Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto
             // but note that bit1 means idx 0 and so on
             int jetid = get_property(jet, Jet_jetId); 
+
             
             // PU ID : bit idx 0 -> tight, bit idx 1 -> medium, bit idx 2 -> loose
             // int puid  = get_property(jet, Jet_puId);
@@ -377,23 +448,71 @@ int main(int argc, char** argv)
             if (!checkBit(jetid, 1)) // tight jet Id
                 continue;
 
+            if(get_property(jet, B_TAG_ALGO) < 0.) continue; 
             // if (!checkBit(puid, 1) && jet.P4().Pt() <= 50) // medium PU Id - NOTE : not to be applied beyond 50 GeV: https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupJetID
             //     continue;
+
+            bool isPhoton = false;
+            for (uint ij = 0; ij < *(nat.nPhoton); ++ij)
+            {
+                Photon thePhoton (ij, &nat);
+                if(jet.getIdx() == get_property(thePhoton, Photon_jetIdx))
+                {
+                    isPhoton = true;
+                    break;
+                }
+            }
+            if(isPhoton) continue;
+
+            bool isElectron = false;
+            for (uint ij = 0; ij < *(nat.nElectron); ++ij)
+            {
+                // if(Electron_pfRelIso03_all > 0.3) continue;
+                Electron theElectron (ij, &nat);
+                if(jet.getIdx() == get_property(theElectron, Electron_jetIdx))
+                {
+                    isElectron = true;
+                    break;
+                }
+            }
+            if(isElectron) continue;
+
+            bool isMuon = false;
+            for (uint ij = 0; ij < *(nat.nMuon); ++ij)
+            {
+                Muon theMuon (ij, &nat);
+                if(jet.getIdx() == get_property(theMuon, Muon_jetIdx))
+                {
+                    isMuon = true;
+                    break;
+                }
+            }
+            if(isMuon) continue;
 
             all_jets.emplace_back(jet);
         }
 
         if (all_jets.size() < 4) // I don't have 4 preselected jets
             continue;
+
         
         ec.updateSelected(weight_);
+
+        if(matchWithFourHighestBjets)
+        {
+            stable_sort(all_jets.begin(), all_jets.end(), [](const Jet & a, const Jet & b) -> bool
+            {
+                return ( get_property(a, B_TAG_ALGO) > get_property(b, B_TAG_ALGO) );
+            });
+            all_jets.erase(all_jets.begin()+4, all_jets.end());
+        }
 
         stable_sort(all_jets.begin(), all_jets.end(), [](const Jet & a, const Jet & b) -> bool
         {
             return ( a.P4().Pt() > b.P4().Pt() );
         });
 
-        //Check if there is and iso muon with Pt>30 GeV
+        //Check if there is and iso muon with Pt>40 GeV
         bool isoMuonFound = false;
         for (uint ij = 0; ij < *(nat.nMuon); ++ij)
         {
@@ -434,12 +553,36 @@ int main(int argc, char** argv)
         });
 
         jetFirstHighestDeepCSV_deepCSV_ = get_property(all_jets.at(0), B_TAG_ALGO);
-        jetThirdHighestDeepCSV_deepCSV_ = get_property(all_jets.at(2), B_TAG_ALGO);
+        // jetThirdHighestDeepCSV_deepCSV_ = get_property(all_jets.at(2), B_TAG_ALGO);
+
+        // reorder by jet pt
+        stable_sort(all_jets.begin(), all_jets.end(), [](const Jet & a, const Jet & b) -> bool
+        {
+            return ( a.P4().Pt() > b.P4().Pt() );
+        });
 
         // get number of trigger filters
 
         // reset map
         for(auto &triggerFilter : triggerObjectsForStudiesCount) triggerFilter.second = 0;
+        if(matchWithFourHighestBjets)
+        {
+            // for(auto& filterMap : filterForMatchedJets) for(auto &filter : filterMap) filter.second = false;
+            for(auto& filterIdAndMaxDeltaR      : triggerObjectsForStudiesMaxDeltaR     ) filterIdAndMaxDeltaR     .second = -1;
+            for(auto& filterIdAndMaxDeltaRjetPt : triggerObjectsForStudiesMaxDeltaRjetPt) filterIdAndMaxDeltaRjetPt.second = -1;
+
+            for(auto& jetAndFilterCounts  : triggerObjectPerJetCount  ) for(auto& filterCount   : jetAndFilterCounts ) filterCount  .second = false;
+            for(auto& jetAndFilterDeltaR  : triggerObjectPerJetDeltaR ) for(auto& filterDeltaR  : jetAndFilterDeltaR ) filterDeltaR .second =  999.;
+            for(auto& jetAndFilterDeltaPt : triggerObjectPerJetDeltaPt) for(auto& filterDeltaPt : jetAndFilterDeltaPt) filterDeltaPt.second = -999.;
+
+            int jetCounter=0;
+            for(const auto & jet : all_jets)
+            {
+                selectedJetPtEtaPhiVector.at(jetCounter) = {jet.P4().Pt(), jet.P4().Eta(), jet.P4().Phi()};
+                jetCounter++;
+            }
+
+        }
     
         // loop over all trigger objects
         for (uint trigObjIt = 0; trigObjIt < *(nat.nTrigObj); ++trigObjIt) //for over all trigger objects
@@ -451,7 +594,45 @@ int main(int argc, char** argv)
             {
                 if(triggerObjectId != triggerFilter.first.first) continue;
                 if( (triggerFilterBitSum >> triggerFilter.first.second) & 0x1 ) //check object passes the filter
-                    ++triggerFilter.second;
+                {
+                    if(matchWithFourHighestBjets)
+                    {
+                        auto jetIdAndMinDeltaRandPt = getClosestJetIndexToTriggerObject(nat.TrigObj_eta.At(trigObjIt), nat.TrigObj_phi.At(trigObjIt), all_jets, 0.5);
+                        int bestMatchingIndex = std::get<0>( jetIdAndMinDeltaRandPt );
+                        if(bestMatchingIndex>=0)
+                        {
+                            // filterForMatchedJets.at(bestMatchingIndex).at(triggerObjectsForStudies.at(triggerFilter.first)) = true;
+                            triggerObjectPerJetCount.at(bestMatchingIndex).at(triggerFilter.first) = true;
+                            float &previousDeltaR = triggerObjectPerJetDeltaR.at(bestMatchingIndex).at(triggerFilter.first);
+                            float &currentDeltaR  = std::get<1>( jetIdAndMinDeltaRandPt );
+                            if(currentDeltaR < previousDeltaR)
+                            {
+                                previousDeltaR = currentDeltaR;
+                                triggerObjectPerJetDeltaPt.at(bestMatchingIndex).at(triggerFilter.first) = std::get<2>( jetIdAndMinDeltaRandPt );
+                            }
+                            float& maxDeltaR      = triggerObjectsForStudiesMaxDeltaR     .at(triggerFilter.first);
+                            float& maxDeltaRjetPt = triggerObjectsForStudiesMaxDeltaRjetPt.at(triggerFilter.first);
+                            if(maxDeltaR < std::get<1>( jetIdAndMinDeltaRandPt ) )
+                            {
+                                maxDeltaR      = std::get<1>( jetIdAndMinDeltaRandPt );
+                                maxDeltaRjetPt = std::get<2>( jetIdAndMinDeltaRandPt );
+                            }
+                        }
+                        
+                    }
+                    else ++triggerFilter.second;
+                }
+            }
+        }
+
+        if(matchWithFourHighestBjets)
+        {
+            for(auto &triggerFilter : triggerObjectsForStudiesCount)
+            {
+                for(auto &jetFiltersMap : triggerObjectPerJetCount)
+                {
+                    if(jetFiltersMap.at(triggerFilter.first)) ++triggerFilter.second;
+                }
             }
         }
         
