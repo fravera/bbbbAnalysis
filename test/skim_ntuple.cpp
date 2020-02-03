@@ -46,20 +46,21 @@ int main(int argc, char** argv)
     
     po::options_description desc("Skim options");
     desc.add_options()
-        ("help", "produce help message")
+        ("help"          , "produce help message")
         // required
-        ("cfg"   , po::value<string>()->required(), "skim config")
-        ("input" , po::value<string>()->required(), "input file list")
-        ("output", po::value<string>()->required(), "output file LFN")
+        ("cfg"           , po::value<string>()->required(), "skim config")
+        ("input"         , po::value<string>()->required(), "input file list")
+        ("output"        , po::value<string>()->required(), "output file LFN")
         // optional
-        ("xs"       , po::value<float>(), "cross section [pb]")
-        ("maxEvts"  , po::value<int>()->default_value(-1), "max number of events to process")
-        ("puWeight" , po::value<string>()->default_value(""), "PU weight file name")
+        ("xs"            , po::value<float>(), "cross section [pb]")
+        ("yMassSelection", po::value<int>(), "Y mass selection")
+        ("maxEvts"       , po::value<int>()->default_value(-1), "max number of events to process")
+        ("puWeight"      , po::value<string>()->default_value(""), "PU weight file name")
         // flags
-        ("is-data",    po::value<bool>()->zero_tokens()->implicit_value(true)->default_value(false), "mark as a data sample (default is false)")
-        ("is-signal",  po::value<bool>()->zero_tokens()->implicit_value(true)->default_value(false), "mark as a HH signal sample (default is false)")
-        ("is-VBF-sig", po::value<bool>()->zero_tokens()->implicit_value(true)->default_value(false), "mark as a HH VBF signal sample (default is false)")
-        ("save-p4",    po::value<bool>()->zero_tokens()->implicit_value(true)->default_value(false), "save the tlorentzvectors in the output")
+        ("is-data"       , po::value<bool>()->zero_tokens()->implicit_value(true)->default_value(false), "mark as a data sample (default is false)")
+        ("is-signal"     , po::value<bool>()->zero_tokens()->implicit_value(true)->default_value(false), "mark as a HH signal sample (default is false)")
+        ("is-VBF-sig"    , po::value<bool>()->zero_tokens()->implicit_value(true)->default_value(false), "mark as a HH VBF signal sample (default is false)")
+        ("save-p4"       , po::value<bool>()->zero_tokens()->implicit_value(true)->default_value(false), "save the tlorentzvectors in the output")
     ;
 
     po::variables_map opts;
@@ -88,7 +89,16 @@ int main(int argc, char** argv)
     cout << "[INFO] ... is a data sample? " << std::boolalpha << is_data << std::noboolalpha << endl;
 
     const bool is_signal = (is_data ? false : opts["is-signal"].as<bool>());
+    if (is_signal && !opts.count("yMassSelection")){
+        cerr << "** [ERROR] please provide yMassSelection for this sample that is marked as signal" << endl;
+        return 1;
+    }
+    int yMassSelection = (is_signal ? -1. : opts["yMassSelection"].as<int>());
     cout << "[INFO] ... is a HH signal sample? " << std::boolalpha << is_signal << std::noboolalpha << endl;
+    if(is_signal)
+    {
+        cout << "[INFO] ... Y mass selected " <<  yMassSelection << endl;
+    }
 
     const bool is_VBF_sig = (is_data ? false : opts["is-VBF-sig"].as<bool>());
     cout << "[INFO] ... is a HH VBF sample? " << std::boolalpha << is_VBF_sig << std::noboolalpha << endl;
@@ -449,11 +459,21 @@ int main(int argc, char** argv)
 
         if (is_data && !jlf.isValid(*nat.run, *nat.luminosityBlock)){
             continue; // not a valid lumi
-        }
-              
+        }              
 
         ot.clear();
         EventInfo ei;
+
+        if (is_signal && !config.readBoolOpt("parameters::is2016Sample")){
+            oph.select_gen_YH(nat, ei);
+            if (!oph.select_gen_bb_bb_forXYH(nat, ei))
+            {
+                std::cout << __PRETTY_FUNCTION__ << __LINE__ << "no gen matching found!!!" << std::endl;
+                continue; 
+            }
+            if( abs(ei.gen_H2->P4().M() - yMassSelection) > 2 ) continue;
+        }
+
         
         double weight = 1.;
         if(!is_data) weight = oph.calculateEventWeight(nat, ei, ot, ec);
@@ -468,15 +488,6 @@ int main(int argc, char** argv)
 
         if (!oph.select_bbbb_jets(nat, ei, ot, listOfPassedTriggers)) continue;
         if(!is_data){ot.userFloat("XS")=xs;}
-
-        if (is_signal && !config.readBoolOpt("parameters::is2016Sample")){
-            oph.select_gen_YH(nat, ei);
-            if (!oph.select_gen_bb_bb_forXYH(nat, ei))
-            {
-                std::cout << __PRETTY_FUNCTION__ << __LINE__ << "no gen matching found!!!" << std::endl;
-                continue; 
-            }
-        }
 
         if (is_VBF_sig){
             bool got_gen_VBF = oph.select_gen_VBF_partons(nat, ei);

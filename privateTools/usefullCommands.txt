@@ -24,6 +24,7 @@ skim_ntuple.exe --input inputFiles/2016ResonantDiHiggs4BDataSets/SingleMuon_Data
 
 skim_ntuple.exe --cfg config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb_triggerStudies.cfg --input inputFiles/2016ResonantDiHiggs4BDataSets/MC_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8.txt --output test_TTbar_MC.root --xs=1 --puWeight weights/MC_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8_PUweights.root --maxEvt 20000
 
+produceSignalTreeForTraining.exe --cfg=config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb_SignalTraining.cfg --input=inputFiles/2016_NMSSM_XYH_bbbb_Datasets/NMSSM_XYH_bbbb_MX_700_MY_300_privateMC.txt --output=test_signalTreeForTraining.root
 
 //SingleMuon_RunBF
 OverlapFile<>("TriggerEfficiency_SingleMuon_RunBF_MuonPt40_ForthJetPt30_IsoMu24.root","IsoMu24",kBlue,"TriggerEfficiency_SingleMuon_RunBF_MuonPt40_ForthJetPt30_IsoMu24_Matched.root","IsoMu24_Matched",kRed,"TriggerEfficiency_SingleMuon_RunBF_MuonPt40_ForthJetPt30_IsoMu20.root","IsoMu20",kGreen,"TriggerEfficiency_SingleMuon_RunBF_MuonPt40_ForthJetPt30_IsoMu20_Matched.root","IsoMu20_Matched",kOrange, "TriggerEfficiency_SingleMuon_RunBF_MuonPt40_ForthJetPt30.root")

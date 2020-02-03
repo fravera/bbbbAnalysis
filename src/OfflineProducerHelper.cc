@@ -1213,7 +1213,7 @@ void OfflineProducerHelper::bJets_PreselectionCut(std::vector<Jet> &jets)
 
     float minimumDeepCSVaccepted            = any_cast<float>(parameterList_->at("MinDeepCSV"          ));
     float minimumPtAccepted                 = any_cast<float>(parameterList_->at("MinPt"               ));
-    float maximumAbsEtaCSVaccepted          = any_cast<float>(parameterList_->at("MaxAbsEta"           ));
+    float maximumAbsEtaAccepted             = any_cast<float>(parameterList_->at("MaxAbsEta"           ));
 
     if(parameterList_->find("bbbbChoice") != parameterList_->end())
     {
@@ -1226,7 +1226,7 @@ void OfflineProducerHelper::bJets_PreselectionCut(std::vector<Jet> &jets)
         }
     }
 
-    if(minimumDeepCSVaccepted<0. && minimumPtAccepted<0. && maximumAbsEtaCSVaccepted<0.) return;
+    if(minimumDeepCSVaccepted<0. && minimumPtAccepted<0. && maximumAbsEtaAccepted<0.) return;
 
     auto it = jets.begin();
     while (it != jets.end()){
@@ -1242,8 +1242,8 @@ void OfflineProducerHelper::bJets_PreselectionCut(std::vector<Jet> &jets)
                 continue;
             }
         }
-        if(maximumAbsEtaCSVaccepted>=0.){
-            if(abs(it->P4().Eta())>maximumAbsEtaCSVaccepted){
+        if(maximumAbsEtaAccepted>=0.){
+            if(abs(it->P4().Eta())>maximumAbsEtaAccepted){
                 it=jets.erase(it);
                 continue;
             }
@@ -1262,7 +1262,7 @@ void OfflineProducerHelper::bJets_PreselectionCut(std::vector<Jet> &jets)
 // {
 //     float minimumDeepCSVaccepted            = any_cast<float>(parameterList_->at("MinDeepCSV"          ));
 //     float minimumPtAccepted                 = any_cast<float>(parameterList_->at("MinPt"               ));
-//     float maximumAbsEtaCSVaccepted          = any_cast<float>(parameterList_->at("MaxAbsEta"           ));
+//     float maximumAbsEtaAccepted             = any_cast<float>(parameterList_->at("MaxAbsEta"           ));
 //     bool  antiBtagOneJet                    = any_cast<bool >(parameterList_->at("UseAntiTagOnOneBjet" ));
 
 //     //If I will select also an antibitag jet, I temporary do not remove jets based on their btag
@@ -1289,8 +1289,8 @@ void OfflineProducerHelper::bJets_PreselectionCut(std::vector<Jet> &jets)
 //                 continue;
 //             }
 //         }
-//         if(maximumAbsEtaCSVaccepted>=0.){
-//             if(abs(it->P4().Eta())>maximumAbsEtaCSVaccepted){
+//         if(maximumAbsEtaAccepted>=0.){
+//             if(abs(it->P4().Eta())>maximumAbsEtaAccepted){
 //                 it=jets.erase(it);
 //                 continue;
 //             }
@@ -1373,7 +1373,7 @@ void OfflineProducerHelper::fourBjetCut_PreselectionCut(std::vector<Jet> &jets, 
 {
     float minimumDeepCSVaccepted            = any_cast<float>(parameterList_->at("MinDeepCSV"          ));
     float minimumPtAccepted                 = any_cast<float>(parameterList_->at("MinPt"               ));
-    float maximumAbsEtaCSVaccepted          = any_cast<float>(parameterList_->at("MaxAbsEta"           ));
+    float maximumAbsEtaAccepted             = any_cast<float>(parameterList_->at("MaxAbsEta"           ));
     bool  antiBtagOneJet                    = any_cast<bool >(parameterList_->at("UseAntiTagOnOneBjet" ));
 
     int minimumNumberDeepCSVaccepted =  antiBtagOneJet ? 3 : 4;
@@ -1387,8 +1387,14 @@ void OfflineProducerHelper::fourBjetCut_PreselectionCut(std::vector<Jet> &jets, 
                 continue;
             }
         }
-        if(maximumAbsEtaCSVaccepted>=0.){
-            if(abs(it->P4().Eta())>maximumAbsEtaCSVaccepted){
+        if(maximumAbsEtaAccepted>=0.){
+            if(abs(it->P4().Eta())>maximumAbsEtaAccepted){
+                it=jets.erase(it);
+                continue;
+            }
+        }
+        if(minimumDeepCSVaccepted>=0.){
+            if(get_property((*it),Jet_btagDeepB)<0.){
                 it=jets.erase(it);
                 continue;
             }
@@ -1418,7 +1424,7 @@ void OfflineProducerHelper::fourBjetCut_PreselectionCut(std::vector<Jet> &jets, 
         jets.erase(jets.begin(),jets.end());
         return;
     }
-
+    
     return;
 
 }
@@ -1825,7 +1831,7 @@ std::vector <Jet> OfflineProducerHelper::bbJets_PreselectionCut(std::vector<Jet>
 
     float minimumDeepCSVaccepted            = any_cast<float>(parameterList_->at("bMinDeepCSV"          ));
     float minimumPtAccepted                 = any_cast<float>(parameterList_->at("bMinPt"               ));
-    float maximumAbsEtaCSVaccepted          = any_cast<float>(parameterList_->at("bMaxAbsEta"           ));
+    float maximumAbsEtaAccepted             = any_cast<float>(parameterList_->at("bMaxAbsEta"           ));
 
     std::vector <Jet> outputJets;
     auto it = jets.begin();
@@ -1842,8 +1848,8 @@ std::vector <Jet> OfflineProducerHelper::bbJets_PreselectionCut(std::vector<Jet>
                 continue;
             }
         }
-        if(maximumAbsEtaCSVaccepted>=0.){
-            if(abs(it->P4().Eta())>maximumAbsEtaCSVaccepted){
+        if(maximumAbsEtaAccepted>=0.){
+            if(abs(it->P4().Eta())>maximumAbsEtaAccepted){
                 it=jets.erase(it);
                 continue;
             }
@@ -1863,9 +1869,9 @@ std::vector <Jet> OfflineProducerHelper::bbJets_PreselectionCut(std::vector<Jet>
 std::vector<std::tuple <Electron,Muon>> OfflineProducerHelper::emu_PreselectionCut(NanoAODTree& nat, EventInfo& ei, OutputTree &ot)
 {
     float eminimumPtAccepted                 = any_cast<float>(parameterList_->at("eMinPt"               ));
-    float emaximumAbsEtaCSVaccepted          = any_cast<float>(parameterList_->at("eMaxAbsEta"           ));
+    float emaximumAbsEtaAccepted             = any_cast<float>(parameterList_->at("eMaxAbsEta"           ));
     float muminimumPtAccepted                = any_cast<float>(parameterList_->at("muMinPt"               ));
-    float mumaximumAbsEtaCSVaccepted         = any_cast<float>(parameterList_->at("muMaxAbsEta"           ));
+    float mumaximumAbsEtaAccepted            = any_cast<float>(parameterList_->at("muMaxAbsEta"           ));
     float emuminimunMass                     = any_cast<float>(parameterList_->at("emuMass"              ));
     float muMaxPfIso                         = any_cast<float>(parameterList_->at("muMaxPfIso"           ));
     float eMaxPfIso                          = any_cast<float>(parameterList_->at("eMaxPfIso"              ));
@@ -1877,14 +1883,14 @@ std::vector<std::tuple <Electron,Muon>> OfflineProducerHelper::emu_PreselectionC
     for (uint eIt = 0; eIt < *(nat.nElectron); ++eIt){
         Electron theElectron(eIt, &nat);
         if( get_property(theElectron,Electron_pt) > eminimumPtAccepted
-            && abs(get_property(theElectron,Electron_eta)) < emaximumAbsEtaCSVaccepted
+            && abs(get_property(theElectron,Electron_eta)) < emaximumAbsEtaAccepted
             && get_property(theElectron,Electron_pfRelIso03_all) < eMaxPfIso)
             electrons.emplace_back(theElectron);
     }
     for (uint eIt = 0; eIt < *(nat.nMuon); ++eIt){
         Muon theMuon(eIt, &nat);
         if( get_property(theMuon,Muon_pt) > muminimumPtAccepted
-            && abs(get_property(theMuon,Muon_eta)) < mumaximumAbsEtaCSVaccepted
+            && abs(get_property(theMuon,Muon_eta)) < mumaximumAbsEtaAccepted
             && get_property(theMuon,Muon_pfRelIso04_all) < muMaxPfIso)
             muons.emplace_back(theMuon);
     }

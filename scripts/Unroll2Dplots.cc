@@ -21,7 +21,10 @@ data_BTagCSV/selectionbJetsAndTrigger_SignalRegion/data_BTagCSV_selectionbJetsAn
 
 //g++  -std=c++17 -I `root-config --incdir` -o Unroll2Dplots Unroll2Dplots.cc `root-config --libs` -O3 && ./Unroll2Dplots ../plotResults/2016DataPlots_NMSSM_XYH_bbbb/outPlotter.root data_BTagCSV_BackgroundTriggerMatched selectionbJetsAndTrigger_SignalRegion HH_m_H2_m
 
-float higgsMass = 220;
+// ./scripts/Unroll2Dplots 2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root data_BTagCSV_dataDriven selectionbJetsAndTrigger_3bTag_SignalRegion HH_m_H2_m selectionbJetsAndTrigger_3bTag_ControlRegionBlinded selectionbJetsAndTrigger_3bTag_SideBandBlinded selectionbJetsAndTrigger_4bTag_ControlRegionBlinded selectionbJetsAndTrigger_4bTag_SideBandBlinded selectionbJetsAndTrigger_4bTag_SignalRegion
+// ./scripts/Unroll2Dplots 2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root data_BTagCSV_dataDriven_noTrigMatch selectionbJets_3bTag_SignalRegion HH_m_H2_m selectionbJets_3bTag_ControlRegionBlinded selectionbJets_3bTag_SideBandBlinded selectionbJets_4bTag_ControlRegionBlinded selectionbJets_4bTag_SideBandBlinded selectionbJets_4bTag_SignalRegion
+
+float higgsMass = 120;
 float konigsbergLine = 800;
 
 //-------------------------------------------------------------------------------------------------------------------------------------//
@@ -252,15 +255,17 @@ TH1F* UnrollPlot(TH2F* the2Dplot)
 
 int main(int argc, char *argv[])
 {
-    if(argc != 5)
+    if(argc < 5)
     {
-        std::cout << "Usage: ./Unroll2Dplots <fileName> <dataset> <selection> <variable>" << std::endl;
+        std::cout << "Usage: ./Unroll2Dplots <fileName> <dataset> <selection> <variable> <otherSelectionToUnroll - optional>" << std::endl;
         return EXIT_FAILURE;
     }
 
     std::string dataDataset = argv[2];
     std::string selection   = argv[3];
     std::string variable    = argv[4];
+    std::vector<std::string> selectionsToUnrollList = {selection};
+    for(uint i=5; i<argc; ++i) selectionsToUnrollList.push_back(argv[i]);
 
     TFile theInputFile(argv[1], "UPDATE");
     std::string dataHistogramName = dataDataset + "/" + selection + "/" + dataDataset + "_" + selection + "_"  + variable;
@@ -283,20 +288,23 @@ int main(int argc, char *argv[])
         if (!cl->InheritsFrom("TDirectoryFile")) continue;
         std::string theCurrentDataDataset = key->ReadObj()->GetName();
         std::cout << theCurrentDataDataset <<std::endl;
-        theInputFile.cd();
-        theInputFile.cd((theCurrentDataDataset + "/" + selection).data());
-        std::string theCurrentDirectory = theCurrentDataDataset + "/" + selection + "/";
-        std::string theCurrentHistogramName = theCurrentDataDataset + "_" + selection + "_"  + variable;
-        TH2F *theCurrent2Dplot = (TH2F*)theInputFile.Get((theCurrentDirectory+theCurrentHistogramName).data());
-        std::string theRebinnedPlotName = theCurrentHistogramName + "_Rebinned";
-        TH2F *theRebinnedPlot = new TH2F(theRebinnedPlotName.data(),theRebinnedPlotName.data(),nXbin,xBinArray,nYbin,yBinArray);
+        for(const auto& selectionName : selectionsToUnrollList)
+        {
+            theInputFile.cd();
+            theInputFile.cd((theCurrentDataDataset + "/" + selectionName).data());
+            std::string theCurrentDirectory = theCurrentDataDataset + "/" + selectionName + "/";
+            std::string theCurrentHistogramName = theCurrentDataDataset + "_" + selectionName + "_"  + variable;
+            TH2F *theCurrent2Dplot = (TH2F*)theInputFile.Get((theCurrentDirectory+theCurrentHistogramName).data());
+            std::string theRebinnedPlotName = theCurrentHistogramName + "_Rebinned";
+            TH2F *theRebinnedPlot = new TH2F(theRebinnedPlotName.data(),theRebinnedPlotName.data(),nXbin,xBinArray,nYbin,yBinArray);
 
-        FillRebinnedPlot(theCurrent2Dplot,theRebinnedPlot);
+            FillRebinnedPlot(theCurrent2Dplot,theRebinnedPlot);
 
-        theRebinnedPlot->Write(theRebinnedPlot->GetName(), TObject::kOverwrite);
+            theRebinnedPlot->Write(theRebinnedPlot->GetName(), TObject::kOverwrite);
 
-        TH1F* the1Dplot = UnrollPlot(theRebinnedPlot);
-        the1Dplot->Write(the1Dplot->GetName(), TObject::kOverwrite);
+            TH1F* the1Dplot = UnrollPlot(theRebinnedPlot);
+            the1Dplot->Write(the1Dplot->GetName(), TObject::kOverwrite);
+        }
     }
 
     theInputFile.Close();

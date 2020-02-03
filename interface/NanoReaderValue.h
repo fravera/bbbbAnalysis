@@ -15,7 +15,14 @@
 
 // #define VERBOSE false
 
-template <typename T> class NanoReaderValue
+class NanoReaderValueBase
+{
+    public:
+        NanoReaderValueBase(){}
+        ~NanoReaderValueBase(){}
+};
+
+template <typename T> class NanoReaderValue : public NanoReaderValueBase
 {
     public:
         NanoReaderValue(TTreeReader &tr, const char *branchname);
@@ -54,7 +61,7 @@ T* NanoReaderValue<T>::Get()
 }
 
 template <typename T>
-NanoReaderValue<T>::NanoReaderValue(TTreeReader &tr, const char *branchname)
+NanoReaderValue<T>::NanoReaderValue(TTreeReader &tr, const char *branchname) : NanoReaderValueBase()
 {
     reader_ = &tr;
     branchname_ = branchname;

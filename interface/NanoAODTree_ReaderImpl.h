@@ -25,6 +25,7 @@
 #include <vector>
 #include <iostream>
 #include <memory>
+#include <any>
 
 // #define ENABLE_JET      true
 // #define ENABLE_FATJET   true
@@ -51,6 +52,20 @@ class NanoAODTree_ReaderImpl {
         bool Next();
         bool getTrgOr() {return trg_reader_.getTrgOr();};
         std::vector<std::string> getTrgPassed() {return trg_reader_.getTrgPassed();};
+
+        template<class T> 
+        void attachCustomValueBranch(const std::string branchName)
+        {
+            fCustomBranchMap.emplace(branchName, std::make_unique<NanoReaderValue<T>>(fReader, branchName.data()));
+        }
+
+        template<class T> 
+        T readCustomValueBranch(const std::string branchName)
+        {
+            return *static_cast<NanoReaderValue<T>*>(fCustomBranchMap.at(branchName).get())->Get();
+        }
+
+        std::map<std::string, std::unique_ptr<NanoReaderValueBase>> fCustomBranchMap;
 
         // the chain and TTreeReader
         TTreeReader   fReader;

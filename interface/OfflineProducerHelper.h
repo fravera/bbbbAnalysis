@@ -181,7 +181,7 @@ class OfflineProducerHelper{
             branchesAffectedByJetEnergyVariations_["HH_m_kinFit"] = -1.;
             branchesAffectedByJetEnergyVariations_["HH_2DdeltaM"] = 999.;
 
-            init_BDT_evals();
+            // init_BDT_evals();
             // if (parameterList_->count("do_kl_rew") > 0 && std::any_cast<bool>(parameterList_->at("do_kl_rew")))
             //     init_HH_reweighter(
             //         std::any_cast<std::string>(parameterList_->at("kl_coeffs")),
@@ -356,6 +356,12 @@ class OfflineProducerHelper{
         template <typename T>
         bool order_by_pT(T& val1, T& val2, bool max_first = true);
 
+        static float deltaPhi(float phi1, float phi2)
+        {
+            float delphi = TMath::Abs(TMath::Abs(TMath::Abs(phi1 - phi2) - TMath::Pi())-TMath::Pi());
+            return delphi;
+        }
+
 };
 
 template <typename C>
@@ -489,12 +495,6 @@ bool OfflineProducerHelper::order_by_pT(T& val1, T& val2, bool max_first)
         return false;
     std::swap(val1, val2);
     return true;
-}
-
-float deltaPhi(float phi1, float phi2)
-{
-    float delphi = TMath::Abs(TMath::Abs(TMath::Abs(phi1 - phi2) - TMath::Pi())-TMath::Pi());
-    return delphi;
 }
 
 #endif
