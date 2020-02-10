@@ -6,10 +6,6 @@
 *.root
 *.tar.gz
 jobs_*/
-2016DataPlots_*
 *_C.d
-*_C_ACLiC_dict_rdict.pcm
-*.pdf
+*_C_ACLiC_dict*
 *.png
-plotResults/*
-crabJobs/*

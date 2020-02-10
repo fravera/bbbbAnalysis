@@ -207,6 +207,7 @@ class NanoAODTree_ReaderImpl {
         NanoReaderArray<Float_t>   Jet_btagCSVV2                        {fReader, "Jet_btagCSVV2"};
         NanoReaderArray<Float_t>   Jet_btagDeepB                        {fReader, "Jet_btagDeepB"};
         NanoReaderArray<Float_t>   Jet_btagDeepC                        {fReader, "Jet_btagDeepC"};
+        NanoReaderArray<Float_t>   Jet_btagDeepFlavB                    {fReader, "Jet_btagDeepFlavB"};
         NanoReaderArray<Float_t>   Jet_chEmEF                           {fReader, "Jet_chEmEF"};
         NanoReaderArray<Float_t>   Jet_chHEF                            {fReader, "Jet_chHEF"};
         NanoReaderArray<Float_t>   Jet_eta                              {fReader, "Jet_eta"};
