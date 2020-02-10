@@ -34,7 +34,7 @@ namespace su = SkimUtils;
 
 using namespace std;
 
-#define B_TAG_ALGO Jet_btagDeepB
+#define B_TAG_ALGO Jet_btagDeepFlavB
 
 // int match_genJets (Jet jet, std::vector<GenJet>& genjets)
 // {
@@ -173,6 +173,7 @@ int main(int argc, char** argv)
         // flags
         ("is-data",    po::value<bool>()->zero_tokens()->implicit_value(true)->default_value(false), "mark as a data sample (default is false)")
         ("match",      po::value<bool>()->zero_tokens()->implicit_value(true)->default_value(false), "match with four highest b-Jets")
+        ("is-signal",  po::value<bool>()->zero_tokens()->implicit_value(true)->default_value(false), "is signal (skip searching for iso muon")
     ;
 
     po::variables_map opts;
@@ -197,6 +198,7 @@ int main(int argc, char** argv)
     cout << "[INFO] ... is a data sample? " << std::boolalpha << is_data << std::noboolalpha << endl;
 
     const bool matchWithFourHighestBjets =  opts["match"].as<bool>();
+    const bool isSignal =  opts["is-signal"].as<bool>();
 
     CfgParser config;
     if (!config.init(opts["cfg"].as<string>())) return 1;
@@ -284,30 +286,46 @@ int main(int argc, char** argv)
 
     float weight_;
 
+    //leptons
+    float highestIsoElecton_pt_;
+    float electronTimesMuoncharge_;
+
     // jets
     float jetFirstHighestPt_pt_;
     float jetSecondHighestPt_pt_;
     float jetThirdHighestPt_pt_;
     float jetForthHighestPt_pt_;
     float fourHighestJetPt_sum_;
-    float jetFirstHighestDeepCSV_deepCSV_;
-    // float jetThirdHighestDeepCSV_deepCSV_;
-
+    float allJetPt_sum_; // https://arxiv.org/pdf/1609.02366.pdf Sum of jet pT for all jets with pt >10 GeV and |eta| < 0.3
+    float jetFirstHighestDeepFlavB_deepFlavB_;
+    float jetFirstHighestDeepFlavB_pt_;
+    float jetFirstHighestDeepFlavB_eta_;
+    int jetFirstHighestDeepFlavB_hadronFlavour_;
+    int jetFirstHighestDeepFlavB_triggerFlag_;
+    
     tOut->Branch("run",              &run_);
     tOut->Branch("luminosityBlock",  &luminosityBlock_);
     tOut->Branch("event",            &event_);
 
     tOut->Branch("btag_SF",           &btag_SF_);
     
-    tOut->Branch("weight",        &weight_);
+    tOut->Branch("weight",            &weight_);
+
+    tOut->Branch("highestIsoElecton_pt"    , &highestIsoElecton_pt_ );
+    tOut->Branch("electronTimesMuoncharge" , &electronTimesMuoncharge_ );
 
     tOut->Branch("jetFirstHighestPt_pt" , &jetFirstHighestPt_pt_ );
     tOut->Branch("jetSecondHighestPt_pt", &jetSecondHighestPt_pt_);
     tOut->Branch("jetThirdHighestPt_pt" , &jetThirdHighestPt_pt_ );
     tOut->Branch("jetForthHighestPt_pt" , &jetForthHighestPt_pt_ );
     tOut->Branch("fourHighestJetPt_sum" , &fourHighestJetPt_sum_ );
-    tOut->Branch("jetFirstHighestDeepCSV_deepCSV" , &jetFirstHighestDeepCSV_deepCSV_ );
-    // tOut->Branch("jetThirdHighestDeepCSV_deepCSV" , &jetThirdHighestDeepCSV_deepCSV_ );
+    tOut->Branch("allJetPt_sum"         , &allJetPt_sum_         );
+    tOut->Branch("jetFirstHighestDeepFlavB_deepFlavB" , &jetFirstHighestDeepFlavB_deepFlavB_ );
+    tOut->Branch("jetFirstHighestDeepFlavB_pt" , &jetFirstHighestDeepFlavB_pt_ );
+    tOut->Branch("jetFirstHighestDeepFlavB_eta" , &jetFirstHighestDeepFlavB_eta_ );
+    tOut->Branch("jetFirstHighestDeepFlavB_hadronFlavour" , &jetFirstHighestDeepFlavB_hadronFlavour_ );
+    tOut->Branch("jetFirstHighestDeepFlavB_triggerFlag" , &jetFirstHighestDeepFlavB_triggerFlag_ );
+
 
     //enable trigger filters
     std::map<std::pair<int,int>, std::string > triggerObjectsForStudies;   
@@ -332,7 +350,6 @@ int main(int argc, char** argv)
 
     const string objectsForCut = config.readStringOpt("parameters::ObjectsForCut");
     if(objectsForCut == "TriggerObjects"){
-
 
         std::vector<std::string> triggerObjectMatchingVector = config.readStringListOpt("parameters::ListOfTriggerObjectsAndBit");
         
@@ -418,57 +435,59 @@ int main(int argc, char** argv)
         ec.updateProcessed(weight_);
 
         // check the trigger
-        if( !nat.getTrgOr() ) continue;
+        if(!isSignal) if( !nat.getTrgOr() ) continue;
         ec.updateTriggered(weight_);
+
+
+        //Check if there is and iso muon with Pt>40 GeV
+        int numberOfIsoMuon01 = 0;
+        int numberOfIsoMuon03 = 0;
+        int isoMuonJetId      = -1;
+        float muonPtCut = 30;
+        for (uint candIt = 0; candIt < *(nat.nMuon); ++candIt)
+        {
+            Muon theMuon (candIt, &nat);
+            float muonIsolation = get_property(theMuon, Muon_pfRelIso04_all);
+            if(muonIsolation<0.3 && get_property(theMuon, Muon_mediumId) && theMuon.P4().Pt() >= muonPtCut)
+            {
+                if(muonIsolation<0.1 ) 
+                {
+                    ++numberOfIsoMuon01;
+                    isoMuonJetId = get_property(theMuon, Muon_jetIdx);
+                    electronTimesMuoncharge_ = get_property(theMuon, Muon_charge);
+                }
+                ++numberOfIsoMuon03;
+                if(numberOfIsoMuon03>1) break;
+            }
+
+        }
+        if(!isSignal) if(numberOfIsoMuon01!=1 || numberOfIsoMuon03>1) continue;
 
         // find the four most b tagged jets and save them in the output
 
         std::vector<Jet> all_jets;
         all_jets.reserve(*(nat.nJet));
+        allJetPt_sum_ = 0.;
+
 
         for (uint ij = 0; ij < *(nat.nJet); ++ij)
         {
             // here preselect jets
             Jet jet (ij, &nat);
+            if(isoMuonJetId  == jet.getIdx()) continue;
 
             // Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto
             // but note that bit1 means idx 0 and so on
             int jetid = get_property(jet, Jet_jetId); 
 
-            
-            // PU ID : bit idx 0 -> tight, bit idx 1 -> medium, bit idx 2 -> loose
-            // int puid  = get_property(jet, Jet_puId);
-
-            if (jet.P4().Pt() <= 25)
-                continue;
-
-            if (std::abs(jet.P4().Eta()) > 2.4)
-                continue;
-
             if (!checkBit(jetid, 1)) // tight jet Id
                 continue;
 
-            if(get_property(jet, B_TAG_ALGO) < 0.) continue; 
-            // if (!checkBit(puid, 1) && jet.P4().Pt() <= 50) // medium PU Id - NOTE : not to be applied beyond 50 GeV: https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupJetID
-            //     continue;
-
-            bool isPhoton = false;
-            for (uint ij = 0; ij < *(nat.nPhoton); ++ij)
-            {
-                Photon thePhoton (ij, &nat);
-                if(jet.getIdx() == get_property(thePhoton, Photon_jetIdx))
-                {
-                    isPhoton = true;
-                    break;
-                }
-            }
-            if(isPhoton) continue;
-
             bool isElectron = false;
-            for (uint ij = 0; ij < *(nat.nElectron); ++ij)
+            for (uint candIt = 0; candIt < *(nat.nElectron); ++candIt)
             {
-                // if(Electron_pfRelIso03_all > 0.3) continue;
-                Electron theElectron (ij, &nat);
+                Electron theElectron (candIt, &nat);
+                if(get_property(theElectron, Electron_pfRelIso03_all) > 0.3) continue;
                 if(jet.getIdx() == get_property(theElectron, Electron_jetIdx))
                 {
                     isElectron = true;
@@ -477,17 +496,42 @@ int main(int argc, char** argv)
             }
             if(isElectron) continue;
 
-            bool isMuon = false;
-            for (uint ij = 0; ij < *(nat.nMuon); ++ij)
-            {
-                Muon theMuon (ij, &nat);
-                if(jet.getIdx() == get_property(theMuon, Muon_jetIdx))
-                {
-                    isMuon = true;
-                    break;
-                }
-            }
-            if(isMuon) continue;
+            if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 3.) allJetPt_sum_ += jet.P4().Pt();
+
+            if (jet.P4().Pt() <= 25)
+                continue;
+
+            if (std::abs(jet.P4().Eta()) > 2.4)
+                continue;
+
+            if(get_property(jet, B_TAG_ALGO) < 0.) continue; 
+            // if (!checkBit(puid, 1) && jet.P4().Pt() <= 50) // medium PU Id - NOTE : not to be applied beyond 50 GeV: https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupJetID
+            //     continue;
+
+            // bool isPhoton = false;
+            // for (uint ij = 0; ij < *(nat.nPhoton); ++ij)
+            // {
+            //     Photon thePhoton (ij, &nat);
+            //     if(jet.getIdx() == get_property(thePhoton, Photon_jetIdx))
+            //     {
+            //         isPhoton = true;
+            //         break;
+            //     }
+            // }
+            // if(isPhoton) continue;
+
+
+            // bool isMuon = false;
+            // for (uint candIt = 0; candIt < *(nat.nMuon); ++candIt)
+            // {
+            //     Muon theMuon (candIt, &nat);
+            //     if(jet.getIdx() == get_property(theMuon, Muon_jetIdx))
+            //     {
+            //         isMuon = true;
+            //         break;
+            //     }
+            // }
+            // if(isMuon) continue;
 
             all_jets.emplace_back(jet);
         }
@@ -495,6 +539,14 @@ int main(int argc, char** argv)
         if (all_jets.size() < 4) // I don't have 4 preselected jets
             continue;
 
+        for (uint candIt = 0; candIt < *(nat.nElectron); ++candIt)
+        {
+            Electron theElectron (candIt, &nat);
+            if(get_property(theElectron, Electron_pfRelIso03_all) > 0.1) continue;
+            highestIsoElecton_pt_ = theElectron.P4().Pt();
+            electronTimesMuoncharge_ *= get_property(theElectron, Electron_charge);
+            break;
+        }
         
         ec.updateSelected(weight_);
 
@@ -512,34 +564,6 @@ int main(int argc, char** argv)
             return ( a.P4().Pt() > b.P4().Pt() );
         });
 
-        //Check if there is and iso muon with Pt>40 GeV
-        bool isoMuonFound = false;
-        for (uint ij = 0; ij < *(nat.nMuon); ++ij)
-        {
-            Muon theMuon (ij, &nat);
-            if(get_property(theMuon, Muon_pfRelIso04_all)<0.1 && get_property(theMuon, Muon_mediumId) && theMuon.P4().Pt() >= 40.)
-            {
-                int muonJetId = get_property(theMuon, Muon_jetIdx);
-                if(muonJetId >= 0)
-                {
-                    bool isUnmatched = true;
-                    for(auto jet : all_jets)
-                    {
-                        if(jet.getIdx() == muonJetId)
-                        {
-                            isUnmatched = false;
-                            break;  
-                        }
-                    }
-                    isoMuonFound = isUnmatched;
-                }
-                else isoMuonFound = true;
-            }
-            if(isoMuonFound) break;
-
-        }
-        if(!isoMuonFound) continue;
-
         jetFirstHighestPt_pt_  = all_jets.at(0).P4().Pt();
         jetSecondHighestPt_pt_ = all_jets.at(1).P4().Pt();
         jetThirdHighestPt_pt_  = all_jets.at(2).P4().Pt();
@@ -552,14 +576,28 @@ int main(int argc, char** argv)
             return ( get_property(a, B_TAG_ALGO) > get_property(b, B_TAG_ALGO) );
         });
 
-        jetFirstHighestDeepCSV_deepCSV_ = get_property(all_jets.at(0), B_TAG_ALGO);
-        // jetThirdHighestDeepCSV_deepCSV_ = get_property(all_jets.at(2), B_TAG_ALGO);
+        jetFirstHighestDeepFlavB_deepFlavB_ = get_property(all_jets.at(0), B_TAG_ALGO);
+        if(!is_data) jetFirstHighestDeepFlavB_hadronFlavour_ = get_property(all_jets.at(0), Jet_hadronFlavour);
+        else jetFirstHighestDeepFlavB_hadronFlavour_ = -999;
+        jetFirstHighestDeepFlavB_pt_ = all_jets.at(0).P4().Pt();
+        jetFirstHighestDeepFlavB_eta_ = all_jets.at(0).P4().Eta();
+        int highestDeepCSVJetID = all_jets.at(0).getIdx();
 
         // reorder by jet pt
         stable_sort(all_jets.begin(), all_jets.end(), [](const Jet & a, const Jet & b) -> bool
         {
             return ( a.P4().Pt() > b.P4().Pt() );
         });
+
+        int highestDeepCSVJetPosition = -1;
+        for(uint pos=0; pos<all_jets.size(); ++pos)
+        {
+            if(all_jets.at(pos).getIdx() == highestDeepCSVJetID)
+            {
+                highestDeepCSVJetPosition = pos;
+            }
+        }
+        assert(highestDeepCSVJetPosition != -1);
 
         // get number of trigger filters
 
@@ -620,21 +658,31 @@ int main(int argc, char** argv)
                         }
                         
                     }
-                    else ++triggerFilter.second;
+                    else
+                    {
+                        ++triggerFilter.second;
+                        if(triggerObjectsForStudies.at(triggerFilter.first) == "BTagCaloCSVp087Triple") ++jetFirstHighestDeepFlavB_triggerFlag_;
+                    }
                 }
             }
         }
 
+
         if(matchWithFourHighestBjets)
         {
+            std::pair<int,int> btagFilter = {-1,-1};
             for(auto &triggerFilter : triggerObjectsForStudiesCount)
             {
                 for(auto &jetFiltersMap : triggerObjectPerJetCount)
                 {
                     if(jetFiltersMap.at(triggerFilter.first)) ++triggerFilter.second;
                 }
+                if(triggerObjectsForStudies.at(triggerFilter.first) == "BTagCaloCSVp087Triple") btagFilter = triggerFilter.first;
             }
+            if(triggerObjectPerJetCount[highestDeepCSVJetPosition][btagFilter]) jetFirstHighestDeepFlavB_triggerFlag_ = 1;
+            else jetFirstHighestDeepFlavB_triggerFlag_ = 0;
         }
+
         
         if (!is_data)
         {

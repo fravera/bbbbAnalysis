@@ -215,7 +215,7 @@ void RatioAllEfficienciesInFile(std::string inputFileName)
 
     TCanvas *theCanvasQuad90Double90Ratio = new TCanvas("Quad90Double90Ratio", "Quad90Double90Ratio", 1400, 800);
     theCanvasQuad90Double90Ratio->DivideSquare(6,0.005,0.005);
-    RatioEfficienciesFromFile(theCanvasQuad90Double90Ratio->cd(1),inputFileName.data(),"SingleMuon_Double90Quad30_Efficiency_L1filter"                   , inputFileName.data(), "TTbar_Double90Quad30_Efficiency_L1filter"                   , "Sum of four higest pt [GeV]");
+    RatioEfficienciesFromFile(theCanvasQuad90Double90Ratio->cd(1),inputFileName.data(),"SingleMuon_Double90Quad30_Efficiency_L1filter"                   , inputFileName.data(), "TTbar_Double90Quad30_Efficiency_L1filter"                   , "Sum of four highest pt [GeV]");
     RatioEfficienciesFromFile(theCanvasQuad90Double90Ratio->cd(2),inputFileName.data(),"SingleMuon_Double90Quad30_Efficiency_QuadCentralJet30"           , inputFileName.data(), "TTbar_Double90Quad30_Efficiency_QuadCentralJet30"           , "pT_{4} [GeV]"               );
     RatioEfficienciesFromFile(theCanvasQuad90Double90Ratio->cd(3),inputFileName.data(),"SingleMuon_Double90Quad30_Efficiency_DoubleCentralJet90"         , inputFileName.data(), "TTbar_Double90Quad30_Efficiency_DoubleCentralJet90"         , "pT_{2} [GeV]"               );
     RatioEfficienciesFromFile(theCanvasQuad90Double90Ratio->cd(4),inputFileName.data(),"SingleMuon_Double90Quad30_Efficiency_BTagCaloCSVp087Triple"      , inputFileName.data(), "TTbar_Double90Quad30_Efficiency_BTagCaloCSVp087Triple"      , "DeepCSV_{1}"                );
@@ -226,7 +226,7 @@ void RatioAllEfficienciesInFile(std::string inputFileName)
 
     TCanvas *theCanvasQuad45Ratio = new TCanvas("Quad45Ratio", "Quad45Ratio", 1400, 800);
     theCanvasQuad45Ratio->DivideSquare(4,0.005,0.005);
-    RatioEfficienciesFromFile(theCanvasQuad45Ratio->cd(1),inputFileName.data(),"SingleMuon_Quad45_Efficiency_L1filter"                 , inputFileName.data(), "TTbar_Quad45_Efficiency_L1filter"                 , "Sum of four higest pt [GeV]");
+    RatioEfficienciesFromFile(theCanvasQuad45Ratio->cd(1),inputFileName.data(),"SingleMuon_Quad45_Efficiency_L1filter"                 , inputFileName.data(), "TTbar_Quad45_Efficiency_L1filter"                 , "Sum of four highest pt [GeV]");
     RatioEfficienciesFromFile(theCanvasQuad45Ratio->cd(2),inputFileName.data(),"SingleMuon_Quad45_Efficiency_QuadCentralJet45"         , inputFileName.data(), "TTbar_Quad45_Efficiency_QuadCentralJet45"         , "pT_{4} [GeV]"               );
     RatioEfficienciesFromFile(theCanvasQuad45Ratio->cd(3),inputFileName.data(),"SingleMuon_Quad45_Efficiency_BTagCaloCSVp087Triple"    , inputFileName.data(), "TTbar_Quad45_Efficiency_BTagCaloCSVp087Triple"    , "DeepCSV_{1}"                );
     RatioEfficienciesFromFile(theCanvasQuad45Ratio->cd(4),inputFileName.data(),"SingleMuon_Quad45_Efficiency_QuadPFCentralJetLooseID45", inputFileName.data(), "TTbar_Quad45_Efficiency_QuadPFCentralJetLooseID45", "pT_{4} [GeV]"               );
@@ -236,12 +236,45 @@ void RatioAllEfficienciesInFile(std::string inputFileName)
 
     TCanvas *theCanvasQuad45AfterDoubleRatio = new TCanvas("Quad45AfterDoubleRatio", "Quad45AfterDoubleRatio", 1400, 800);
     theCanvasQuad45AfterDoubleRatio->DivideSquare(4,0.005,0.005);
-    RatioEfficienciesFromFile(theCanvasQuad45AfterDoubleRatio->cd(1),inputFileName.data(),"SingleMuon_And_Efficiency_L1filterQuad45"           , inputFileName.data(), "TTbar_And_Efficiency_L1filterQuad45"           , "Sum of four higest pt [GeV]");
+    RatioEfficienciesFromFile(theCanvasQuad45AfterDoubleRatio->cd(1),inputFileName.data(),"SingleMuon_And_Efficiency_L1filterQuad45"           , inputFileName.data(), "TTbar_And_Efficiency_L1filterQuad45"           , "Sum of four highest pt [GeV]");
     RatioEfficienciesFromFile(theCanvasQuad45AfterDoubleRatio->cd(2),inputFileName.data(),"SingleMuon_And_Efficiency_QuadCentralJet45"         , inputFileName.data(), "TTbar_And_Efficiency_QuadCentralJet45"         , "pT_{4} [GeV]"               );
     RatioEfficienciesFromFile(theCanvasQuad45AfterDoubleRatio->cd(3),inputFileName.data(),"SingleMuon_And_Efficiency_BTagCaloCSVp087Triple"    , inputFileName.data(), "TTbar_And_Efficiency_BTagCaloCSVp087Triple"    , "DeepCSV_{1}"                );
     RatioEfficienciesFromFile(theCanvasQuad45AfterDoubleRatio->cd(4),inputFileName.data(),"SingleMuon_And_Efficiency_QuadPFCentralJetLooseID45", inputFileName.data(), "TTbar_And_Efficiency_QuadPFCentralJetLooseID45", "pT_{4} [GeV]"               );
     theCanvasQuad45AfterDoubleRatio->SaveAs((std::string(inputFileName.substr(0,inputFileName.length()-5) + "_" + theCanvasQuad45AfterDoubleRatio->GetName()) + ".png").data());
     delete theCanvasQuad45AfterDoubleRatio;
+
+
+
+    TCanvas *theCanvasQuad90Double90RatioWJets = new TCanvas("Quad90Double90RatioWJets", "Quad90Double90RatioWJets", 1400, 800);
+    theCanvasQuad90Double90RatioWJets->DivideSquare(6,0.005,0.005);
+    RatioEfficienciesFromFile(theCanvasQuad90Double90RatioWJets->cd(1),inputFileName.data(),"WJetsToLNu_Double90Quad30_Efficiency_L1filter"                   , inputFileName.data(), "TTbar_Double90Quad30_Efficiency_L1filter"                   , "Sum of four highest pt [GeV]");
+    RatioEfficienciesFromFile(theCanvasQuad90Double90RatioWJets->cd(2),inputFileName.data(),"WJetsToLNu_Double90Quad30_Efficiency_QuadCentralJet30"           , inputFileName.data(), "TTbar_Double90Quad30_Efficiency_QuadCentralJet30"           , "pT_{4} [GeV]"               );
+    RatioEfficienciesFromFile(theCanvasQuad90Double90RatioWJets->cd(3),inputFileName.data(),"WJetsToLNu_Double90Quad30_Efficiency_DoubleCentralJet90"         , inputFileName.data(), "TTbar_Double90Quad30_Efficiency_DoubleCentralJet90"         , "pT_{2} [GeV]"               );
+    RatioEfficienciesFromFile(theCanvasQuad90Double90RatioWJets->cd(4),inputFileName.data(),"WJetsToLNu_Double90Quad30_Efficiency_BTagCaloCSVp087Triple"      , inputFileName.data(), "TTbar_Double90Quad30_Efficiency_BTagCaloCSVp087Triple"      , "DeepCSV_{1}"                );
+    RatioEfficienciesFromFile(theCanvasQuad90Double90RatioWJets->cd(5),inputFileName.data(),"WJetsToLNu_Double90Quad30_Efficiency_QuadPFCentralJetLooseID30"  , inputFileName.data(), "TTbar_Double90Quad30_Efficiency_QuadPFCentralJetLooseID30"  , "pT_{4} [GeV]"               );
+    RatioEfficienciesFromFile(theCanvasQuad90Double90RatioWJets->cd(6),inputFileName.data(),"WJetsToLNu_Double90Quad30_Efficiency_DoublePFCentralJetLooseID90", inputFileName.data(), "TTbar_Double90Quad30_Efficiency_DoublePFCentralJetLooseID90", "pT_{2} [GeV]"               );
+    theCanvasQuad90Double90RatioWJets->SaveAs((std::string(inputFileName.substr(0,inputFileName.length()-5) + "_" + theCanvasQuad90Double90RatioWJets->GetName()) + ".png").data());
+    delete theCanvasQuad90Double90RatioWJets;
+
+    TCanvas *theCanvasQuad45RatioWJets = new TCanvas("Quad45RatioWJets", "Quad45RatioWJets", 1400, 800);
+    theCanvasQuad45RatioWJets->DivideSquare(4,0.005,0.005);
+    RatioEfficienciesFromFile(theCanvasQuad45RatioWJets->cd(1),inputFileName.data(),"WJetsToLNu_Quad45_Efficiency_L1filter"                 , inputFileName.data(), "TTbar_Quad45_Efficiency_L1filter"                 , "Sum of four highest pt [GeV]");
+    RatioEfficienciesFromFile(theCanvasQuad45RatioWJets->cd(2),inputFileName.data(),"WJetsToLNu_Quad45_Efficiency_QuadCentralJet45"         , inputFileName.data(), "TTbar_Quad45_Efficiency_QuadCentralJet45"         , "pT_{4} [GeV]"               );
+    RatioEfficienciesFromFile(theCanvasQuad45RatioWJets->cd(3),inputFileName.data(),"WJetsToLNu_Quad45_Efficiency_BTagCaloCSVp087Triple"    , inputFileName.data(), "TTbar_Quad45_Efficiency_BTagCaloCSVp087Triple"    , "DeepCSV_{1}"                );
+    RatioEfficienciesFromFile(theCanvasQuad45RatioWJets->cd(4),inputFileName.data(),"WJetsToLNu_Quad45_Efficiency_QuadPFCentralJetLooseID45", inputFileName.data(), "TTbar_Quad45_Efficiency_QuadPFCentralJetLooseID45", "pT_{4} [GeV]"               );
+    theCanvasQuad45RatioWJets->SaveAs((std::string(inputFileName.substr(0,inputFileName.length()-5) + "_" + theCanvasQuad45RatioWJets->GetName()) + ".png").data());
+    delete theCanvasQuad45RatioWJets;
+
+
+    TCanvas *theCanvasQuad45AfterDoubleRatioWJets = new TCanvas("Quad45AfterDoubleRatioWJets", "Quad45AfterDoubleRatioWJets", 1400, 800);
+    theCanvasQuad45AfterDoubleRatioWJets->DivideSquare(4,0.005,0.005);
+    RatioEfficienciesFromFile(theCanvasQuad45AfterDoubleRatioWJets->cd(1),inputFileName.data(),"WJetsToLNu_And_Efficiency_L1filterQuad45"           , inputFileName.data(), "TTbar_And_Efficiency_L1filterQuad45"           , "Sum of four highest pt [GeV]");
+    RatioEfficienciesFromFile(theCanvasQuad45AfterDoubleRatioWJets->cd(2),inputFileName.data(),"WJetsToLNu_And_Efficiency_QuadCentralJet45"         , inputFileName.data(), "TTbar_And_Efficiency_QuadCentralJet45"         , "pT_{4} [GeV]"               );
+    RatioEfficienciesFromFile(theCanvasQuad45AfterDoubleRatioWJets->cd(3),inputFileName.data(),"WJetsToLNu_And_Efficiency_BTagCaloCSVp087Triple"    , inputFileName.data(), "TTbar_And_Efficiency_BTagCaloCSVp087Triple"    , "DeepCSV_{1}"                );
+    RatioEfficienciesFromFile(theCanvasQuad45AfterDoubleRatioWJets->cd(4),inputFileName.data(),"WJetsToLNu_And_Efficiency_QuadPFCentralJetLooseID45", inputFileName.data(), "TTbar_And_Efficiency_QuadPFCentralJetLooseID45", "pT_{4} [GeV]"               );
+    theCanvasQuad45AfterDoubleRatioWJets->SaveAs((std::string(inputFileName.substr(0,inputFileName.length()-5) + "_" + theCanvasQuad45AfterDoubleRatioWJets->GetName()) + ".png").data());
+    delete theCanvasQuad45AfterDoubleRatioWJets;
+
 
 
     gROOT->SetBatch(false);
@@ -250,10 +283,10 @@ void RatioAllEfficienciesInFile(std::string inputFileName)
 
 void RatioAllEfficiencies()
 {
-    RatioAllEfficienciesInFile("TriggerEfficiencies_MuonPt40_unMatched.root");
+    // RatioAllEfficienciesInFile("TriggerEfficiencies_MuonPt40_unMatched.root");
     RatioAllEfficienciesInFile("TriggerEfficiencies_MuonPt30_unMatched.root");
 
-    RatioAllEfficienciesInFile("TriggerEfficiencies_MuonPt40_matched.root");
+    // RatioAllEfficienciesInFile("TriggerEfficiencies_MuonPt40_matched.root");
     RatioAllEfficienciesInFile("TriggerEfficiencies_MuonPt30_matched.root");
 
 }

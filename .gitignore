@@ -6,3 +6,6 @@
 *.root
 *.tar.gz
 jobs_*/
+*_C.d
+*_C_ACLiC_dict*
+*.png
