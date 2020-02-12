@@ -9,3 +9,7 @@ jobs_*/
 *_C.d
 *_C_ACLiC_dict*
 *.png
+limits/datacard_*.txt
+core.*
+*.pdf
+2016DataPlots_*
