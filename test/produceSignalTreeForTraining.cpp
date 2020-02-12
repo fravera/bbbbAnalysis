@@ -464,7 +464,7 @@ int main(int argc, char** argv)
 
         std::stable_sort(unsmearedJets.begin(), unsmearedJets.end(), [](const Jet & a, const Jet & b) -> bool
         {
-            return ( get_property(a, Jet_btagDeepB) > get_property(b, Jet_btagDeepB) );
+            return ( a.bTagScore()  > b.bTagScore() );
         });
 
 
@@ -540,7 +540,7 @@ int main(int argc, char** argv)
         std::vector<bool> btagMask(smearedJets.size(),false);
         for(uint jIt=0; jIt<smearedJets.size(); ++jIt)
         {
-            if(get_property(smearedJets[jIt], Jet_btagDeepB) >= 0.6324)
+            if(smearedJets[jIt].bTagScore() >= 0.6324)
             {
                 ++Candidate_numberOfBJet;
                 btagMask[jIt] = true;

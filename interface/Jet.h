@@ -22,6 +22,9 @@ class Jet : public Candidate
         TLorentzVector P4Regressed() const      {return p4Regressed_;}
         void setP4Regressed( TLorentzVector p4Regressed) {p4Regressed_ = p4Regressed;}
         
+        inline float bTagScore() const { return get_property((*this),Jet_btagDeepB);}  // TO BE CHANGED WITH bTagger_ in .cc
+        static const std::string bTagger_;
+
         TLorentzVector p4Regressed_;
         void buildP4Regressed(); 
 

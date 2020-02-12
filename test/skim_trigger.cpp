@@ -34,7 +34,6 @@ namespace su = SkimUtils;
 
 using namespace std;
 
-#define B_TAG_ALGO Jet_btagDeepFlavB
 
 // int match_genJets (Jet jet, std::vector<GenJet>& genjets)
 // {
@@ -504,7 +503,7 @@ int main(int argc, char** argv)
             if (std::abs(jet.P4().Eta()) > 2.4)
                 continue;
 
-            if(get_property(jet, B_TAG_ALGO) < 0.) continue; 
+            if(jet.bTagScore() < 0.) continue; 
             // if (!checkBit(puid, 1) && jet.P4().Pt() <= 50) // medium PU Id - NOTE : not to be applied beyond 50 GeV: https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupJetID
             //     continue;
 
@@ -554,7 +553,7 @@ int main(int argc, char** argv)
         {
             stable_sort(all_jets.begin(), all_jets.end(), [](const Jet & a, const Jet & b) -> bool
             {
-                return ( get_property(a, B_TAG_ALGO) > get_property(b, B_TAG_ALGO) );
+                return ( a.bTagScore() > b.bTagScore() );
             });
             all_jets.erase(all_jets.begin()+4, all_jets.end());
         }
@@ -573,11 +572,11 @@ int main(int argc, char** argv)
         // NOTE that this sorts from small to large, with A < B implemented as btagA > btagB, so the first element in the vector has the largest btag score
         stable_sort(all_jets.begin(), all_jets.end(), [](const Jet & a, const Jet & b) -> bool
         {
-            return ( get_property(a, B_TAG_ALGO) > get_property(b, B_TAG_ALGO) );
+            return ( a.bTagScore() > b.bTagScore() );
         });
 
-        jetFirstHighestDeepFlavB_deepFlavB_ = get_property(all_jets.at(0), B_TAG_ALGO);
-        if(!is_data) jetFirstHighestDeepFlavB_hadronFlavour_ = get_property(all_jets.at(0), Jet_hadronFlavour);
+        jetFirstHighestDeepFlavB_deepFlavB_ = all_jets.at(0).bTagScore();
+        if(!is_data) jetFirstHighestDeepFlavB_hadronFlavour_ = all_jets.at(0).bTagScore();
         else jetFirstHighestDeepFlavB_hadronFlavour_ = -999;
         jetFirstHighestDeepFlavB_pt_ = all_jets.at(0).P4().Pt();
         jetFirstHighestDeepFlavB_eta_ = all_jets.at(0).P4().Eta();

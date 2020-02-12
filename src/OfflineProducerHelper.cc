@@ -3,7 +3,6 @@
 #include <iomanip>
 #include <cmath>
 #include <stdlib.h>
-#include <any>
 #include <numeric>
 
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
@@ -217,7 +216,7 @@ void OfflineProducerHelper::initializeObjectsBJetForScaleFactors(OutputTree &ot)
         ot.declareUserFloatBranch("bTagScaleFactor_lightJets_down"   , 1.);
 
         // branchesAffectedByJetEnergyVariations_["bTagScaleFactor_central"] = 1.;
-        BTagCalibration btagCalibration("DeepCSV",any_cast<string>(parameterList_->at("BJetScaleFactorsFile")));
+        BTagCalibration btagCalibration(Jet::bTagger_,any_cast<string>(parameterList_->at("BJetScaleFactorsFile")));
         btagCalibrationReader_lightJets_ = new BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up", "down"});
         btagCalibrationReader_cJets_     = new BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up", "down"});
         btagCalibrationReader_bJets_     = new BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up", "down"});
@@ -798,7 +797,7 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
     // sort by deepCSV (highest to lowest)
     stable_sort(unsmearedJets.begin(), unsmearedJets.end(), [](const Jet & a, const Jet & b) -> bool
     {
-        return ( get_property(a, Jet_btagDeepB) > get_property(b, Jet_btagDeepB) );
+        return ( a.bTagScore()  > b.bTagScore() );
     });
 
     std::vector<Jet> jetsOriginal;
@@ -987,15 +986,14 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
                 // sort by deepCSV
                 stable_sort(jetsForTriggerStudies.begin(), jetsForTriggerStudies.end(), [](const Jet & a, const Jet & b) -> bool
                 {
-                    return ( get_property(a, Jet_btagDeepB) > get_property(b, Jet_btagDeepB) );
+                    return ( a.bTagScore()  > b.bTagScore() );
                 });
 
                 highestDeepCSVjet = &jetsForTriggerStudies[0];
 
-                ot.userFloat("FirstJetDeepCSV") = get_property(jetsForTriggerStudies[0],Jet_btagDeepB);
-                ot.userFloat("ThirdJetDeepCSV") = get_property(jetsForTriggerStudies[2],Jet_btagDeepB);
-                // std::cout << __PRETTY_FUNCTION__ << get_property(jetsForTriggerStudies[0],Jet_btagDeepB) << " " << get_property(jetsForTriggerStudies[1],Jet_btagDeepB) << " " << get_property(jetsForTriggerStudies[2],Jet_btagDeepB) << " " << get_property(jetsForTriggerStudies[3],Jet_btagDeepB) << " " << std::endl;
-
+                ot.userFloat("FirstJetDeepCSV") = jetsForTriggerStudies[0].bTagScore();
+                ot.userFloat("ThirdJetDeepCSV") = jetsForTriggerStudies[2].bTagScore();
+                
                 // order by CMVA
                 stable_sort(jetsForTriggerStudies.begin(), jetsForTriggerStudies.end(), [](const Jet & a, const Jet & b) -> bool
                 {
@@ -1017,8 +1015,8 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
                 ot.userFloat("ForthJetPt")         = jetsForTriggerStudies[3].P4().Pt();
                 ot.userFloat("FourHighetJetPtSum") = jetsForTriggerStudies[0].P4().Pt() + jetsForTriggerStudies[1].P4().Pt() + jetsForTriggerStudies[2].P4().Pt() + jetsForTriggerStudies[3].P4().Pt();
             
-                ot.userFloat("FirstPtOrderedJetDeepCSV")  = get_property(jetsForTriggerStudies[0],Jet_btagDeepB);
-                ot.userFloat("SecondPtOrderedJetDeepCSV") = get_property(jetsForTriggerStudies[1],Jet_btagDeepB);
+                ot.userFloat("FirstPtOrderedJetDeepCSV")  = jetsForTriggerStudies[0].bTagScore();
+                ot.userFloat("SecondPtOrderedJetDeepCSV") = jetsForTriggerStudies[1].bTagScore();
 
                 ot.userInt("NumberOfJetsPassingPreselection") = jets.second.size();
 
@@ -1042,7 +1040,7 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
                     for(const auto & candidate : candidatesForTriggerMatching)
                     {
                         std::cout<< std::fixed << std::setprecision(3) <<candidate->getIdx()<<"\t\t"<<candidate->P4().Pt()<<"\t\t"<<candidate->P4().Eta()<<"\t\t"<<candidate->P4().Phi()<<"\t\t"<<candidate->getCandidateTypeId()<<"\t\t";
-                        if(candidate->getCandidateTypeId() == 1) std::cout<< std::fixed << std::setprecision(3)<<get_property((*static_cast<Jet*>(candidate.get())),Jet_btagDeepB)<<"\t\t";
+                        if(candidate->getCandidateTypeId() == 1) std::cout<< std::fixed << std::setprecision(3)<<static_cast<Jet*>(candidate.get())->bTagScore()<<"\t\t";
                         else std::cout << "\t\t\t";
                         bool selected=false;
                         for(const auto & selectedJet : ordered_jets)
@@ -1058,6 +1056,14 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
                         std::cout<<std::endl;
                     }
                 }
+            }
+
+            if(theTriggerEfficiencyCalculator_ != nullptr) //Apply trigger scale factors
+            {
+                std::tuple<float, float, float> triggerScaleFactorDataAndMonteCarloEfficiency = theTriggerEfficiencyCalculator_->getScaleFactorDataAndMonteCarloEfficiency(ordered_jets);
+                ot.triggerScaleFactor    = std::get<0>(triggerScaleFactorDataAndMonteCarloEfficiency);
+                ot.triggerDataEfficiency = std::get<1>(triggerScaleFactorDataAndMonteCarloEfficiency);
+                ot.triggerMcEfficiency   = std::get<2>(triggerScaleFactorDataAndMonteCarloEfficiency);
             }
 
             // order H1, H2 by pT: pT(H1) > pT (H2)
@@ -1231,7 +1237,7 @@ void OfflineProducerHelper::bJets_PreselectionCut(std::vector<Jet> &jets)
     auto it = jets.begin();
     while (it != jets.end()){
         if(minimumDeepCSVaccepted>=0.){
-            if(get_property((*it),Jet_btagDeepB)<minimumDeepCSVaccepted){
+            if((*it).bTagScore()<minimumDeepCSVaccepted){
                 it=jets.erase(it);
                 continue;
             }
@@ -1254,119 +1260,6 @@ void OfflineProducerHelper::bJets_PreselectionCut(std::vector<Jet> &jets)
     return;
 
 }
-
-
-
-// //functions for apply preselection cuts and selecting excactly 4 jets (4 or 3 btagged depenging on the antitag flag):
-// void OfflineProducerHelper::fourBjetCut_PreselectionCut(std::vector<Jet> &jets, EventInfo& ei)
-// {
-//     float minimumDeepCSVaccepted            = any_cast<float>(parameterList_->at("MinDeepCSV"          ));
-//     float minimumPtAccepted                 = any_cast<float>(parameterList_->at("MinPt"               ));
-//     float maximumAbsEtaAccepted             = any_cast<float>(parameterList_->at("MaxAbsEta"           ));
-//     bool  antiBtagOneJet                    = any_cast<bool >(parameterList_->at("UseAntiTagOnOneBjet" ));
-
-//     //If I will select also an antibitag jet, I temporary do not remove jets based on their btag
-//     float minimumDeepCSVacceptedForJetCleanup =  antiBtagOneJet ? -1. : minimumDeepCSVaccepted;
-
-//     // for(auto &jet : jets)
-//     // {
-//     //     std::cout << get_property(jet, Jet_btagDeepB) << " - ";
-//     // }
-//     // std::cout << std::endl;
-
-//     //remove all Jets not 
-//     auto it = jets.begin();
-//     while (it != jets.end()){
-//         if(minimumDeepCSVacceptedForJetCleanup>=0.){
-//             if(get_property((*it),Jet_btagDeepB)<minimumDeepCSVacceptedForJetCleanup){
-//                 it=jets.erase(it);
-//                 continue;
-//             }
-//         }
-//         if(minimumPtAccepted>=0.){
-//             if(it->P4().Pt()<minimumPtAccepted){
-//                 it=jets.erase(it);
-//                 continue;
-//             }
-//         }
-//         if(maximumAbsEtaAccepted>=0.){
-//             if(abs(it->P4().Eta())>maximumAbsEtaAccepted){
-//                 it=jets.erase(it);
-//                 continue;
-//             }
-//         }
-//         ++it;
-//     }
-
-//     if(jets.size() < 4)
-//     {
-//         jets.erase(jets.begin(),jets.end());
-//         return;
-//     }
-
-//     stable_sort(jets.begin(), jets.end(), [](const Jet & a, const Jet & b) -> bool
-//     {
-//         return ( get_property(a, Jet_btagDeepB) > get_property(b, Jet_btagDeepB) );
-//     });
-
-//     //get Number of b-tagged jets:
-//     ei.NpreCutJets = jets.size();
-    
-//     size_t numberOfBjetsToSelect = antiBtagOneJet ? 3 : 4;
-
-//     // if antiBtagOneJet flag is enable I remove events with more than 3 btagged jets
-//     if(antiBtagOneJet && get_property(jets[numberOfBjetsToSelect], Jet_btagDeepB) >= minimumDeepCSVaccepted)
-//     {
-//         jets.erase(jets.begin(),jets.end());
-//         return;
-//     }
-
-//     // Not enough bjets passing the preselection:
-//     if(get_property(jets[numberOfBjetsToSelect-1], Jet_btagDeepB) < minimumDeepCSVaccepted)
-//     {
-//         jets.erase(jets.begin(),jets.end());
-//         return;
-//     }
-//     if(antiBtagOneJet)
-//     {
-//         std::vector<Jet> antibTaggedJets;
-//         for(auto& theJet : jets)
-//         {
-//             if(get_property(theJet, Jet_btagDeepB) < minimumDeepCSVaccepted) antibTaggedJets.emplace_back(theJet);
-//         }
-//         //No antibtagged jet found
-//         if(antibTaggedJets.size() == 0)
-//         {
-//             jets.erase(jets.begin(),jets.end());
-//             return;
-//         }
-
-//         //Sort antibTaggedJets by deepCSV and I take the highest one
-//         stable_sort(antibTaggedJets.begin(), antibTaggedJets.end(), [](const Jet & a, const Jet & b) -> bool
-//         {
-//             return ( get_property(a, Jet_btagDeepB) > get_property(b, Jet_btagDeepB) );
-//         });
-
-//         // //Sort antibTaggedJets by pt and I take the highest one
-//         // stable_sort(antibTaggedJets.begin(), antibTaggedJets.end(), [](const Jet & a, const Jet & b) -> bool
-//         // {
-//         //     return ( a.P4().Pt() >  b.P4().Pt() );
-//         // });
-
-//         jets.erase(jets.begin()+3,jets.end());
-//         jets.emplace_back(antibTaggedJets[0]);
-//         return;
-//     }
-//     else
-//     {
-//         jets.erase(jets.begin()+4,jets.end());
-//         return;
-//     }
-
-//     return;
-
-// }
-
 
 //functions for apply preselection cuts and selecting excactly 4 jets (4 or 3 btagged depenging on the antitag flag):
 void OfflineProducerHelper::fourBjetCut_PreselectionCut(std::vector<Jet> &jets, EventInfo& ei)
@@ -1394,7 +1287,7 @@ void OfflineProducerHelper::fourBjetCut_PreselectionCut(std::vector<Jet> &jets, 
             }
         }
         if(minimumDeepCSVaccepted>=0.){
-            if(get_property((*it),Jet_btagDeepB)<0.){
+            if((*it).bTagScore()<0.){
                 it=jets.erase(it);
                 continue;
             }
@@ -1410,13 +1303,13 @@ void OfflineProducerHelper::fourBjetCut_PreselectionCut(std::vector<Jet> &jets, 
 
     stable_sort(jets.begin(), jets.end(), [](const Jet & a, const Jet & b) -> bool
     {
-        return ( get_property(a, Jet_btagDeepB) > get_property(b, Jet_btagDeepB) );
+        return ( a.bTagScore()  > b.bTagScore() );
     });
 
     ei.NbJets = 0;
     for(const auto &jet : jets)
     {
-        if(get_property(jet, Jet_btagDeepB) >= minimumDeepCSVaccepted) ++(*ei.NbJets);
+        if(jet.bTagScore() >= minimumDeepCSVaccepted) ++(*ei.NbJets);
         else break;
     }
     if(*ei.NbJets < minimumNumberDeepCSVaccepted)
@@ -1570,10 +1463,10 @@ std::vector<Jet> OfflineProducerHelper::bbbb_jets_idxs_HighestCSVandClosestToMh(
                     {
                         int numberOfBJets = 0;
                         float minimumDeepCSVaccepted = any_cast<float>(parameterList_->at("MinDeepCSV"));
-                        if(get_property(jets->at(h1b1it),Jet_btagDeepB)>=minimumDeepCSVaccepted) ++numberOfBJets;
-                        if(get_property(jets->at(h1b2it),Jet_btagDeepB)>=minimumDeepCSVaccepted) ++numberOfBJets;
-                        if(get_property(jets->at(h2b1it),Jet_btagDeepB)>=minimumDeepCSVaccepted) ++numberOfBJets;
-                        if(get_property(jets->at(h2b2it),Jet_btagDeepB)>=minimumDeepCSVaccepted) ++numberOfBJets;
+                        if(jets->at(h1b1it).bTagScore()>=minimumDeepCSVaccepted) ++numberOfBJets;
+                        if(jets->at(h1b2it).bTagScore()>=minimumDeepCSVaccepted) ++numberOfBJets;
+                        if(jets->at(h2b1it).bTagScore()>=minimumDeepCSVaccepted) ++numberOfBJets;
+                        if(jets->at(h2b2it).bTagScore()>=minimumDeepCSVaccepted) ++numberOfBJets;
                         if(numberOfBJets != 3) continue; //antiTag requires that 1 of the jets has deepCSV < MdeepCSV
                     }
                     float candidateMass = (jets->at(h1b1it).P4Regressed() + jets->at(h1b2it).P4Regressed() + jets->at(h2b1it).P4Regressed() + jets->at(h2b2it).P4Regressed()).M();
@@ -1837,7 +1730,7 @@ std::vector <Jet> OfflineProducerHelper::bbJets_PreselectionCut(std::vector<Jet>
     auto it = jets.begin();
     while (it != jets.end()){
         if(minimumDeepCSVaccepted>=0.){
-            if(get_property((*it),Jet_btagDeepB)<minimumDeepCSVaccepted){
+            if((*it).bTagScore()<minimumDeepCSVaccepted){
                 it=jets.erase(it);
                 continue;
             }
@@ -1860,7 +1753,7 @@ std::vector <Jet> OfflineProducerHelper::bbJets_PreselectionCut(std::vector<Jet>
     // sort by deepCSV (highest to lowest)
     stable_sort(jets.begin(), jets.end(), [](const Jet & a, const Jet & b) -> bool
     {
-        return ( get_property(a, Jet_btagDeepB) > get_property(b, Jet_btagDeepB) );
+        return ( a.bTagScore()  > b.bTagScore() );
     });
     //Select only the two most b-tagged jets
     return outputJets = {{*(jets.begin()+0),*(jets.begin()+1)}};
@@ -2232,7 +2125,7 @@ void OfflineProducerHelper::AddInclusiveCategoryVariables(NanoAODTree& nat, Even
        ei.HH_btag_cmva_b3 = presel_bjets_btags.at(2);
        ei.HH_btag_cmva_b4 = presel_bjets_btags.at(3);
        stable_sort(presel_bjets_btags.begin(), presel_bjets_btags.end(), [](const Jet & a, const Jet & b) -> bool
-       {return ( get_property(a, Jet_btagDeepB) > get_property(b, Jet_btagDeepB) );});
+       {return ( a.bTagScore()  > b.bTagScore() );});
        ei.HH_btag_b1 = presel_bjets_btags.at(0);
        ei.HH_btag_b2 = presel_bjets_btags.at(1);
        ei.HH_btag_b3 = presel_bjets_btags.at(2);
@@ -2826,11 +2719,11 @@ std::vector<Jet> OfflineProducerHelper::bjJets_PreselectionCut(NanoAODTree& nat,
     if(any_cast<bool>(parameterList_->at("FourthAntiBTagInformation"))){MinimumNumberOfBTags= 3;}
     else{MinimumNumberOfBTags= 4;}
     //Count number of b-tagged jets. If btags < 3, then reject event (not important for us)
-    int btags=0; for (uint i=0;i<jets.size();i++ ){ if( get_property( jets.at(i) ,Jet_btagDeepB) > bminimumDeepCSVAccepted) btags++;}
+    int btags=0; for (uint i=0;i<jets.size();i++ ){ if( jets.at(i).bTagScore() > bminimumDeepCSVAccepted) btags++;}
     if(btags<MinimumNumberOfBTags) return outputJets;
     //Select the four most b-tagged
     stable_sort(jets.begin(), jets.end(), [](const Jet & a, const Jet & b) -> bool
-    { return ( get_property(a, Jet_btagDeepB) > get_property(b, Jet_btagDeepB) );});
+    {return ( a.bTagScore()  > b.bTagScore() );});
     outputJets = {{*(jets.begin()+0),*(jets.begin()+1),*(jets.begin()+2),*(jets.begin()+3)}};
     int c=0; while (c<4){jets.erase(jets.begin());c++;}
     //Calculate the associated b-tagging scale factor depending on b-tag or anti-btag selection
@@ -3669,7 +3562,7 @@ bool OfflineProducerHelper::checkReco_gen_bbbb (NanoAODTree& nat, EventInfo& ei)
         Jet theJet(ij, &nat);
         if(theJet.P4().Pt()<30) continue;
         if(abs(theJet.P4().Eta())>2.4) continue;
-        // if(get_property(theJet, Jet_btagDeepB) < 0.6324) continue;
+        // if(theJet.bTagScore() < 0.6324) continue;
         unsmearedJets.emplace_back(theJet);
     }
 
@@ -3678,7 +3571,7 @@ bool OfflineProducerHelper::checkReco_gen_bbbb (NanoAODTree& nat, EventInfo& ei)
 
     // stable_sort(unsmearedJets.begin(), unsmearedJets.end(), [](const Jet & a, const Jet & b) -> bool
     // {
-    //     return ( get_property(a, Jet_btagDeepB) > get_property(b, Jet_btagDeepB) );
+    //     return ( a.bTagScore() > b.bTagScore() );
     // });
 
 

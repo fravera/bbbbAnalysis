@@ -61,6 +61,7 @@ int main(int argc, char** argv)
         ("is-signal"     , po::value<bool>()->zero_tokens()->implicit_value(true)->default_value(false), "mark as a HH signal sample (default is false)")
         ("is-VBF-sig"    , po::value<bool>()->zero_tokens()->implicit_value(true)->default_value(false), "mark as a HH VBF signal sample (default is false)")
         ("save-p4"       , po::value<bool>()->zero_tokens()->implicit_value(true)->default_value(false), "save the tlorentzvectors in the output")
+        ("skip-trigger"  , po::value<bool>()->zero_tokens()->implicit_value(true)->default_value(false), "Skip trigger check")
     ;
 
     po::variables_map opts;
@@ -89,12 +90,12 @@ int main(int argc, char** argv)
     cout << "[INFO] ... is a data sample? " << std::boolalpha << is_data << std::noboolalpha << endl;
 
     const bool is_signal = (is_data ? false : opts["is-signal"].as<bool>());
+    cout << "[INFO] ... is a HH signal sample? " << std::boolalpha << is_signal << std::noboolalpha << endl;
     if (is_signal && !opts.count("yMassSelection")){
         cerr << "** [ERROR] please provide yMassSelection for this sample that is marked as signal" << endl;
         return 1;
     }
-    int yMassSelection = (is_signal ? -1. : opts["yMassSelection"].as<int>());
-    cout << "[INFO] ... is a HH signal sample? " << std::boolalpha << is_signal << std::noboolalpha << endl;
+    int yMassSelection = (is_signal ? opts["yMassSelection"].as<int>() : -1);
     if(is_signal)
     {
         cout << "[INFO] ... Y mass selected " <<  yMassSelection << endl;
@@ -348,7 +349,9 @@ int main(int argc, char** argv)
 
     cout << "[INFO] ... loading the following triggers" << endl;
 
-    std::vector<std::string> triggerAndNameVector = config.readStringListOpt("triggers::makeORof");
+    bool skipTriggerCheck = opts["skip-trigger"].as<bool>();
+    std::vector<std::string> triggerAndNameVector;
+    if(!skipTriggerCheck) triggerAndNameVector = config.readStringListOpt("triggers::makeORof");
     std::vector<std::string> triggerVector;
     // <triggerName , < objectBit, minNumber> >
     std::map<std::string, std::map< std::pair<int,int>, int > > triggerObjectAndMinNumberMap;
@@ -407,6 +410,12 @@ int main(int argc, char** argv)
 
     parameterList.emplace("MaxDeltaR",                config.readFloatOpt("triggers::MaxDeltaR")     );     
     parameterList.emplace("MatchWithSelectedObjects", config.readBoolOpt("triggers::MatchWithSelectedObjects")     ); 
+
+    bool useTriggerScaleFactors =  config.readBoolOpt("triggers::UseScaleFactor");
+    parameterList.emplace("UseTriggerScaleFactor", useTriggerScaleFactors);     
+    if(useTriggerScaleFactors) parameterList.emplace("TriggerScaleFactorYear", config.readIntOpt("triggers::ScaleFactorYear"));     
+
+
     // parameterList.emplace("TriggerStudies",config.readBoolOpt ("triggers::TriggerStudies"));        
     parameterList.emplace("TriggerObjectAndMinNumberMap", triggerObjectAndMinNumberMap);
     nat.triggerReader().setTriggers(triggerVector);
@@ -433,6 +442,7 @@ int main(int argc, char** argv)
         oph.initializeJECVariations(ot);
         oph.initializeObjectsForEventWeight(ot,ec,opts["puWeight"].as<string>(),xs);
         oph.initializeObjectsBJetForScaleFactors(ot);
+        oph.initializeTriggerScaleFactors(nat);
     }
 
     jsonLumiFilter jlf;

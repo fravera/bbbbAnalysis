@@ -19,3 +19,4 @@ void Jet::buildP4Regressed()
         );
 }
 
+const std::string Jet::bTagger_ = "DeepFlavour"; // TO BE CHANGED WITH bTagScore in .h

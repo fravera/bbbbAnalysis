@@ -83,6 +83,10 @@ void OutputTree::init_branches(bool initAllBranches)
     tree_->Branch("HH_2DdeltaM", &HH_2DdeltaM);
     tree_->Branch("HH_m_kinFit", &HH_m_kinFit);
 
+    tree_->Branch("triggerScaleFactor"   , &triggerScaleFactor   );
+    tree_->Branch("triggerDataEfficiency", &triggerDataEfficiency);
+    tree_->Branch("triggerMcEfficiency"  , &triggerMcEfficiency  );
+
     // // Non-resonant analysis and studies
     // tree_->Branch("H1_b1_quarkID", &H1_b1_quarkID);
     // tree_->Branch("H1_b1_partonFlavour", &H1_b1_partonFlavour);    
@@ -497,6 +501,10 @@ void OutputTree::clear()
     HH_btag_b3_deepCSV = 0;
     CLEAR_m_pt_ptRegressed_eta_phi_p4(HH_btag_b4)
     HH_btag_b4_deepCSV = 0;
+
+    triggerScaleFactor    = 1.;
+    triggerDataEfficiency = 1.;
+    triggerMcEfficiency   = 1.;
 
     CLEAR_m_pt_ptRegressed_eta_phi_p4(HH_btag_cmva_b1)
     HH_btag_cmva_b1_cmva = 0;

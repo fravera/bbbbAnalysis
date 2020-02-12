@@ -111,6 +111,10 @@ class OutputTree {
         DECLARE_m_pt_eta_phi_p4(gen_q1_out)
         DECLARE_m_pt_eta_phi_p4(gen_q2_out)
 
+        float triggerScaleFactor;
+        float triggerDataEfficiency;
+        float triggerMcEfficiency;
+
         //TTEMU events
         DECLARE_m_pt_ptRegressed_eta_phi_p4(TT_b1)
         float TT_b1_deepCSV;

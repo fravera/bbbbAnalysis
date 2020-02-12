@@ -26,6 +26,7 @@
 #include "SkimEffCounter.h"
 #include "BDTEval.h"
 #include "HHReweight5D.h"
+#include "TriggerEfficiencyCalculator.h"
 
 #include <array>
 #include <utility>
@@ -53,12 +54,15 @@ class OfflineProducerHelper{
 
         ~OfflineProducerHelper() {};
 
+        
         std::unique_ptr<BDTEval> eval_BDT1_;
         std::unique_ptr<BDTEval> eval_BDT2_;
         std::unique_ptr<BDTEval> eval_BDT3_;
 
         std::unique_ptr<HHReweight5D> hhreweighter_;
         float hhreweighter_kl_;
+
+        TriggerEfficiencyCalculator *theTriggerEfficiencyCalculator_ {nullptr};
 
         bool debug = false;
         // Load configurations to match the b jets
@@ -188,6 +192,23 @@ class OfflineProducerHelper{
             //         std::any_cast<std::string>(parameterList_->at("kl_map")),
             //         std::any_cast<std::string>(parameterList_->at("kl_histo")));
         }
+
+        void initializeTriggerScaleFactors(NanoAODTree& nat)
+        {
+            if( std::any_cast<bool>(parameterList_->at("UseTriggerScaleFactor")) )
+            {
+                int year = std::any_cast<int>(parameterList_->at("TriggerScaleFactorYear"));
+                if     (year == 2016) theTriggerEfficiencyCalculator_ = new TriggerEfficiencyCalculator_2016(nat);
+                else if(year == 2017) theTriggerEfficiencyCalculator_ = new TriggerEfficiencyCalculator_2017(nat);
+                else if(year == 2018) theTriggerEfficiencyCalculator_ = new TriggerEfficiencyCalculator_2018(nat);
+                else
+                {
+                    std::cout<<"Trigger scale factor year can be 2016, 2017 or 2018. Aborting..." << std::endl;
+                    abort();
+                }
+            }
+        }
+
 
         void initializeObjectsForCuts(OutputTree &ot);
         // functions to select events based on non-jet particles:
