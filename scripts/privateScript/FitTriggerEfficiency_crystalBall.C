@@ -101,12 +101,16 @@ void doFit(TFile &outputRootFile, TVirtualPad *theCanvas, TFile &theInputFile, s
     }
 
     std::string fullFunctionName = plotName + appendToFunctionName;
+    std::string pairObjectName = fullFunctionName + "Pair";
     std::string fitResultName = fullFunctionName + "_FitResult";
     outputRootFile.WriteObject(theTriggerEfficiency, fullFunctionName.data());
+    // TFitResult theFitResults(*fitResults.Get());
     outputRootFile.WriteObject(fitResults.Get(), fitResultName.data());
     
-    outputFile << "    TF1* f"<< fullFunctionName << " = ((TGraphErrors*)triggerFitFile.Get(\"" << fullFunctionName << "\"))->GetFunction(\""<< theFunction->GetName() << "\");" << std::endl;
-    outputFile << "    TFitResult* f"<< fitResultName << " = (TFitResult*)triggerFitFile.Get(\"" << fitResultName << "\");"<< std::endl;
+    outputFile << "    std::pair<TF1*, KFitResult*> f" << pairObjectName <<" = createPair(" << std::endl;
+    outputFile << "        ((TGraphErrors*)triggerFitFile.Get(\"" << fullFunctionName << "\"))->GetFunction(\""<< theFunction->GetName() << "\")," << std::endl;
+    outputFile << "        (KFitResult*)triggerFitFile.Get(\"" << fitResultName << "\")"<< std::endl;
+    outputFile << "    );" << std::endl;
     outputFile << std::endl;
 
     
@@ -138,13 +142,32 @@ void doAllFit(std::string inputFileName)
     std::string outputFileName = "data/" + inputFileName.substr(0, inputFileName.length() -5) + "_fitResults.root";
     TFile outputRootFile(outputFileName.data(), "RECREATE");
 
-    outputFile << "#include \"TFile.h\"" << std::endl;
-    outputFile << "#include \"TF1.h\"" << std::endl;
-    outputFile << "#include \"TFitResult.h\"" << std::endl;
-    outputFile << "#include \"TGraphErrors.h\"" << std::endl;
-    outputFile << std::endl;
-    outputFile << "namespace TriggerFitCurves2016\n{" << std::endl;
+    outputFile << "#include \"TFile.h\""                                  << std::endl;
+    outputFile << "#include \"TF1.h\""                                    << std::endl;
+    outputFile << "#include \"TFitResult.h\""                             << std::endl;
+    outputFile << "#include \"TGraphErrors.h\""                           << std::endl;
+    outputFile << "#include \"Math/WrappedMultiTF1.h\""                   << std::endl;
+    outputFile                                                            << std::endl;
+    outputFile << "namespace TriggerFitCurves2016\n{"                     << std::endl;
     outputFile << "    TFile triggerFitFile(\""<< outputFileName <<"\");" << std::endl;
+
+
+    outputFile << "    class KFitResult : public TFitResult"                                                                                                        << std::endl;
+    outputFile << "    {"                                                                                                                                           << std::endl;
+	outputFile << "    public:"                                                                                                                                     << std::endl;
+	outputFile << "        using TFitResult::TFitResult;"                                                                                                           << std::endl;
+	outputFile << "        KFitResult* ResetModelFunction(TF1* func){"                                                                                              << std::endl;
+	outputFile << "            this->SetModelFunction(std::shared_ptr<IModelFunction>(dynamic_cast<IModelFunction*>(ROOT::Math::WrappedMultiTF1(*func).Clone())));" << std::endl;
+	outputFile << "            return this;"                                                                                                                        << std::endl;
+	outputFile << "        }"                                                                                                                                       << std::endl;
+    outputFile << "    };"                                                                                                                                          << std::endl;
+
+    outputFile << "    std::pair<TF1*,KFitResult*> createPair(TF1* theFunction, KFitResult* theFitResult )" << std::endl;
+    outputFile << "    {"                                                                                   << std::endl;
+    outputFile << "        theFitResult->ResetModelFunction(theFunction);"                                  << std::endl;
+    outputFile << "        return {theFunction, theFitResult};"                                             << std::endl;
+    outputFile << "    }"                                                                                   << std::endl;
+
     outputFile << std::endl;
 
 
