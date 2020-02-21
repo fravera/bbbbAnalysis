@@ -32,6 +32,15 @@ template <class Tkey, class Tvalue> class ordered_map
         Tvalue& back();
         const Tvalue& back() const;
 
+        friend ordered_map operator+(ordered_map firstMap, const ordered_map& secondMap)
+        {
+            for (uint index = 0; index < secondMap.size(); ++index) // loop on samples
+            {             
+                firstMap.append(secondMap.key(index), secondMap.at(index));
+            }
+            return firstMap;
+        }
+
         void append(Tkey key, Tvalue value);
         void insert(int idx, Tkey key, Tvalue value);
         void remove(Tkey key);

@@ -69,11 +69,17 @@ void OfflineProducerHelper::initializeObjectsForCuts(OutputTree &ot)
         ot.declareUserFloatBranch("FirstJetPt"                             ,   -1.);
         ot.declareUserFloatBranch("SecondJetPt"                            ,   -1.);
         ot.declareUserFloatBranch("ThirdJetPt"                             ,   -1.);
-        ot.declareUserFloatBranch("ForthJetPt"                             ,   -1.);
+        ot.declareUserFloatBranch("FourthJetPt"                            ,   -1.);
+        ot.declareUserFloatBranch("FirstJetEta"                           ,   -1.);
+        ot.declareUserFloatBranch("SecondJetEta"                          ,   -1.);
+        ot.declareUserFloatBranch("ThirdJetEta"                           ,   -1.);
+        ot.declareUserFloatBranch("FourthJetEta"                          ,   -1.);
         ot.declareUserFloatBranch("FourHighetJetPtSum"                     ,   -1.);
         ot.declareUserFloatBranch("FirstJetDeepCSV"                        ,   -1.);
+        ot.declareUserFloatBranch("SecondJetDeepCSV"                       ,   -1.);
         ot.declareUserFloatBranch("ThirdJetDeepCSV"                        ,   -1.);
-        ot.declareUserFloatBranch("ForthJetCMVA"                           ,   -1.);
+        ot.declareUserFloatBranch("FourthJetDeepCSV"                       ,   -1.);
+        ot.declareUserFloatBranch("FourthJetCMVA"                          ,   -1.);
         ot.declareUserFloatBranch("HighestIsoMuonPt"                       ,   -1.);
         ot.declareUserFloatBranch("HighestIsoElectronPt"                   ,   -1.);
         ot.declareUserIntBranch  ("MuonElectronChargeMultiplication"       ,     0);
@@ -991,15 +997,17 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
 
                 highestDeepCSVjet = &jetsForTriggerStudies[0];
 
-                ot.userFloat("FirstJetDeepCSV") = jetsForTriggerStudies[0].bTagScore();
-                ot.userFloat("ThirdJetDeepCSV") = jetsForTriggerStudies[2].bTagScore();
+                ot.userFloat("FirstJetDeepCSV")  = jetsForTriggerStudies[0].bTagScore();
+                ot.userFloat("SecondJetDeepCSV") = jetsForTriggerStudies[1].bTagScore();
+                ot.userFloat("ThirdJetDeepCSV")  = jetsForTriggerStudies[2].bTagScore();
+                ot.userFloat("FourthJetDeepCSV") = jetsForTriggerStudies[3].bTagScore();
                 
                 // order by CMVA
                 stable_sort(jetsForTriggerStudies.begin(), jetsForTriggerStudies.end(), [](const Jet & a, const Jet & b) -> bool
                 {
                     return ( get_property(a, Jet_btagCMVA) > get_property(b, Jet_btagCMVA) );
                 });
-                ot.userFloat("ForthJetCMVA") = get_property(jetsForTriggerStudies[3],Jet_btagCMVA);
+                ot.userFloat("FourthJetCMVA") = get_property(jetsForTriggerStudies[3],Jet_btagCMVA);
                 // std::cout << __PRETTY_FUNCTION__ << get_property(jetsForTriggerStudies[0],Jet_btagCMVA) << " " << get_property(jetsForTriggerStudies[1],Jet_btagCMVA) << " " << get_property(jetsForTriggerStudies[2],Jet_btagCMVA) << " " << get_property(jetsForTriggerStudies[3],Jet_btagCMVA) << " " << std::endl;
 
                 //order by unregressed pt
@@ -1012,7 +1020,11 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
                 ot.userFloat("FirstJetPt")         = jetsForTriggerStudies[0].P4().Pt();
                 ot.userFloat("SecondJetPt")        = jetsForTriggerStudies[1].P4().Pt();
                 ot.userFloat("ThirdJetPt")         = jetsForTriggerStudies[2].P4().Pt();
-                ot.userFloat("ForthJetPt")         = jetsForTriggerStudies[3].P4().Pt();
+                ot.userFloat("FourthJetPt")        = jetsForTriggerStudies[3].P4().Pt();
+                ot.userFloat("FirstJetEta")        = jetsForTriggerStudies[0].P4().Eta();
+                ot.userFloat("SecondJetEta")       = jetsForTriggerStudies[1].P4().Eta();
+                ot.userFloat("ThirdJetEta")        = jetsForTriggerStudies[2].P4().Eta();
+                ot.userFloat("FourthJetEta")       = jetsForTriggerStudies[3].P4().Eta();
                 ot.userFloat("FourHighetJetPtSum") = jetsForTriggerStudies[0].P4().Pt() + jetsForTriggerStudies[1].P4().Pt() + jetsForTriggerStudies[2].P4().Pt() + jetsForTriggerStudies[3].P4().Pt();
             
                 ot.userFloat("FirstPtOrderedJetDeepCSV")  = jetsForTriggerStudies[0].bTagScore();
@@ -1060,10 +1072,16 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
 
             if(theTriggerEfficiencyCalculator_ != nullptr) //Apply trigger scale factors
             {
-                std::tuple<float, float, float> triggerScaleFactorDataAndMonteCarloEfficiency = theTriggerEfficiencyCalculator_->getScaleFactorDataAndMonteCarloEfficiency(ordered_jets);
-                ot.triggerScaleFactor    = std::get<0>(triggerScaleFactorDataAndMonteCarloEfficiency);
-                ot.triggerDataEfficiency = std::get<1>(triggerScaleFactorDataAndMonteCarloEfficiency);
-                ot.triggerMcEfficiency   = std::get<2>(triggerScaleFactorDataAndMonteCarloEfficiency);
+                auto triggerScaleFactorDataAndMonteCarloEfficiency = theTriggerEfficiencyCalculator_->getScaleFactorDataAndMonteCarloEfficiency(ordered_jets);
+                ot.triggerScaleFactor        = std::get<0>(std::get<0>(triggerScaleFactorDataAndMonteCarloEfficiency));
+                ot.triggerDataEfficiency     = std::get<0>(std::get<1>(triggerScaleFactorDataAndMonteCarloEfficiency));
+                ot.triggerMcEfficiency       = std::get<0>(std::get<2>(triggerScaleFactorDataAndMonteCarloEfficiency));
+                ot.triggerScaleFactorUp      = std::get<1>(std::get<0>(triggerScaleFactorDataAndMonteCarloEfficiency));
+                ot.triggerDataEfficiencyUp   = std::get<1>(std::get<1>(triggerScaleFactorDataAndMonteCarloEfficiency));
+                ot.triggerMcEfficiencyUp     = std::get<1>(std::get<2>(triggerScaleFactorDataAndMonteCarloEfficiency));
+                ot.triggerScaleFactorDown    = std::get<2>(std::get<0>(triggerScaleFactorDataAndMonteCarloEfficiency));
+                ot.triggerDataEfficiencyDown = std::get<2>(std::get<1>(triggerScaleFactorDataAndMonteCarloEfficiency));
+                ot.triggerMcEfficiencyDown   = std::get<2>(std::get<2>(triggerScaleFactorDataAndMonteCarloEfficiency));
             }
 
             // order H1, H2 by pT: pT(H1) > pT (H2)

@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <sstream>
 #include <sys/stat.h>
+#include <thread>
 
 using namespace std;
 
@@ -57,6 +58,13 @@ bool AnalysisHelper::readMainInfo()
     
     cutCfg_ = unique_ptr<CfgParser>(new CfgParser(cutCfgName));
     sampleCfg_ = unique_ptr<CfgParser>(new CfgParser(sampleCfgName));
+
+    if (!(mainCfg_->hasOpt("general::numberOfThreads")))
+    {
+        cerr << "** AnalysisHelper : error : numberOfThreads not specified in the config under general section" << endl;
+        return false;
+    }
+    numberOfThreads_ = mainCfg_->readIntOpt("general::numberOfThreads");
 
     if (!(mainCfg_->hasOpt("general::lumi"))) return false;
     lumi_ = mainCfg_->readFloatOpt("general::lumi");
@@ -1247,7 +1255,6 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
     if (sample.getType() != Sample::kData && sample.getType() != Sample::kDatadriven)
         sample.scaleAll(lumi_);
 
-
 }
 
 void AnalysisHelper::activateBranches(Sample& sample)
@@ -1390,6 +1397,21 @@ string AnalysisHelper::pack2DName (string name1, string name2)
 
 void AnalysisHelper::fillHistos()
 {
+    // std::vector<std::thread> theThreadVector;
+    // auto totalMap = data_samples_ + sig_samples_ + bkg_samples_ + datadriven_samples_;
+    // for(uint isample = 0; isample < totalMap.size(); ++isample)
+    // {
+    //     // std::thread test(&AnalysisHelper::fillHistosSample, this, *(totalMap.at(isample)) ) ;
+    //     theThreadVector.emplace_back( std::thread(&AnalysisHelper::fillHistosSample, this, std::ref(*(totalMap.at(isample)) ) ) );
+    //     if(theThreadVector.size() >= numberOfThreads_)
+    //     {
+    //         for(auto &theThread : theThreadVector) theThread.join();
+    //         theThreadVector.clear();
+    //     }
+    // }
+    // for(auto &theThread : theThreadVector) theThread.join();
+    // theThreadVector.clear();
+
     for (uint isample = 0; isample < data_samples_.size(); ++isample) // loop on samples
     {             
         fillHistosSample(*(data_samples_.at(isample)));

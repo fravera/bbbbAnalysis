@@ -399,9 +399,9 @@ int main(int argc, char** argv)
     bool Candidate_genMatched = false;
     selectionTree->Branch("Candidate_genMatched", &Candidate_genMatched);
 
-
     std::string yMassSelection = opts["yMassSelection"].as<std::string>();
     if(yMassSelection != "None") nat.attachCustomValueBranch<Bool_t>(yMassSelection);
+    else ot.declareUserIntBranchList(nat.attachAllMatchingBranch<Bool_t>("GenModel_YMass_"));
 
     int maxEvts = opts["maxEvts"].as<int>();
     if (maxEvts >= 0)

@@ -83,9 +83,15 @@ void OutputTree::init_branches(bool initAllBranches)
     tree_->Branch("HH_2DdeltaM", &HH_2DdeltaM);
     tree_->Branch("HH_m_kinFit", &HH_m_kinFit);
 
-    tree_->Branch("triggerScaleFactor"   , &triggerScaleFactor   );
-    tree_->Branch("triggerDataEfficiency", &triggerDataEfficiency);
-    tree_->Branch("triggerMcEfficiency"  , &triggerMcEfficiency  );
+    tree_->Branch("triggerScaleFactor"       , &triggerScaleFactor       );
+    tree_->Branch("triggerDataEfficiency"    , &triggerDataEfficiency    );
+    tree_->Branch("triggerMcEfficiency"      , &triggerMcEfficiency      );
+    tree_->Branch("triggerScaleFactorUp"     , &triggerScaleFactorUp     );
+    tree_->Branch("triggerDataEfficiencyUp"  , &triggerDataEfficiencyUp  );
+    tree_->Branch("triggerMcEfficiencyUp"    , &triggerMcEfficiencyUp    );
+    tree_->Branch("triggerScaleFactorDown"   , &triggerScaleFactorDown   );
+    tree_->Branch("triggerDataEfficiencyDown", &triggerDataEfficiencyDown);
+    tree_->Branch("triggerMcEfficiencyDown"  , &triggerMcEfficiencyDown  );
 
     // // Non-resonant analysis and studies
     // tree_->Branch("H1_b1_quarkID", &H1_b1_quarkID);
@@ -502,9 +508,15 @@ void OutputTree::clear()
     CLEAR_m_pt_ptRegressed_eta_phi_p4(HH_btag_b4)
     HH_btag_b4_deepCSV = 0;
 
-    triggerScaleFactor    = 1.;
-    triggerDataEfficiency = 1.;
-    triggerMcEfficiency   = 1.;
+    triggerScaleFactor        = 1.;
+    triggerDataEfficiency     = 1.;
+    triggerMcEfficiency       = 1.;
+    triggerScaleFactorUp      = 1.;
+    triggerDataEfficiencyUp   = 1.;
+    triggerMcEfficiencyUp     = 1.;
+    triggerScaleFactorDown    = 1.;
+    triggerDataEfficiencyDown = 1.;
+    triggerMcEfficiencyDown   = 1.;
 
     CLEAR_m_pt_ptRegressed_eta_phi_p4(HH_btag_cmva_b1)
     HH_btag_cmva_b1_cmva = 0;
@@ -755,5 +767,15 @@ bool OutputTree::declareUserFloatBranch (std::string name, float defaultClearVal
 
     // set the branch
     tree_->Branch(name.c_str(), userFloats_.getValPtr(name));
+    return true;
+}
+
+bool OutputTree::declareUserIntBranchList(std::vector<std::string> nameList, int defaultClearValue)
+{
+    for(const auto& name : nameList)
+    {
+        bool success = declareUserIntBranch(name, defaultClearValue);
+        if(!success) return false;
+    }
     return true;
 }

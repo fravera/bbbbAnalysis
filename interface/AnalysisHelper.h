@@ -36,6 +36,7 @@
 
 class AnalysisHelper
 {
+
     public:
 
         typedef ordered_map <std::string, std::shared_ptr<Sample>> sampleColl; // the type of a collection of samples
@@ -92,6 +93,7 @@ class AnalysisHelper
         TH1F *hCutInSkim_;
         // FIXME: sytematics cfg?
 
+        uint8_t numberOfThreads_;
         int nsplit_;
         int idxsplit_;
 

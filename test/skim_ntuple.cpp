@@ -36,7 +36,7 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-    gSystem->ResetSignal(kSigSegmentationViolation, kTRUE);
+    // gSystem->ResetSignal(kSigSegmentationViolation, kTRUE);
     
     cout << "[INFO] ... starting program" << endl;
 
@@ -53,7 +53,7 @@ int main(int argc, char** argv)
         ("output"        , po::value<string>()->required(), "output file LFN")
         // optional
         ("xs"            , po::value<float>(), "cross section [pb]")
-        ("yMassSelection", po::value<int>(), "Y mass selection")
+        ("yMassSelection", po::value<string>()->default_value("None"), "Y mass selection")
         ("maxEvts"       , po::value<int>()->default_value(-1), "max number of events to process")
         ("puWeight"      , po::value<string>()->default_value(""), "PU weight file name")
         // flags
@@ -91,16 +91,7 @@ int main(int argc, char** argv)
 
     const bool is_signal = (is_data ? false : opts["is-signal"].as<bool>());
     cout << "[INFO] ... is a HH signal sample? " << std::boolalpha << is_signal << std::noboolalpha << endl;
-    if (is_signal && !opts.count("yMassSelection")){
-        cerr << "** [ERROR] please provide yMassSelection for this sample that is marked as signal" << endl;
-        return 1;
-    }
-    int yMassSelection = (is_signal ? opts["yMassSelection"].as<int>() : -1);
-    if(is_signal)
-    {
-        cout << "[INFO] ... Y mass selected " <<  yMassSelection << endl;
-    }
-
+    
     const bool is_VBF_sig = (is_data ? false : opts["is-VBF-sig"].as<bool>());
     cout << "[INFO] ... is a HH VBF sample? " << std::boolalpha << is_VBF_sig << std::noboolalpha << endl;
 
@@ -431,6 +422,10 @@ int main(int argc, char** argv)
         opts["save-p4"].as<bool>()
     );
 
+    std::string yMassSelection = opts["yMassSelection"].as<std::string>();
+    if(yMassSelection != "None") nat.attachCustomValueBranch<Bool_t>(yMassSelection);
+    else ot.declareUserIntBranchList(nat.attachAllMatchingBranch<Bool_t>("GenModel_YMass_"));
+
     SkimEffCounter ec;
 
     oph.initializeObjectsForCuts(ot);
@@ -467,6 +462,8 @@ int main(int argc, char** argv)
         if (!nat.Next()) break;
         if (iEv % 10000 == 0) cout << "... processing event " << iEv << endl;
 
+        if(yMassSelection != "None") if(!nat.readCustomValueBranch<Bool_t>(yMassSelection)) continue;
+
         if (is_data && !jlf.isValid(*nat.run, *nat.luminosityBlock)){
             continue; // not a valid lumi
         }              
@@ -474,20 +471,10 @@ int main(int argc, char** argv)
         ot.clear();
         EventInfo ei;
 
-        if (is_signal && !config.readBoolOpt("parameters::is2016Sample")){
-            oph.select_gen_YH(nat, ei);
-            if (!oph.select_gen_bb_bb_forXYH(nat, ei))
-            {
-                std::cout << __PRETTY_FUNCTION__ << __LINE__ << "no gen matching found!!!" << std::endl;
-                continue; 
-            }
-            if( abs(ei.gen_H2->P4().M() - yMassSelection) > 2 ) continue;
-        }
-
         
         double weight = 1.;
         if(!is_data) weight = oph.calculateEventWeight(nat, ei, ot, ec);
-
+        
         ec.updateProcessed(weight);
 
         std::vector<std::string> listOfPassedTriggers = nat.getTrgPassed();
@@ -498,6 +485,17 @@ int main(int argc, char** argv)
 
         if (!oph.select_bbbb_jets(nat, ei, ot, listOfPassedTriggers)) continue;
         if(!is_data){ot.userFloat("XS")=xs;}
+
+
+        if (is_signal)
+        {
+            oph.select_gen_YH(nat, ei);
+            if (!oph.select_gen_bb_bb_forXYH(nat, ei))
+            {
+                std::cout << __PRETTY_FUNCTION__ << __LINE__ << "no gen matching found!!!" << std::endl;
+                continue; 
+            }
+        }
 
         if (is_VBF_sig){
             bool got_gen_VBF = oph.select_gen_VBF_partons(nat, ei);

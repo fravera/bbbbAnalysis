@@ -21,6 +21,7 @@
 #include "TriggerReader_ReaderImpl.h"
 #include "NanoReaderValue.h"
 #include "NanoReaderArray.h"
+#include "TObjArray.h"
 
 #include <vector>
 #include <iostream>
@@ -54,9 +55,23 @@ class NanoAODTree_ReaderImpl {
         std::vector<std::string> getTrgPassed() {return trg_reader_.getTrgPassed();};
 
         template<class T> 
-        void attachCustomValueBranch(const std::string branchName)
+        void attachCustomValueBranch(const std::string& branchName)
         {
             fCustomBranchMap.emplace(branchName, std::make_unique<NanoReaderValue<T>>(fReader, branchName.data()));
+        }
+
+        template<class T> 
+        std::vector<std::string> attachAllMatchingBranch(const std::string branchNameTemplate)
+        {
+            TObjArray* theBranchList = fReader.GetTree()->GetListOfBranches();
+            std::vector<std::string> listOfBranchNames;
+            for(const auto & branch : *theBranchList)
+            {
+                std::string branchName = branch->GetName();
+                if(branchName.find(branchNameTemplate) != std::string::npos) attachCustomValueBranch<T>(branchName);
+                listOfBranchNames.emplace_back(branchName);
+            }
+            return listOfBranchNames;
         }
 
         template<class T> 

@@ -53,6 +53,8 @@ class OutputTree {
         bool declareUserIntBranch   (std::string name, int defaultClearValue = 0);
         bool declareUserFloatBranch (std::string name, float defaultClearValue = 0.0);
 
+        bool declareUserIntBranchList(std::vector<std::string> nameList, int defaultClearValue = 0);
+        
         // throws an exception if the branch name was not declared
         int&   userInt   (std::string name) {return userInts_   . getVal(name);}
         float& userFloat (std::string name) {return userFloats_ . getVal(name);}
@@ -111,9 +113,15 @@ class OutputTree {
         DECLARE_m_pt_eta_phi_p4(gen_q1_out)
         DECLARE_m_pt_eta_phi_p4(gen_q2_out)
 
-        float triggerScaleFactor;
-        float triggerDataEfficiency;
-        float triggerMcEfficiency;
+        float triggerScaleFactor       ;
+        float triggerDataEfficiency    ;
+        float triggerMcEfficiency      ;
+        float triggerScaleFactorUp     ;
+        float triggerDataEfficiencyUp  ;
+        float triggerMcEfficiencyUp    ;
+        float triggerScaleFactorDown   ;
+        float triggerDataEfficiencyDown;
+        float triggerMcEfficiencyDown  ;
 
         //TTEMU events
         DECLARE_m_pt_ptRegressed_eta_phi_p4(TT_b1)

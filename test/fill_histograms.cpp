@@ -2,12 +2,14 @@
 #include <iostream>
 #include <string>
 #include "TSystem.h"
+#include "TROOT.h"
 
 using namespace std;
 
 // c++ -lm -o test testAnalysisHelper.cpp AnalysisHelper.cc CfgParser.cc Sample.cc Selection.cc Weight.cc TTreeFormulaGroup.cc --std=c++11 `root-config --glibs --cflags` -lTreePlayer
 int main(int argc, char** argv)
 {   
+    ROOT::EnableThreadSafety();
     gSystem->ResetSignal(kSigSegmentationViolation, kTRUE);
 
     if (argc < 2)
