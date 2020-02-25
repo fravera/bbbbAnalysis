@@ -291,10 +291,27 @@ void OfflineProducerHelper::initializeObjectsForEventWeight(OutputTree &ot, Skim
 
     if(weightsMethod == "None")
     {
+        std::cout<< "Using None!!!!!!!!!!!!!!!!!!!" << std::endl;
+        std::cout<< "Using None!!!!!!!!!!!!!!!!!!!" << std::endl;
+        std::cout<< "Using None!!!!!!!!!!!!!!!!!!!" << std::endl;
+        std::cout<< "Using None!!!!!!!!!!!!!!!!!!!" << std::endl;
+        std::cout<< "Using None!!!!!!!!!!!!!!!!!!!" << std::endl;
+        std::cout<< "Using None!!!!!!!!!!!!!!!!!!!" << std::endl;
+        std::cout<< "Using None!!!!!!!!!!!!!!!!!!!" << std::endl;
+        std::cout<< "Using None!!!!!!!!!!!!!!!!!!!" << std::endl;
         calculateEventWeight = [=](NanoAODTree& nat, EventInfo& ei, OutputTree &ot, SkimEffCounter &ec) -> float {return sampleCrossSection_;};
     }
     else if(weightsMethod == "StandardWeight")
     {
+
+        std::cout<< "Using StandardWeight!!!!!!!!!!!!!!!!!!!" << std::endl;
+        std::cout<< "Using StandardWeight!!!!!!!!!!!!!!!!!!!" << std::endl;
+        std::cout<< "Using StandardWeight!!!!!!!!!!!!!!!!!!!" << std::endl;
+        std::cout<< "Using StandardWeight!!!!!!!!!!!!!!!!!!!" << std::endl;
+        std::cout<< "Using StandardWeight!!!!!!!!!!!!!!!!!!!" << std::endl;
+        std::cout<< "Using StandardWeight!!!!!!!!!!!!!!!!!!!" << std::endl;
+        std::cout<< "Using StandardWeight!!!!!!!!!!!!!!!!!!!" << std::endl;
+        std::cout<< "Using StandardWeight!!!!!!!!!!!!!!!!!!!" << std::endl;
         calculateEventWeight = [=] (NanoAODTree& nat, EventInfo& ei, OutputTree &ot, SkimEffCounter &ec) -> float {return this -> calculateEventWeight_AllWeights (nat, ei, ot, ec);};
         std::string branchName;
 

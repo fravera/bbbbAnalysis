@@ -68,8 +68,11 @@ class NanoAODTree_ReaderImpl {
             for(const auto & branch : *theBranchList)
             {
                 std::string branchName = branch->GetName();
-                if(branchName.find(branchNameTemplate) != std::string::npos) attachCustomValueBranch<T>(branchName);
-                listOfBranchNames.emplace_back(branchName);
+                if(branchName.find(branchNameTemplate) != std::string::npos)
+                {
+                    attachCustomValueBranch<T>(branchName);
+                    listOfBranchNames.emplace_back(branchName);
+                }
             }
             return listOfBranchNames;
         }
