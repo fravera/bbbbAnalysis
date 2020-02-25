@@ -1,0 +1,2 @@
+root://cmseos.fnal.gov//store/user/fravera/NMSSM_XYH_bbbb_NANOAOD/NMSSM_XYH_bbbb_MX_2000_MY_1800_madgraph242/crab_NMSSM_XYH_bbbb_MX_2000_MY_1800_NANOAOD_Run2016_v1/190808_170130/0000/NMSSM_XYH_bbbb_MX_700_MY_300_NANOAOD_1.root
+root://cmseos.fnal.gov//store/user/fravera/NMSSM_XYH_bbbb_NANOAOD/NMSSM_XYH_bbbb_MX_2000_MY_1800_madgraph242/crab_NMSSM_XYH_bbbb_MX_2000_MY_1800_NANOAOD_Run2016_v1/190808_170130/0000/NMSSM_XYH_bbbb_MX_700_MY_300_NANOAOD_2.root

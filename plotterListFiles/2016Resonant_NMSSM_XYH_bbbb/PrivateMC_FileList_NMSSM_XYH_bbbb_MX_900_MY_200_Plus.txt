@@ -1,0 +1,1 @@
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/PrivateMC_NMSSM_XYH_bbbb_v21/SKIM_NMSSM_XYH_bbbb_MX_900_MY_200_privateMC/output/bbbbNtuple_0.root
