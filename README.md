@@ -19,16 +19,22 @@ make exe -j # compiles and makes everything under test/ executable
 ````
 
 ## Make a skim of NanoAOD
+For data:
 ```
-## please, fill me with some examples of usage
+skim_ntuple.exe --input inputFiles/2016_NMSSM_XYH_bbbb_Datasets/BTagCSV_Data.txt --cfg config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb.cfg --is-data --output test_NMSSM_XYH_bbbb_Data.root --maxEvts 1000000
 ````
+For fast sim signal
+```
+skim_ntuple.exe --cfg config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb_Fast.cfg --input inputFiles/2016_NMSSM_XYH_bbbb_Datasets/NMSSM_XYH_bbbb_MX_700_NANOAOD_v7.txt --output test_NMSSM_XYH_bbbb_MC.root --is-signal --xs=1 --puWeight weights/2016_NMSSM_XYH_bbbb_weights/NMSSM_XYH_bbbb_MX_300_NANOAOD_v7_PUweights.root --maxEvt 100000
+```
 
 ## Fill histograms from skims
 ```
-fill_histograms.exe config/<config_name>.cfg
+fill_histograms.exe config/Resonant_NMSSM_bbbb/MXless1000_MYgreater140/plotter_2016Resonant_NMSSM_XYH_bbbb.cfg 
 ````
 
 ## Make plots
+"NOT WORKING FOR RESONANT ANALYSIS"
 Use the ``plotter/plotter.py`` script. Styles (line colors, etc.) for the processes are defined in ``plotter/styles/plotStyles.py``
 Inside the script, the subset of processes to run on is defined through ``bkgToPlot`` and  ``sigToPlot``.
 Several cmd line options available to configure the plot, it's practical to make a script that produces all the plots.
@@ -38,22 +44,20 @@ source do_all_plots.sh
 ````
 
 ## Machine learning skims using pandas dataframes
-All developments take place inside mlskim. First, we merge(hadd!) the bbbbntuple files on eos in the inputskims folder by running:
+Edit in the mlskim_NMSSM_XYH_bbbb/config/<file> the cuts, variable, samples and weight name
 ```
-cd mlskim/inputskims
-source haddsamples.sh
-
+python mlskim_NMSSM_XYH_bbbb/BuildBackgroundModel.py --config=mlskim_NMSSM_XYH_bbbb/config/outputskim_2016.cfg 
 ````
-Next, one finds two main python scripts inside mlskim folder: Outputskim.py and BackgroundModel.py. The Outputskim.py code is able to skim over the inputskims files adding branches with new ML variables in data and MC samples. The parameters of the skims are specified in the config files in the folder config. To execute the outputskims (2016+2017+2018):
+this will crate a folder with the model within BackgroundModels
+Now you can run the next step that will create the a new branch in the origina tree containing the weigths for the BDT weights
 ```
-source runOutputskim.sh
-
-````
-Then, the BackgroundModel.py code creates a background model using the control region information and 3-btag data. This creates four weights (Weight_210_GGF,Weight_210_VBF,Weight_110_GGF,Weight_110_VBF) as branches in the output file (SKIM_MODEL_BKG.root). The parameters are specified in the config files in the folder config. To execute the background model (2016+2017+2018):
+python mlskim_NMSSM_XYH_bbbb/ApplyBackgroundModel.py --dir BackgroundModels/Reweight_<weightName>
 ```
-source runBkgmodel.sh
 
-````
+Note: weight name must be unique otherwise you will not be able to create the new branch in the tree
+make sure you hhave write permission on the input skims
+Remember to apply the weight to the fill histogram to use the while filling the plots
+
 ## Running combine
 Log on a CentOS 7 machine (lxplus, cmslpc-sl7) and install combine following the instructions [here](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#for-end-users-that-dont-need-to-commit-or-do-any-development)
 

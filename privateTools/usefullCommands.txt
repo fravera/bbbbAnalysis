@@ -4,6 +4,8 @@ sed -i 's/2016AnalysisSample_03Feb2017_v19/2016AnalysisSample_03Feb2017_v21/g' p
 
 skim_ntuple.exe --cfg config/skim_2016ResonantDiHiggs4B.cfg --input inputFiles/2016ResonantDiHiggs4BDataSets/MCSignal_GluGluToBulkGravitonToHHTo4B_M-750_narrow_13TeV-madgraph.txt --output test_BTagCSV_MC.root --is-signal --xs=1 --puWeight weights/MCSignal_GluGluToBulkGravitonToHHTo4B_M-750_narrow_13TeV-madgraph_PUweights.root --maxEvt 100000
 
+skim_ntuple --input=inputFiles/2016_NMSSM_XYH_bbbb_Datasets/BTagCSV_Data.txt  --cfg=config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb.cfg --is-data --njobs=200
+
 skim_ntuple.exe --cfg config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb.cfg --input inputFiles/2016ResonantDiHiggs4BDataSets/MCSignal_GluGluToBulkGravitonToHHTo4B_M-750_narrow_13TeV-madgraph_triggerTest.txt --output test_BTagCSV_MC.root --is-signal --xs=1 --puWeight weights/MCSignal_GluGluToBulkGravitonToHHTo4B_M-750_narrow_13TeV-madgraph_PUweights.root --maxEvt 100000
 
 skim_ntuple.exe --cfg config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb.cfg --input inputFiles/2016_NMSSM_XYH_bbbb_Datasets/NMSSM_XYH_bbbb_MX_700_MY_300_privateMC.txt --output test_NMSSM_XYH_bbbb_MC.root --is-signal --xs=1 --puWeight weights/2016_NMSSM_XYH_bbbb_weights/NMSSM_XYH_bbbb_MX_700_MY_300_privateMC_PUweights.root --maxEvt 100000
@@ -12,7 +14,7 @@ skim_ntuple.exe --input inputFiles/2016ResonantDiHiggs4BDataSets/BTagCSV_Data_Fi
 
 skim_ntuple.exe --input inputFiles/2016ResonantDiHiggs4BDataSets/BTagCSV_Data_FileList_80x_reprocess.txt --cfg config/skim_2016ResonantDiHiggs4B.cfg --is-data --output test_BTagCSV.root --maxEvts 1000000
 
-skim_ntuple.exe --input inputFiles/2016_NMSSM_XYH_bbbb_Datasets/BTagCSV_Data.txt --cfg config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb_AntiBtag.cfg --is-data --output test_NMSSM_XYH_bbbb_MC.root --maxEvts 1000000
+skim_ntuple.exe --input inputFiles/2016_NMSSM_XYH_bbbb_Datasets/BTagCSV_Data.txt --cfg config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb.cfg --is-data --output test_NMSSM_XYH_bbbb_Data.root --maxEvts 1000000
 
 cmsDriver.py myNanoProdData -s NANO --data --eventcontent NANOAOD --datatier NANOAOD  --no_exec  --conditions 80X_dataRun2_2016LegacyRepro_v4 --era Run2_2016,run2_nanoAOD_94X2016 --customise_commands="process.add_(cms.Service('InitRootHandlers', EnableIMT = cms.untracked.bool(False)))"
 
@@ -23,6 +25,8 @@ skim_ntuple.exe --input inputFiles/2016ResonantDiHiggs4BDataSets/SingleMuon_Data
 skim_ntuple.exe --input inputFiles/2016ResonantDiHiggs4BDataSets/SingleMuon_Data.txt  --cfg config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb_triggerStudies.cfg --is-data --output test_SingleMuon.root --maxEvts 100
 
 skim_ntuple.exe --cfg config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb_triggerStudies.cfg --input inputFiles/2016ResonantDiHiggs4BDataSets/MC_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8.txt --output test_TTbar_MC.root --xs=1 --puWeight weights/MC_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8_PUweights.root --maxEvt 20000
+
+skim_ntuple.exe --cfg config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb_Fast.cfg --input inputFiles/2016_NMSSM_XYH_bbbb_Datasets/NMSSM_XYH_bbbb_MX_700_NANOAOD_v7.txt --output test_NMSSM_XYH_bbbb_MC.root --is-signal --xs=1 --puWeight weights/2016_NMSSM_XYH_bbbb_weights/NMSSM_XYH_bbbb_MX_300_NANOAOD_v7_PUweights.root --maxEvt 100000
 
 produceSignalTreeForTraining.exe --cfg=config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb_SignalTraining.cfg --input=inputFiles/2016_NMSSM_XYH_bbbb_Datasets/NMSSM_XYH_bbbb_MX_700_MY_300_privateMC.txt --output=test_signalTreeForTraining.root
 
@@ -89,4 +93,5 @@ MergeCanvas<>("ScaleFactor_L1triggerDouble90Double30AndPrevious_FourHighetJetPtS
 MergeCanvas<>("ScaleFactor_L1triggerQuad45AndPrevious_FourHighetJetPtSum", "ScaleFactor_QuadCentralJet45AndPrevious_FirstJetPt", "ScaleFactor_QuadCentralJet45AndPrevious_SecondJetPt", "ScaleFactor_QuadCentralJet45AndPrevious_ThirdJetPt", "ScaleFactor_QuadCentralJet45AndPrevious_ForthJetPt", "ScaleFactor_BTagCaloCSVp087TripleQuad45AndPrevious_ThirdJetDeepCSV", "ScaleFactor_QuadPFCentralJetLooseID45AndPrevious_FirstJetPt", "ScaleFactor_QuadPFCentralJetLooseID45AndPrevious_SecondJetPt", "ScaleFactor_QuadPFCentralJetLooseID45AndPrevious_ThirdJetPt", "ScaleFactor_QuadPFCentralJetLooseID45AndPrevious_ForthJetPt")
 
 
-python mlskim_NMSSM_XYH_bbbb/BackgroundModel.py --config=mlskim_NMSSM_XYH_bbbb/config/outputskim_2016.cfg 
+python mlskim_NMSSM_XYH_bbbb/BuildBackgroundModel.py --config=mlskim_NMSSM_XYH_bbbb/config/outputskim_2016.cfg 
+python mlskim_NMSSM_XYH_bbbb/BuildBackgroundModel.py --config=mlskim_NMSSM_XYH_bbbb/config/outputskim_2016.cfg 
