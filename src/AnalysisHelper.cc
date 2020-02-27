@@ -1397,43 +1397,43 @@ string AnalysisHelper::pack2DName (string name1, string name2)
 
 void AnalysisHelper::fillHistos()
 {
-    // std::vector<std::thread> theThreadVector;
-    // auto totalMap = data_samples_ + sig_samples_ + bkg_samples_ + datadriven_samples_;
-    // for(uint isample = 0; isample < totalMap.size(); ++isample)
+    std::vector<std::thread> theThreadVector;
+    auto totalMap = data_samples_ + sig_samples_ + bkg_samples_ + datadriven_samples_;
+    for(uint isample = 0; isample < totalMap.size(); ++isample)
+    {
+        // std::thread test(&AnalysisHelper::fillHistosSample, this, *(totalMap.at(isample)) ) ;
+        theThreadVector.emplace_back( std::thread(&AnalysisHelper::fillHistosSample, this, std::ref(*(totalMap.at(isample)) ) ) );
+        if(theThreadVector.size() >= numberOfThreads_)
+        {
+            for(auto &theThread : theThreadVector) theThread.join();
+            theThreadVector.clear();
+        }
+    }
+    for(auto &theThread : theThreadVector) theThread.join();
+    theThreadVector.clear();
+
+    // for (uint isample = 0; isample < data_samples_.size(); ++isample) // loop on samples
     // {
-    //     // std::thread test(&AnalysisHelper::fillHistosSample, this, *(totalMap.at(isample)) ) ;
-    //     theThreadVector.emplace_back( std::thread(&AnalysisHelper::fillHistosSample, this, std::ref(*(totalMap.at(isample)) ) ) );
-    //     if(theThreadVector.size() >= numberOfThreads_)
-    //     {
-    //         for(auto &theThread : theThreadVector) theThread.join();
-    //         theThreadVector.clear();
-    //     }
+    //     fillHistosSample(*(data_samples_.at(isample)));
     // }
-    // for(auto &theThread : theThreadVector) theThread.join();
-    // theThreadVector.clear();
 
-    for (uint isample = 0; isample < data_samples_.size(); ++isample) // loop on samples
-    {             
-        fillHistosSample(*(data_samples_.at(isample)));
-    }
+    // // sig
+    // for (uint isample = 0; isample < sig_samples_.size(); ++isample) // loop on samples
+    // {
+    //     fillHistosSample(*(sig_samples_.at(isample)));
+    // }
 
-    // sig
-    for (uint isample = 0; isample < sig_samples_.size(); ++isample) // loop on samples
-    {             
-        fillHistosSample(*(sig_samples_.at(isample)));
-    }
+    // // bkg    
+    // for (uint isample = 0; isample < bkg_samples_.size(); ++isample) // loop on samples
+    // {
+    //     fillHistosSample(*(bkg_samples_.at(isample)));
+    // }
 
-    // bkg    
-    for (uint isample = 0; isample < bkg_samples_.size(); ++isample) // loop on samples
-    {             
-        fillHistosSample(*(bkg_samples_.at(isample)));
-    }
-
-    // datadriven    
-    for (uint isample = 0; isample < datadriven_samples_.size(); ++isample) // loop on samples
-    {             
-        fillHistosSample(*(datadriven_samples_.at(isample)));
-    }
+    // // datadriven    
+    // for (uint isample = 0; isample < datadriven_samples_.size(); ++isample) // loop on samples
+    // {
+    //     fillHistosSample(*(datadriven_samples_.at(isample)));
+    // }
 
 }
 

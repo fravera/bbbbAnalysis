@@ -226,9 +226,19 @@ void OfflineProducerHelper::initializeObjectsBJetForScaleFactors(OutputTree &ot)
         btagCalibrationReader_lightJets_ = new BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up", "down"});
         btagCalibrationReader_cJets_     = new BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up", "down"});
         btagCalibrationReader_bJets_     = new BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up", "down"});
-        btagCalibrationReader_lightJets_->load(btagCalibration, BTagEntry::FLAV_UDSG, "incl"  );
-        btagCalibrationReader_cJets_    ->load(btagCalibration, BTagEntry::FLAV_C   , "mujets");
-        btagCalibrationReader_bJets_    ->load(btagCalibration, BTagEntry::FLAV_B   , "mujets");
+
+        if(any_cast<bool>(parameterList_->at("isFastSim")))
+        {
+            btagCalibrationReader_lightJets_->load(btagCalibration, BTagEntry::FLAV_UDSG, "fastsim");
+            btagCalibrationReader_cJets_    ->load(btagCalibration, BTagEntry::FLAV_C   , "fastsim");
+            btagCalibrationReader_bJets_    ->load(btagCalibration, BTagEntry::FLAV_B   , "fastsim");
+        }
+        else
+        {
+            btagCalibrationReader_lightJets_->load(btagCalibration, BTagEntry::FLAV_UDSG, "incl"  );
+            btagCalibrationReader_cJets_    ->load(btagCalibration, BTagEntry::FLAV_C   , "mujets");
+            btagCalibrationReader_bJets_    ->load(btagCalibration, BTagEntry::FLAV_B   , "mujets");
+        }
 
     }
 

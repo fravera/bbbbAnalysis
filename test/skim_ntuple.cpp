@@ -251,6 +251,7 @@ int main(int argc, char** argv)
         parameterList.emplace("BTagScaleFactorMethod",bTagscaleFactorMethod);
         if(bTagscaleFactorMethod == "FourBtag_ScaleFactor"){
             parameterList.emplace("BJetScaleFactorsFile"    ,config.readStringOpt("parameters::BJetScaleFactorsFile"    ));
+            parameterList.emplace("isFastSim"               ,config.readBoolOpt  ("parameters::isFastSim"               ));
         }
         else if(bTagscaleFactorMethod == "None"){
         }  
