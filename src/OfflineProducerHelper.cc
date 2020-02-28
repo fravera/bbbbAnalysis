@@ -223,21 +223,28 @@ void OfflineProducerHelper::initializeObjectsBJetForScaleFactors(OutputTree &ot)
 
         // branchesAffectedByJetEnergyVariations_["bTagScaleFactor_central"] = 1.;
         BTagCalibration btagCalibration(Jet::bTagger_,any_cast<string>(parameterList_->at("BJetScaleFactorsFile")));
-        btagCalibrationReader_lightJets_ = new BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up", "down"});
-        btagCalibrationReader_cJets_     = new BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up", "down"});
-        btagCalibrationReader_bJets_     = new BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up", "down"});
 
         if(any_cast<bool>(parameterList_->at("isFastSim")))
         {
+            btagCalibrationReader_lightJets_ = new BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up", "down"});
+            btagCalibrationReader_cJets_     = new BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up", "down"});
+            btagCalibrationReader_bJets_     = new BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up", "down"});
             btagCalibrationReader_lightJets_->load(btagCalibration, BTagEntry::FLAV_UDSG, "fastsim");
             btagCalibrationReader_cJets_    ->load(btagCalibration, BTagEntry::FLAV_C   , "fastsim");
             btagCalibrationReader_bJets_    ->load(btagCalibration, BTagEntry::FLAV_B   , "fastsim");
         }
         else
         {
-            btagCalibrationReader_lightJets_->load(btagCalibration, BTagEntry::FLAV_UDSG, "incl"  );
-            btagCalibrationReader_cJets_    ->load(btagCalibration, BTagEntry::FLAV_C   , "mujets");
-            btagCalibrationReader_bJets_    ->load(btagCalibration, BTagEntry::FLAV_B   , "mujets");
+
+            btagCalibrationReader_lightJets_ = new BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up_hfstats2", "down_hfstats2"});
+            btagCalibrationReader_cJets_     = new BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up_hfstats2", "down_hfstats2"});
+            btagCalibrationReader_bJets_     = new BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up_hfstats2", "down_hfstats2"});
+            btagCalibrationReader_lightJets_->load(btagCalibration, BTagEntry::FLAV_UDSG, "iterativefit");
+            btagCalibrationReader_cJets_    ->load(btagCalibration, BTagEntry::FLAV_C   , "iterativefit");
+            btagCalibrationReader_bJets_    ->load(btagCalibration, BTagEntry::FLAV_B   , "iterativefit");
+            // btagCalibrationReader_lightJets_->load(btagCalibration, BTagEntry::FLAV_UDSG, "incl"  );
+            // btagCalibrationReader_cJets_    ->load(btagCalibration, BTagEntry::FLAV_C   , "mujets");
+            // btagCalibrationReader_bJets_    ->load(btagCalibration, BTagEntry::FLAV_B   , "mujets");
         }
 
     }
