@@ -8,6 +8,7 @@
 #include <sstream>
 #include <sys/stat.h>
 #include <thread>
+#include <numeric>
 
 using namespace std;
 
@@ -307,6 +308,21 @@ shared_ptr<Sample> AnalysisHelper::openSample(string sampleName)
 
     // for the moment stored in selection cfg -- could be stored in sample cfg instead
     // but I prefer to have all the weights at the same place
+     
+
+    if (cutCfg_->hasOpt(Form("datasetSelection::%s", sampleName.c_str())))
+    {
+        auto spaceFold = [](std::string previousString, std::string appendString) {
+                            return std::move(previousString) + ' ' + appendString;
+                        };
+    
+        std::vector<std::string> datasetCutVector = cutCfg_->readStringListOpt(Form("datasetSelection::%s", sampleName.c_str()));
+        std::string datasetCutString = std::accumulate(std::next(datasetCutVector.begin()), datasetCutVector.end(),
+                                        datasetCutVector[0], // start with first element
+                                        spaceFold);
+        std::cout << "    ~~~> Dataset cut = " << datasetCutString << std::endl;
+        sample->setDatasetCut(TCut(datasetCutString.data()));
+    }
 
     if (!cutCfg_->hasOpt(Form("sampleWeights::%s", sampleName.c_str())))
         return sample;    
@@ -965,8 +981,8 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
     for (unsigned int isel = 0; isel < selections_.size(); ++isel)
     {
         // note: no need to call later delete, because fg is set as the owner of the member TTF
-        // cout << selections_.at(isel).getValue().GetTitle() << endl;
-        TTreeFormula* TTF = new TTreeFormula (Form("TTF_%i", isel), selections_.at(isel).getValue().GetTitle(), tree);
+        if (DEBUG) cout << sample.getDatasetCut().GetTitle() << endl;
+        TTreeFormula* TTF = new TTreeFormula (Form("TTF_%i", isel), (std::string(selections_.at(isel).getValue().GetTitle()) + " && " + std::string(sample.getDatasetCut().GetTitle())).data(), tree);
         vTTF.push_back(TTF);
         fg->SetNotify(TTF);
     }
@@ -1333,6 +1349,11 @@ void AnalysisHelper::activateBranches(Sample& sample)
             {
                 tree->SetBranchStatus (bName.c_str(), 1);
             }
+        }
+        string theDatasetCut = sample.getDatasetCut().GetTitle();
+        if (theDatasetCut.find(bName) != string::npos)
+        {
+            tree->SetBranchStatus (bName.c_str(), 1);
         }
     }
     if (DEBUG) cout << " ..........DEBUG: activated cut variables branches" << endl;

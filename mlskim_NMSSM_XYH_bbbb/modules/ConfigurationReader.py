@@ -54,3 +54,11 @@ class ConfigurationReader:
         print "    -The thread number for applying weights:"
         print "      *",self.threadNumber
 
+        self.analysisBackgroundArgument       = ast.literal_eval(cfgparser.get("configuration","analysisBackgroundArgument"))
+        print "    -The analysis background arguments:"
+        print "      *",self.analysisBackgroundArgument
+
+        self.analysisClassifierArgument       = ast.literal_eval(cfgparser.get("configuration","analysisClassifierArgument"))
+        print "    -The analysis classifier arguments:"
+        print "      *",self.analysisClassifierArgument
+

@@ -398,6 +398,7 @@ void OfflineProducerHelper::initializeObjectsForEventWeight(OutputTree &ot, Skim
 
 float OfflineProducerHelper::calculateEventWeight_AllWeights(NanoAODTree& nat, EventInfo& ei, OutputTree &ot, SkimEffCounter &ec)
 {
+    bool storeVariations = any_cast<bool>(parameterList_->at("WeightVariations"));
 
     for(auto & weight : weightMap_)
     {
@@ -429,21 +430,24 @@ float OfflineProducerHelper::calculateEventWeight_AllWeights(NanoAODTree& nat, E
     ot.userFloat(branchName) = tmpWeight;
     weightMap_[branchName].first = tmpWeight;
     eventWeight *= tmpWeight;
-    std::vector<std::string> puWeightVariation = {"_up","_down"};
-    for(unsigned int var = 0; var<puWeightVariation.size(); ++var)
+    if(storeVariations)
     {
-        std::string variationBranch = branchName + puWeightVariation[var];
-        for(const auto & puWeightBin : PUWeightMap_[variationBranch])
+        std::vector<std::string> puWeightVariation = {"_up","_down"};
+        for(unsigned int var = 0; var<puWeightVariation.size(); ++var)
         {
-            if(eventPU >= puWeightBin.first.first && eventPU < puWeightBin.first.second)
+            std::string variationBranch = branchName + puWeightVariation[var];
+            for(const auto & puWeightBin : PUWeightMap_[variationBranch])
             {
-                tmpWeight = puWeightBin.second;
-                break;
+                if(eventPU >= puWeightBin.first.first && eventPU < puWeightBin.first.second)
+                {
+                    tmpWeight = puWeightBin.second;
+                    break;
+                }
             }
+            tmpWeight = tmpWeight==0 ? 1 : tmpWeight; //set to 1 if weight is 0
+            ot.userFloat(variationBranch) = tmpWeight;
+            weightMap_[branchName].second[variationBranch] = tmpWeight;
         }
-        tmpWeight = tmpWeight==0 ? 1 : tmpWeight; //set to 1 if weight is 0
-        ot.userFloat(variationBranch) = tmpWeight;
-        weightMap_[branchName].second[variationBranch] = tmpWeight;
     }
 
     //genWeight (no weight variations)
@@ -466,19 +470,22 @@ float OfflineProducerHelper::calculateEventWeight_AllWeights(NanoAODTree& nat, E
     weightMap_[branchName].first = tmpWeight;
     eventWeight *= tmpWeight;
     // LHEPdfWeight weight variations
-    for(unsigned int var = 0; var<=*(nat.nLHEPdfWeight); ++var)
+    if(storeVariations)
     {
-        tmpWeight = nat.LHEPdfWeight.At(var);
-        tmpWeight = tmpWeight==0 ? 1 : tmpWeight; //set to 1 if weight is 0
-        std::string variationBranch = branchName + "_var" + std::to_string(var);
-        if(weightMap_[branchName].second.find(variationBranch) == weightMap_[branchName].second.end()) //branch does not exist, creating:
+        for(unsigned int var = 0; var<=*(nat.nLHEPdfWeight); ++var)
         {
-            ot.declareUserFloatBranch(variationBranch, 1.);
-            ec.binMap_[variationBranch] = ++weightBin;
-            ec.binEntries_[variationBranch] = 0.;
+            tmpWeight = nat.LHEPdfWeight.At(var);
+            tmpWeight = tmpWeight==0 ? 1 : tmpWeight; //set to 1 if weight is 0
+            std::string variationBranch = branchName + "_var" + std::to_string(var);
+            if(weightMap_[branchName].second.find(variationBranch) == weightMap_[branchName].second.end()) //branch does not exist, creating:
+            {
+                ot.declareUserFloatBranch(variationBranch, 1.);
+                ec.binMap_[variationBranch] = ++weightBin;
+                ec.binEntries_[variationBranch] = 0.;
+            }
+            ot.userFloat(variationBranch) = tmpWeight;
+            weightMap_[branchName].second[variationBranch] = tmpWeight;
         }
-        ot.userFloat(variationBranch) = tmpWeight;
-        weightMap_[branchName].second[variationBranch] = tmpWeight;
     }
 
     // LHEScaleWeight
@@ -489,19 +496,22 @@ float OfflineProducerHelper::calculateEventWeight_AllWeights(NanoAODTree& nat, E
     weightMap_[branchName].first = tmpWeight;
     eventWeight *= tmpWeight;
     // LHEScaleWeight weight variations
-    for(unsigned int var = 0; var<*(nat.nLHEScaleWeight); ++var)
+    if(storeVariations)
     {
-        tmpWeight = nat.LHEScaleWeight.At(var);
-        tmpWeight = tmpWeight==0 ? 1 : tmpWeight; //set to 1 if weight is 0
-        std::string variationBranch = branchName + "_var" + std::to_string(var);
-        if(weightMap_[branchName].second.find(variationBranch) == weightMap_[branchName].second.end()) //branch does not exist, creating:
+        for(unsigned int var = 0; var<*(nat.nLHEScaleWeight); ++var)
         {
-            ot.declareUserFloatBranch(variationBranch, 1.);
-            ec.binMap_[variationBranch] = ++weightBin;
-            ec.binEntries_[variationBranch] = 0.;
+            tmpWeight = nat.LHEScaleWeight.At(var);
+            tmpWeight = tmpWeight==0 ? 1 : tmpWeight; //set to 1 if weight is 0
+            std::string variationBranch = branchName + "_var" + std::to_string(var);
+            if(weightMap_[branchName].second.find(variationBranch) == weightMap_[branchName].second.end()) //branch does not exist, creating:
+            {
+                ot.declareUserFloatBranch(variationBranch, 1.);
+                ec.binMap_[variationBranch] = ++weightBin;
+                ec.binEntries_[variationBranch] = 0.;
+            }
+            ot.userFloat(variationBranch) = tmpWeight;
+            weightMap_[branchName].second[variationBranch] = tmpWeight;
         }
-        ot.userFloat(variationBranch) = tmpWeight;
-        weightMap_[branchName].second[variationBranch] = tmpWeight;
     }
 
     // PSWeight
@@ -512,19 +522,22 @@ float OfflineProducerHelper::calculateEventWeight_AllWeights(NanoAODTree& nat, E
     weightMap_[branchName].first = tmpWeight;
     eventWeight *= tmpWeight;
     // PSWeight weight variations
-    for(unsigned int var = 0; var<*(nat.nPSWeight); ++var)
+    if(storeVariations)
     {
-        tmpWeight = nat.PSWeight.At(var);
-        tmpWeight = tmpWeight==0 ? 1 : tmpWeight; //set to 1 if weight is 0
-        std::string variationBranch = branchName + "_var" + std::to_string(var);
-        if(weightMap_[branchName].second.find(variationBranch) == weightMap_[branchName].second.end()) //branch does not exist, creating:
+        for(unsigned int var = 0; var<*(nat.nPSWeight); ++var)
         {
-            ot.declareUserFloatBranch(variationBranch, 1.);
-            ec.binMap_[variationBranch] = ++weightBin;
-            ec.binEntries_[variationBranch] = 0.;
+            tmpWeight = nat.PSWeight.At(var);
+            tmpWeight = tmpWeight==0 ? 1 : tmpWeight; //set to 1 if weight is 0
+            std::string variationBranch = branchName + "_var" + std::to_string(var);
+            if(weightMap_[branchName].second.find(variationBranch) == weightMap_[branchName].second.end()) //branch does not exist, creating:
+            {
+                ot.declareUserFloatBranch(variationBranch, 1.);
+                ec.binMap_[variationBranch] = ++weightBin;
+                ec.binEntries_[variationBranch] = 0.;
+            }
+            ot.userFloat(variationBranch) = tmpWeight;
+            weightMap_[branchName].second[variationBranch] = tmpWeight;
         }
-        ot.userFloat(variationBranch) = tmpWeight;
-        weightMap_[branchName].second[variationBranch] = tmpWeight;
     }
 
     // hh reweight if needed
@@ -897,10 +910,11 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
             {
                 ordered_jets = bbbb_jets_XYHselection(&presel_jets);
 
+
                 std::vector<TLorentzVector> theJetVector;
                 TLorentzVector theTotalVector(0.,0.,0.,0.);
 
-                for(auto &jet : ordered_jets)
+                for(auto jet : ordered_jets)
                 {
                     theJetVector.emplace_back(jet.P4Regressed());
                     theTotalVector += jet.P4Regressed();
@@ -913,6 +927,7 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
                 );
 
                 ei.MinDeltaEtaJJ = *std::min_element(deltaEtaList.begin(), deltaEtaList.end());
+
 
             }
             else if(strategy == "HighestCSVandClosestToMh")
@@ -1083,7 +1098,7 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
                         if(candidate->getCandidateTypeId() == 1) std::cout<< std::fixed << std::setprecision(3)<<static_cast<Jet*>(candidate.get())->bTagScore()<<"\t\t";
                         else std::cout << "\t\t\t";
                         bool selected=false;
-                        for(const auto & selectedJet : ordered_jets)
+                        for(const auto selectedJet : ordered_jets)
                         {
                             if(candidate->getCandidateTypeId() != 1) continue;
                             if(selectedJet.getIdx() == candidate->getIdx())
@@ -1118,6 +1133,7 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
 
             CompositeCandidate H2 = CompositeCandidate(ordered_jets.at(2), ordered_jets.at(3));
             H2.rebuildP4UsingRegressedPt(true,true);
+
 
             //Do a random swap to be sure that the m1 and m2 are simmetric
             bool swapped = false;//(int(H1.P4().Pt()*100.) % 2 == 1);
@@ -1577,6 +1593,7 @@ std::vector<Jet> OfflineProducerHelper::bbbb_jets_XYHselection(const std::vector
     output_jets.emplace_back(jets->at(jetsPairClosestToHiggsMass.first));
     output_jets.emplace_back(jets->at(jetsPairClosestToHiggsMass.second));
     //Push remaining jets
+    
     for(unsigned int bIt = 0; bIt< numberOfJets; ++bIt)
     {
         if(bIt == jetsPairClosestToHiggsMass.first || bIt == jetsPairClosestToHiggsMass.second) continue;

@@ -19,32 +19,31 @@ import modules.selections as selector
 import cPickle as pickle
 from modules.ConfigurationReader import ConfigurationReader
 import modules.Constants as const
-from modules.ReweightModelAndTransferFactors import ReweightModelAndTransferFactors
+from modules.ReweightModelAndTransferFactor import ReweightModelAndTransferFactor
 # from ROOT import TFile, TTree, TBranch
 import ROOT
 import threading
 
-def CreatePredictionModel(reweightermodel,transferfactor,renormtransferfactor,dataset_3bTag, backgroundWeightName):
+def CreatePredictionModel(reweightermodel,transferfactor,dataset_3bTag, backgroundWeightName):
 	############################################################################
 	##Let's slice data one more time to have the inputs for the bdt reweighting#
 	############################################################################
 	original_weights = numpy.ones(dtype='float64',shape=len(dataset_3bTag))
 	original_weights = numpy.multiply(original_weights,transferfactor)
 
-	folding_weights= data.getmodelweights(dataset_3bTag,original_weights,reweightermodel,transferfactor,renormtransferfactor)
+	folding_weights= data.getmodelweights(dataset_3bTag,original_weights,reweightermodel,transferfactor)
     
 	dataset_3bTag[backgroundWeightName] = folding_weights
 	return dataset_3bTag[[backgroundWeightName]]
 
 
-def getWeightsForBackground(dataset, theReweightModelAndTransferFactors, backgroundWeightName):
+def getWeightsForBackground(dataset, theReweightModelAndTransferFactor, backgroundWeightName):
 	
-	reweightermodel      = theReweightModelAndTransferFactors.reweightMethod 
-	transferfactor       = theReweightModelAndTransferFactors.transferFactor
-	renormtransferfactor = theReweightModelAndTransferFactors.renormalizationTransferFactor 
+	reweightermodel      = theReweightModelAndTransferFactor.reweightMethod 
+	transferfactor       = theReweightModelAndTransferFactor.transferFactor
 
 	#Get weights for the dataset
-	weights = CreatePredictionModel(reweightermodel, transferfactor, renormtransferfactor, dataset, backgroundWeightName)
+	weights = CreatePredictionModel(reweightermodel, transferfactor, dataset, backgroundWeightName)
 	
 	del dataset
 	return weights 
@@ -54,7 +53,7 @@ def updateFile(fileName, theBackgroudWeights):
     data.pandas2root(theBackgroudWeights,'bbbbTree', fileName, mode='a')
 
 
-def ApplyBDTweightsToFileList(fileList, treeName, trainingVariables, theReweightModelAndTransferFactors, backgroundWeightName):
+def ApplyBDTweightsToFileList(fileList, treeName, trainingVariables, theReweightModelAndTransferFactor, backgroundWeightName):
 	print "Staring with list of ", len(fileList), " files"
 	for theRootFileName in fileList:
 		theRootFile = ROOT.TFile.Open(theRootFileName)
@@ -66,7 +65,7 @@ def ApplyBDTweightsToFileList(fileList, treeName, trainingVariables, theReweight
 		theRootFile.Close()
 		singleListFile = [theRootFileName]
 		theDataFile = data.root2pandas(singleListFile, treeName, branches=trainingVariables)
-		theBackgroudWeights = getWeightsForBackground(theDataFile, theReweightModelAndTransferFactors, backgroundWeightName)
+		theBackgroudWeights = getWeightsForBackground(theDataFile, theReweightModelAndTransferFactor, backgroundWeightName)
 		updateFile(singleListFile[0], theBackgroudWeights)
 	print "Done with list of ", len(fileList), " files"
 
@@ -94,7 +93,7 @@ stdout,stderr = out.communicate()
 
 # loading formula
 with open(modelFileName) as reweighterInputFile:
-	theReweightModelAndTransferFactors = pickle.load(reweighterInputFile)
+	theReweightModelAndTransferFactor = pickle.load(reweighterInputFile)
 
 skimFileListOfList = [[] for i in range(threadNumber)]
 
@@ -108,7 +107,7 @@ for fileName in stdout.split():
 
 threads = list()
 for index in range(threadNumber):
-	x = threading.Thread(target=ApplyBDTweightsToFileList, args=(skimFileListOfList[index], const.treeName, trainingVariables, theReweightModelAndTransferFactors, backgroundWeightName))
+	x = threading.Thread(target=ApplyBDTweightsToFileList, args=(skimFileListOfList[index], const.treeName, trainingVariables, theReweightModelAndTransferFactor, backgroundWeightName))
 	threads.append(x)
 	x.start()
 

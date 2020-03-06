@@ -17,13 +17,15 @@ import modules.selections as selector
 import cPickle as pickle
 from modules.ConfigurationReader import ConfigurationReader
 import modules.Constants as const
-from modules.ReweightModelAndTransferFactors import ReweightModelAndTransferFactors
+from modules.ReweightModelAndTransferFactor import ReweightModelAndTransferFactor
 
 
-def BuildReweightingModel(data_4b, data_3b, trainingVariables, modelArguments, modelFileNameFullPath):
+def BuildReweightingModel(data_4b, data_3b, trainingVariables, modelArguments, outputDirectory, modelFileName, analysisBackgroundArgument, analysisClassifierArgument):
 	print "bTagDataSize     = ", len(data_4b)
 	print "AntibTagDataSize = ", len(data_3b)
 	print "[INFO] Processing predicted model"
+	modelFileNameFullPath        = outputDirectory + '/' + modelFileName
+
 	############################################################################
 	##Let's slice data one more time to have the inputs for the bdt reweighting#
 	############################################################################
@@ -31,19 +33,43 @@ def BuildReweightingModel(data_4b, data_3b, trainingVariables, modelArguments, m
 	print "transfer factor = ", transferfactor
 
 	#######################################
-	##Folding Gradient Boosted Reweighter
+	##Prepare data to create the model
 	#######################################
-	foldingcr_weights,reweightermodel,renormtransferfactor = data.fitreweightermodel(originalcr,targetcr,originalcr_weights,targetcr_weights,transferfactor,modelArguments)  
+	plotter.Draw1DHistosComparison(originalcr, targetcr, trainingVariables, originalcr_weights,True,outputDirectory,"_original")
+	
+	#######################################
+	##Folding Gradient Boosted Reweighter (2-fold BDT reweighter)
+	#######################################
+	foldingcr_weights,reweightermodel = data.fitreweightermodel(originalcr,targetcr,originalcr_weights,targetcr_weights,transferfactor,analysisBackgroundArgument)  
+	plotter.Draw1DHistosComparison(originalcr, targetcr, trainingVariables, foldingcr_weights,True,outputDirectory,"_model")
+	
 	########################################
-	##GB ROC AUC
+	## KS Test (as the developers of the method do), currently used for optimization/check of the parameters
 	########################################
-	bdtreweighter.roc_auc_measurement(originalcr,targetcr,originalcr_weights,foldingcr_weights)
+	ksresult_original = bdtreweighter.ks_test(originalcr, targetcr, trainingVariables, originalcr_weights)
+	ksresult_model    = bdtreweighter.ks_test(originalcr, targetcr, trainingVariables, foldingcr_weights)	
+	bdtreweighter.ks_comparison(trainingVariables,ksresult_original,ksresult_model)
+	
 	########################################
-	##Update 3b dataframe for modeling
+	## GB ROC AUC Test Study (Very slow test, needs to train a classifier in cross-validation)
 	########################################
-	theReweightModelAndTransferFactors = ReweightModelAndTransferFactors(reweightermodel,transferfactor,renormtransferfactor)
+	bdtreweighter.discrimination_test(originalcr,targetcr,originalcr_weights,analysisClassifierArgument,outputDirectory,"original")
+	bdtreweighter.discrimination_test(originalcr,targetcr,foldingcr_weights,analysisClassifierArgument,outputDirectory,"model")
+
+	# #######################################
+	# ##Folding Gradient Boosted Reweighter
+	# #######################################
+	# foldingcr_weights,reweightermodel,renormtransferfactor = data.fitreweightermodel(originalcr,targetcr,originalcr_weights,targetcr_weights,transferfactor,modelArguments)  
+	# ########################################
+	# ##GB ROC AUC
+	# ########################################
+	# bdtreweighter.roc_auc_measurement(originalcr,targetcr,originalcr_weights,foldingcr_weights)
+	# ########################################
+	# ##Update 3b dataframe for modeling
+	# ########################################
+	theReweightModelAndTransferFactor = ReweightModelAndTransferFactor(reweightermodel,transferfactor)
 	with open(modelFileNameFullPath, 'w') as reweighterOutputFile:
-		pickle.dump(theReweightModelAndTransferFactors, reweighterOutputFile)
+		pickle.dump(theReweightModelAndTransferFactor, reweighterOutputFile)
 
 #############COMMAND CODE IS BELOW ######################
 
@@ -67,6 +93,8 @@ variables                   = configFile.variables
 trainingVariables           = configFile.trainingVariables
 bTagSelection               = configFile.bTagSelection
 antiBTagSelection           = configFile.antiBTagSelection
+analysisBackgroundArgument  = configFile.analysisBackgroundArgument
+analysisClassifierArgument  = configFile.analysisClassifierArgument
 
 enabledBranches= list(set(variables) | set(trainingVariables) | set(const.minVariableList))
 skimFolderList = skimFolder.split('/')
@@ -89,7 +117,6 @@ logFile = open(outputDirectory + '/' + const.logFileName, 'w+')
 sys.stdout = logFile
 
 outputConfigFileNameFullPath = outputDirectory + '/' + const.outputConfigFileName
-modelFileNameFullPath        = outputDirectory + '/' + const.modelFileName
 
 # Copy confid files into the output directory
 cmd='cp ' + configFileName + ' ' + outputConfigFileNameFullPath
@@ -140,7 +167,7 @@ dataset.query(controlRegionSelection, inplace = True)
 print "Number of events in dataset after cuts = ",len(dataset) 
 
 # Run BDT reweight
-BuildReweightingModel(dataset.query(bTagSelection), dataset.query(antiBTagSelection), trainingVariables, modelArguments, modelFileNameFullPath)
+BuildReweightingModel(dataset.query(bTagSelection), dataset.query(antiBTagSelection), trainingVariables, modelArguments, outputDirectory, const.modelFileName, analysisBackgroundArgument, analysisClassifierArgument)
 
 sys.stdout = orig_stdout
 print(logFile.read())

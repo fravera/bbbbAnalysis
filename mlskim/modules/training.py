@@ -35,7 +35,9 @@ def preparedatasetfortraining(signal,background,features,tag):
 	df =  pandas.concat((signal[features], background[features]), ignore_index=True)
 	X = df.as_matrix() # [Rows,Columns]: [Events, Features]
 	#The weight array w can also easily be extracted using a similar procedure:
-	w =  pandas.concat((signal['MLWeight'], background['MLWeight']), ignore_index=True).values
+	signal['Weight'] = 1
+	background['Weight'] = 1
+	w =  pandas.concat((signal['Weight'], background['Weight']), ignore_index=True).values
 	#Finally, generate an array of truth labels y to distinguish among the different classes in the problem
 	y = []
 	for _df, ID in [(signal, 1), (background, 0)]:
@@ -43,7 +45,7 @@ def preparedatasetfortraining(signal,background,features,tag):
 	y = numpy.array(y)
 	#Extra Pre-Processing Steps: Shuffling, Splitting into Train-Test, Scaling Inputs
 	ix = range(X.shape[0]) # array of indices, just to keep track of them for safety reasons and future checks
-	X_train, X_test, y_train, y_test, w_train, w_test, ix_train, ix_test = train_test_split(X, y, w, ix, train_size=0.8,random_state=9999)
+	X_train, X_test, y_train, y_test, w_train, w_test, ix_train, ix_test = train_test_split(X, y, w, ix, train_size=0.75,random_state=2019)
 	#Scaling
 	scaler = StandardScaler()
 	X_train = scaler.fit_transform(X_train)
@@ -63,7 +65,7 @@ def trainNNmodel(X_train,y_train,w_train,X_test,y_test,w_test,model,design,tag):
 				EarlyStopping(verbose=True, patience=5, monitor='val_loss'),
 				ModelCheckpoint('./mymodels/mymodel.h5', monitor='val_loss', verbose=True, save_best_only=True)
 			],
-			validation_split = 0.25,
+			validation_split = 0.50,
 #			validation_data =[X_test,y_test], 
 			verbose=True,**design 
 	) 
@@ -84,12 +86,12 @@ def buildNNmodel(X_train,nodes,dropout,tag):
 	i=0
 	if layers > 0:
 		hidden = Dense(n[0], activation='relu')(inputs)
-		if dropout>0: hidden = Dropout(0.2)(hidden)
+		if dropout>0: hidden = Dropout(dropout)(hidden)
 		i += 1
 	if layers > 1:
 		while i<layers:
 			hidden = Dense(n[i], activation='relu')(hidden)
-			if dropout>0: hidden = Dropout(0.2)(hidden)
+			if dropout>0: hidden = Dropout(dropout)(hidden)
 			i += 1
 	outputs = Dense(1, activation='sigmoid')(hidden)
 	model = Model(inputs, outputs)

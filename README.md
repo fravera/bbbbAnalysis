@@ -44,6 +44,13 @@ source do_all_plots.sh
 ````
 
 ## Machine learning skims using pandas dataframes
+Probably you may need to instull some updates of libraries, run
+```
+pip install --user --upgrade matplotlib
+pip install --user --upgrade scikit-learn
+pip install --user --upgrade hep-ml
+```
+
 Edit in the mlskim_NMSSM_XYH_bbbb/config/<file> the cuts, variable, samples and weight name
 ```
 python mlskim_NMSSM_XYH_bbbb/BuildBackgroundModel.py --config=mlskim_NMSSM_XYH_bbbb/config/outputskim_2016.cfg 

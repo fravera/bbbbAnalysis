@@ -50,6 +50,7 @@ def writeln(f, line):
 parser = argparse.ArgumentParser(description='Command line parser of skim options')
 parser.add_argument('--input'     ,  dest = 'input'     ,  help = 'input filelist'           ,  required = True        )
 parser.add_argument('--tag'       ,  dest = 'tag'       ,  help = 'production tag'           ,  required = True        )
+parser.add_argument('--append'    ,  dest = 'append'    ,  help = 'production tag'           ,  required = False, default=""        )
 parser.add_argument('--njobs'     ,  dest = 'njobs'     ,  help = 'njobs'                    ,  type     = int         ,   default = 500    )
 ##
 ############################################################
@@ -94,7 +95,7 @@ if not oname:
     # print "B:" , args.input.rsplit(r'/', 1)[-1]
     # print "C:" , args.input.rsplit(r'/', 1)[0].rsplit('.', 1)
     oname = args.input.rsplit(r'/', 1)[-1].rsplit('.', 1)[0]
-oname = 'SKIM_' + oname
+oname = 'SKIM_' + oname + args.append
 
 if not args.tag:
     print "... please provide a non-empty tag name (are you using --tag=$1 without cmd line argument?)"

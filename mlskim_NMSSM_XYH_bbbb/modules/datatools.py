@@ -70,28 +70,34 @@ def preparedataforprediction(ioriginal,tfactor, variables):
 	return original,original_weights
    
 def fitreweightermodel(original,target,original_weights,target_weights,tfactor, model_args):
-	model   = bdtreweighter.reweightermodel(original,target,original_weights,target_weights,model_args) 
-	ws      = model.predict_weights(original,original_weights,lambda x: numpy.mean(x, axis=0))
-	weights = numpy.multiply(ws,tfactor)
-	factor  = float( float(len(target.index)) / weights.sum()  ) 
-	print "The transfer factor                                                 = ",tfactor
-	print "The sum of target weights                                           = ",target_weights.sum(),"+/-",math.sqrt(numpy.square(target_weights).sum() )
-	print "The sum of model weights (before reweighting)                       = ",original_weights.sum(),"+/-",math.sqrt(numpy.square(original_weights).sum() )
-	print "The sum of model weights (after reweighting, before renorm. factor) = ",weights.sum(),"+/-",math.sqrt(numpy.square(weights).sum() )
-	print "The renormalization factor                                          = ",factor
-	print "The sum of model weights (after renormalization factor)             = ",weights.sum()*factor
-	weights = numpy.multiply(weights,factor)
-	return weights,model,factor
+	print "[INFO] Fitting BDT-reweighter ..."
+	model                = bdtreweighter.reweightermodel(original,target,original_weights,target_weights,model_args) 
+	ws_unnormalized      = model.predict_weights(original,original_weights,lambda x: numpy.mean(x, axis=0))
+	#Normalized all reweighter weights to 1
+	weights = numpy.multiply(ws_unnormalized, (1/ws_unnormalized.sum())  )
+	#Give them the normalization using the transfer factor derived in control regions
+	totalnorm  = int(len(original))*tfactor
+	weights    = numpy.multiply(weights,totalnorm)
+	print "[INFO] Event yields report in control region derivation:"
+	print "   -The sum of original weights                 = ",int(len(original)),"+/-",math.sqrt(len(original) )
+	print "   -The sum of target weights                   = ",int(len(target)),"+/-",math.sqrt(len(target))
+	print "   -The transfer factor                         = ",tfactor,"+/-",tfactor*math.sqrt(  (math.sqrt(len(target))/len(target))**2 + (math.sqrt(len(original))/len(original))**2   )
+	print "   -The sum of model weights                    = ",weights.sum(),"+/-",math.sqrt(numpy.square(weights).sum() )
+	return weights,model
 
-def getmodelweights(original,original_weights,model,tfactor,factor):
-	ws = model.predict_weights(original,original_weights,lambda x: numpy.mean(x, axis=0))
-	weights = numpy.multiply(ws,tfactor)
-	# print "The sum of model weights (before reweighting)                       = ",original_weights.sum(),"+/-",math.sqrt(numpy.square(original_weights).sum() )
-	# print "The sum of model weights (after reweighting, before renorm. factor) = ",weights.sum(),"+/-",math.sqrt(numpy.square(weights).sum() )
-	# print "The renormalization factor                                          = ",factor
-	# print "The sum of model weights (after renorm. factor)                     = ",weights.sum()*factor
-	weights = numpy.multiply(weights,factor)
+def getmodelweights(original,original_weights,model,tfactor):
+	print "[INFO] Running prediction from BDT-reweighter ..."
+	ws_unnormalized = model.predict_weights(original,original_weights,lambda x: numpy.mean(x, axis=0))
+	#Normalized all reweighter weights to 1
+	weights = numpy.multiply(ws_unnormalized, (1/ws_unnormalized.sum())  )	
+	#Give them the normalization using the transfer factor derived in control regions
+	totalnorm  = int(len(original))*tfactor
+	weights    = numpy.multiply(weights,totalnorm)
+	print "[INFO] Event yields report in prediction:"
+	print "   -The transfer factor from control regions        = ",tfactor
+	print "   -The sum of model weights                        = ",weights.sum(),"+/-",math.sqrt(numpy.square(weights).sum() )
 	return weights
+
 
 def pandas2root(tree_dataframe, tree_name, rootfile_name, mode="w"):
 	tree_dataframe.to_root('%s'%rootfile_name, key='%s'%tree_name, mode=mode, store_index=False)

@@ -268,6 +268,7 @@ int main(int argc, char** argv)
             if(opts["puWeight"].as<string>()==""){
                 throw std::runtime_error( "** [ERROR] please provide PU weight file needed for WeightMethod " + weightMethod );
             }
+            parameterList.emplace("WeightVariations",config.readBoolOpt("parameters::WeightVariations"));
         }
         else if(weightMethod == "None"){
         }  
@@ -424,7 +425,7 @@ int main(int argc, char** argv)
     );
 
     std::string yMassSelection = opts["yMassSelection"].as<std::string>();
-    if(yMassSelection != "None") nat.attachCustomValueBranch<Bool_t>(yMassSelection);
+    if(yMassSelection != "None") nat.attachCustomValueBranch<Bool_t>("GenModel_YMass_" + yMassSelection);
     else ot.declareUserIntBranchList(nat.attachAllMatchingBranch<Bool_t>("GenModel_YMass_"));
 
     SkimEffCounter ec;
@@ -463,7 +464,7 @@ int main(int argc, char** argv)
         if (!nat.Next()) break;
         if (iEv % 10000 == 0) cout << "... processing event " << iEv << endl;
 
-        if(yMassSelection != "None") if(!nat.readCustomValueBranch<Bool_t>(yMassSelection)) continue;
+        if(yMassSelection != "None") if(!nat.readCustomValueBranch<Bool_t>("GenModel_YMass_" + yMassSelection)) continue;
 
         if (is_data && !jlf.isValid(*nat.run, *nat.luminosityBlock)){
             continue; // not a valid lumi

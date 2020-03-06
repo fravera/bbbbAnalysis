@@ -7,27 +7,31 @@ import glob
 from root_numpy import root2array
 from matplotlib import pyplot as plt
 from numpy.lib.recfunctions import stack_arrays
+from hep_ml.metrics_utils import ks_2samp_weighted
+from scipy import stats
 
-def Draw1DHistosComparison(original, target, variables, original_weights, norm, tag):
+def Draw1DHistosComparison(original, target, variables, original_weights, norm, outputDirectory, tag):
+	#Create folder for plots
 	#Normalize or not?
 	if norm is True:
-	  hist_settings = {'bins': 25, 'density': True, 'alpha': 0.5}
+	  hist_settings = {'bins': 10, 'density': True, 'alpha': 0.5}
 	else:
-	  hist_settings = {'bins': 25, 'density': None, 'alpha': 0.5}
+	  hist_settings = {'bins': 10, 'density': None, 'alpha': 0.5}
 	#Create figure on matplotlib
 	matplotlib.rcParams.update({'font.size': 35})
-	plt.figure(figsize=[70, 40], dpi=100)
+	plt.figure(figsize=[80, 60], dpi=50)
+	i = 0
 	for id, column in enumerate(variables, 1):
 		xlim = numpy.percentile(numpy.hstack([target[column]]), [0.01, 99.99])
-		plt.subplot(3, 3, id)
-		plt.hist(original[column],label='3 btag (model)', weights=original_weights, range=xlim, **hist_settings)
-		plt.hist(target[column],  label='4 btag (target)', range=xlim, **hist_settings)
+		plt.subplot(4, 3, id)
+		plt.hist(original[column],label='Bkg. Model', weights=original_weights, range=xlim, **hist_settings)
+		plt.hist(target[column],  label='4 btag (Target)', range=xlim, **hist_settings)
 		plt.legend(loc='best')
-		plt.title(column,fontsize=40) 
-		#print('KS over ', column, ' = ', ks_2samp_weighted(original[column], target[column], 
-		#                                 weights1=original_weights, weights2=numpy.ones(len(target), dtype=float)))
-	plt.savefig("myplots/distibutions_%s.png"%tag) 
-
+		plt.title(column,fontsize=40)
+		i+=1
+	plt.savefig("%s/distibutions_%s.png"%(outputDirectory,tag))
+	plt.close('all')
+	
 def DrawDNNScoreComparison(yhat,y, norm, tag):
 	#Normalize or not?
 	if norm is True:

@@ -17,6 +17,7 @@ using namespace std;
 // }
 
 Sample::Sample (string name, string filelistname, string treename, string histoname)
+: datasetCut_("1")
 // Sample (name, treename)
 {
     name_ = name;

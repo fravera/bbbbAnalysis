@@ -17,6 +17,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TChain.h"
+#include "TCut.h"
 #include "TH1F.h"
 #include "TH2F.h"
 #include "Selection.h"
@@ -84,6 +85,8 @@ class Sample
         const std::vector<Weight>& getWeights() const {return weights_;}
         std::vector<Weight>& getWeights() {return weights_;}
         // void addWeight  (std::string wstring); // if no syst, just weight name
+        const TCut& getDatasetCut() const {return datasetCut_;}
+        void setDatasetCut(TCut&& theDatasetCut) {datasetCut_ = theDatasetCut;}
 
     private:
         // TFile* fIn_;
@@ -105,6 +108,7 @@ class Sample
 
         std::vector<Weight> weights_;
         TH1F *hCutInSkim_;
+        TCut datasetCut_;
 };
 
 #endif

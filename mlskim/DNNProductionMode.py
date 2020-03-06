@@ -22,7 +22,7 @@ def RunTraining(signal,background,features,hiddenlayers,dropout,design,tag):
 	# -- plot training history
 	trainer.historyNNmodel(TrainingHistory,tag)
 	## Confusion Matrix for train and test
-	trainer.GetConfusionMatrix(X,y,w,NNmodel,labels,0.4,'all_%s'%tag)
+	trainer.GetConfusionMatrix(X,y,w,NNmodel,labels,0.5,'all_%s'%tag)
 	## ROC AUC for train and test samples
 	trainer.GetROCAUC(X_test,y_test,NNmodel,'test_%s'%tag)
 	trainer.GetROCAUC(X_train,y_train,NNmodel,'train_%s'%tag)
@@ -32,27 +32,19 @@ def RunTraining(signal,background,features,hiddenlayers,dropout,design,tag):
 
 def PrepareSample(sample,btagregion,eventcategory):
 	ievents = data.root2pandas(sample,'bbbbTree')
-	events  = selector.eventselection(ievents,btagregion,eventcategory)
-	return events
+	selectedevents,rejectedevents  = selector.eventselection(ievents,btagregion,eventcategory)
+	return selectedevents
 
 #############ML CODE IS BELOW ######################
 features = ['H1_pt', 'H2_pt','H1_eta', 'H2_eta','JJ_j1_pt','JJ_j2_pt','JJ_eta','h1h2_deltaEta','h1j1_deltaR','h1j2_deltaR','h2j1_deltaR','h2j2_deltaR','j1etaj2eta','costh_HH_b1_cm','costh_HH_b2_cm']
 labels=['GGF-HH','VBF-HH']
 #Get data and create panda dataframes with specific variables, a.k.a. slicing the data
-signal2016      = PrepareSample('outputskims/2016case1/SKIM_VBFHHTo4B_CV_1_C2V_1_C3_1_13TeV-madgraph.root','4b','preVBF')
-background2016  = PrepareSample('outputskims/2016case1/SKIM_GluGluToHHTo4B_node_SM_13TeV-madgraph.root','4b','preVBF')
-signal2017      = PrepareSample('outputskims/2017case1/SKIM_VBFHHTo4B_CV_1_C2V_1_C3_1_13TeV-madgraph.root','4b','preVBF')
-background2017  = PrepareSample('outputskims/2017case1/SKIM_GluGluToHHTo4B_node_SM_13TeV-madgraph_correctedcfg.root','4b','preVBF')
+signal2016     = PrepareSample('outputskims/New2016/SKIM_GluGluToHHTo4B_node_SM_13TeV-madgraph.root','4b','preVBF')
+background2016 = PrepareSample('outputskims/New2016/SKIM_VBFHHTo4B_CV_1_C2V_1_C3_1_13TeV-madgraph.root','4b','preVBF')
 #NNDesign 2016 (case1)
-parameters2016 = {'epochs': 50, 'batch_size': 600}
-hiddenlayers2016=[100,100]
-dropout2016=0.1
-tag2016='DNN1_2016case1'
-#NNDesign 2017 (case1)
-parameters2017 = {'epochs': 50, 'batch_size': 200}
-hiddenlayers2017=[20,20]
-dropout2017=0.1
-tag2017='DNN1_2017case1'
+parameters2016 = {'epochs': 50, 'batch_size': 50}
+hiddenlayers2016=[30,30]
+dropout2016=0.05
+tag2016='DNN1_2016'
 ##RunTraining 2016
 RunTraining(signal2016,background2016,features,hiddenlayers2016,dropout2016,parameters2016,tag2016)
-RunTraining(signal2017,background2017,features,hiddenlayers2017,dropout2017,parameters2017,tag2017)

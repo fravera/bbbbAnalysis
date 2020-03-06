@@ -12,7 +12,7 @@ TriggerEfficiencyCalculator::TriggerEfficiencyCalculator(NanoAODTree& nat)
 TriggerEfficiencyCalculator::~TriggerEfficiencyCalculator()
 {}
 
-std::tuple<float, float, float> TriggerEfficiencyCalculator::getTriggerScaleFactor(std::vector<Jet>& selectedJets)
+std::tuple<float, float, float> TriggerEfficiencyCalculator::getTriggerScaleFactor(const std::vector<Jet>& selectedJets)
 {
     extractInformationFromEvent(selectedJets);
     std::tuple<float, float, float> dataEfficiency       = calculateDataTriggerEfficiency();
@@ -23,19 +23,19 @@ std::tuple<float, float, float> TriggerEfficiencyCalculator::getTriggerScaleFact
     return {scaleFactorCentral, scaleFactorUp, scaleFactorDown};
 }
 
-std::tuple<float, float, float> TriggerEfficiencyCalculator::getDataTriggerEfficiency(std::vector<Jet>& selectedJets)
+std::tuple<float, float, float> TriggerEfficiencyCalculator::getDataTriggerEfficiency(const std::vector<Jet>& selectedJets)
 {
     extractInformationFromEvent(selectedJets);
     return calculateDataTriggerEfficiency();
 }
 
-std::tuple<float, float, float> TriggerEfficiencyCalculator::getMonteCarloTriggerEfficiency(std::vector<Jet>& selectedJets)
+std::tuple<float, float, float> TriggerEfficiencyCalculator::getMonteCarloTriggerEfficiency(const std::vector<Jet>& selectedJets)
 {
     extractInformationFromEvent(selectedJets);
     return calculateMonteCarloTriggerEfficiency();
 }
 
-std::tuple<std::tuple<float,float,float>, std::tuple<float,float,float>, std::tuple<float,float,float>> TriggerEfficiencyCalculator::getScaleFactorDataAndMonteCarloEfficiency(std::vector<Jet>& selectedJets)
+std::tuple<std::tuple<float,float,float>, std::tuple<float,float,float>, std::tuple<float,float,float>> TriggerEfficiencyCalculator::getScaleFactorDataAndMonteCarloEfficiency(const std::vector<Jet>& selectedJets)
 {
     extractInformationFromEvent(selectedJets);
     std::tuple<float, float, float> dataEfficiency       = calculateDataTriggerEfficiency();
@@ -230,7 +230,7 @@ std::tuple<float, float, float> TriggerEfficiencyCalculator_2016::calculateMonte
 }
 
 
-void TriggerEfficiencyCalculator_2016::extractInformationFromEvent(std::vector<Jet>& selectedJets)
+void TriggerEfficiencyCalculator_2016::extractInformationFromEvent(std::vector<Jet> selectedJets)
 {
 
     assert(selectedJets.size()==4);
