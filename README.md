@@ -7,7 +7,8 @@ cd CMSSW_10_2_5/src
 cmsenv
 git cms-addpkg PhysicsTools/KinFitter CommonTools/Utils CondFormats/JetMETObjects CondFormats/Serialization FWCore/MessageLogger FWCore/Utilities JetMETCorrections/Modules
 scram b -j 8
-git clone https://github.com/UF-HH/bbbbAnalysis
+git clone https://github.com/fravera/bbbbAnalysis.git
+git checkout mlBranch
 ```
 
 ## Setup and compile
