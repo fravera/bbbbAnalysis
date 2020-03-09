@@ -9,6 +9,8 @@
 #include <sys/stat.h>
 #include <thread>
 #include <numeric>
+#include <future>
+#include <chrono>
 
 using namespace std;
 
@@ -967,7 +969,7 @@ string AnalysisHelper::formHisto2DName (string sample, string sel, string var1, 
     }
     return name;
 }
-void AnalysisHelper::fillHistosSample(Sample& sample)
+void AnalysisHelper::fillHistosSample(Sample& sample, std::promise<void> thePromise)
 {
     cout << "@@ Filling histograms of sample " << sample.getName() << endl;
 
@@ -1271,6 +1273,8 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
     if (sample.getType() != Sample::kData && sample.getType() != Sample::kDatadriven)
         sample.scaleAll(lumi_);
 
+    thePromise.set_value(); 
+
 }
 
 void AnalysisHelper::activateBranches(Sample& sample)
@@ -1418,43 +1422,56 @@ string AnalysisHelper::pack2DName (string name1, string name2)
 
 void AnalysisHelper::fillHistos()
 {
-    std::vector<std::thread> theThreadVector;
-    auto totalMap = data_samples_ + sig_samples_ + bkg_samples_ + datadriven_samples_;
-    for(uint isample = 0; isample < totalMap.size(); ++isample)
+    // std::vector<std::thread> theThreadVector;
+    // auto totalMap = data_samples_ + sig_samples_ + bkg_samples_ + datadriven_samples_;
+    // for(uint isample = 0; isample < totalMap.size(); ++isample)
+    // {
+    //     theThreadVector.emplace_back( std::thread(&AnalysisHelper::fillHistosSample, this, std::ref(*(totalMap.at(isample)) ) ) );
+    //     if(theThreadVector.size() >= numberOfThreads_)
+    //     {
+    //         for(auto &theThread : theThreadVector) theThread.join();
+    //         theThreadVector.clear();
+    //     }
+    // }
+    // for(auto &theThread : theThreadVector) theThread.join();
+    // theThreadVector.clear();
+
+
+    using namespace std::chrono_literals;
+    std::vector< std::pair<std::future<void>, std::thread> > theThreadVector;
+    auto totalMap = data_samples_ + datadriven_samples_ + sig_samples_ + bkg_samples_;
+
+    for(uint isample = 0; isample < numberOfThreads_; ++isample)
     {
-        // std::thread test(&AnalysisHelper::fillHistosSample, this, *(totalMap.at(isample)) ) ;
-        theThreadVector.emplace_back( std::thread(&AnalysisHelper::fillHistosSample, this, std::ref(*(totalMap.at(isample)) ) ) );
-        if(theThreadVector.size() >= numberOfThreads_)
+        std::promise<void> thePromise;
+        auto theFuture = thePromise.get_future();
+        theThreadVector.emplace_back( std::move(theFuture), std::thread(&AnalysisHelper::fillHistosSample, this, std::ref(*(totalMap.at(isample))), std::move(thePromise) ));
+    }
+
+    uint numberOfSampleSubmitted = numberOfThreads_;
+    while(numberOfSampleSubmitted <totalMap.size())
+    {
+        std::this_thread::sleep_for(1s);
+        size_t completedThreadPosition = 0;
+        for(; completedThreadPosition<numberOfThreads_; ++completedThreadPosition)
         {
-            for(auto &theThread : theThreadVector) theThread.join();
-            theThreadVector.clear();
+            if(theThreadVector[completedThreadPosition].first.wait_for(0ms) == std::future_status::ready) 
+            {
+                theThreadVector[completedThreadPosition].second.join();
+                break;
+            }
+        }
+        if(completedThreadPosition<numberOfThreads_)
+        {
+            std::promise<void> thePromise;
+            auto theFuture = thePromise.get_future();
+            theThreadVector[completedThreadPosition] = std::move(make_pair(std::move(theFuture), std::thread(&AnalysisHelper::fillHistosSample, this, std::ref(*(totalMap.at(numberOfSampleSubmitted))), std::move(thePromise)) ));
+            ++numberOfSampleSubmitted;
         }
     }
-    for(auto &theThread : theThreadVector) theThread.join();
+
+    for(auto &theThread : theThreadVector) theThread.second.join();
     theThreadVector.clear();
-
-    // for (uint isample = 0; isample < data_samples_.size(); ++isample) // loop on samples
-    // {
-    //     fillHistosSample(*(data_samples_.at(isample)));
-    // }
-
-    // // sig
-    // for (uint isample = 0; isample < sig_samples_.size(); ++isample) // loop on samples
-    // {
-    //     fillHistosSample(*(sig_samples_.at(isample)));
-    // }
-
-    // // bkg    
-    // for (uint isample = 0; isample < bkg_samples_.size(); ++isample) // loop on samples
-    // {
-    //     fillHistosSample(*(bkg_samples_.at(isample)));
-    // }
-
-    // // datadriven    
-    // for (uint isample = 0; isample < datadriven_samples_.size(); ++isample) // loop on samples
-    // {
-    //     fillHistosSample(*(datadriven_samples_.at(isample)));
-    // }
 
 }
 

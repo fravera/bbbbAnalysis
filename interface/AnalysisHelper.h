@@ -22,6 +22,8 @@
 #include <memory>
 #include <utility>
 #include <iostream>
+#include <future>
+#include <chrono>
 
 #include <boost/variant.hpp>
 
@@ -71,11 +73,12 @@ class AnalysisHelper
         void setSampleHistoName(std::string name) {sample_heff_name_ = name;}
 
     private:
+
         std::string formHistoName (std::string sample, std::string sel, std::string var, std::string syst);
         std::string formHisto2DName (std::string sample, std::string sel, std::string var1, std::string var2, std::string syst);
         Selection readSingleSelection (std::string name);
         std::vector<std::pair<std::string, std::string> > readWeightSysts(std::string name, std::string section); // read w list of section::name
-        void fillHistosSample(Sample& sample);
+        void fillHistosSample(Sample& sample, std::promise<void> thePromise);
         void activateBranches(Sample& sample);
         std::pair<std::string, std::string> unpack2DName(std::string packedName);
         std::string pack2DName (std::string name1, std::string name2);
