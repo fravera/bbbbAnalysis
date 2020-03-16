@@ -176,7 +176,11 @@ struct DatasetEfficiencyEvaluator
     TTreeReaderValue<float> *fBtag_SFHandler;
 };
 
-void ProduceAllTriggerEfficiencyInAFile(std::vector<std::tuple<std::shared_ptr<TGraphAsymmErrors>,std::shared_ptr<TH1F> > >& theOutputResultVector, std::string inputFileName, std::string datasetName, float expectedNumberOfEvents, Color_t theColor, bool useTTbarCut)
+
+//--------------------------- Trigger efficiency 2016 ------------------------------------------
+
+
+void ProduceAllTriggerEfficiencyInAFile2016(std::vector<std::tuple<std::shared_ptr<TGraphAsymmErrors>,std::shared_ptr<TH1F> > >& theOutputResultVector, std::string inputFileName, std::string datasetName, float expectedNumberOfEvents, Color_t theColor, bool useTTbarCut)
 {
 
     DatasetEfficiencyEvaluator theEfficiencyEvaluator(inputFileName, datasetName, expectedNumberOfEvents);
@@ -184,7 +188,7 @@ void ProduceAllTriggerEfficiencyInAFile(std::vector<std::tuple<std::shared_ptr<T
     std::string preselectionCut  = "1";
     std::string preselectionBTag = "";
     if(useTTbarCut && datasetName != "NMSSM_XYH_bbbb" ) preselectionCut   = "highestIsoElecton_pt>10. && electronTimesMuoncharge<1.";
-    if(useTTbarCut && datasetName != "SingleMuon"     ) preselectionBTag += " && jetFirstHighestDeepFlavB_hadronFlavour==5";
+    // if(useTTbarCut && datasetName != "SingleMuon"     ) preselectionBTag += " && jetFirstHighestDeepFlavB_hadronFlavour==5";
     std::string deepCSVJet_Pt0to50    =                                      " && jetFirstHighestDeepFlavB_pt <=  50.";
     std::string deepCSVJet_Pt50to150  = "&& jetFirstHighestDeepFlavB_pt >  50. && jetFirstHighestDeepFlavB_pt <= 150.";
     std::string deepCSVJet_Pt150to300 = "&& jetFirstHighestDeepFlavB_pt > 150. && jetFirstHighestDeepFlavB_pt <= 300.";
@@ -211,7 +215,7 @@ void ProduceAllTriggerEfficiencyInAFile(std::vector<std::tuple<std::shared_ptr<T
     theEfficiencyEvaluator.addTrigger(triggerName, filterCutDouble90Quad30, "jetSecondHighestPt_pt"         , normalizationCutDouble90Quad30, "DoubleCentralJet90; p_{T}^{2} [GeV]; online efficiency"         ,100, 20 , 500, theColor);
     
     normalizationCutDouble90Quad30 = filterCutDouble90Quad30;
-    filterCutDouble90Quad30 = normalizationCutDouble90Quad30 + "&& jetFirstHighestDeepFlavB_triggerFlag>=1";
+    filterCutDouble90Quad30 = normalizationCutDouble90Quad30 + "&& BTagCaloCSVp087Triple_jetFirstHighestDeepFlavB_triggerFlag>=1";
     theEfficiencyEvaluator.addTrigger(triggerName, filterCutDouble90Quad30, "jetFirstHighestDeepFlavB_deepFlavB", normalizationCutDouble90Quad30, "BTagCaloCSVp087Triple; DeepFlavB^{1}; online efficliency"      , 50, 0  , 1  , theColor);
 
     std::string bNormCutDouble90Quad30   = normalizationCutDouble90Quad30 + preselectionBTag;
@@ -260,7 +264,7 @@ void ProduceAllTriggerEfficiencyInAFile(std::vector<std::tuple<std::shared_ptr<T
     theEfficiencyEvaluator.addTrigger(triggerName, filterCutQuad45        , "jetForthHighestPt_pt"          , normalizationCutQuad45        , "QuadCentralJet45; p_{T}^{4} [GeV]; online efficiency"           , customBinning, theColor);
     
     normalizationCutQuad45 = filterCutQuad45;
-    filterCutQuad45 = normalizationCutQuad45 + "&& jetFirstHighestDeepFlavB_triggerFlag>=1";
+    filterCutQuad45 = normalizationCutQuad45 + "&& BTagCaloCSVp087Triple_jetFirstHighestDeepFlavB_triggerFlag>=1";
     theEfficiencyEvaluator.addTrigger(triggerName, filterCutQuad45        , "jetFirstHighestDeepFlavB_deepFlavB", normalizationCutQuad45        , "BTagCaloCSVp087Triple; DeepFlavB^{1}; online efficliency"      , 50, 0  , 1  , theColor);
     
     std::string bNormCutQuad45 = normalizationCutQuad45 + preselectionBTag;
@@ -304,7 +308,7 @@ void ProduceAllTriggerEfficiencyInAFile(std::vector<std::tuple<std::shared_ptr<T
     theEfficiencyEvaluator.addTrigger(triggerName, filterCutAnd           , "jetForthHighestPt_pt"          , normalizationCutAnd           , "QuadCentralJet45; p_{T}^{4} [GeV]; online efficiency"           , customBinning, theColor);
     
     normalizationCutAnd = filterCutAnd;
-    filterCutAnd = normalizationCutAnd + "&& jetFirstHighestDeepFlavB_triggerFlag>=1";
+    filterCutAnd = normalizationCutAnd + "&& BTagCaloCSVp087Triple_jetFirstHighestDeepFlavB_triggerFlag>=1";
     theEfficiencyEvaluator.addTrigger(triggerName, filterCutAnd           , "jetFirstHighestDeepFlavB_deepFlavB", normalizationCutAnd           , "BTagCaloCSVp087Triple; DeepFlavB^{1}; online efficliency"      , 50, 0  , 1  , theColor);
     
     std::string bNormCutAnd = normalizationCutAnd + preselectionBTag;
@@ -340,7 +344,7 @@ void ProduceAllTriggerEfficiencyInAFile(std::vector<std::tuple<std::shared_ptr<T
 
 
 
-void ProduceAllTriggerEfficienciesFiles(std::string singleMuonInputFileName, std::string ttbarInputFileName, std::string wjetInputFileName, std::string xyhInputSignal, std::string outputFileName, bool useTTbarCut)
+void ProduceAllTriggerEfficienciesFiles2016(std::string singleMuonInputFileName, std::string ttbarInputFileName, std::string wjetInputFileName, std::string xyhInputSignal, std::string outputFileName, bool useTTbarCut)
 {
     float luminosity = 37400.; //pb-1
 
@@ -363,7 +367,7 @@ void ProduceAllTriggerEfficienciesFiles(std::string singleMuonInputFileName, std
     std::vector<std::thread> theThreadList;
     for(uint it =0; it<inputFilesNames.size(); ++it)
     {
-        theThreadList.emplace_back(std::thread(ProduceAllTriggerEfficiencyInAFile, std::ref(vectorOfDatasetResults[it]), std::ref(inputFilesNames[it]), std::ref(datasetName[it]), std::ref(expectedEvents[it]), std::ref(theColorVector[it]), useTTbarCut));
+        theThreadList.emplace_back(std::thread(ProduceAllTriggerEfficiencyInAFile2016, std::ref(vectorOfDatasetResults[it]), std::ref(inputFilesNames[it]), std::ref(datasetName[it]), std::ref(expectedEvents[it]), std::ref(theColorVector[it]), useTTbarCut));
     }
 
     for(auto& theThread : theThreadList) theThread.join();
@@ -385,16 +389,274 @@ void ProduceAllTriggerEfficienciesFiles(std::string singleMuonInputFileName, std
 }
 
 
-void ProduceAllTriggerEfficiencies()
+void ProduceAllTriggerEfficiencies2016()
 {
     ROOT::EnableThreadSafety();
 
-    std::thread theMatchedTriggerThread          (ProduceAllTriggerEfficienciesFiles, "SingleMuon_Data_forTrigger_MuonPt30_matched.root"  , "TTbar_MC_forTrigger_MuonPt30_matched.root"  , "WJetsToLNu_Data_forTrigger_MuonPt30_matched.root"  , "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_matched.root",   "TriggerEfficiencies_MuonPt30_matched.root"           , false);
-    std::thread theUnMatchedTriggerThread        (ProduceAllTriggerEfficienciesFiles, "SingleMuon_Data_forTrigger_MuonPt30_unMatched.root", "TTbar_MC_forTrigger_MuonPt30_unMatched.root", "WJetsToLNu_Data_forTrigger_MuonPt30_unMatched.root", "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_unMatched.root", "TriggerEfficiencies_MuonPt30_unMatched.root"         , false);
-    std::thread theMatchedTriggerThreadTTbarCut  (ProduceAllTriggerEfficienciesFiles, "SingleMuon_Data_forTrigger_MuonPt30_matched.root"  , "TTbar_MC_forTrigger_MuonPt30_matched.root"  , "WJetsToLNu_Data_forTrigger_MuonPt30_matched.root"  , "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_matched.root",   "TriggerEfficiencies_MuonPt30_matched_TTBarCut.root"  , true );
-    std::thread theUnMatchedTriggerThreadTTbarCut(ProduceAllTriggerEfficienciesFiles, "SingleMuon_Data_forTrigger_MuonPt30_unMatched.root", "TTbar_MC_forTrigger_MuonPt30_unMatched.root", "WJetsToLNu_Data_forTrigger_MuonPt30_unMatched.root", "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_unMatched.root", "TriggerEfficiencies_MuonPt30_unMatched_TTBarCut.root", true );
+    std::thread theMatchedTriggerThread          (ProduceAllTriggerEfficienciesFiles2016, "SingleMuon_Data_forTrigger_MuonPt30_matched.root"  , "TTbar_MC_forTrigger_MuonPt30_matched.root"  , "WJetsToLNu_Data_forTrigger_MuonPt30_matched.root"  , "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_matched.root",   "TriggerEfficiencies_MuonPt30_matched.root"           , false);
+    std::thread theUnMatchedTriggerThread        (ProduceAllTriggerEfficienciesFiles2016, "SingleMuon_Data_forTrigger_MuonPt30_unMatched.root", "TTbar_MC_forTrigger_MuonPt30_unMatched.root", "WJetsToLNu_Data_forTrigger_MuonPt30_unMatched.root", "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_unMatched.root", "TriggerEfficiencies_MuonPt30_unMatched.root"         , false);
+    std::thread theMatchedTriggerThreadTTbarCut  (ProduceAllTriggerEfficienciesFiles2016, "SingleMuon_Data_forTrigger_MuonPt30_matched.root"  , "TTbar_MC_forTrigger_MuonPt30_matched.root"  , "WJetsToLNu_Data_forTrigger_MuonPt30_matched.root"  , "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_matched.root",   "TriggerEfficiencies_MuonPt30_matched_TTBarCut.root"  , true );
+    std::thread theUnMatchedTriggerThreadTTbarCut(ProduceAllTriggerEfficienciesFiles2016, "SingleMuon_Data_forTrigger_MuonPt30_unMatched.root", "TTbar_MC_forTrigger_MuonPt30_unMatched.root", "WJetsToLNu_Data_forTrigger_MuonPt30_unMatched.root", "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_unMatched.root", "TriggerEfficiencies_MuonPt30_unMatched_TTBarCut.root", true );
     theMatchedTriggerThread          .join();
     theUnMatchedTriggerThread        .join();
     theMatchedTriggerThreadTTbarCut  .join();
     theUnMatchedTriggerThreadTTbarCut.join();
+}
+
+
+//--------------------------- Trigger efficiency 2017 ------------------------------------------
+
+
+void ProduceAllTriggerEfficiencyInAFile2017(std::vector<std::tuple<std::shared_ptr<TGraphAsymmErrors>,std::shared_ptr<TH1F> > >& theOutputResultVector, std::string inputFileName, std::string datasetName, float expectedNumberOfEvents, Color_t theColor, bool useTTbarCut)
+{
+
+    DatasetEfficiencyEvaluator theEfficiencyEvaluator(inputFileName, datasetName, expectedNumberOfEvents);
+
+    std::string preselectionCut  = "1";
+    std::string preselectionBTag = "";
+    if(useTTbarCut && datasetName != "NMSSM_XYH_bbbb" ) preselectionCut   = "highestIsoElecton_pt>10. && electronTimesMuoncharge<1.";
+    // if(useTTbarCut && datasetName != "SingleMuon"     ) preselectionBTag += " && jetFirstHighestDeepFlavB_hadronFlavour==5";
+    std::vector<float> customBinning;
+
+    std::string triggerName = "";
+
+    std::string normalizationCut = preselectionCut;
+    std::string filterCut = normalizationCut + "&& QuadCentralJet30>=1";
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "allJetPt_sum"                  , normalizationCut, "L1filterHT; #sum p_{T} [GeV]; online efficiency"                 ,100, 100,1500, theColor);
+    
+    normalizationCut = filterCut;
+    filterCut = normalizationCut + "&& QuadCentralJet30>=4";
+    customBinning.clear();
+    customBinCreator(customBinning, 20., 100., 3.,  180., 8.,  220., 15.,  300., 30.);
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "jetForthHighestPt_pt"          , normalizationCut, "QuadCentralJet30; p_{T}^{4} [GeV]; online efficiency"           , customBinning, theColor);
+    
+    normalizationCut = filterCut;
+    filterCut = normalizationCut + "&& CaloQuadJet30HT300>=1 && CaloQuadJet30HT300_MaxHT>=300";
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "allJetPt_sum"                  , normalizationCut, "CaloQuadJet30HT300; #sum p_{T} [GeV]; online efficiency"         ,100, 20 , 1500, theColor);
+
+    normalizationCut = filterCut;
+    filterCut = normalizationCut + "&& BTagCaloCSVp05Double_jetFirstHighestDeepFlavB_triggerFlag>=1";
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "jetFirstHighestDeepFlavB_deepFlavB", normalizationCut, "BTagCaloCSVp05Double; DeepFlavB^{1}; online efficliency"      , 50, 0  , 1  , theColor);
+
+    normalizationCut = normalizationCut + "&& BTagCaloCSVp05Double>=2";
+    filterCut = normalizationCut + "&& PFCentralJetLooseIDQuad30>=4";
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "jetForthHighestPt_pt"         , normalizationCut, "PFCentralJetLooseIDQuad30; p_{T}^{4} [GeV]; online efficiency"         ,100, 20 , 500, theColor);
+   
+    normalizationCut = normalizationCut;
+    filterCut = normalizationCut + "&& 1PFCentralJetLooseID75>=1";
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "jetFirstHighestPt_pt"         , normalizationCut, "1PFCentralJetLooseID75; p_{T}^{1} [GeV]; online efficiency"         ,100, 20 , 500, theColor);
+    
+    normalizationCut = filterCut;
+    filterCut = normalizationCut + "&& 2PFCentralJetLooseID60>=2";
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "jetSecondHighestPt_pt"         , normalizationCut, "2PFCentralJetLooseID60; p_{T}^{2} [GeV]; online efficiency"         ,100, 20 , 500, theColor);
+    
+    normalizationCut = filterCut;
+    filterCut = normalizationCut + "&& 3PFCentralJetLooseID45>=3";
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "jetThirdHighestPt_pt"         , normalizationCut, "3PFCentralJetLooseID45; p_{T}^{3} [GeV]; online efficiency"         ,100, 20 , 500, theColor);
+    
+    normalizationCut = filterCut;
+    filterCut = normalizationCut + "&& 4PFCentralJetLooseID40>=4";
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "jetForthHighestPt_pt"         , normalizationCut, "4PFCentralJetLooseID40; p_{T}^{4} [GeV]; online efficiency"         ,100, 20 , 500, theColor);
+    
+    normalizationCut = filterCut;
+    filterCut = normalizationCut + "&& PFCentralJetsLooseIDQuad30HT300>=1 && PFCentralJetsLooseIDQuad30HT300_MaxHT>=300";
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "allJetPt_sum"                  , normalizationCut, "PFCentralJetsLooseIDQuad30HT300; #sum p_{T} [GeV]; online efficiency"         ,100, 20 , 1500, theColor);
+
+    normalizationCut = filterCut;
+    filterCut = normalizationCut + "&& BTagPFCSVp070Triple_jetFirstHighestDeepFlavB_triggerFlag>=1";
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "jetFirstHighestDeepFlavB_deepFlavB", normalizationCut, "BTagPFCSVp070Triple; DeepFlavB^{1}; online efficliency"      , 50, 0  , 1  , theColor);
+
+    theEfficiencyEvaluator.fillTriggerEfficiency();
+
+    theOutputResultVector = theEfficiencyEvaluator.getEfficiencyAndDistribution();
+}
+
+
+
+void ProduceAllTriggerEfficienciesFiles2017(std::string singleMuonInputFileName, std::string ttbarInputFileName, std::string wjetInputFileName, std::string xyhInputSignal, std::string outputFileName, bool useTTbarCut)
+{
+    float luminosity = 51500.; //pb-1
+
+    float ttbarCrossSection =  831.76; //pb
+    float wjetCrossSection  = 61526.7; //pb
+    float xyhCrossSection   =      1.; //pb
+
+    float ttbarExpectedEvents = luminosity*ttbarCrossSection;
+    float wjetExpectedEvents  = luminosity*wjetCrossSection ;
+    float xyhExpectedEvents   = luminosity*xyhCrossSection  ;
+    
+    
+    gROOT->SetBatch();
+    std::vector<std::string> inputFilesNames = {/*singleMuonInputFileName, ttbarInputFileName , wjetInputFileName ,*/ xyhInputSignal   };
+    std::vector<std::string> datasetName     = {/*"SingleMuon"           , "TTbar"            , "WJetsToLNu"      ,*/ "gg_HH_4B_SM_2017" };
+    std::vector<float>       expectedEvents  = {/*-1.                    , ttbarExpectedEvents, wjetExpectedEvents,*/ xyhExpectedEvents};
+    std::vector<Color_t>     theColorVector =  {/*kBlack                 , kBlue              , kGreen            ,*/ kRed             };
+    std::vector<std::vector<std::tuple<std::shared_ptr<TGraphAsymmErrors>,std::shared_ptr<TH1F> > > > vectorOfDatasetResults(inputFilesNames.size());
+
+    std::vector<std::thread> theThreadList;
+    for(uint it =0; it<inputFilesNames.size(); ++it)
+    {
+        theThreadList.emplace_back(std::thread(ProduceAllTriggerEfficiencyInAFile2017, std::ref(vectorOfDatasetResults[it]), std::ref(inputFilesNames[it]), std::ref(datasetName[it]), std::ref(expectedEvents[it]), std::ref(theColorVector[it]), useTTbarCut));
+    }
+
+    for(auto& theThread : theThreadList) theThread.join();
+
+    TFile outputFile(outputFileName.data(),"RECREATE");
+
+    for(auto& datasetVectorResult : vectorOfDatasetResults)
+    {
+        for(auto& efficiencyAndDistribution : datasetVectorResult)
+        {
+            std::get<0>(efficiencyAndDistribution).get()->Write();
+            std::get<1>(efficiencyAndDistribution).get()->Write();
+        }
+    }
+
+    outputFile.Close();
+    gROOT->SetBatch(false);
+
+}
+
+
+void ProduceAllTriggerEfficiencies2017()
+{
+    ROOT::EnableThreadSafety();
+
+    std::thread theMatchedTriggerThread          (ProduceAllTriggerEfficienciesFiles2017, ""  , ""  , ""  , "gg_HH_4B_SM_2017_forTrigger.root",   "TriggerEfficiencies_2017_MuonPt30_matched.root"           , true);
+    // std::thread theUnMatchedTriggerThread        (ProduceAllTriggerEfficienciesFiles2017, "SingleMuon_Data_forTrigger_MuonPt30_unMatched.root", "TTbar_MC_forTrigger_MuonPt30_unMatched.root", "WJetsToLNu_Data_forTrigger_MuonPt30_unMatched.root", "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_unMatched.root", "TriggerEfficiencies_MuonPt30_unMatched.root"         , false);
+    // std::thread theMatchedTriggerThreadTTbarCut  (ProduceAllTriggerEfficienciesFiles2017, "SingleMuon_Data_forTrigger_MuonPt30_matched.root"  , "TTbar_MC_forTrigger_MuonPt30_matched.root"  , "WJetsToLNu_Data_forTrigger_MuonPt30_matched.root"  , "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_matched.root",   "TriggerEfficiencies_MuonPt30_matched_TTBarCut.root"  , true );
+    // std::thread theUnMatchedTriggerThreadTTbarCut(ProduceAllTriggerEfficienciesFiles2017, "SingleMuon_Data_forTrigger_MuonPt30_unMatched.root", "TTbar_MC_forTrigger_MuonPt30_unMatched.root", "WJetsToLNu_Data_forTrigger_MuonPt30_unMatched.root", "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_unMatched.root", "TriggerEfficiencies_MuonPt30_unMatched_TTBarCut.root", true );
+    theMatchedTriggerThread          .join();
+    // theUnMatchedTriggerThread        .join();
+    // theMatchedTriggerThreadTTbarCut  .join();
+    // theUnMatchedTriggerThreadTTbarCut.join();
+}
+
+
+//--------------------------- Trigger efficiency 2018 ------------------------------------------
+
+
+void ProduceAllTriggerEfficiencyInAFile2018(std::vector<std::tuple<std::shared_ptr<TGraphAsymmErrors>,std::shared_ptr<TH1F> > >& theOutputResultVector, std::string inputFileName, std::string datasetName, float expectedNumberOfEvents, Color_t theColor, bool useTTbarCut)
+{
+
+    DatasetEfficiencyEvaluator theEfficiencyEvaluator(inputFileName, datasetName, expectedNumberOfEvents);
+
+    std::string preselectionCut  = "1";
+    std::string preselectionBTag = "";
+    if(useTTbarCut && datasetName != "NMSSM_XYH_bbbb" ) preselectionCut   = "highestIsoElecton_pt>10. && electronTimesMuoncharge<1.";
+    // if(useTTbarCut && datasetName != "SingleMuon"     ) preselectionBTag += " && jetFirstHighestDeepFlavB_hadronFlavour==5";
+    std::vector<float> customBinning;
+
+    std::string triggerName = "";
+
+    std::string normalizationCut = preselectionCut;
+    std::string filterCut = normalizationCut + "&& QuadCentralJet30>=1";
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "allJetPt_sum"                  , normalizationCut, "L1filterHT; #sum p_{T} [GeV]; online efficiency"                 ,100, 100,1500, theColor);
+    
+    normalizationCut = filterCut;
+    filterCut = normalizationCut + "&& QuadCentralJet30>=4";
+    customBinning.clear();
+    customBinCreator(customBinning, 20., 100., 3.,  180., 8.,  220., 15.,  300., 30.);
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "jetForthHighestPt_pt"          , normalizationCut, "QuadCentralJet30; p_{T}^{4} [GeV]; online efficiency"           , customBinning, theColor);
+    
+    normalizationCut = filterCut;
+    filterCut = normalizationCut + "&& CaloQuadJet30HT320>=1 && CaloQuadJet30HT320_MaxHT>=320";
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "allJetPt_sum"                  , normalizationCut, "CaloQuadJet30HT320; #sum p_{T} [GeV]; online efficiency"         ,100, 20 , 1500, theColor);
+
+    normalizationCut = filterCut;
+    filterCut = normalizationCut + "&& BTagCaloDeepCSVp17Double_jetFirstHighestDeepFlavB_triggerFlag>=1";
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "jetFirstHighestDeepFlavB_deepFlavB", normalizationCut, "BTagCaloDeepCSVp17Double; DeepFlavB^{1}; online efficliency"      , 50, 0  , 1  , theColor);
+    
+    normalizationCut = normalizationCut + "&& BTagCaloDeepCSVp17Double>=2";
+    filterCut = normalizationCut + "&& PFCentralJetLooseIDQuad30>=4";
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "jetForthHighestPt_pt"         , normalizationCut, "PFCentralJetLooseIDQuad30; p_{T}^{4} [GeV]; online efficiency"         ,100, 20 , 500, theColor);
+   
+    normalizationCut = normalizationCut;
+    filterCut = normalizationCut + "&& 1PFCentralJetLooseID75>=1";
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "jetFirstHighestPt_pt"         , normalizationCut, "1PFCentralJetLooseID75; p_{T}^{1} [GeV]; online efficiency"         ,100, 20 , 500, theColor);
+    
+    normalizationCut = filterCut;
+    filterCut = normalizationCut + "&& 2PFCentralJetLooseID60>=2";
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "jetSecondHighestPt_pt"         , normalizationCut, "2PFCentralJetLooseID60; p_{T}^{2} [GeV]; online efficiency"         ,100, 20 , 500, theColor);
+    
+    normalizationCut = filterCut;
+    filterCut = normalizationCut + "&& 3PFCentralJetLooseID45>=3";
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "jetThirdHighestPt_pt"         , normalizationCut, "3PFCentralJetLooseID45; p_{T}^{3} [GeV]; online efficiency"         ,100, 20 , 500, theColor);
+    
+    normalizationCut = filterCut;
+    filterCut = normalizationCut + "&& 4PFCentralJetLooseID40>=4";
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "jetForthHighestPt_pt"         , normalizationCut, "4PFCentralJetLooseID40; p_{T}^{4} [GeV]; online efficiency"         ,100, 20 , 500, theColor);
+    
+    normalizationCut = filterCut;
+    filterCut = normalizationCut + "&& PFCentralJetsLooseIDQuad30HT330>=1 && PFCentralJetsLooseIDQuad30HT330_MaxHT>=330";
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "allJetPt_sum"                  , normalizationCut, "PFCentralJetsLooseIDQuad30HT330; #sum p_{T} [GeV]; online efficiency"         ,100, 20 , 1500, theColor);
+
+    normalizationCut = filterCut;
+    filterCut = normalizationCut + "&& BTagPFDeepCSV4p5Triple_jetFirstHighestDeepFlavB_triggerFlag>=1";
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "jetFirstHighestDeepFlavB_deepFlavB", normalizationCut, "BTagPFDeepCSV4p5Triple; DeepFlavB^{1}; online efficliency"      , 50, 0  , 1  , theColor);
+
+    theEfficiencyEvaluator.fillTriggerEfficiency();
+
+    theOutputResultVector = theEfficiencyEvaluator.getEfficiencyAndDistribution();
+}
+
+
+
+void ProduceAllTriggerEfficienciesFiles2018(std::string singleMuonInputFileName, std::string ttbarInputFileName, std::string wjetInputFileName, std::string xyhInputSignal, std::string outputFileName, bool useTTbarCut)
+{
+    float luminosity = 59700.; //pb-1
+
+    float ttbarCrossSection =  831.76; //pb
+    float wjetCrossSection  = 61526.7; //pb
+    float xyhCrossSection   =      1.; //pb
+
+    float ttbarExpectedEvents = luminosity*ttbarCrossSection;
+    float wjetExpectedEvents  = luminosity*wjetCrossSection ;
+    float xyhExpectedEvents   = luminosity*xyhCrossSection  ;
+    
+    
+    gROOT->SetBatch();
+    std::vector<std::string> inputFilesNames = {/*singleMuonInputFileName, ttbarInputFileName , wjetInputFileName ,*/ xyhInputSignal   };
+    std::vector<std::string> datasetName     = {/*"SingleMuon"           , "TTbar"            , "WJetsToLNu"      ,*/ "gg_HH_4B_SM_2018" };
+    std::vector<float>       expectedEvents  = {/*-1.                    , ttbarExpectedEvents, wjetExpectedEvents,*/ xyhExpectedEvents};
+    std::vector<Color_t>     theColorVector =  {/*kBlack                 , kBlue              , kGreen            ,*/ kRed             };
+    std::vector<std::vector<std::tuple<std::shared_ptr<TGraphAsymmErrors>,std::shared_ptr<TH1F> > > > vectorOfDatasetResults(inputFilesNames.size());
+
+    std::vector<std::thread> theThreadList;
+    for(uint it =0; it<inputFilesNames.size(); ++it)
+    {
+        theThreadList.emplace_back(std::thread(ProduceAllTriggerEfficiencyInAFile2018, std::ref(vectorOfDatasetResults[it]), std::ref(inputFilesNames[it]), std::ref(datasetName[it]), std::ref(expectedEvents[it]), std::ref(theColorVector[it]), useTTbarCut));
+    }
+
+    for(auto& theThread : theThreadList) theThread.join();
+
+    TFile outputFile(outputFileName.data(),"RECREATE");
+
+    for(auto& datasetVectorResult : vectorOfDatasetResults)
+    {
+        for(auto& efficiencyAndDistribution : datasetVectorResult)
+        {
+            std::get<0>(efficiencyAndDistribution).get()->Write();
+            std::get<1>(efficiencyAndDistribution).get()->Write();
+        }
+    }
+
+    outputFile.Close();
+    gROOT->SetBatch(false);
+
+}
+
+
+void ProduceAllTriggerEfficiencies2018()
+{
+    ROOT::EnableThreadSafety();
+
+    std::thread theMatchedTriggerThread          (ProduceAllTriggerEfficienciesFiles2018, ""  , ""  , ""  , "gg_HH_4B_SM_2018_forTrigger.root",   "TriggerEfficiencies_2018_MuonPt30_matched.root"           , true);
+    // std::thread theUnMatchedTriggerThread        (ProduceAllTriggerEfficienciesFiles2018, "SingleMuon_Data_forTrigger_MuonPt30_unMatched.root", "TTbar_MC_forTrigger_MuonPt30_unMatched.root", "WJetsToLNu_Data_forTrigger_MuonPt30_unMatched.root", "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_unMatched.root", "TriggerEfficiencies_MuonPt30_unMatched.root"         , false);
+    // std::thread theMatchedTriggerThreadTTbarCut  (ProduceAllTriggerEfficienciesFiles2018, "SingleMuon_Data_forTrigger_MuonPt30_matched.root"  , "TTbar_MC_forTrigger_MuonPt30_matched.root"  , "WJetsToLNu_Data_forTrigger_MuonPt30_matched.root"  , "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_matched.root",   "TriggerEfficiencies_MuonPt30_matched_TTBarCut.root"  , true );
+    // std::thread theUnMatchedTriggerThreadTTbarCut(ProduceAllTriggerEfficienciesFiles2018, "SingleMuon_Data_forTrigger_MuonPt30_unMatched.root", "TTbar_MC_forTrigger_MuonPt30_unMatched.root", "WJetsToLNu_Data_forTrigger_MuonPt30_unMatched.root", "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_unMatched.root", "TriggerEfficiencies_MuonPt30_unMatched_TTBarCut.root", true );
+    theMatchedTriggerThread          .join();
+    // theUnMatchedTriggerThread        .join();
+    // theMatchedTriggerThreadTTbarCut  .join();
+    // theUnMatchedTriggerThreadTTbarCut.join();
 }

@@ -6,8 +6,8 @@
 */
 
 // skim_trigger_for_das.exe --cfg config/skim_CMSDAS_2016Trigger.cfg --input inputFiles/CMSDAS/Samples2016/SingleMuon_Data_forTrigger.txt --output SingleMuon_forTrigger.root --is-data --maxEvts 100000
-// skim_trigger_for_das.exe --cfg config/skim_CMSDAS_2016Trigger.cfg --input inputFiles/CMSDAS/Samples2016/MC_TT_TuneCUETP8M2T4_13TeV_forTrigger.txt --output TTBar_forTrigger.root --puWeight weights/2016/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8_PUweights.root --maxEvts 100000
-
+// skim_trigger_for_das.exe --cfg config/skim_2016_TriggerEfficiencyMeasurement.cfg --input inputFiles/2016ResonantDiHiggs4BDataSets/MC_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8.txt --output TTBar_forTrigger.root --puWeight weights/2016/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8_PUweights.root --maxEvts 100000
+// skim_trigger.exe --cfg config/skim_2017_TriggerEfficiencyMeasurement.cfg --input inputFiles/TriggerEfficiencyMeasurement/gg_HH_4B_SM_2017_forTrigger.txt --output gg_HH_4B_SM_2017_forTrigger.root --puWeight weights/gg_HH_4B_SM_2017_forTrigger_PUweights.root --maxEvts 10000
 #include <iostream>
 #include <string>
 #include <iomanip>
@@ -173,6 +173,7 @@ int main(int argc, char** argv)
         ("is-data",    po::value<bool>()->zero_tokens()->implicit_value(true)->default_value(false), "mark as a data sample (default is false)")
         ("match",      po::value<bool>()->zero_tokens()->implicit_value(true)->default_value(false), "match with four highest b-Jets")
         ("is-signal",  po::value<bool>()->zero_tokens()->implicit_value(true)->default_value(false), "is signal (skip searching for iso muon")
+        ("skip-trigger"  , po::value<bool>()->zero_tokens()->implicit_value(true)->default_value(false), "Skip trigger check")
     ;
 
     po::variables_map opts;
@@ -204,8 +205,8 @@ int main(int argc, char** argv)
     cout << "[INFO] ... using config file " << opts["cfg"].as<string>() << endl;
 
     OfflineProducerHelper oph;
-    SkimEffCounter ec;
-
+    SkimEffCounter efficiencyCounter;
+    
     ////////////////////////////////////////////////////////////////////////
     // Prepare event loop
     ////////////////////////////////////////////////////////////////////////
@@ -235,6 +236,16 @@ int main(int argc, char** argv)
     for (auto trg : config.readStringListOpt("triggers::makeORof"))
         cout << "   - " << trg << endl;
     nat.triggerReader().setTriggers(config.readStringListOpt("triggers::makeORof"));
+
+
+    bool skipTriggerCheck = opts["skip-trigger"].as<bool>();
+    if(!skipTriggerCheck) 
+    {
+        cout << "[INFO] ... loading the following triggers" << endl;
+        for (auto trg : config.readStringListOpt("triggers::makeORof"))
+            cout << "   - " << trg << endl;
+        nat.triggerReader().setTriggers(config.readStringListOpt("triggers::makeORof"));
+    }
 
     jsonLumiFilter jlf;
     if (is_data)
@@ -300,7 +311,6 @@ int main(int argc, char** argv)
     float jetFirstHighestDeepFlavB_pt_;
     float jetFirstHighestDeepFlavB_eta_;
     int jetFirstHighestDeepFlavB_hadronFlavour_;
-    int jetFirstHighestDeepFlavB_triggerFlag_;
     
     tOut->Branch("run",              &run_);
     tOut->Branch("luminosityBlock",  &luminosityBlock_);
@@ -323,14 +333,15 @@ int main(int argc, char** argv)
     tOut->Branch("jetFirstHighestDeepFlavB_pt" , &jetFirstHighestDeepFlavB_pt_ );
     tOut->Branch("jetFirstHighestDeepFlavB_eta" , &jetFirstHighestDeepFlavB_eta_ );
     tOut->Branch("jetFirstHighestDeepFlavB_hadronFlavour" , &jetFirstHighestDeepFlavB_hadronFlavour_ );
-    tOut->Branch("jetFirstHighestDeepFlavB_triggerFlag" , &jetFirstHighestDeepFlavB_triggerFlag_ );
 
 
     //enable trigger filters
-    std::map<std::pair<int,int>, std::string > triggerObjectsForStudies;   
+    std::map<std::pair<int,int>, std::string > triggerObjectsForStudies; 
+    std::map<std::pair<int,int>, float >       HTFilterHt; 
     std::map<std::pair<int,int>, int > triggerObjectsForStudiesCount; 
     std::map<std::pair<int,int>, float > triggerObjectsForStudiesMaxDeltaR;   
     std::map<std::pair<int,int>, float > triggerObjectsForStudiesMaxDeltaRjetPt;
+    std::map<std::pair<int,int>, int > jetFirstHighestDeepFlavB_triggerFlag_;
 
     std::vector<std::map<std::pair<int,int>, bool  >> triggerObjectPerJetCount  (4); 
     std::vector<std::map<std::pair<int,int>, float >> triggerObjectPerJetDeltaR (4);
@@ -377,6 +388,7 @@ int main(int argc, char** argv)
             triggerObjectsForStudiesMaxDeltaR     [objectAndFilter] = -1;
             triggerObjectsForStudiesMaxDeltaRjetPt[objectAndFilter] = -1;
             tOut->Branch(triggerObjectsForStudies[objectAndFilter].data(), &triggerObjectsForStudiesCount[objectAndFilter]);
+            if(objectAndFilter.first == 3 /*is HT*/) tOut->Branch((triggerObjectsForStudies[objectAndFilter] + "_MaxHT").data(), &HTFilterHt[objectAndFilter]);
             if(matchWithFourHighestBjets)
             {
                 tOut->Branch(std::string(triggerObjectTokens[2] + "_minDeltaR"      ).data(), &triggerObjectsForStudiesMaxDeltaR     [objectAndFilter]);
@@ -394,7 +406,36 @@ int main(int argc, char** argv)
                 }
             }
         }
+
+
+        std::vector<std::string> btagTriggerObject = config.readStringListOpt("parameters::ListOfBtagTrigger");
+
+        pos = 0;
+        
+        for (auto & triggerObject : btagTriggerObject)
+        {
+            std::vector<std::string> triggerObjectTokens;
+            while ((pos = triggerObject.find(delimiter)) != std::string::npos)
+            {
+                triggerObjectTokens.push_back(triggerObject.substr(0, pos));
+                triggerObject.erase(0, pos + delimiter.length());
+            }
+            triggerObjectTokens.push_back(triggerObject); // last part splitted
+            if (triggerObjectTokens.size() != 2)
+            {
+                throw std::runtime_error("** skim_ntuple : could not parse triggerObject for Cuts entry " + triggerObject + " , aborting");
+            }
+
+            auto objectAndFilter = std::make_pair(atoi(triggerObjectTokens[0].data()),atoi(triggerObjectTokens[1].data()));
+            jetFirstHighestDeepFlavB_triggerFlag_[objectAndFilter] = 0;
+            tOut->Branch((triggerObjectsForStudies[objectAndFilter] + "_jetFirstHighestDeepFlavB_triggerFlag").data(), &jetFirstHighestDeepFlavB_triggerFlag_[objectAndFilter]);
+
+
+        }
+
     }
+
+
 
 
     ////////////////////////////////////////////////////////////////////////
@@ -428,14 +469,15 @@ int main(int argc, char** argv)
         float w_PU   = (is_data ? 1    : computePUweight(histo_pileup, *(nat.Pileup_nTrueInt)));
         float genWeight = (is_data ? 1 : *(nat.genWeight));
         weight_ = w_PU * genWeight;
+        // std::cout << w_PU << " " << genWeight << " " << weight_ << std::endl;
 
         // if(!is_data) weight = oph.calculateEventWeight(nat, ei, ot, ec); // FIXME!
         
-        ec.updateProcessed(weight_);
+        efficiencyCounter.updateProcessed(weight_);
 
         // check the trigger
         if(!isSignal) if( !nat.getTrgOr() ) continue;
-        ec.updateTriggered(weight_);
+        efficiencyCounter.updateTriggered(weight_);
 
 
         //Check if there is and iso muon with Pt>40 GeV
@@ -547,7 +589,7 @@ int main(int argc, char** argv)
             break;
         }
         
-        ec.updateSelected(weight_);
+        efficiencyCounter.updateSelected(weight_);
 
         if(matchWithFourHighestBjets)
         {
@@ -602,6 +644,9 @@ int main(int argc, char** argv)
 
         // reset map
         for(auto &triggerFilter : triggerObjectsForStudiesCount) triggerFilter.second = 0;
+        for(auto &btagFlag : jetFirstHighestDeepFlavB_triggerFlag_) btagFlag.second = 0;
+        for(auto &triggerHT : HTFilterHt) triggerHT.second = -1.;
+
         if(matchWithFourHighestBjets)
         {
             // for(auto& filterMap : filterForMatchedJets) for(auto &filter : filterMap) filter.second = false;
@@ -660,8 +705,14 @@ int main(int argc, char** argv)
                     else
                     {
                         ++triggerFilter.second;
-                        if(triggerObjectsForStudies.at(triggerFilter.first) == "BTagCaloCSVp087Triple") ++jetFirstHighestDeepFlavB_triggerFlag_;
+                        if(jetFirstHighestDeepFlavB_triggerFlag_.find(triggerFilter.first) != jetFirstHighestDeepFlavB_triggerFlag_.end()) ++jetFirstHighestDeepFlavB_triggerFlag_[triggerFilter.first];
                     }
+
+                    if(triggerObjectId == 3 /*is HT*/)
+                    {
+                        HTFilterHt.at(triggerFilter.first) = nat.TrigObj_pt.At(trigObjIt);
+                    }
+
                 }
             }
         }
@@ -669,17 +720,17 @@ int main(int argc, char** argv)
 
         if(matchWithFourHighestBjets)
         {
-            std::pair<int,int> btagFilter = {-1,-1};
             for(auto &triggerFilter : triggerObjectsForStudiesCount)
             {
                 for(auto &jetFiltersMap : triggerObjectPerJetCount)
                 {
                     if(jetFiltersMap.at(triggerFilter.first)) ++triggerFilter.second;
                 }
-                if(triggerObjectsForStudies.at(triggerFilter.first) == "BTagCaloCSVp087Triple") btagFilter = triggerFilter.first;
             }
-            if(triggerObjectPerJetCount[highestDeepCSVJetPosition][btagFilter]) jetFirstHighestDeepFlavB_triggerFlag_ = 1;
-            else jetFirstHighestDeepFlavB_triggerFlag_ = 0;
+            for(auto & btagFilter : jetFirstHighestDeepFlavB_triggerFlag_)
+            {
+                if(triggerObjectPerJetCount[highestDeepCSVJetPosition][btagFilter.first]) btagFilter.second = 1;
+            }
         }
 
         
@@ -705,6 +756,6 @@ int main(int argc, char** argv)
     cout << "[INFO] ... done, saving output file" << endl;
     outputFile.cd();
     tOut->Write();
-    ec.write();
+    efficiencyCounter.write();
 
 }

@@ -14,9 +14,9 @@ def Draw1DHistosComparison(original, target, variables, original_weights, norm, 
 	#Create folder for plots
 	#Normalize or not?
 	if norm is True:
-	  hist_settings = {'bins': 10, 'density': True, 'alpha': 0.5}
+	  hist_settings = {'bins': 100, 'density': True, 'alpha': 0.5}
 	else:
-	  hist_settings = {'bins': 10, 'density': None, 'alpha': 0.5}
+	  hist_settings = {'bins': 100, 'density': None, 'alpha': 0.5}
 	#Create figure on matplotlib
 	matplotlib.rcParams.update({'font.size': 35})
 	plt.figure(figsize=[80, 60], dpi=50)

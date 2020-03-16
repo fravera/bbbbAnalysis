@@ -1,7 +1,10 @@
 #include "SkimEffCounter.h"
+#include "TFile.h"
+
 using namespace std;
 
 SkimEffCounter::SkimEffCounter()
+: eff_histo_(nullptr)
 {
     binMap_["Ntot_uw"] = 1;
     binMap_["Ntot_w"]  = 2;
@@ -40,12 +43,8 @@ void SkimEffCounter::updateSelected (double evtW)
 
 void SkimEffCounter::createHisto()
 {
-    if (eff_histo_)
-    {
-        cout << "[WARNING] SkimEffCounter : createHisto : histogram already exists, cannot create a new one" << endl;
-        return;
-    }
-    eff_histo_ = std::unique_ptr<TH1D> (new TH1D("eff_histo", "eff_histo", binMap_.size(), 0, binMap_.size()));
+    std::cout << "Creating the efficiency Histogram..." << std::endl;
+    eff_histo_ = new TH1D("eff_histo", "eff_histo", binMap_.size(), 0, binMap_.size());
 
     for( const auto & element : binMap_)
     {
@@ -54,10 +53,9 @@ void SkimEffCounter::createHisto()
     }
 }
 
-int SkimEffCounter::write()
+void SkimEffCounter::write()
 {
-    if (!eff_histo_)
-        createHisto();
-
-    return eff_histo_->Write();
+    createHisto();
+    eff_histo_->Write();
+    return;
 }

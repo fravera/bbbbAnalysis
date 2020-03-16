@@ -68,34 +68,33 @@ def preparedataforprediction(ioriginal,tfactor, variables):
 	original_weights = numpy.ones(dtype='float64',shape=len(original))
 	original_weights = numpy.multiply(original_weights,tfactor)
 	return original,original_weights
-   
-def fitreweightermodel(original,target,original_weights,target_weights,tfactor, model_args):
-	print "[INFO] Fitting BDT-reweighter ..."
-	model                = bdtreweighter.reweightermodel(original,target,original_weights,target_weights,model_args) 
+
+def calculateWeight(original, original_weights, model, tfactor):
 	ws_unnormalized      = model.predict_weights(original,original_weights,lambda x: numpy.mean(x, axis=0))
 	#Normalized all reweighter weights to 1
 	weights = numpy.multiply(ws_unnormalized, (1/ws_unnormalized.sum())  )
 	#Give them the normalization using the transfer factor derived in control regions
 	totalnorm  = int(len(original))*tfactor
 	weights    = numpy.multiply(weights,totalnorm)
-	print "[INFO] Event yields report in control region derivation:"
 	print "   -The sum of original weights                 = ",int(len(original)),"+/-",math.sqrt(len(original) )
+	print "   -The sum of model weights                    = ",weights.sum(),"+/-",math.sqrt(numpy.square(weights).sum() )
+	return weights
+	
+
+def fitreweightermodel(original,target,original_weights,target_weights,tfactor, model_args):
+	print "[INFO] Fitting BDT-reweighter ..."
+	model                = bdtreweighter.reweightermodel(original,target,original_weights,target_weights,model_args) 
+	print "[INFO] Event yields report in control region derivation:"
+	weights = calculateWeight(original, original_weights, model, tfactor)
 	print "   -The sum of target weights                   = ",int(len(target)),"+/-",math.sqrt(len(target))
 	print "   -The transfer factor                         = ",tfactor,"+/-",tfactor*math.sqrt(  (math.sqrt(len(target))/len(target))**2 + (math.sqrt(len(original))/len(original))**2   )
-	print "   -The sum of model weights                    = ",weights.sum(),"+/-",math.sqrt(numpy.square(weights).sum() )
 	return weights,model
 
 def getmodelweights(original,original_weights,model,tfactor):
 	print "[INFO] Running prediction from BDT-reweighter ..."
-	ws_unnormalized = model.predict_weights(original,original_weights,lambda x: numpy.mean(x, axis=0))
-	#Normalized all reweighter weights to 1
-	weights = numpy.multiply(ws_unnormalized, (1/ws_unnormalized.sum())  )	
-	#Give them the normalization using the transfer factor derived in control regions
-	totalnorm  = int(len(original))*tfactor
-	weights    = numpy.multiply(weights,totalnorm)
 	print "[INFO] Event yields report in prediction:"
 	print "   -The transfer factor from control regions        = ",tfactor
-	print "   -The sum of model weights                        = ",weights.sum(),"+/-",math.sqrt(numpy.square(weights).sum() )
+	weights = calculateWeight(original, original_weights, model, tfactor)
 	return weights
 
 

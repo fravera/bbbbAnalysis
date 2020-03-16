@@ -60,8 +60,12 @@ void OverlapEfficiencyAndDistributions(TVirtualPad *theCanvas, TFile* inputFile,
     }
 }
 
+
+//--------------------------- Trigger efficiency 2016 ------------------------------------------
+
+
 template<typename ...Strings>
-void OverlapAllEfficiencyAndDistributionsInFile(std::string inputFileName, std::string dataDataset, std::string signalDataset, Strings... backgrounds)
+void OverlapAllEfficiencyAndDistributionsInFile2016(std::string inputFileName, std::string dataDataset, std::string signalDataset, Strings... backgrounds)
 {
     TFile *inputFile = new TFile(inputFileName.data());
 
@@ -128,13 +132,117 @@ void OverlapAllEfficiencyAndDistributionsInFile(std::string inputFileName, std::
 
 }
 
-void OverlapAllEfficiencyAndDistributions()
+void OverlapAllEfficiencyAndDistributions2016()
 {
     gROOT->SetBatch(true);
-    OverlapAllEfficiencyAndDistributionsInFile<std::string, std::string>("TriggerEfficiencies_MuonPt30_matched.root"           , "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
-    OverlapAllEfficiencyAndDistributionsInFile<std::string, std::string>("TriggerEfficiencies_MuonPt30_unMatched.root"         , "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
-    OverlapAllEfficiencyAndDistributionsInFile<std::string, std::string>("TriggerEfficiencies_MuonPt30_matched_TTBarCut.root"  , "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
-    OverlapAllEfficiencyAndDistributionsInFile<std::string, std::string>("TriggerEfficiencies_MuonPt30_unMatched_TTBarCut.root", "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
+    OverlapAllEfficiencyAndDistributionsInFile2016<std::string, std::string>("TriggerEfficiencies_MuonPt30_matched.root"           , "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
+    OverlapAllEfficiencyAndDistributionsInFile2016<std::string, std::string>("TriggerEfficiencies_MuonPt30_unMatched.root"         , "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
+    OverlapAllEfficiencyAndDistributionsInFile2016<std::string, std::string>("TriggerEfficiencies_MuonPt30_matched_TTBarCut.root"  , "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
+    OverlapAllEfficiencyAndDistributionsInFile2016<std::string, std::string>("TriggerEfficiencies_MuonPt30_unMatched_TTBarCut.root", "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
     gROOT->SetBatch(false);
 }
 
+
+//--------------------------- Trigger efficiency 2017 ------------------------------------------
+
+
+
+void OverlapEfficiencyAndDistributionsTmp(TVirtualPad *theCanvas, TFile* inputFile, std::string triggerName, std::string filterName, std::string dataDataset, std::string signalDataset)
+{
+    std::vector<std::string> dataAndSignalNames = {dataDataset, signalDataset};
+    std::vector<std::string> allDatasetNames;
+    allDatasetNames.insert(allDatasetNames.end(), dataAndSignalNames.begin(), dataAndSignalNames.end());
+    
+    theCanvas->cd();
+
+    TGraphAsymmErrors* firstGraph = (TGraphAsymmErrors*)inputFile->Get( (allDatasetNames[1] + "_" + triggerName + "_Efficiency_" + filterName).data() );
+    firstGraph->Draw("apl");
+    firstGraph->GetYaxis()->SetRangeUser(0., 1.2);
+
+    TH1F* theDataDistribution = (TH1F*)inputFile->Get( (signalDataset + "_" + triggerName + "_Distribution_" + filterName).data() );
+    theDataDistribution->SetDirectory(0);
+    float scaleValue = 0.8/theDataDistribution->GetBinContent(theDataDistribution->GetMaximumBin());
+
+    theDataDistribution->Scale(scaleValue);
+    theDataDistribution->SetMarkerStyle(20);
+    theDataDistribution->SetMarkerSize(0.3);
+    // theDataDistribution->SetFillColor(theDataDistribution->GetMarkerColor());
+    // theDataDistribution->SetFillStyle(1001);
+    theDataDistribution->Draw("same HIST");
+
+}
+
+
+template<typename ...Strings>
+void OverlapAllEfficiencyAndDistributionsInFile2017(std::string inputFileName, std::string dataDataset, std::string signalDataset, Strings... backgrounds)
+{
+    TFile *inputFile = new TFile(inputFileName.data());
+
+    std::string triggerName = "";
+    TCanvas *theCanvasOverlap = new TCanvas((triggerName + "_Overlap").data(), (triggerName + "_Overlap").data(), 1400, 800);
+    theCanvasOverlap->DivideSquare(11,0.005,0.005);
+    OverlapEfficiencyAndDistributionsTmp(theCanvasOverlap->cd(1 ), inputFile, triggerName, "L1filterHT"                     , dataDataset, signalDataset, backgrounds...);
+    OverlapEfficiencyAndDistributionsTmp(theCanvasOverlap->cd(2 ), inputFile, triggerName, "QuadCentralJet30"               , dataDataset, signalDataset, backgrounds...);
+    OverlapEfficiencyAndDistributionsTmp(theCanvasOverlap->cd(3 ), inputFile, triggerName, "CaloQuadJet30HT300"             , dataDataset, signalDataset, backgrounds...);
+    OverlapEfficiencyAndDistributionsTmp(theCanvasOverlap->cd(4 ), inputFile, triggerName, "BTagCaloCSVp05Double"           , dataDataset, signalDataset, backgrounds...);
+    OverlapEfficiencyAndDistributionsTmp(theCanvasOverlap->cd(5 ), inputFile, triggerName, "PFCentralJetLooseIDQuad30"      , dataDataset, signalDataset, backgrounds...);
+    OverlapEfficiencyAndDistributionsTmp(theCanvasOverlap->cd(6 ), inputFile, triggerName, "1PFCentralJetLooseID75"         , dataDataset, signalDataset, backgrounds...);
+    OverlapEfficiencyAndDistributionsTmp(theCanvasOverlap->cd(7 ), inputFile, triggerName, "2PFCentralJetLooseID60"         , dataDataset, signalDataset, backgrounds...);
+    OverlapEfficiencyAndDistributionsTmp(theCanvasOverlap->cd(8 ), inputFile, triggerName, "3PFCentralJetLooseID45"         , dataDataset, signalDataset, backgrounds...);
+    OverlapEfficiencyAndDistributionsTmp(theCanvasOverlap->cd(9 ), inputFile, triggerName, "4PFCentralJetLooseID40"         , dataDataset, signalDataset, backgrounds...);
+    OverlapEfficiencyAndDistributionsTmp(theCanvasOverlap->cd(10), inputFile, triggerName, "PFCentralJetsLooseIDQuad30HT300", dataDataset, signalDataset, backgrounds...);
+    OverlapEfficiencyAndDistributionsTmp(theCanvasOverlap->cd(11), inputFile, triggerName, "BTagPFCSVp070Triple"            , dataDataset, signalDataset, backgrounds...);
+    theCanvasOverlap->SaveAs((std::string(inputFileName.substr(0,inputFileName.length()-5) + "_" + theCanvasOverlap->GetName()) + ".png").data());
+    delete theCanvasOverlap;
+
+}
+
+void OverlapAllEfficiencyAndDistributions2017()
+{
+    gROOT->SetBatch(true);
+    OverlapAllEfficiencyAndDistributionsInFile2017<>("TriggerEfficiencies_2017_MuonPt30_matched.root"           , "", "gg_HH_4B_SM_2017");
+    // OverlapAllEfficiencyAndDistributionsInFile2017<std::string, std::string>("TriggerEfficiencies_MuonPt30_matched.root"           , "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
+    // OverlapAllEfficiencyAndDistributionsInFile2017<std::string, std::string>("TriggerEfficiencies_MuonPt30_unMatched.root"         , "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
+    // OverlapAllEfficiencyAndDistributionsInFile2017<std::string, std::string>("TriggerEfficiencies_MuonPt30_matched_TTBarCut.root"  , "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
+    // OverlapAllEfficiencyAndDistributionsInFile2017<std::string, std::string>("TriggerEfficiencies_MuonPt30_unMatched_TTBarCut.root", "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
+    gROOT->SetBatch(false);
+}
+
+
+//--------------------------- Trigger efficiency 2018 ------------------------------------------
+
+
+template<typename ...Strings>
+void OverlapAllEfficiencyAndDistributionsInFile2018(std::string inputFileName, std::string dataDataset, std::string signalDataset, Strings... backgrounds)
+{
+    TFile *inputFile = new TFile(inputFileName.data());
+
+    std::string triggerName = "";
+    TCanvas *theCanvasOverlap = new TCanvas((triggerName + "_Overlap").data(), (triggerName + "_Overlap").data(), 1400, 800);
+    theCanvasOverlap->DivideSquare(11,0.005,0.005);
+    OverlapEfficiencyAndDistributionsTmp(theCanvasOverlap->cd(1 ), inputFile, triggerName, "L1filterHT"                     , dataDataset, signalDataset, backgrounds...);
+    OverlapEfficiencyAndDistributionsTmp(theCanvasOverlap->cd(2 ), inputFile, triggerName, "QuadCentralJet30"               , dataDataset, signalDataset, backgrounds...);
+    OverlapEfficiencyAndDistributionsTmp(theCanvasOverlap->cd(3 ), inputFile, triggerName, "CaloQuadJet30HT320"             , dataDataset, signalDataset, backgrounds...);
+    OverlapEfficiencyAndDistributionsTmp(theCanvasOverlap->cd(4 ), inputFile, triggerName, "BTagCaloDeepCSVp17Double"       , dataDataset, signalDataset, backgrounds...);
+    OverlapEfficiencyAndDistributionsTmp(theCanvasOverlap->cd(5 ), inputFile, triggerName, "PFCentralJetLooseIDQuad30"      , dataDataset, signalDataset, backgrounds...);
+    OverlapEfficiencyAndDistributionsTmp(theCanvasOverlap->cd(6 ), inputFile, triggerName, "1PFCentralJetLooseID75"         , dataDataset, signalDataset, backgrounds...);
+    OverlapEfficiencyAndDistributionsTmp(theCanvasOverlap->cd(7 ), inputFile, triggerName, "2PFCentralJetLooseID60"         , dataDataset, signalDataset, backgrounds...);
+    OverlapEfficiencyAndDistributionsTmp(theCanvasOverlap->cd(8 ), inputFile, triggerName, "3PFCentralJetLooseID45"         , dataDataset, signalDataset, backgrounds...);
+    OverlapEfficiencyAndDistributionsTmp(theCanvasOverlap->cd(9 ), inputFile, triggerName, "4PFCentralJetLooseID40"         , dataDataset, signalDataset, backgrounds...);
+    OverlapEfficiencyAndDistributionsTmp(theCanvasOverlap->cd(10), inputFile, triggerName, "PFCentralJetsLooseIDQuad30HT330", dataDataset, signalDataset, backgrounds...);
+    OverlapEfficiencyAndDistributionsTmp(theCanvasOverlap->cd(11), inputFile, triggerName, "BTagPFDeepCSV4p5Triple"         , dataDataset, signalDataset, backgrounds...);
+    theCanvasOverlap->SaveAs((std::string(inputFileName.substr(0,inputFileName.length()-5) + "_" + theCanvasOverlap->GetName()) + ".png").data());
+    delete theCanvasOverlap;
+
+}
+
+void OverlapAllEfficiencyAndDistributions2018()
+{
+    gROOT->SetBatch(true);
+    OverlapAllEfficiencyAndDistributionsInFile2018<>("TriggerEfficiencies_2018_MuonPt30_matched.root"           , "", "gg_HH_4B_SM_2018");
+    // OverlapAllEfficiencyAndDistributionsInFile2018<std::string, std::string>("TriggerEfficiencies_MuonPt30_matched.root"           , "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
+    // OverlapAllEfficiencyAndDistributionsInFile2018<std::string, std::string>("TriggerEfficiencies_MuonPt30_unMatched.root"         , "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
+    // OverlapAllEfficiencyAndDistributionsInFile2018<std::string, std::string>("TriggerEfficiencies_MuonPt30_matched_TTBarCut.root"  , "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
+    // OverlapAllEfficiencyAndDistributionsInFile2018<std::string, std::string>("TriggerEfficiencies_MuonPt30_unMatched_TTBarCut.root", "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
+    gROOT->SetBatch(false);
+}

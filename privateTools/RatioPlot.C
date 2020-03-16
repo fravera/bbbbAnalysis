@@ -310,11 +310,11 @@ void RatioAllVariables(std::string canvasName, std::string referenceFileName, st
     RatioPlotFromFile(theCanvas->cd(6),referenceFileName ,referenceHistPrototype + "_H2_bb_DeltaR"                , {targetFileName} , {targetHistPrototype + "_H2_bb_DeltaR"               }, {kRed} , normalize, -1,     0,     5, 1, "#DeltaR_{bb(Y)}");
     RatioPlotFromFile(theCanvas->cd(7),referenceFileName ,referenceHistPrototype + "_H2_m"                        , {targetFileName} , {targetHistPrototype + "_H2_m"                       }, {kRed} , normalize, -1,   130,   900, 4, "m_{Y} [GeV]");
     RatioPlotFromFile(theCanvas->cd(8),referenceFileName ,referenceHistPrototype + "_HH_m"                        , {targetFileName} , {targetHistPrototype + "_HH_m"                       }, {kRed} , normalize, -1,   300,  1000, 1, "m_{X} [GeV]");
-    RatioPlotFromFile(theCanvas->cd(9),referenceFileName ,referenceHistPrototype + "_HH_m_H2_m_Rebinned_Unrolled" , {targetFileName} , {targetHistPrototype + "_HH_m_H2_m_Rebinned_Unrolled"}, {kRed} , normalize, -1,     0, 52000, 9, "m_{X}*m_{Y}");
+    // RatioPlotFromFile(theCanvas->cd(9),referenceFileName ,referenceHistPrototype + "_HH_m_H2_m_Rebinned_Unrolled" , {targetFileName} , {targetHistPrototype + "_HH_m_H2_m_Rebinned_Unrolled"}, {kRed} , normalize, -1,     0, 52000, 9, "m_{X}*m_{Y}");
     theCanvas->SaveAs((std::string(theCanvas->GetName()) + ".png").data());
     delete theCanvas;
 
-    RatioSlices(canvasName, referenceFileName, referenceHistPrototype + "_HH_m_H2_m_Rebinned", targetFileName, targetHistPrototype + "_HH_m_H2_m_Rebinned", normalize, 0.0770485, 0, 2400, 3, "m_{X} [GeV]");
+    // RatioSlices(canvasName, referenceFileName, referenceHistPrototype + "_HH_m_H2_m_Rebinned", targetFileName, targetHistPrototype + "_HH_m_H2_m_Rebinned", normalize, 0.0770485, 0, 2400, 3, "m_{X} [GeV]");
   
 }
 
@@ -323,43 +323,47 @@ void RatioAll()
 {
     gROOT->SetBatch();
 
-    RatioAllVariables("ControlRegionBeforeBDT", "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_4bTag_ControlRegionBlinded", 
-    "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_3bTag_ControlRegionBlinded",true);
 
-    RatioAllVariables("ControlRegionAfterBDT", "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_4bTag_ControlRegionBlinded", 
-    "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV_dataDriven" , "selectionbJetsAndTrigger_3bTag_ControlRegionBlinded",false);
+    RatioAllVariables("ControlRegionBeforeBDT", "2016DataPlots_NMSSM_XYH_bbbb_Fast/outPlotter.root", "data_BTagCSV" , "selectionbJets_ControlRegionBlinded", 
+    "2016DataPlots_NMSSM_XYH_bbbb_Fast/outPlotter.root", "data_BTagCSV_dataDriven" , "selectionbJets_ControlRegionBlinded",false);
 
-    RatioAllVariables("SideBandBeforeBDT", "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_4bTag_SideBandBlinded", 
-    "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_3bTag_SideBandBlinded",true);
+    // RatioAllVariables("ControlRegionBeforeBDT", "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_4bTag_ControlRegionBlinded", 
+    // "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_3bTag_ControlRegionBlinded",true);
 
-    RatioAllVariables("SideBandAfterBDT", "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_4bTag_SideBandBlinded", 
-    "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV_dataDriven" , "selectionbJetsAndTrigger_3bTag_SideBandBlinded",false);
+    // RatioAllVariables("ControlRegionAfterBDT", "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_4bTag_ControlRegionBlinded", 
+    // "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV_dataDriven" , "selectionbJetsAndTrigger_3bTag_ControlRegionBlinded",false);
 
+    // RatioAllVariables("SideBandBeforeBDT", "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_4bTag_SideBandBlinded", 
+    // "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_3bTag_SideBandBlinded",true);
 
-    RatioAllVariables("ControlRegionDownBeforeBDT", "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_4bTag_ControlRegionDownBlinded", 
-    "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_3bTag_ControlRegionDownBlinded",true);
-
-    RatioAllVariables("ControlRegionDownAfterBDT", "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_4bTag_ControlRegionDownBlinded", 
-    "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV_dataDriven" , "selectionbJetsAndTrigger_3bTag_ControlRegionDownBlinded",false);
-
-    RatioAllVariables("SideBandDownBeforeBDT", "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_4bTag_SideBandDownBlinded", 
-    "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_3bTag_SideBandDownBlinded",true);
-
-    RatioAllVariables("SideBandDownAfterBDT", "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_4bTag_SideBandDownBlinded", 
-    "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV_dataDriven" , "selectionbJetsAndTrigger_3bTag_SideBandDownBlinded",false);
+    // RatioAllVariables("SideBandAfterBDT", "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_4bTag_SideBandBlinded", 
+    // "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV_dataDriven" , "selectionbJetsAndTrigger_3bTag_SideBandBlinded",false);
 
 
-    RatioAllVariables("ControlRegionUpBeforeBDT", "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_4bTag_ControlRegionUpBlinded", 
-    "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_3bTag_ControlRegionUpBlinded",true);
+    // RatioAllVariables("ControlRegionDownBeforeBDT", "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_4bTag_ControlRegionDownBlinded", 
+    // "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_3bTag_ControlRegionDownBlinded",true);
 
-    RatioAllVariables("ControlRegionUpAfterBDT", "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_4bTag_ControlRegionUpBlinded", 
-    "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV_dataDriven" , "selectionbJetsAndTrigger_3bTag_ControlRegionUpBlinded",false);
+    // RatioAllVariables("ControlRegionDownAfterBDT", "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_4bTag_ControlRegionDownBlinded", 
+    // "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV_dataDriven" , "selectionbJetsAndTrigger_3bTag_ControlRegionDownBlinded",false);
 
-    RatioAllVariables("SideBandUpBeforeBDT", "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_4bTag_SideBandUpBlinded", 
-    "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_3bTag_SideBandUpBlinded",true);
+    // RatioAllVariables("SideBandDownBeforeBDT", "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_4bTag_SideBandDownBlinded", 
+    // "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_3bTag_SideBandDownBlinded",true);
 
-    RatioAllVariables("SideBandUpAfterBDT", "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_4bTag_SideBandUpBlinded", 
-    "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV_dataDriven" , "selectionbJetsAndTrigger_3bTag_SideBandUpBlinded",false);
+    // RatioAllVariables("SideBandDownAfterBDT", "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_4bTag_SideBandDownBlinded", 
+    // "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV_dataDriven" , "selectionbJetsAndTrigger_3bTag_SideBandDownBlinded",false);
+
+
+    // RatioAllVariables("ControlRegionUpBeforeBDT", "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_4bTag_ControlRegionUpBlinded", 
+    // "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_3bTag_ControlRegionUpBlinded",true);
+
+    // RatioAllVariables("ControlRegionUpAfterBDT", "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_4bTag_ControlRegionUpBlinded", 
+    // "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV_dataDriven" , "selectionbJetsAndTrigger_3bTag_ControlRegionUpBlinded",false);
+
+    // RatioAllVariables("SideBandUpBeforeBDT", "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_4bTag_SideBandUpBlinded", 
+    // "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_3bTag_SideBandUpBlinded",true);
+
+    // RatioAllVariables("SideBandUpAfterBDT", "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_4bTag_SideBandUpBlinded", 
+    // "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV_dataDriven" , "selectionbJetsAndTrigger_3bTag_SideBandUpBlinded",false);
 
 }
 

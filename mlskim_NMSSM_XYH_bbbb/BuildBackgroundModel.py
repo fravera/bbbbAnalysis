@@ -18,6 +18,7 @@ import cPickle as pickle
 from modules.ConfigurationReader import ConfigurationReader
 import modules.Constants as const
 from modules.ReweightModelAndTransferFactor import ReweightModelAndTransferFactor
+import threading
 
 
 def BuildReweightingModel(data_4b, data_3b, trainingVariables, modelArguments, outputDirectory, modelFileName, analysisBackgroundArgument, analysisClassifierArgument):
@@ -35,13 +36,13 @@ def BuildReweightingModel(data_4b, data_3b, trainingVariables, modelArguments, o
 	#######################################
 	##Prepare data to create the model
 	#######################################
-	plotter.Draw1DHistosComparison(originalcr, targetcr, trainingVariables, originalcr_weights,True,outputDirectory,"_original")
+	plotter.Draw1DHistosComparison(originalcr, targetcr, trainingVariables, originalcr_weights,False,outputDirectory,"_original")
 	
 	#######################################
 	##Folding Gradient Boosted Reweighter (2-fold BDT reweighter)
 	#######################################
 	foldingcr_weights,reweightermodel = data.fitreweightermodel(originalcr,targetcr,originalcr_weights,targetcr_weights,transferfactor,analysisBackgroundArgument)  
-	plotter.Draw1DHistosComparison(originalcr, targetcr, trainingVariables, foldingcr_weights,True,outputDirectory,"_model")
+	plotter.Draw1DHistosComparison(originalcr, targetcr, trainingVariables, foldingcr_weights,False,outputDirectory,"_model")
 	
 	########################################
 	## KS Test (as the developers of the method do), currently used for optimization/check of the parameters

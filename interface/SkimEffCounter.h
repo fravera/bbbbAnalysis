@@ -17,7 +17,10 @@ class SkimEffCounter {
     public:
 
         SkimEffCounter();
-        ~SkimEffCounter(){};
+        ~SkimEffCounter()
+        { 
+            //Do not delete eff_histo_, ROOT handles it
+        };
 
         // _w  : weighted
         // _uw : unweighted (plain ev count)
@@ -28,11 +31,11 @@ class SkimEffCounter {
         void updateTriggered      (double evtW);
         void updateSelected       (double evtW);
 
-        void createHisto();
-        int  write();
+        void  write();
 
     private:
-        std::unique_ptr<TH1D>  eff_histo_;
+        TH1D*  eff_histo_;
+        void createHisto();
 
 
 };
