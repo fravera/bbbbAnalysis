@@ -24,14 +24,14 @@ from modules.ReweightModelAndTransferFactor import ReweightModelAndTransferFacto
 import ROOT
 import threading
 
-def CreatePredictionModel(reweightermodel,transferfactor,dataset_3bTag, backgroundWeightName):
+def CreatePredictionModel(reweightermodel,transferfactor,normalization,dataset_3bTag, backgroundWeightName):
 	############################################################################
 	##Let's slice data one more time to have the inputs for the bdt reweighting#
 	############################################################################
 	original_weights = numpy.ones(dtype='float64',shape=len(dataset_3bTag))
 	original_weights = numpy.multiply(original_weights,transferfactor)
 
-	folding_weights= data.getmodelweights(dataset_3bTag,original_weights,reweightermodel,transferfactor)
+	folding_weights= data.getmodelweights(dataset_3bTag,original_weights,reweightermodel,transferfactor,normalization)
     
 	dataset_3bTag[backgroundWeightName] = folding_weights
 	return dataset_3bTag[[backgroundWeightName]]
@@ -41,9 +41,10 @@ def getWeightsForBackground(dataset, theReweightModelAndTransferFactor, backgrou
 	
 	reweightermodel      = theReweightModelAndTransferFactor.reweightMethod 
 	transferfactor       = theReweightModelAndTransferFactor.transferFactor
+	normalization        = theReweightModelAndTransferFactor.normalization
 
 	#Get weights for the dataset
-	weights = CreatePredictionModel(reweightermodel, transferfactor, dataset, backgroundWeightName)
+	weights = CreatePredictionModel(reweightermodel, transferfactor, normalization, dataset, backgroundWeightName)
 	
 	del dataset
 	return weights 

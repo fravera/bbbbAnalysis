@@ -109,7 +109,7 @@ test:
 
 
 $(OBJ)%$(ObjSuf): %$(SrcSuf) $(HDRS)
-	$(CXX) $< -c $(CXXFLAGS) -o $@  
+	$(CXX) $< -c $(CXXFLAGS) -o $@ 
 
 ## 28/12/2017 : LC - I removed the dictionary generation, generates a warning and is probably not needed as I am not reading / saving user classes in the input / output
 # $(OBJ)mydict.cc: $(DICTHDRS)
@@ -121,7 +121,7 @@ $(OBJ)%$(ObjSuf): %$(SrcSuf) $(HDRS)
 #         @echo "Linking $(SONAME):"
 
 $(LIB)$(SONAME): $(OBJS)
-	$(LD) $(LDFLAGS) $(OBJS) $(SOFLAGS) $(ROOTGLIBS) -o $(LIB)$(SONAME)
+	$(LD) $(LDFLAGS) $(OBJS) $(SOFLAGS) $(ROOTGLIBS) -o $(LIB)$(SONAME) 
         @echo "Linking $(SONAME):"
 
 

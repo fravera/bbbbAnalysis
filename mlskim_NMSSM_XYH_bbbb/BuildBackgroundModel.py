@@ -30,8 +30,11 @@ def BuildReweightingModel(data_4b, data_3b, trainingVariables, modelArguments, o
 	############################################################################
 	##Let's slice data one more time to have the inputs for the bdt reweighting#
 	############################################################################
-	originalcr, targetcr, originalcr_weights, targetcr_weights, transferfactor = data.preparedataformodel(data_3b,data_4b,trainingVariables)
-	print "transfer factor = ", transferfactor
+	originalcr, targetcr, originalcr_weights, targetcr_weights, transferFactorOriginal = data.preparedataformodel(data_3b,data_4b,trainingVariables)
+	print "transfer factor before reweight = ", transferFactorOriginal
+
+	print originalcr_weights.mean()
+	print targetcr_weights.mean()
 
 	#######################################
 	##Prepare data to create the model
@@ -41,7 +44,7 @@ def BuildReweightingModel(data_4b, data_3b, trainingVariables, modelArguments, o
 	#######################################
 	##Folding Gradient Boosted Reweighter (2-fold BDT reweighter)
 	#######################################
-	foldingcr_weights,reweightermodel = data.fitreweightermodel(originalcr,targetcr,originalcr_weights,targetcr_weights,transferfactor,analysisBackgroundArgument)  
+	foldingcr_weights,reweightermodel, normalization = data.fitreweightermodel(originalcr,targetcr,originalcr_weights,targetcr_weights,transferFactorOriginal,analysisBackgroundArgument)  
 	plotter.Draw1DHistosComparison(originalcr, targetcr, trainingVariables, foldingcr_weights,False,outputDirectory,"_model")
 	
 	########################################
@@ -68,7 +71,7 @@ def BuildReweightingModel(data_4b, data_3b, trainingVariables, modelArguments, o
 	# ########################################
 	# ##Update 3b dataframe for modeling
 	# ########################################
-	theReweightModelAndTransferFactor = ReweightModelAndTransferFactor(reweightermodel,transferfactor)
+	theReweightModelAndTransferFactor = ReweightModelAndTransferFactor(reweightermodel,transferFactorOriginal, normalization)
 	with open(modelFileNameFullPath, 'w') as reweighterOutputFile:
 		pickle.dump(theReweightModelAndTransferFactor, reweighterOutputFile)
 
