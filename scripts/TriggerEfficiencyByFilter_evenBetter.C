@@ -215,7 +215,8 @@ void ProduceAllTriggerEfficiencyInAFile2016(std::vector<std::tuple<std::shared_p
     theEfficiencyEvaluator.addTrigger(triggerName, filterCutDouble90Quad30, "jetSecondHighestPt_pt"         , normalizationCutDouble90Quad30, "DoubleCentralJet90; p_{T}^{2} [GeV]; online efficiency"         ,100, 20 , 500, theColor);
     
     normalizationCutDouble90Quad30 = filterCutDouble90Quad30;
-    filterCutDouble90Quad30 = normalizationCutDouble90Quad30 + "&& BTagCaloCSVp087Triple_jetFirstHighestDeepFlavB_triggerFlag>=1";
+    filterCutDouble90Quad30 = normalizationCutDouble90Quad30 + "&& jetFirstHighestDeepFlavB_triggerFlag>=1";
+    // filterCutDouble90Quad30 = normalizationCutDouble90Quad30 + "&& BTagCaloCSVp087Triple_jetFirstHighestDeepFlavB_triggerFlag>=1";  //for the future
     theEfficiencyEvaluator.addTrigger(triggerName, filterCutDouble90Quad30, "jetFirstHighestDeepFlavB_deepFlavB", normalizationCutDouble90Quad30, "BTagCaloCSVp087Triple; DeepFlavB^{1}; online efficliency"      , 50, 0  , 1  , theColor);
 
     std::string bNormCutDouble90Quad30   = normalizationCutDouble90Quad30 + preselectionBTag;
@@ -264,7 +265,8 @@ void ProduceAllTriggerEfficiencyInAFile2016(std::vector<std::tuple<std::shared_p
     theEfficiencyEvaluator.addTrigger(triggerName, filterCutQuad45        , "jetForthHighestPt_pt"          , normalizationCutQuad45        , "QuadCentralJet45; p_{T}^{4} [GeV]; online efficiency"           , customBinning, theColor);
     
     normalizationCutQuad45 = filterCutQuad45;
-    filterCutQuad45 = normalizationCutQuad45 + "&& BTagCaloCSVp087Triple_jetFirstHighestDeepFlavB_triggerFlag>=1";
+    filterCutQuad45 = normalizationCutQuad45 + "&& jetFirstHighestDeepFlavB_triggerFlag>=1";
+    // filterCutQuad45 = normalizationCutQuad45 + "&& BTagCaloCSVp087Triple_jetFirstHighestDeepFlavB_triggerFlag>=1";  //for the future
     theEfficiencyEvaluator.addTrigger(triggerName, filterCutQuad45        , "jetFirstHighestDeepFlavB_deepFlavB", normalizationCutQuad45        , "BTagCaloCSVp087Triple; DeepFlavB^{1}; online efficliency"      , 50, 0  , 1  , theColor);
     
     std::string bNormCutQuad45 = normalizationCutQuad45 + preselectionBTag;
@@ -308,7 +310,8 @@ void ProduceAllTriggerEfficiencyInAFile2016(std::vector<std::tuple<std::shared_p
     theEfficiencyEvaluator.addTrigger(triggerName, filterCutAnd           , "jetForthHighestPt_pt"          , normalizationCutAnd           , "QuadCentralJet45; p_{T}^{4} [GeV]; online efficiency"           , customBinning, theColor);
     
     normalizationCutAnd = filterCutAnd;
-    filterCutAnd = normalizationCutAnd + "&& BTagCaloCSVp087Triple_jetFirstHighestDeepFlavB_triggerFlag>=1";
+    filterCutAnd = normalizationCutAnd + "&& jetFirstHighestDeepFlavB_triggerFlag>=1";
+    // filterCutAnd = normalizationCutAnd + "&& BTagCaloCSVp087Triple_jetFirstHighestDeepFlavB_triggerFlag>=1"; //for the future
     theEfficiencyEvaluator.addTrigger(triggerName, filterCutAnd           , "jetFirstHighestDeepFlavB_deepFlavB", normalizationCutAnd           , "BTagCaloCSVp087Triple; DeepFlavB^{1}; online efficliency"      , 50, 0  , 1  , theColor);
     
     std::string bNormCutAnd = normalizationCutAnd + preselectionBTag;
@@ -393,14 +396,14 @@ void ProduceAllTriggerEfficiencies2016()
 {
     ROOT::EnableThreadSafety();
 
-    std::thread theMatchedTriggerThread          (ProduceAllTriggerEfficienciesFiles2016, "SingleMuon_Data_forTrigger_MuonPt30_matched.root"  , "TTbar_MC_forTrigger_MuonPt30_matched.root"  , "WJetsToLNu_Data_forTrigger_MuonPt30_matched.root"  , "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_matched.root",   "TriggerEfficiencies_MuonPt30_matched.root"           , false);
-    std::thread theUnMatchedTriggerThread        (ProduceAllTriggerEfficienciesFiles2016, "SingleMuon_Data_forTrigger_MuonPt30_unMatched.root", "TTbar_MC_forTrigger_MuonPt30_unMatched.root", "WJetsToLNu_Data_forTrigger_MuonPt30_unMatched.root", "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_unMatched.root", "TriggerEfficiencies_MuonPt30_unMatched.root"         , false);
+    // std::thread theMatchedTriggerThread          (ProduceAllTriggerEfficienciesFiles2016, "SingleMuon_Data_forTrigger_MuonPt30_matched.root"  , "TTbar_MC_forTrigger_MuonPt30_matched.root"  , "WJetsToLNu_Data_forTrigger_MuonPt30_matched.root"  , "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_matched.root",   "TriggerEfficiencies_MuonPt30_matched.root"           , false);
+    // std::thread theUnMatchedTriggerThread        (ProduceAllTriggerEfficienciesFiles2016, "SingleMuon_Data_forTrigger_MuonPt30_unMatched.root", "TTbar_MC_forTrigger_MuonPt30_unMatched.root", "WJetsToLNu_Data_forTrigger_MuonPt30_unMatched.root", "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_unMatched.root", "TriggerEfficiencies_MuonPt30_unMatched.root"         , false);
     std::thread theMatchedTriggerThreadTTbarCut  (ProduceAllTriggerEfficienciesFiles2016, "SingleMuon_Data_forTrigger_MuonPt30_matched.root"  , "TTbar_MC_forTrigger_MuonPt30_matched.root"  , "WJetsToLNu_Data_forTrigger_MuonPt30_matched.root"  , "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_matched.root",   "TriggerEfficiencies_MuonPt30_matched_TTBarCut.root"  , true );
-    std::thread theUnMatchedTriggerThreadTTbarCut(ProduceAllTriggerEfficienciesFiles2016, "SingleMuon_Data_forTrigger_MuonPt30_unMatched.root", "TTbar_MC_forTrigger_MuonPt30_unMatched.root", "WJetsToLNu_Data_forTrigger_MuonPt30_unMatched.root", "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_unMatched.root", "TriggerEfficiencies_MuonPt30_unMatched_TTBarCut.root", true );
-    theMatchedTriggerThread          .join();
-    theUnMatchedTriggerThread        .join();
+    // std::thread theUnMatchedTriggerThreadTTbarCut(ProduceAllTriggerEfficienciesFiles2016, "SingleMuon_Data_forTrigger_MuonPt30_unMatched.root", "TTbar_MC_forTrigger_MuonPt30_unMatched.root", "WJetsToLNu_Data_forTrigger_MuonPt30_unMatched.root", "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_unMatched.root", "TriggerEfficiencies_MuonPt30_unMatched_TTBarCut.root", true );
+    // theMatchedTriggerThread          .join();
+    // theUnMatchedTriggerThread        .join();
     theMatchedTriggerThreadTTbarCut  .join();
-    theUnMatchedTriggerThreadTTbarCut.join();
+    // theUnMatchedTriggerThreadTTbarCut.join();
 }
 
 

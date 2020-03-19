@@ -406,7 +406,12 @@ int main(int argc, char** argv)
 
     bool useTriggerScaleFactors =  config.readBoolOpt("triggers::UseScaleFactor");
     parameterList.emplace("UseTriggerScaleFactor", useTriggerScaleFactors);     
-    if(useTriggerScaleFactors) parameterList.emplace("TriggerScaleFactorYear", config.readIntOpt("triggers::ScaleFactorYear"));     
+
+    if(useTriggerScaleFactors)
+    {
+        parameterList.emplace("TriggerScaleFactorYear", config.readIntOpt("triggers::ScaleFactorYear"));     
+        parameterList.emplace("SimulateTrigger", config.readBoolOpt("triggers::SimulateTrigger"));
+    }     
 
 
     // parameterList.emplace("TriggerStudies",config.readBoolOpt ("triggers::TriggerStudies"));        
@@ -439,8 +444,8 @@ int main(int argc, char** argv)
         oph.initializeJECVariations(ot);
         oph.initializeObjectsForEventWeight(ot,ec,opts["puWeight"].as<string>(),xs);
         oph.initializeObjectsBJetForScaleFactors(ot);
-        oph.initializeTriggerScaleFactors(nat);
     }
+    oph.initializeTriggerScaleFactors(nat, ot);
 
     jsonLumiFilter jlf;
     if (is_data)

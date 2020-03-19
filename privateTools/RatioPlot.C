@@ -48,6 +48,7 @@ void RatioPlot(TVirtualPad *theCanvas, TH1D *referenceHistogram, std::vector<TH1
     referenceHistogram->GetYaxis()->SetTitle(yAxis.data()); // Remove the ratio title
     // referenceHistogram settings
     referenceHistogram->SetLineColor(kBlack);
+    referenceHistogram->SetMarkerColor(kBlack);
     referenceHistogram->SetLineWidth(2);
 
 
@@ -60,6 +61,7 @@ void RatioPlot(TVirtualPad *theCanvas, TH1D *referenceHistogram, std::vector<TH1
         // inputHistogram settings
         assert(plotColorVector.at(hIt) != kBlack);
         inputHistogram->SetLineColor(plotColorVector.at(hIt));
+        inputHistogram->SetMarkerColor(plotColorVector.at(hIt));
         inputHistogram->SetLineWidth(2);
         if(referenceHistogram->GetMaximum() < inputHistogram->GetMaximum()) referenceHistogram->SetMaximum(inputHistogram->GetMaximum()*1.1);
     }
@@ -83,6 +85,7 @@ void RatioPlot(TVirtualPad *theCanvas, TH1D *referenceHistogram, std::vector<TH1
 
         TH1D *ratio = (TH1D*)inputHistogramVector.at(hIt)->Clone("ratio");
         ratio->SetLineColor(plotColorVector.at(hIt));
+        ratio->SetMarkerColor(plotColorVector.at(hIt));
         ratio->SetMinimum(0.5);  // Define Y ..
         ratio->SetMaximum(1.5); // .. range
         ratio->SetStats(0);      // No statistics on lower plot
@@ -127,7 +130,7 @@ void RatioPlotFromFile(TVirtualPad *theCanvas, std::string referenceFileName, st
     TH1D *referenceHistogram = (TH1D*)referenceFile.Get(referenceHistogramName.data());
     if(referenceHistogram == NULL)
     {
-        std::cerr<<"referenceHistogram does not exist\n";
+        std::cerr<<"referenceHistogram " << referenceHistogramName << " does not exist\n";
         return;
     }
     referenceHistogram->SetDirectory(0);
@@ -140,7 +143,7 @@ void RatioPlotFromFile(TVirtualPad *theCanvas, std::string referenceFileName, st
         TH1D *inputHistogram = (TH1D*)inputFile.Get(inputHistogramNameVector[plotIt].data());
         if(inputHistogram == NULL)
         {
-            std::cerr<<"inputHistogram does not exist\n";
+            std::cerr<<"inputHistogram " << inputHistogramNameVector[plotIt] << " does not exist\n";
             return;
         }
         inputHistogram->SetDirectory(0);
@@ -310,11 +313,11 @@ void RatioAllVariables(std::string canvasName, std::string referenceFileName, st
     RatioPlotFromFile(theCanvas->cd(6),referenceFileName ,referenceHistPrototype + "_H2_bb_DeltaR"                , {targetFileName} , {targetHistPrototype + "_H2_bb_DeltaR"               }, {kRed} , normalize, -1,     0,     5, 1, "#DeltaR_{bb(Y)}");
     RatioPlotFromFile(theCanvas->cd(7),referenceFileName ,referenceHistPrototype + "_H2_m"                        , {targetFileName} , {targetHistPrototype + "_H2_m"                       }, {kRed} , normalize, -1,   130,   900, 4, "m_{Y} [GeV]");
     RatioPlotFromFile(theCanvas->cd(8),referenceFileName ,referenceHistPrototype + "_HH_m"                        , {targetFileName} , {targetHistPrototype + "_HH_m"                       }, {kRed} , normalize, -1,   300,  1000, 1, "m_{X} [GeV]");
-    // RatioPlotFromFile(theCanvas->cd(9),referenceFileName ,referenceHistPrototype + "_HH_m_H2_m_Rebinned_Unrolled" , {targetFileName} , {targetHistPrototype + "_HH_m_H2_m_Rebinned_Unrolled"}, {kRed} , normalize, -1,     0, 52000, 9, "m_{X}*m_{Y}");
+    RatioPlotFromFile(theCanvas->cd(9),referenceFileName ,referenceHistPrototype + "_HH_m_H2_m_Rebinned_Unrolled" , {targetFileName} , {targetHistPrototype + "_HH_m_H2_m_Rebinned_Unrolled"}, {kRed} , normalize, -1,     0, 52000, 9, "m_{X}*m_{Y}");
     theCanvas->SaveAs((std::string(theCanvas->GetName()) + ".png").data());
     delete theCanvas;
 
-    // RatioSlices(canvasName, referenceFileName, referenceHistPrototype + "_HH_m_H2_m_Rebinned", targetFileName, targetHistPrototype + "_HH_m_H2_m_Rebinned", normalize, 0.0770485, 0, 2400, 3, "m_{X} [GeV]");
+    RatioSlices(canvasName, referenceFileName, referenceHistPrototype + "_HH_m_H2_m_Rebinned", targetFileName, targetHistPrototype + "_HH_m_H2_m_Rebinned", normalize, 0.0770485, 0, 2400, 3, "m_{X} [GeV]");
   
 }
 
@@ -323,9 +326,11 @@ void RatioAll()
 {
     gROOT->SetBatch();
 
-
-    RatioAllVariables("ControlRegionBeforeBDT", "2016DataPlots_NMSSM_XYH_bbbb_Fast/outPlotter.root", "data_BTagCSV" , "selectionbJets_ControlRegionBlinded", 
+    RatioAllVariables("ControlRegionAfterBDT", "2016DataPlots_NMSSM_XYH_bbbb_Fast/outPlotter.root", "data_BTagCSV" , "selectionbJets_ControlRegionBlinded", 
     "2016DataPlots_NMSSM_XYH_bbbb_Fast/outPlotter.root", "data_BTagCSV_dataDriven" , "selectionbJets_ControlRegionBlinded",false);
+
+    RatioAllVariables("SideBandAfterBDT", "2016DataPlots_NMSSM_XYH_bbbb_Fast/outPlotter.root", "data_BTagCSV" , "selectionbJets_SideBandBlinded", 
+    "2016DataPlots_NMSSM_XYH_bbbb_Fast/outPlotter.root", "data_BTagCSV_dataDriven" , "selectionbJets_SideBandBlinded",false);
 
     // RatioAllVariables("ControlRegionBeforeBDT", "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_4bTag_ControlRegionBlinded", 
     // "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_3bTag_ControlRegionBlinded",true);
@@ -396,8 +401,12 @@ void RatioTriggerClosure()
     auto makeTriggerVariationNames = [](std::string variableName, std::string selection) -> std::vector<string>
     {
         return {"/ttBarNotTriggered/notTriggeredSelectionScaled_" + selection + "/ttBarNotTriggered_notTriggeredSelectionScaled_" + selection + "_" + variableName                             ,
-                "/ttBarNotTriggered/notTriggeredSelectionScaled_" + selection + "/ttBarNotTriggered_notTriggeredSelectionScaled_" + selection + "_" + variableName + "_triggerMcEfficiencyUp"  ,
-                "/ttBarNotTriggered/notTriggeredSelectionScaled_" + selection + "/ttBarNotTriggered_notTriggeredSelectionScaled_" + selection + "_" + variableName + "_triggerMcEfficiencyDown"};
+        "/ttBarNotTriggered/notTriggeredSelectionScaledUp_" + selection + "/ttBarNotTriggered_notTriggeredSelectionScaledUp_" + selection + "_" + variableName                             ,
+        "/ttBarNotTriggered/notTriggeredSelectionScaledDown_" + selection + "/ttBarNotTriggered_notTriggeredSelectionScaledDown_" + selection + "_" + variableName                             };
+                // "/ttBarNotTriggered/notTriggeredSelectionScaled_" + selection + "/ttBarNotTriggered_notTriggeredSelectionScaled_" + selection + "_" + variableName + "_triggerScaleFactorUp"  ,
+                // "/ttBarNotTriggered/notTriggeredSelectionScaled_" + selection + "/ttBarNotTriggered_notTriggeredSelectionScaled_" + selection + "_" + variableName + "_triggerScaleFactorDown"};
+                // "/ttBarNotTriggered/notTriggeredSelectionScaled_" + selection + "/ttBarNotTriggered_notTriggeredSelectionScaled_" + selection + "_" + variableName + "_triggerMcEfficiencyUp"  ,
+                // "/ttBarNotTriggered/notTriggeredSelectionScaled_" + selection + "/ttBarNotTriggered_notTriggeredSelectionScaled_" + selection + "_" + variableName + "_triggerMcEfficiencyDown"};
     };
     
     std::vector<std::string> inputFileNameList  {"2016DataPlots_NMSSM_XYH_bbbb_triggerClosure_notTriggered/outPlotter.root", "2016DataPlots_NMSSM_XYH_bbbb_triggerClosure_notTriggered/outPlotter.root", "2016DataPlots_NMSSM_XYH_bbbb_triggerClosure_notTriggered/outPlotter.root"};

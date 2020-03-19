@@ -1,4 +1,5 @@
 #include "NanoAODTree.h"
+#include "OutputTree.h"
 #include "Jet.h"
 #include "TFitResult.h"
 
@@ -12,10 +13,12 @@ public:
     virtual std::tuple<float, float, float> getDataTriggerEfficiency      (const std::vector<Jet>& selectedJets);
     virtual std::tuple<float, float, float> getTriggerScaleFactor         (const std::vector<Jet>& selectedJets);
     virtual std::tuple<std::tuple<float, float, float>, std::tuple<float, float, float>, std::tuple<float, float, float>> getScaleFactorDataAndMonteCarloEfficiency(const std::vector<Jet>& selectedJets);
+    void simulateTrigger(OutputTree* theOutputTree);
 
 protected:
-    virtual void   extractInformationFromEvent         (std::vector<Jet> selectedJets) = 0;
-    inline  float  fixInLimits(float efficiency)
+    virtual void   createTriggerSimulatedBranches()                              = 0;
+    virtual void   extractInformationFromEvent   (std::vector<Jet> selectedJets) = 0;
+    inline  float  fixInLimits                   (float efficiency)
     {
         if(efficiency > 1.) return 1.;
         if(efficiency < 0.) return 0.;
@@ -33,6 +36,9 @@ protected:
     virtual std::tuple<float, float, float>  calculateDataTriggerEfficiency      () = 0;
     virtual std::tuple<float, float, float>  calculateMonteCarloTriggerEfficiency() = 0;
     NanoAODTree &theNanoAODTree_;
+    OutputTree* theOutputTree_ {nullptr};
+    bool simulateTrigger_ {false};
+
 };
 
 
@@ -44,6 +50,7 @@ public:
     
     
 private:
+    void  createTriggerSimulatedBranches()                                    override;
     void  extractInformationFromEvent         (std::vector<Jet> selectedJets) override;
     std::tuple<float, float, float> calculateMonteCarloTriggerEfficiency() override;
     std::tuple<float, float, float> calculateDataTriggerEfficiency      () override;
@@ -103,6 +110,7 @@ public:
     
     
 private:
+    void  createTriggerSimulatedBranches()                                    override;
     void  extractInformationFromEvent         (std::vector<Jet> selectedJets) override {}
     std::tuple<float, float, float> calculateMonteCarloTriggerEfficiency() override {return {1., 1., 1.};}
     std::tuple<float, float, float> calculateDataTriggerEfficiency      () override {return {1., 1., 1.};}
@@ -126,6 +134,7 @@ public:
     
     
 private:
+    void  createTriggerSimulatedBranches()                                    override;
     void  extractInformationFromEvent         (std::vector<Jet> selectedJets) override {}
     std::tuple<float, float, float> calculateMonteCarloTriggerEfficiency() override {return {1., 1., 1.};}
     std::tuple<float, float, float> calculateDataTriggerEfficiency      () override {return {1., 1., 1.};}

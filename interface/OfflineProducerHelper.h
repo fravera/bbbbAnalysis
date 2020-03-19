@@ -193,19 +193,37 @@ class OfflineProducerHelper{
             //         std::any_cast<std::string>(parameterList_->at("kl_histo")));
         }
 
-        void initializeTriggerScaleFactors(NanoAODTree& nat)
+        void initializeTriggerScaleFactors(NanoAODTree& nat, OutputTree& ot)
         {
             if( std::any_cast<bool>(parameterList_->at("UseTriggerScaleFactor")) )
             {
                 int year = std::any_cast<int>(parameterList_->at("TriggerScaleFactorYear"));
-                if     (year == 2016) theTriggerEfficiencyCalculator_ = new TriggerEfficiencyCalculator_2016(nat);
-                else if(year == 2017) theTriggerEfficiencyCalculator_ = new TriggerEfficiencyCalculator_2017(nat);
-                else if(year == 2018) theTriggerEfficiencyCalculator_ = new TriggerEfficiencyCalculator_2018(nat);
+                if     (year == 2016) 
+                {
+                    theTriggerEfficiencyCalculator_ = new TriggerEfficiencyCalculator_2016(nat);
+                    // {
+                    //     ot.declareUserIntBranch("HLT_DoubleJet90_Double30_TripleBTagCSV_p087_Simulated", 0);
+                    //     ot.declareUserIntBranch("HLT_QuadJet45_TripleBTagCSV_p087"                     , 0);
+                    // }
+                }
+                else if(year == 2017) 
+                {
+                    theTriggerEfficiencyCalculator_ = new TriggerEfficiencyCalculator_2017(nat);
+                    // ot.declareUserIntBranch("HLT_PFHT300PT30_QuadPFJet_75_60_45_40_TriplePFBTagCSV_3p0", 0);
+                }
+                else if(year == 2018)
+                {
+                    theTriggerEfficiencyCalculator_ = new TriggerEfficiencyCalculator_2018(nat);
+                    // ot.declareUserIntBranch("HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepCSV_4p5", 0);
+                }
                 else
                 {
                     std::cout<<"Trigger scale factor year can be 2016, 2017 or 2018. Aborting..." << std::endl;
                     abort();
                 }
+
+                bool simulateTrigger = std::any_cast<bool>(parameterList_->at("SimulateTrigger"));
+                if(simulateTrigger) theTriggerEfficiencyCalculator_->simulateTrigger(&ot);
             }
         }
 

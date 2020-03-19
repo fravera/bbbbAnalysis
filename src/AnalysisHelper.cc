@@ -1443,6 +1443,7 @@ void AnalysisHelper::fillHistos()
 
     for(uint isample = 0; isample < numberOfThreads_; ++isample)
     {
+        if(isample >= totalMap.size()) break;
         std::promise<void> thePromise;
         auto theFuture = thePromise.get_future();
         theThreadVector.emplace_back( std::move(theFuture), std::thread(&AnalysisHelper::fillHistosSample, this, std::ref(*(totalMap.at(isample))), std::move(thePromise) ));

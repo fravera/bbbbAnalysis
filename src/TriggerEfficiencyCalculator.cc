@@ -4,6 +4,7 @@
 // #include "TriggerFitCurves2018.h"
 #include "Muon.h"
 #include "Electron.h"
+#include "TRandom.h"
 
 TriggerEfficiencyCalculator::TriggerEfficiencyCalculator(NanoAODTree& nat)
 : theNanoAODTree_(nat)
@@ -47,6 +48,14 @@ std::tuple<std::tuple<float,float,float>, std::tuple<float,float,float>, std::tu
 
 }
 
+void TriggerEfficiencyCalculator::simulateTrigger(OutputTree* theOutputTree)
+{
+    theOutputTree_ = theOutputTree;
+    simulateTrigger_ = true;
+    createTriggerSimulatedBranches();
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -63,6 +72,22 @@ std::tuple<float, float, float> TriggerEfficiencyCalculator_2016::calculateDataT
     std::tuple<float, float, float> Double90Double30Efficiency = calculateDataDouble90Double30Efficiency();
     std::tuple<float, float, float> Quad45Efficiency           = calculateDataQuad45Efficiency          ();
     std::tuple<float, float, float> AndEfficiency              = calculateDataAndEfficiency             ();
+    if(simulateTrigger_)
+    {
+        float Double90Double30Random = gRandom->Rndm();
+        if(Double90Double30Random < std::get<0>(Double90Double30Efficiency)) theOutputTree_->userInt("HLT_DoubleJet90_Double30_TripleBTagCSV_p087_Simulated"    ) = 1;
+        if(Double90Double30Random < std::get<1>(Double90Double30Efficiency)) theOutputTree_->userInt("HLT_DoubleJet90_Double30_TripleBTagCSV_p087_SimulatedUp"  ) = 1;
+        if(Double90Double30Random < std::get<2>(Double90Double30Efficiency)) theOutputTree_->userInt("HLT_DoubleJet90_Double30_TripleBTagCSV_p087_SimulatedDown") = 1;
+        
+        float Quad45Random = gRandom->Rndm();
+        if(Quad45Random < std::get<0>(Quad45Efficiency          )) theOutputTree_->userInt("HLT_QuadJet45_TripleBTagCSV_p087_Simulated"    ) = 1;
+        if(Quad45Random < std::get<1>(Quad45Efficiency          )) theOutputTree_->userInt("HLT_QuadJet45_TripleBTagCSV_p087_SimulatedUp"  ) = 1;
+        if(Quad45Random < std::get<2>(Quad45Efficiency          )) theOutputTree_->userInt("HLT_QuadJet45_TripleBTagCSV_p087_SimulatedDown") = 1;
+
+        theOutputTree_->userFloat("SimulatedTrigger_jet_pt2"  ) = pt2_  ;
+        theOutputTree_->userFloat("SimulatedTrigger_jet_pt4"  ) = pt4_  ;
+        theOutputTree_->userFloat("SimulatedTrigger_jet_sumPt") = sumPt_;
+    }
 
     // std::cout << "Data Efficiency -> Double90Double30Efficiency = " << Double90Double30Efficiency << " Quad45Efficiency = " << Quad45Efficiency << " AndEfficiency = " << AndEfficiency << " Double90Double30Efficiency * AndEfficiency = " << (Double90Double30Efficiency * AndEfficiency) << std::endl;
     float efficiencyCentral = std::get<0>(Double90Double30Efficiency) + std::get<0>(Quad45Efficiency) - (std::get<0>(Double90Double30Efficiency) * std::get<0>(AndEfficiency));
@@ -76,6 +101,20 @@ std::tuple<float, float, float> TriggerEfficiencyCalculator_2016::calculateMonte
     std::tuple<float, float, float> Double90Double30Efficiency = calculateMonteCarloDouble90Double30Efficiency();
     std::tuple<float, float, float> Quad45Efficiency           = calculateMonteCarloQuad45Efficiency          ();
     std::tuple<float, float, float> AndEfficiency              = calculateMonteCarloAndEfficiency             ();
+
+    if(simulateTrigger_)
+    {
+        float Double90Double30Random = gRandom->Rndm();
+        if(Double90Double30Random < std::get<0>(Double90Double30Efficiency)) theOutputTree_->userInt("HLT_DoubleJet90_Double30_TripleBTagCSV_p087_SimulatedMc"    ) = 1;
+        if(Double90Double30Random < std::get<1>(Double90Double30Efficiency)) theOutputTree_->userInt("HLT_DoubleJet90_Double30_TripleBTagCSV_p087_SimulatedMcUp"  ) = 1;
+        if(Double90Double30Random < std::get<2>(Double90Double30Efficiency)) theOutputTree_->userInt("HLT_DoubleJet90_Double30_TripleBTagCSV_p087_SimulatedMcDown") = 1;
+        
+        float Quad45Random = gRandom->Rndm();
+        if(Quad45Random < std::get<0>(Quad45Efficiency          )) theOutputTree_->userInt("HLT_QuadJet45_TripleBTagCSV_p087_SimulatedMc"    ) = 1;
+        if(Quad45Random < std::get<1>(Quad45Efficiency          )) theOutputTree_->userInt("HLT_QuadJet45_TripleBTagCSV_p087_SimulatedMcUp"  ) = 1;
+        if(Quad45Random < std::get<2>(Quad45Efficiency          )) theOutputTree_->userInt("HLT_QuadJet45_TripleBTagCSV_p087_SimulatedMcDown") = 1;
+    }
+
 
     // std::cout << "MonteCarlo Efficiency -> Double90Double30Efficiency = " << Double90Double30Efficiency << " Quad45Efficiency = " << Quad45Efficiency << " AndEfficiency = " << AndEfficiency << " Double90Double30Efficiency * AndEfficiency = " << (Double90Double30Efficiency * AndEfficiency) << std::endl;
     float efficiencyCentral = std::get<0>(Double90Double30Efficiency) + std::get<0>(Quad45Efficiency) - (std::get<0>(Double90Double30Efficiency) * std::get<0>(AndEfficiency));
@@ -290,6 +329,65 @@ void TriggerEfficiencyCalculator_2016::extractInformationFromEvent(std::vector<J
 
         if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 3.) sumPt_ += jet.P4().Pt();
     }
+
 }
 
+
+void  TriggerEfficiencyCalculator_2016::createTriggerSimulatedBranches()
+{
+    theOutputTree_->declareUserIntBranch("HLT_DoubleJet90_Double30_TripleBTagCSV_p087_Simulated"      , 0);
+    theOutputTree_->declareUserIntBranch("HLT_DoubleJet90_Double30_TripleBTagCSV_p087_SimulatedUp"    , 0);
+    theOutputTree_->declareUserIntBranch("HLT_DoubleJet90_Double30_TripleBTagCSV_p087_SimulatedDown"  , 0);
+
+    theOutputTree_->declareUserIntBranch("HLT_DoubleJet90_Double30_TripleBTagCSV_p087_SimulatedMc"    , 0);
+    theOutputTree_->declareUserIntBranch("HLT_DoubleJet90_Double30_TripleBTagCSV_p087_SimulatedMcUp"  , 0);
+    theOutputTree_->declareUserIntBranch("HLT_DoubleJet90_Double30_TripleBTagCSV_p087_SimulatedMcDown", 0);
+
+    theOutputTree_->declareUserIntBranch("HLT_QuadJet45_TripleBTagCSV_p087_Simulated"                 , 0);
+    theOutputTree_->declareUserIntBranch("HLT_QuadJet45_TripleBTagCSV_p087_SimulatedUp"               , 0);
+    theOutputTree_->declareUserIntBranch("HLT_QuadJet45_TripleBTagCSV_p087_SimulatedDown"             , 0);
+
+    theOutputTree_->declareUserIntBranch("HLT_QuadJet45_TripleBTagCSV_p087_SimulatedMc"               , 0);
+    theOutputTree_->declareUserIntBranch("HLT_QuadJet45_TripleBTagCSV_p087_SimulatedMcUp"             , 0);
+    theOutputTree_->declareUserIntBranch("HLT_QuadJet45_TripleBTagCSV_p087_SimulatedMcDown"           , 0);
+
+    theOutputTree_->declareUserFloatBranch("SimulatedTrigger_jet_pt2"  , -999);
+    theOutputTree_->declareUserFloatBranch("SimulatedTrigger_jet_pt4"  , -999);
+    theOutputTree_->declareUserFloatBranch("SimulatedTrigger_jet_sumPt", -999);
+}
+
+void  TriggerEfficiencyCalculator_2017::createTriggerSimulatedBranches()
+{
+    theOutputTree_->declareUserIntBranch("HLT_PFHT300PT30_QuadPFJet_75_60_45_40_TriplePFBTagCSV_3p0_Simulated"      , 0);
+    theOutputTree_->declareUserIntBranch("HLT_PFHT300PT30_QuadPFJet_75_60_45_40_TriplePFBTagCSV_3p0_SimulatedUp"    , 0);
+    theOutputTree_->declareUserIntBranch("HLT_PFHT300PT30_QuadPFJet_75_60_45_40_TriplePFBTagCSV_3p0_SimulatedDown"  , 0);
+
+    theOutputTree_->declareUserIntBranch("HLT_PFHT300PT30_QuadPFJet_75_60_45_40_TriplePFBTagCSV_3p0_SimulatedMc"    , 0);
+    theOutputTree_->declareUserIntBranch("HLT_PFHT300PT30_QuadPFJet_75_60_45_40_TriplePFBTagCSV_3p0_SimulatedMcUp"  , 0);
+    theOutputTree_->declareUserIntBranch("HLT_PFHT300PT30_QuadPFJet_75_60_45_40_TriplePFBTagCSV_3p0_SimulatedMcDown", 0);
+
+    theOutputTree_->declareUserFloatBranch("SimulatedTrigger_jet_pt1"  , -999);
+    theOutputTree_->declareUserFloatBranch("SimulatedTrigger_jet_pt2"  , -999);
+    theOutputTree_->declareUserFloatBranch("SimulatedTrigger_jet_pt3"  , -999);
+    theOutputTree_->declareUserFloatBranch("SimulatedTrigger_jet_pt4"  , -999);
+    theOutputTree_->declareUserFloatBranch("SimulatedTrigger_jet_sumPt", -999);
+
+}
+
+void  TriggerEfficiencyCalculator_2018::createTriggerSimulatedBranches()
+{
+    theOutputTree_->declareUserIntBranch("HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepCSV_4p5_Simulated"      , 0);
+    theOutputTree_->declareUserIntBranch("HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepCSV_4p5_SimulatedUp"    , 0);
+    theOutputTree_->declareUserIntBranch("HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepCSV_4p5_SimulatedDown"  , 0);
+
+    theOutputTree_->declareUserIntBranch("HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepCSV_4p5_SimulatedMc"    , 0);
+    theOutputTree_->declareUserIntBranch("HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepCSV_4p5_SimulatedMcUp"  , 0);
+    theOutputTree_->declareUserIntBranch("HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepCSV_4p5_SimulatedMcDown", 0);
+
+    theOutputTree_->declareUserFloatBranch("SimulatedTrigger_jet_pt1"  , -999);
+    theOutputTree_->declareUserFloatBranch("SimulatedTrigger_jet_pt2"  , -999);
+    theOutputTree_->declareUserFloatBranch("SimulatedTrigger_jet_pt3"  , -999);
+    theOutputTree_->declareUserFloatBranch("SimulatedTrigger_jet_pt4"  , -999);
+    theOutputTree_->declareUserFloatBranch("SimulatedTrigger_jet_sumPt", -999);
+}
 

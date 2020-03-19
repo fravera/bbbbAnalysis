@@ -66,10 +66,25 @@ Note: weight name must be unique otherwise you will not be able to create the ne
 make sure you hhave write permission on the input skims
 Remember to apply the weight to the fill histogram to use the while filling the plots
 
+## Unroll 2D HH_m vs H2_m plot:
+./scripts/Unroll2Dplots 2016DataPlots_NMSSM_XYH_bbbb_Fast/outPlotter.root data_BTagCSV_dataDriven selectionbJets_SignalRegion HH_m_H2_m selectionbJets_ControlRegionBlinded selectionbJets_SideBandBlinded
+
+
+## Produce ratio plots to check BDT reweight model:
+root -l
+.L privateTools/RatioPlot.C+
+RatioAll()
+
+## Create datacards for limits
+cd limits
+edit CreateAllDatacards.sh
+source CreateAllDatacards.sh
+
 ## Running combine
 Log on a CentOS 7 machine (lxplus, cmslpc-sl7) and install combine following the instructions [here](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/#for-end-users-that-dont-need-to-commit-or-do-any-development)
 
-After compiling  CMSSW, do ``git clone https://github.com/UF-HH/bbbbAnalysis`` (NB: no need to compile the code with scram and make exe since it will only run combine).
+After installing it, from the HiggsAnalysis/CombinedLimit directory do
+ln -s <path_to_bbbbAnalysis>/limits limits
 
 Scripts for running combine are under ``limits``.
 
