@@ -77,8 +77,8 @@
 
 
 #ttbar trigger closure test
-python scripts/submitSkimOnTier3.py --input=inputFiles/2016ResonantDiHiggs4BDataSets/MC_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8.txt   --tag="TTbar_Closure_triggered_v16"    --cfg=config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb.cfg  --puWeight=weights/MC_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8_PUweights.root --xs=1 --njobs=300
-python scripts/submitSkimOnTier3.py --input=inputFiles/2016ResonantDiHiggs4BDataSets/MC_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8.txt   --tag="TTbar_Closure_notTriggered_v16" --cfg=config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb.cfg  --puWeight=weights/MC_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8_PUweights.root --xs=1 --njobs=300 --skip-trigger
+python scripts/submitSkimOnTier3.py --input=inputFiles/2016ResonantDiHiggs4BDataSets/MC_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8.txt   --tag="TTbar_Closure_triggered_v23"    --cfg=config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb.cfg  --puWeight=weights/MC_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8_PUweights.root --xs=1 --njobs=300
+python scripts/submitSkimOnTier3.py --input=inputFiles/2016ResonantDiHiggs4BDataSets/MC_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8.txt   --tag="TTbar_Closure_notTriggered_v23" --cfg=config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb.cfg  --puWeight=weights/MC_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8_PUweights.root --xs=1 --njobs=300 --skip-trigger
 
 
 # python scripts/submitSkimOnTier3.py --input=inputFiles/2016_NMSSM_XYH_bbbb_Datasets/BTagCSV_Data.txt                       --tag=$1  --cfg=config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb.cfg --is-data --njobs=200
