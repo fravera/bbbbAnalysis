@@ -3458,7 +3458,7 @@ bool OfflineProducerHelper::select_gen_bb_bb (NanoAODTree& nat, EventInfo& ei)
 }
 
 
-bool OfflineProducerHelper::select_gen_bb_bb_forXYH (NanoAODTree& nat, EventInfo& ei)
+bool OfflineProducerHelper::select_gen_bb_bb_forXYH (NanoAODTree& nat, EventInfo& ei, const float deltaR_threshold)
 {
     if (!ei.gen_H1 || !ei.gen_H2)
     {
@@ -3541,7 +3541,7 @@ bool OfflineProducerHelper::select_gen_bb_bb_forXYH (NanoAODTree& nat, EventInfo
                 candidateMatched = itCandidate;
             }
         }
-        if(deltaR< (0.15*0.15))
+        if(deltaR< (deltaR_threshold*deltaR_threshold))
         {
             isCandidateFromH1Matched[candidateMatched] = true;
             matchedCandidateFromH1[itGenBJet] = candidateMatched;
@@ -3576,7 +3576,7 @@ bool OfflineProducerHelper::select_gen_bb_bb_forXYH (NanoAODTree& nat, EventInfo
                 candidateMatched = itCandidate;
             }
         }
-        if(deltaR< (0.15*0.15))
+        if(deltaR< (deltaR_threshold*deltaR_threshold))
         {
             isCandidateFromH2Matched[candidateMatched] = true;
             matchedCandidateFromH2[itGenBJet] = candidateMatched;
