@@ -413,10 +413,21 @@ int main(int argc, char** argv)
 
     if(useTriggerScaleFactors)
     {
-        parameterList.emplace("TriggerScaleFactorYear", config.readIntOpt("triggers::ScaleFactorYear"));     
         parameterList.emplace("SimulateTrigger", config.readBoolOpt("triggers::SimulateTrigger"));
-    }     
+        parameterList.emplace("TriggerEfficiencyFileName", config.readStringOpt("triggers::TriggerEfficiencyFileName"));
+        parameterList.emplace("ApplyTurnOnCuts", config.readBoolOpt("triggers::ApplyTurnOnCuts"));
+    }
 
+    int datasetYear = config.readIntOpt("triggers::DatasetYear");
+    parameterList.emplace("DatasetYear", datasetYear);
+    if(datasetYear == 2016)
+    {
+        parameterList.emplace("Double90Double30_minSumPt", config.readFloatOpt("triggers::Double90Double30_minSumPt"));
+        parameterList.emplace("Double90Double30_minPt2"  , config.readFloatOpt("triggers::Double90Double30_minPt2"  ));
+        parameterList.emplace("Double90Double30_minPt4"  , config.readFloatOpt("triggers::Double90Double30_minPt4"  ));
+        parameterList.emplace("Quad45_minSumPt"          , config.readFloatOpt("triggers::Quad45_minSumPt"          ));
+        parameterList.emplace("Quad45_minPt4"            , config.readFloatOpt("triggers::Quad45_minPt4"            ));
+    }     
 
     // parameterList.emplace("TriggerStudies",config.readBoolOpt ("triggers::TriggerStudies"));        
     parameterList.emplace("TriggerObjectAndMinNumberMap", triggerObjectAndMinNumberMap);

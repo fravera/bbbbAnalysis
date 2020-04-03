@@ -197,24 +197,27 @@ class OfflineProducerHelper{
         {
             if( std::any_cast<bool>(parameterList_->at("UseTriggerScaleFactor")) )
             {
-                int year = std::any_cast<int>(parameterList_->at("TriggerScaleFactorYear"));
-                if     (year == 2016) 
+                int year = std::any_cast<int>(parameterList_->at("DatasetYear"));
+                std::string triggerEfficiencyFileName = std::any_cast<std::string>(parameterList_->at("TriggerEfficiencyFileName"));
+                if(year == 2016) 
                 {
-                    theTriggerEfficiencyCalculator_ = new TriggerEfficiencyCalculator_2016(nat);
-                    // {
-                    //     ot.declareUserIntBranch("HLT_DoubleJet90_Double30_TripleBTagCSV_p087_Simulated", 0);
-                    //     ot.declareUserIntBranch("HLT_QuadJet45_TripleBTagCSV_p087"                     , 0);
-                    // }
+                    theTriggerEfficiencyCalculator_ = new TriggerEfficiencyCalculator_2016(triggerEfficiencyFileName, nat);
+                    static_cast<TriggerEfficiencyCalculator_2016*>(theTriggerEfficiencyCalculator_)->setTurnOnCuts
+                    (
+                        std::any_cast<float>(parameterList_->at("Double90Double30_minSumPt")),
+                        std::any_cast<float>(parameterList_->at("Double90Double30_minPt2"  )),
+                        std::any_cast<float>(parameterList_->at("Double90Double30_minPt4"  )),
+                        std::any_cast<float>(parameterList_->at("Quad45_minSumPt"          )),
+                        std::any_cast<float>(parameterList_->at("Quad45_minPt4"            ))
+                    );
                 }
                 else if(year == 2017) 
                 {
-                    theTriggerEfficiencyCalculator_ = new TriggerEfficiencyCalculator_2017(nat);
-                    // ot.declareUserIntBranch("HLT_PFHT300PT30_QuadPFJet_75_60_45_40_TriplePFBTagCSV_3p0", 0);
+                    theTriggerEfficiencyCalculator_ = new TriggerEfficiencyCalculator_2017(triggerEfficiencyFileName, nat);
                 }
                 else if(year == 2018)
                 {
-                    theTriggerEfficiencyCalculator_ = new TriggerEfficiencyCalculator_2018(nat);
-                    // ot.declareUserIntBranch("HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepCSV_4p5", 0);
+                    theTriggerEfficiencyCalculator_ = new TriggerEfficiencyCalculator_2018(triggerEfficiencyFileName, nat);
                 }
                 else
                 {
@@ -224,6 +227,7 @@ class OfflineProducerHelper{
 
                 bool simulateTrigger = std::any_cast<bool>(parameterList_->at("SimulateTrigger"));
                 if(simulateTrigger) theTriggerEfficiencyCalculator_->simulateTrigger(&ot);
+                theTriggerEfficiencyCalculator_->applyTurnOnCut(std::any_cast<bool>(parameterList_->at("ApplyTurnOnCuts")));
             }
         }
 

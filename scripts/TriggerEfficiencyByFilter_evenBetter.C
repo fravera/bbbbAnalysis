@@ -195,6 +195,7 @@ void ProduceAllTriggerEfficiencyInAFile2016(std::vector<std::tuple<std::shared_p
     std::string deepCSVJet_Pt300toInf = "&& jetFirstHighestDeepFlavB_pt > 300."                                       ;
     std::string deepCSVJet_barrelCut  = "&& abs(jetFirstHighestDeepFlavB_eta) <= 1.1"                                 ;
     std::vector<float> customBinning;
+    bool isSingleMuon = (datasetName == "SingleMuon");
 
 
     std::string triggerName = "Double90Quad30";
@@ -218,7 +219,8 @@ void ProduceAllTriggerEfficiencyInAFile2016(std::vector<std::tuple<std::shared_p
     filterCutDouble90Quad30 = normalizationCutDouble90Quad30 + "&& jetFirstHighestDeepFlavB_triggerFlag>=1";
     // filterCutDouble90Quad30 = normalizationCutDouble90Quad30 + "&& BTagCaloCSVp087Triple_jetFirstHighestDeepFlavB_triggerFlag>=1";  //for the future
     customBinning.clear();
-    customBinCreator(customBinning, 0., 0.5, 0.04, 0.88, 0.02,  1., 0.01);
+    if(isSingleMuon) customBinCreator(customBinning, 0., 0.5, 0.05, 1., 0.04);
+    else             customBinCreator(customBinning, 0., 0.5, 0.05, 0.9, 0.04,  1., 0.01);
     theEfficiencyEvaluator.addTrigger(triggerName, filterCutDouble90Quad30, "jetFirstHighestDeepFlavB_deepFlavB", normalizationCutDouble90Quad30, "BTagCaloCSVp087Triple; DeepFlavB^{1}; online efficliency"      , customBinning  , theColor);
 
     std::string bNormCutDouble90Quad30   = normalizationCutDouble90Quad30 + preselectionBTag;
@@ -270,7 +272,8 @@ void ProduceAllTriggerEfficiencyInAFile2016(std::vector<std::tuple<std::shared_p
     filterCutQuad45 = normalizationCutQuad45 + "&& jetFirstHighestDeepFlavB_triggerFlag>=1";
     // filterCutQuad45 = normalizationCutQuad45 + "&& BTagCaloCSVp087Triple_jetFirstHighestDeepFlavB_triggerFlag>=1";  //for the future
     customBinning.clear();
-    customBinCreator(customBinning, 0., 0.5, 0.04, 0.88, 0.02,  1., 0.01);
+    if(isSingleMuon) customBinCreator(customBinning, 0., 0.5, 0.05, 1., 0.04);
+    else             customBinCreator(customBinning, 0., 0.5, 0.05, 0.9, 0.04,  1., 0.01);
     theEfficiencyEvaluator.addTrigger(triggerName, filterCutQuad45        , "jetFirstHighestDeepFlavB_deepFlavB", normalizationCutQuad45        , "BTagCaloCSVp087Triple; DeepFlavB^{1}; online efficliency"      , customBinning  , theColor);
     
     std::string bNormCutQuad45 = normalizationCutQuad45 + preselectionBTag;
@@ -317,7 +320,8 @@ void ProduceAllTriggerEfficiencyInAFile2016(std::vector<std::tuple<std::shared_p
     filterCutAnd = normalizationCutAnd + "&& jetFirstHighestDeepFlavB_triggerFlag>=1";
     // filterCutAnd = normalizationCutAnd + "&& BTagCaloCSVp087Triple_jetFirstHighestDeepFlavB_triggerFlag>=1"; //for the future
     customBinning.clear();
-    customBinCreator(customBinning, 0., 0.5, 0.04, 0.88, 0.02,  1., 0.01);
+    if(isSingleMuon) customBinCreator(customBinning, 0., 0.5, 0.05, 1., 0.04);
+    else             customBinCreator(customBinning, 0., 0.5, 0.05, 0.9, 0.04,  1., 0.01);
     theEfficiencyEvaluator.addTrigger(triggerName, filterCutAnd           , "jetFirstHighestDeepFlavB_deepFlavB", normalizationCutAnd           , "BTagCaloCSVp087Triple; DeepFlavB^{1}; online efficliency"      , customBinning  , theColor);
     
     std::string bNormCutAnd = normalizationCutAnd + preselectionBTag;

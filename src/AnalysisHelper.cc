@@ -669,7 +669,7 @@ void AnalysisHelper::prepareSamples2DHistos()
                     else                                           hist = make_shared<TH2F> (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, xlow1, xup1, nbins2, xlow2, xup2);
                     systcoll.append(nominal_name_, hist);
 
-                    /*
+
                     // now loop over available syst and create more histos
                     if (doselW.at(ismpc) == 1)
                     {
@@ -679,11 +679,13 @@ void AnalysisHelper::prepareSamples2DHistos()
                             const Weight& currW = currSample.getWeights().at(iw);
                             for (int isys = 0; isys < currW.getNSysts(); ++isys)
                             {
-                                hname = formHistoName (sampleName, selName, varName, currW.getSystName(isys));
-                                std::shared_ptr<TH1F> histS;
-                                if (hasUserBinning) histS = make_shared<TH1F> (hname.c_str(), hname.c_str(), nbins, binning);
-                                else                histS = make_shared<TH1F> (hname.c_str(), hname.c_str(), nbins, xlow, xup);
-                                systcoll.append(nominal_name_, histS);
+                                hname = formHisto2DName (sampleName, selName, varName1, varName2, currW.getSystName(isys));
+                                std::shared_ptr<TH2F> histS;
+                                if (hasUserBinning1 && hasUserBinning2)        histS = make_shared<TH2F> (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, binning1, nbins2, binning2);
+                                else if (hasUserBinning1 && !hasUserBinning2)  histS = make_shared<TH2F> (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, binning1, nbins2, xlow2, xup2);
+                                else if (!hasUserBinning1 && hasUserBinning2)  histS = make_shared<TH2F> (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, xlow1, xup1, nbins2, binning2);
+                                else                                           histS = make_shared<TH2F> (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, xlow1, xup1, nbins2, xlow2, xup2);
+                                systcoll.append(currW.getSystName(isys), histS);
                             }
                         }
 
@@ -693,15 +695,17 @@ void AnalysisHelper::prepareSamples2DHistos()
                             const Weight& currW = currSel.getWeights().at(iw);
                             for (int isys = 0; isys < currW.getNSysts(); ++isys)
                             {
-                                hname = formHistoName (sampleName, selName, varName, currW.getSystName(isys));
-                                std::shared_ptr<TH1F> histS;
-                                if (hasUserBinning) histS = make_shared<TH1F> (hname.c_str(), hname.c_str(), nbins, binning);
-                                else                histS = make_shared<TH1F> (hname.c_str(), hname.c_str(), nbins, xlow, xup);
+                                hname = formHisto2DName (sampleName, selName, varName1, varName2, currW.getSystName(isys));
+                                std::shared_ptr<TH2F> histS;
+                                if (hasUserBinning1 && hasUserBinning2)        histS = make_shared<TH2F> (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, binning1, nbins2, binning2);
+                                else if (hasUserBinning1 && !hasUserBinning2)  histS = make_shared<TH2F> (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, binning1, nbins2, xlow2, xup2);
+                                else if (!hasUserBinning1 && hasUserBinning2)  histS = make_shared<TH2F> (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, xlow1, xup1, nbins2, binning2);
+                                else                                           histS = make_shared<TH2F> (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, xlow1, xup1, nbins2, xlow2, xup2);
                                 systcoll.append(currW.getSystName(isys), histS);
                             }
                         }
                     }
-                */
+
                     if (hasUserBinning1) delete[] binning1 ; // was allocated with new
                     if (hasUserBinning2) delete[] binning2 ; // was allocated with new
 
@@ -984,7 +988,7 @@ void AnalysisHelper::fillHistosSample(Sample& sample, std::promise<void> theProm
     {
         // note: no need to call later delete, because fg is set as the owner of the member TTF
         if (DEBUG) cout << sample.getDatasetCut().GetTitle() << endl;
-        TTreeFormula* TTF = new TTreeFormula (Form("TTF_%i", isel), (std::string(selections_.at(isel).getValue().GetTitle()) + " && " + std::string(sample.getDatasetCut().GetTitle())).data(), tree);
+        TTreeFormula* TTF = new TTreeFormula (Form("TTF_%i", isel), ("(" + std::string(selections_.at(isel).getValue().GetTitle()) + ") && " + std::string(sample.getDatasetCut().GetTitle())).data(), tree);
         vTTF.push_back(TTF);
         fg->SetNotify(TTF);
     }
@@ -1231,9 +1235,24 @@ void AnalysisHelper::fillHistosSample(Sample& sample, std::promise<void> theProm
                     for (unsigned int isyst = 1; isyst < plots.at(isel).at(ivar).size(); ++isyst) // start from 1, as 0 is nominal case
                     {
                         auto names = systMap.at(plots.at(isel).at(ivar).key(isyst));
-                        double wnom   = boost::apply_visitor( get_variant_as_double(), valuesMap[names.first]);
+                        // double wnom   = boost::apply_visitor( get_variant_as_double(), valuesMap[names.first]);
                         double wshift = boost::apply_visitor( get_variant_as_double(), valuesMap[names.second]);
-                        double wnew   = ( wshift == 0 && wnom == 0 ? 0.0 : wEvSample*wEvSel*wshift/wnom); // a protection from null weights. FIXME: should I redo all the multiplication to avoid this effect?
+                        // double wnew   = ( wshift == 0 && wnom == 0 ? 0.0 : wEvSample*wEvSel*wshift/wnom); // a protection from null weights. FIXME: should I redo all the multiplication to avoid this effect?
+                        double wnew = 1.;
+                        for (unsigned int iw = 0; iw < sample.getWeights().size(); ++iw)
+                        {
+                            if(names.first == sample.getWeights().at(iw).getName()) continue;
+                            wnew *= boost::apply_visitor(get_variant_as_double(), valuesMap[sample.getWeights().at(iw).getName()]);
+                        }
+                        for (unsigned int iw = 0; iw < currSel.getWeights().size(); ++iw)
+                        {   
+                            if(names.first == sample.getWeights().at(iw).getName()) continue;
+                            wnew *= boost::apply_visitor(get_variant_as_double(), valuesMap[currSel.getWeights().at(iw).getName()]);
+                        }
+                        wnew *= wshift;
+
+
+
                         plots.at(isel).at(ivar).at(isyst)->Fill(varvalue, wnew);                        
                         // cout << " :::::: DDDDD ::::: " << wEvSample*wEvSel*wshift/wnom << " " << wnew << " " << wEvSample << " " << wEvSel << " " << wshift << " " << wnom << " " << names.first << " " << names.second << " " << sample.getName() << " " << iEv << endl;
                     }
@@ -1258,9 +1277,22 @@ void AnalysisHelper::fillHistosSample(Sample& sample, std::promise<void> theProm
                     for (unsigned int isyst = 1; isyst < plots2D.at(isel).at(ivar).size(); ++isyst) // start from 1, as 0 is nominal case
                     {
                         auto names = systMap.at(plots2D.at(isel).at(ivar).key(isyst));
-                        double wnom   = boost::apply_visitor( get_variant_as_double(), valuesMap[names.first]);
+                        // double wnom   = boost::apply_visitor( get_variant_as_double(), valuesMap[names.first]);
                         double wshift = boost::apply_visitor( get_variant_as_double(), valuesMap[names.second]);
-                        double wnew   = ( wshift == 0 && wnom == 0 ? 0.0 : wEvSample*wEvSel*wshift/wnom); // a protection from null weights. FIXME: should I redo all the multiplication to avoid this effect?
+                        // double wnew   = ( wshift == 0 && wnom == 0 ? 0.0 : wEvSample*wEvSel*wshift/wnom); // a protection from null weights. FIXME: should I redo all the multiplication to avoid this effect?
+                        double wnew = 1.;
+                        for (unsigned int iw = 0; iw < sample.getWeights().size(); ++iw)
+                        {
+                            if(names.first == sample.getWeights().at(iw).getName()) continue;
+                            wnew *= boost::apply_visitor(get_variant_as_double(), valuesMap[sample.getWeights().at(iw).getName()]);
+                        }
+                        for (unsigned int iw = 0; iw < currSel.getWeights().size(); ++iw)
+                        {   
+                            if(names.first == sample.getWeights().at(iw).getName()) continue;
+                            wnew *= boost::apply_visitor(get_variant_as_double(), valuesMap[currSel.getWeights().at(iw).getName()]);
+                        }
+                        wnew *= wshift;
+                        
                         plots2D.at(isel).at(ivar).at(isyst)->Fill(varvalue1, varvalue2, wnew);                        
                         // cout << " :::::: DDDDD ::::: " << wEvSample*wEvSel*wshift/wnom << " " << wnew << " " << wEvSample << " " << wEvSel << " " << wshift << " " << wnom << " " << names.first << " " << names.second << " " << sample.getName() << " " << iEv << endl;
                     }
