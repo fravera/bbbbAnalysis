@@ -931,6 +931,15 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
                 return false;
             }
 
+            if(listOfPassedTriggers.size()>0)
+            {
+                if (!theTriggerEfficiencyCalculator_->isPassingTurnOnCuts(listOfPassedTriggers, ordered_jets))
+                {
+                    return false;
+                }
+            }
+                
+
             if(debug) std::cout<< "Event " << *(nat.run) << " - " << *(nat.luminosityBlock) << " - " << *(nat.event) << std::endl;
 
             std::vector< std::unique_ptr<Candidate> > candidatesForTriggerMatching;
@@ -940,7 +949,6 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
                 candidatesForTriggerMatching.emplace_back(std::make_unique<Jet>(jet));
             }
             
-
 
             Jet *highestDeepCSVjet = nullptr;
             if(any_cast<string>(parameterList_->at("ObjectsForCut")) == "TriggerObjects")

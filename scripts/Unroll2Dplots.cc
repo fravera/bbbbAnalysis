@@ -7,11 +7,11 @@
 #include "TCollection.h"
 #include "TKey.h"
 #include "TROOT.h"
+#include "TSystem.h"
 #include <iostream>
 #include <cmath>
 
-// g++  -std=c++17 -I `root-config --incdir` -o Unroll2Dplots Unroll2Dplots.cc `root-config --libs` -O3 && ./Unroll2Dplots ..//2016DataPlots_NMSSM_XYH_bbbb_triggerMatchedBKGNorm/outPlotter.root \
-data_BTagCSV_Background/selectionbJetsAndTrigger_SignalRegion/data_BTagCSV_Background_selectionbJetsAndTrigger_SignalRegion_HH_m_H2_m
+// g++  -std=c++17 -I `root-config --incdir` -o Unroll2Dplots Unroll2Dplots.cc `root-config --libs` -O3
 
 // ./Unroll2Dplots ..//2016DataPlots_NMSSM_XYH_bbbb_triggerMatchedBKGNorm/outPlotter.root \
 sig_privateMC_NMSSM_bbbb_MX_700_MY_300/selectionbJetsAndTrigger_SignalRegion/sig_privateMC_NMSSM_bbbb_MX_700_MY_300_selectionbJetsAndTrigger_SignalRegion_HH_m_H2_m
@@ -218,7 +218,7 @@ void Rebin2DPlot(TH2F *&the2Dplot, bool rebinX=true, uint xBinStart=1, uint yBin
 
 //-------------------------------------------------------------------------------------------------------------------------------------//
 
-TH1F* UnrollPlot(TH2F* the2Dplot)
+TH1F* UnrollPlot(TH2F* the2Dplot, float scale = 1.)
 {
     uint nXbin = the2Dplot->GetNbinsX();
     uint nYbin = the2Dplot->GetNbinsY();
@@ -245,8 +245,8 @@ TH1F* UnrollPlot(TH2F* the2Dplot)
     {
         for(uint xBin = 1; xBin <= nXbin; xBin++)
         {
-            the1Dplot->SetBinContent(xBin+(yBin-1)*nXbin, the2Dplot->GetBinContent(xBin,yBin));
-            the1Dplot->SetBinError(xBin+(yBin-1)*nXbin, the2Dplot->GetBinError(xBin,yBin));
+            the1Dplot->SetBinContent(xBin+(yBin-1)*nXbin, the2Dplot->GetBinContent(xBin,yBin)*scale);
+            the1Dplot->SetBinError(xBin+(yBin-1)*nXbin, the2Dplot->GetBinError(xBin,yBin)*scale);
         }
     }
     return the1Dplot;
@@ -256,6 +256,8 @@ TH1F* UnrollPlot(TH2F* the2Dplot)
 
 int main(int argc, char *argv[])
 {
+    gSystem->ResetSignal(kSigSegmentationViolation, kTRUE);
+
     if(argc < 5)
     {
         std::cout << "Usage: ./Unroll2Dplots <fileName> <dataset> <selection> <variable> <otherSelectionToUnroll - optional>" << std::endl;
@@ -279,32 +281,61 @@ int main(int argc, char *argv[])
     uint nYbin = the2Dplot->GetNbinsY();
     const double* xBinArray = the2Dplot->GetXaxis()->GetXbins()->GetArray();
     const double* yBinArray = the2Dplot->GetYaxis()->GetXbins()->GetArray();
+// std::cout<<__PRETTY_FUNCTION__<<__LINE__<<std::endl;
 
     TIter next(theInputFile.GetListOfKeys());
     TKey *key;
+// std::cout<<__PRETTY_FUNCTION__<<__LINE__<<std::endl;
 
     while ((key = (TKey*)next())) 
     {
+// std::cout<<__PRETTY_FUNCTION__<<__LINE__<<std::endl;
         TClass *cl = gROOT->GetClass(key->GetClassName());
         if (!cl->InheritsFrom("TDirectoryFile")) continue;
+// std::cout<<__PRETTY_FUNCTION__<<__LINE__<<std::endl;
         std::string theCurrentDataDataset = key->ReadObj()->GetName();
         std::cout << theCurrentDataDataset <<std::endl;
+        float scale=1.;
+        // if(theCurrentDataDataset.find("sig_NMSSM_bbbb_MX_") !=std::string::npos) scale = 1.1;
+// std::cout<<__PRETTY_FUNCTION__<<__LINE__<<std::endl;
         for(const auto& selectionName : selectionsToUnrollList)
         {
             theInputFile.cd();
+// std::cout<<__PRETTY_FUNCTION__<<__LINE__<<std::endl;
             theInputFile.cd((theCurrentDataDataset + "/" + selectionName).data());
             std::string theCurrentDirectory = theCurrentDataDataset + "/" + selectionName + "/";
             std::string theCurrentHistogramName = theCurrentDataDataset + "_" + selectionName + "_"  + variable;
-            TH2F *theCurrent2Dplot = (TH2F*)theInputFile.Get((theCurrentDirectory+theCurrentHistogramName).data());
-            std::string theRebinnedPlotName = theCurrentHistogramName + "_Rebinned";
-            TH2F *theRebinnedPlot = new TH2F(theRebinnedPlotName.data(),theRebinnedPlotName.data(),nXbin,xBinArray,nYbin,yBinArray);
+// std::cout<<__PRETTY_FUNCTION__<<__LINE__<<std::endl;
+            TIter nextHistogram(gDirectory->GetListOfKeys());
+// std::cout<<__PRETTY_FUNCTION__<<__LINE__<<std::endl;
+            TKey *keyHistogram;
+// std::cout<<__PRETTY_FUNCTION__<<__LINE__<<std::endl;
 
-            FillRebinnedPlot(theCurrent2Dplot,theRebinnedPlot);
+            while ((keyHistogram = (TKey*)nextHistogram())) 
+            {
+// std::cout<<__PRETTY_FUNCTION__<<__LINE__<<std::endl;
+                std::string theCurrentHistogramFullName = keyHistogram->ReadObj()->GetName();
+                TClass *cl2 = gROOT->GetClass(keyHistogram->GetClassName());
+                if (!cl2->InheritsFrom("TH2F")) continue;
+// std::cout<<__PRETTY_FUNCTION__<<__LINE__<<std::endl;
+// std::cout<<__PRETTY_FUNCTION__<<__LINE__<<std::endl;
+                if(theCurrentHistogramFullName.find(theCurrentHistogramName) == std::string::npos) continue;
+                if(theCurrentHistogramFullName.find("_Rebinned") != std::string::npos) continue;
+                // std::cout<<theCurrentHistogramFullName<<" - "<<theCurrentHistogramName<<std::endl;
 
-            theRebinnedPlot->Write(theRebinnedPlot->GetName(), TObject::kOverwrite);
+                TH2F *theCurrent2Dplot = (TH2F*)theInputFile.Get((theCurrentDirectory+theCurrentHistogramFullName).data());
+                std::string theRebinnedPlotName = theCurrentHistogramFullName + "_Rebinned";
+                TH2F *theRebinnedPlot = new TH2F(theRebinnedPlotName.data(),theRebinnedPlotName.data(),nXbin,xBinArray,nYbin,yBinArray);
 
-            TH1F* the1Dplot = UnrollPlot(theRebinnedPlot);
-            the1Dplot->Write(the1Dplot->GetName(), TObject::kOverwrite);
+                FillRebinnedPlot(theCurrent2Dplot,theRebinnedPlot);
+
+                theRebinnedPlot->Write(theRebinnedPlot->GetName(), TObject::kOverwrite);
+
+                TH1F* the1Dplot = UnrollPlot(theRebinnedPlot, scale);
+                the1Dplot->Write(the1Dplot->GetName(), TObject::kOverwrite);
+
+            }
+
         }
     }
 

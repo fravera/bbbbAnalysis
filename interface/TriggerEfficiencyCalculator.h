@@ -2,6 +2,9 @@
 #include "OutputTree.h"
 #include "Jet.h"
 #include "TFitResult.h"
+#include "TriggerFitCurves2016.h"
+// #include "TriggerFitCurves2017.h"
+// #include "TriggerFitCurves2018.h"
 
 class TriggerEfficiencyCalculator
 {
@@ -14,6 +17,8 @@ public:
     virtual std::tuple<float, float, float> getTriggerScaleFactor         (const std::vector<Jet>& selectedJets);
     virtual std::tuple<std::tuple<float, float, float>, std::tuple<float, float, float>, std::tuple<float, float, float>> getScaleFactorDataAndMonteCarloEfficiency(const std::vector<Jet>& selectedJets);
     void simulateTrigger(OutputTree* theOutputTree);
+    void applyTurnOnCut(bool applyCuts) {applyTurnOnCut_ = applyCuts;}
+    virtual bool isPassingTurnOnCuts(std::vector<std::string> listOfPassedTriggers, const std::vector<Jet>& selectedJets) = 0;
 
 protected:
     virtual void   createTriggerSimulatedBranches()                              = 0;
@@ -38,6 +43,7 @@ protected:
     NanoAODTree &theNanoAODTree_;
     OutputTree* theOutputTree_ {nullptr};
     bool simulateTrigger_ {false};
+    bool applyTurnOnCut_ {false};
 
 };
 
@@ -45,8 +51,17 @@ protected:
 class TriggerEfficiencyCalculator_2016 : public TriggerEfficiencyCalculator
 {
 public:
-    TriggerEfficiencyCalculator_2016(NanoAODTree& nat);
+    TriggerEfficiencyCalculator_2016(std::string inputFileName, NanoAODTree& nat);
     ~TriggerEfficiencyCalculator_2016();
+    bool isPassingTurnOnCuts(std::vector<std::string> listOfPassedTriggers, const std::vector<Jet>& selectedJets) override;
+    void setTurnOnCuts(float double90Double30_minSumPt, float double90Double30_minPt2, float double90Double30_minPt4, float quad45_minSumPt, float quad45_minPt4)
+    {
+        double90Double30_minSumPt_ = double90Double30_minSumPt;
+        double90Double30_minPt2_   = double90Double30_minPt2  ;
+        double90Double30_minPt4_   = double90Double30_minPt4  ;
+        quad45_minSumPt_           = quad45_minSumPt          ;
+        quad45_minPt4_             = quad45_minPt4            ;
+    }
     
     
 private:
@@ -93,10 +108,18 @@ private:
     {
         return fixInLimits(effL1) * fixInLimits(effQuad45CaloJet) *fixInLimits(effQuad45PFJet);
     }
+
     
-    float pt2_        {0.} ;
-    float pt4_        {0.} ;
-    float sumPt_      {0.} ;
+    TriggerFitCurves2016 fTriggerFitCurves;
+    float double90Double30_minSumPt_  {0.};
+    float double90Double30_minPt2_    {0.};
+    float double90Double30_minPt4_    {0.};
+    float quad45_minSumPt_            {0.};
+    float quad45_minPt4_              {0.};
+    
+    float pt2_        {0.};
+    float pt4_        {0.};
+    float sumPt_      {0.};
     std::vector<float> deepFlavBVector {0., 0., 0., 0.} ;
 };
 
@@ -105,8 +128,9 @@ private:
 class TriggerEfficiencyCalculator_2017 : public TriggerEfficiencyCalculator
 {
 public:
-    TriggerEfficiencyCalculator_2017(NanoAODTree& nat) : TriggerEfficiencyCalculator(nat) {}
+    TriggerEfficiencyCalculator_2017(std::string inputFileName, NanoAODTree& nat) : TriggerEfficiencyCalculator(nat) {}
     ~TriggerEfficiencyCalculator_2017() {}
+    bool isPassingTurnOnCuts(std::vector<std::string> listOfPassedTriggers, const std::vector<Jet>& selectedJets) override {return false;}
     
     
 private:
@@ -115,13 +139,12 @@ private:
     std::tuple<float, float, float> calculateMonteCarloTriggerEfficiency() override {return {1., 1., 1.};}
     std::tuple<float, float, float> calculateDataTriggerEfficiency      () override {return {1., 1., 1.};}
 
-    // static TriggerFitCurves2017 fTriggerFitCurves2017;
-
-    float pt1_        {0.} ;
-    float pt2_        {0.} ;
-    float pt3_        {0.} ;
-    float pt4_        {0.} ;
-    float sumPt_      {0.} ;
+    // TriggerFitCurves2017 fTriggerFitCurves;
+    float pt1_        {0.};
+    float pt2_        {0.};
+    float pt3_        {0.};
+    float pt4_        {0.};
+    float sumPt_      {0.};
     std::vector<float> deepFlavBVector {0., 0., 0., 0.} ;
 };
 
@@ -129,8 +152,9 @@ private:
 class TriggerEfficiencyCalculator_2018 : public TriggerEfficiencyCalculator
 {
 public:
-    TriggerEfficiencyCalculator_2018(NanoAODTree& nat) : TriggerEfficiencyCalculator(nat) {}
+    TriggerEfficiencyCalculator_2018(std::string inputFileName, NanoAODTree& nat) : TriggerEfficiencyCalculator(nat) {}
     ~TriggerEfficiencyCalculator_2018() {}
+    bool isPassingTurnOnCuts(std::vector<std::string> listOfPassedTriggers, const std::vector<Jet>& selectedJets) override {return false;}
     
     
 private:
@@ -139,8 +163,7 @@ private:
     std::tuple<float, float, float> calculateMonteCarloTriggerEfficiency() override {return {1., 1., 1.};}
     std::tuple<float, float, float> calculateDataTriggerEfficiency      () override {return {1., 1., 1.};}
 
-    // static TriggerFitCurves2018 fTriggerFitCurves2018;
-
+    // TriggerFitCurves2018 fTriggerFitCurves;
     float pt1_        {0.} ;
     float pt2_        {0.} ;
     float pt3_        {0.} ;
