@@ -787,6 +787,10 @@ void OfflineProducerHelper::doAll2JetCombinations (std::vector<TLorentzVector>& 
 
 bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, OutputTree &ot, std::vector<std::string> listOfPassedTriggers)
 {
+    // Suzanne aded this line in.
+    // ei.nJet = *(nat.GenPart_pdgId);
+    
+
     if (*(nat.nJet) < 4)
     {
         // std::cout << __PRETTY_FUNCTION__ << __LINE__ << "Njets less then 4" << std::endl;
@@ -795,9 +799,13 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
     std::vector<Jet> unsmearedJets;
     unsmearedJets.reserve(*(nat.nJet));
 
+    uint count;
     for (uint ij = 0; ij < *(nat.nJet); ++ij){
         unsmearedJets.emplace_back(Jet(ij, &nat));
+        count = ij;
     }
+
+    ei.nJet = count;
     
     //if some montecarlo weight are applied via a reshaping of the jets variables, they must be applied here
 
@@ -2229,6 +2237,7 @@ void OfflineProducerHelper::AddInclusiveCategoryVariables(NanoAODTree& nat, Even
         if ( abs(get_property(Jet(ij, &nat), Jet_eta)) >= 2.4 && abs(get_property(Jet(ij, &nat), Jet_eta)) < 5){njhf++;}
        }
        ei.nJet = njall;
+       std::cout << "[INFO] njall = " << njall <<std::endl;
        ei.nJetbarrel = njbarrel;
        ei.nJetendcap = njendcap;
        ei.nJethf = njhf;
@@ -3466,7 +3475,7 @@ bool OfflineProducerHelper::select_gen_bb_bb (NanoAODTree& nat, EventInfo& ei)
 }
 
 
-bool OfflineProducerHelper::select_gen_bb_bb_forXYH (NanoAODTree& nat, EventInfo& ei, const float deltaR_threshold)
+bool OfflineProducerHelper::select_gen_bb_bb_forXYH (NanoAODTree& nat, EventInfo& ei, const float maxDeltaR)
 {
     if (!ei.gen_H1 || !ei.gen_H2)
     {
@@ -3549,7 +3558,7 @@ bool OfflineProducerHelper::select_gen_bb_bb_forXYH (NanoAODTree& nat, EventInfo
                 candidateMatched = itCandidate;
             }
         }
-        if(deltaR< (deltaR_threshold*deltaR_threshold))
+        if(deltaR< (maxDeltaR*maxDeltaR))
         {
             isCandidateFromH1Matched[candidateMatched] = true;
             matchedCandidateFromH1[itGenBJet] = candidateMatched;
@@ -3584,7 +3593,7 @@ bool OfflineProducerHelper::select_gen_bb_bb_forXYH (NanoAODTree& nat, EventInfo
                 candidateMatched = itCandidate;
             }
         }
-        if(deltaR< (deltaR_threshold*deltaR_threshold))
+        if(deltaR< (maxDeltaR*maxDeltaR))
         {
             isCandidateFromH2Matched[candidateMatched] = true;
             matchedCandidateFromH2[itGenBJet] = candidateMatched;
@@ -3594,10 +3603,60 @@ bool OfflineProducerHelper::select_gen_bb_bb_forXYH (NanoAODTree& nat, EventInfo
 
     ei.gen_H2_b1_matchedflag = matchedCandidateFromH2[0];
     ei.gen_H2_b2_matchedflag = matchedCandidateFromH2[1];
-    if(matchedCandidateFromH2[0] == matchedCandidateFromH2[1] && matchedCandidateFromH2[0]!=-1) std::cout<< "Something went really bad\n";
-    
-    
 
+    if(matchedCandidateFromH2[0] == matchedCandidateFromH2[1] && matchedCandidateFromH2[0]!=-1) std::cout<< "Something went really bad\n";
+
+
+
+
+    // Match reco jets to gen jets but not per candidate
+
+    std::vector<double> recoBJetPhi {ei.H1_b1->P4().Phi(),     ei.H1_b2->P4().Phi(),     ei.H2_b1->P4().Phi(),     ei.H2_b2->P4().Phi() };
+    std::vector<double> recoBJetEta {ei.H1_b1->P4().Eta(),     ei.H1_b2->P4().Eta(),     ei.H2_b1->P4().Eta(),     ei.H2_b2->P4().Eta() };
+    std::vector<double> genBJetPhi  {ei.gen_H1_b1->P4().Phi(), ei.gen_H1_b2->P4().Phi(), ei.gen_H2_b1->P4().Phi(), ei.gen_H2_b2->P4().Phi()};
+    std::vector<double> genBJetEta  {ei.gen_H1_b1->P4().Eta(), ei.gen_H1_b2->P4().Eta(), ei.gen_H2_b1->P4().Eta(), ei.gen_H2_b2->P4().Eta()};
+    std::vector<bool> isMatchedToGenJet(4,false);
+    std::vector<int>  matchedRecoToGen(4,-1);
+
+    // std::cout << "[INFO] Processing new event " << std::endl;
+    for(uint8_t itGenBJet=0; itGenBJet<4; ++itGenBJet) // Loop over the four gen jets.
+    {
+        
+        double deltaR = 1024;
+        int    candidateMatched=-1;
+        for(uint8_t itCandidate=0; itCandidate<4; ++itCandidate) // Loop over the four reco jets.
+        {
+            double tmpDeltaR = deltaPhi(recoBJetPhi[itCandidate],genBJetPhi[itGenBJet])*deltaPhi(recoBJetPhi[itCandidate],genBJetPhi[itGenBJet]) + (recoBJetEta[itCandidate]-genBJetEta[itGenBJet])*(recoBJetEta[itCandidate]-genBJetEta[itGenBJet]); // This is actually DeltaR-squared
+            if( tmpDeltaR < deltaR ) // Check if deltaR is lower for this reco jet than previous reco jets
+            {
+                // std::cout << "Replacing  deltaR " << deltaR << " with " << tmpDeltaR << std::endl;
+                deltaR = tmpDeltaR;
+                // std::cout << "Replacing candidate Matched " << candidateMatched << " with " << itCandidate << std::endl;
+                candidateMatched = itCandidate;
+                
+            }
+        }
+        if( deltaR < ( maxDeltaR * maxDeltaR ) ) // Check if lowest DeltaR between gen and reco is less than maxDeltaR. 
+        {
+            // std::cout << "[SUCCESS] Match found! GenJet #" << itGenBJet << " with RecoJet #" << candidateMatched << std::endl;
+            isMatchedToGenJet[candidateMatched] = true;
+            matchedRecoToGen[itGenBJet] = candidateMatched;
+        }
+
+    }
+    
+    ei.recoJetMatchedToGenJet1 = matchedRecoToGen[0];
+    ei.recoJetMatchedToGenJet2 = matchedRecoToGen[1];
+    ei.recoJetMatchedToGenJet3 = matchedRecoToGen[2];
+    ei.recoJetMatchedToGenJet4 = matchedRecoToGen[3];
+
+    if(matchedRecoToGen[0] == matchedRecoToGen[1] && matchedRecoToGen[0]!=-1) {matchedRecoToGen[0] = -1; matchedRecoToGen[1] = -1;}//std::cout<< "[ERROR] Something went very wrong\n" << matchedRecoToGen[0] << " and " << matchedRecoToGen[1] << std::endl;
+    if(matchedRecoToGen[0] == matchedRecoToGen[2] && matchedRecoToGen[2]!=-1) {matchedRecoToGen[0] = -1; matchedRecoToGen[2] = -1;}//std::cout<< "[ERROR] Something went very wrong\n" << matchedRecoToGen[0] << " and " << matchedRecoToGen[2] << std::endl;
+    if(matchedRecoToGen[0] == matchedRecoToGen[3] && matchedRecoToGen[3]!=-1) {matchedRecoToGen[0] = -1; matchedRecoToGen[3] = -1;}//std::cout<< "[ERROR] Something went very wrong\n" << matchedRecoToGen[0] << " and " << matchedRecoToGen[3] << std::endl;
+    if(matchedRecoToGen[1] == matchedRecoToGen[2] && matchedRecoToGen[1]!=-1) {matchedRecoToGen[1] = -1; matchedRecoToGen[2] = -1;}//std::cout<< "[ERROR] Something went very wrong\n" << matchedRecoToGen[1] << " and " << matchedRecoToGen[2] << std::endl;
+    if(matchedRecoToGen[1] == matchedRecoToGen[3] && matchedRecoToGen[3]!=-1) {matchedRecoToGen[1] = -1; matchedRecoToGen[3] = -1;}//std::cout<< "[ERROR] Something went very wrong\n" << matchedRecoToGen[1] << " and " << matchedRecoToGen[3] << std::endl;
+    if(matchedRecoToGen[2] == matchedRecoToGen[3] && matchedRecoToGen[2]!=-1) {matchedRecoToGen[2] = -1; matchedRecoToGen[3] = -1;}//std::cout<< "[ERROR] Something went very wrong\n" << matchedRecoToGen[2] << " and " << matchedRecoToGen[3] << std::endl;
+    
     return all_ok;
 }
 

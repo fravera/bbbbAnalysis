@@ -112,6 +112,12 @@ class OutputTree {
         DECLARE_m_pt_eta_phi_p4(gen_q2_in)
         DECLARE_m_pt_eta_phi_p4(gen_q1_out)
         DECLARE_m_pt_eta_phi_p4(gen_q2_out)
+        float recoJetMatchedToGenJet1;
+        float recoJetMatchedToGenJet2;
+        float recoJetMatchedToGenJet3;
+        float recoJetMatchedToGenJet4;
+
+
 
         float triggerScaleFactor       ;
         float triggerDataEfficiency    ;

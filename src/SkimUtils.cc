@@ -391,7 +391,18 @@ void SkimUtils::fill_output_tree(OutputTree& ot, NanoAODTree& nat, EventInfo& ei
     COPY_OPTIONAL_m_pt_eta_phi_p4(gen_q2_in)
     COPY_OPTIONAL_m_pt_eta_phi_p4(gen_q1_out)
     COPY_OPTIONAL_m_pt_eta_phi_p4(gen_q2_out) 
+
+
+
+
+    if(ei.recoJetMatchedToGenJet1) ot.recoJetMatchedToGenJet1 = *ei.recoJetMatchedToGenJet1;
+    if(ei.recoJetMatchedToGenJet2) ot.recoJetMatchedToGenJet2 = *ei.recoJetMatchedToGenJet2;
+    if(ei.recoJetMatchedToGenJet3) ot.recoJetMatchedToGenJet3 = *ei.recoJetMatchedToGenJet3;
+    if(ei.recoJetMatchedToGenJet4) ot.recoJetMatchedToGenJet4 = *ei.recoJetMatchedToGenJet4;
   
+
+
+
     if (ei.gen_q1_out && ei.gen_q2_out)
     {
         TLorentzVector p4_JJ = ei.gen_q1_out->P4() + ei.gen_q2_out->P4();

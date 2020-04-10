@@ -38,6 +38,11 @@ struct EventInfo{
     boost::optional<GenPart> gen_H2_b2;
     boost::optional<int>     gen_H2_b2_matchedflag;
 
+    boost::optional<int>     recoJetMatchedToGenJet1;
+    boost::optional<int>     recoJetMatchedToGenJet2;
+    boost::optional<int>     recoJetMatchedToGenJet3;
+    boost::optional<int>     recoJetMatchedToGenJet4;
+
 
     // VBF incoming and outcoming partons
     // hard scatter gen particles
