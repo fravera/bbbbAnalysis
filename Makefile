@@ -1,3 +1,4 @@
+  
 SRC=src
 
 .PHONY: all clean cleandict exe test

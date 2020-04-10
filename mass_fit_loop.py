@@ -13,7 +13,7 @@ MY_vals = np.array([60,  70, 80, 90, 100, 125, 150, 200, 250, 300, 400, 500, 600
 
 how_many_y_masses = []
 
-c = TCanvas('c, 'Mass Fits')
+c = TCanvas('c', 'Mass Fits')
 c.Divide(2,1)
 filename_save = 'mass_fits.pdf'
 c.Print(filename_save+"[") # This allows one to build a pdf and add multiple canvases to the same pdf file. This line opens the pdf file.

@@ -4,9 +4,10 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.colors import ListedColormap
 import numpy as np
+from GenHisto import Histogram
 
 # Process Higgs mass mean with or without cuts applied.
-with_cuts = False
+with_cuts = True
 mass_title = 'Higgs Mass Mean'
 mass_filename = 'higgs_mass_mean'
 sigma_title = 'Higgs Mass Sigma'
@@ -42,17 +43,16 @@ df_pivot_m = df.pivot(index='m_Y',columns='m_X',values='m_H')
 
 # Attempt to remove "0.0" labels from Seaborn's annot option.
 df_temp = df["m_H"].tolist()
-df_title = []
 for i,obj in enumerate(df_temp):
     if obj == 0.0:
         df_temp[i] = ''
     else: df_temp[i] = round(obj,1) # Round mH values to first decimal place.
 
-df_title = np.transpose(np.asarray([df_temp[i:i+19] for i in range(0,len(df_temp),19)]))
+df_title_m = np.transpose(np.asarray([df_temp[i:i+19] for i in range(0,len(df_temp),19)]))
 
 print('[INFO] Creating Higgs mean mass distribution heatmap.')
 # Build a heatmap of the mean mH using Seaborn 
-hm = sns.heatmap(df_pivot_m,cmap=newcmp,annot=df_title,annot_kws={"size": 7},fmt='', vmin=110, vmax=135)
+hm = sns.heatmap(df_pivot_m,cmap=newcmp,annot=df_title_m,annot_kws={"size": 7},fmt='', vmin=110, vmax=135)
 hm.figure.tight_layout()
 hm.invert_yaxis()
 hm.set_title(mass_title, fontdict={'fontsize':16})
@@ -68,7 +68,6 @@ df_pivot_s = df.pivot(index='m_Y',columns='m_X',values='sigma')
 
 # Attempt to remove "0.0" labels from Seaborn's annot option.
 df_temp = df["sigma"].tolist()
-df_title = []
 for i,obj in enumerate(df_temp):
     if obj == 0.0:
         df_temp[i] = ''
@@ -81,3 +80,18 @@ hs = sns.heatmap(df_pivot_s,cmap=newcmp,annot=df_title,annot_kws={"size": 7},fmt
 hs.invert_yaxis()
 hs.set_title(sigma_title, fontdict={'fontsize':16})
 hs.figure.savefig(sigma_filename)
+
+
+
+
+
+
+plt.clf()
+
+
+
+
+
+
+test_histo = Histogram(filesave='testfile.pdf', xdata=df_pivot_m, isDataFrame=True, label=df_title_m, cmap=newcmp)
+test_histo.Make3DPlot()
