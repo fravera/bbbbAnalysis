@@ -1,0 +1,12 @@
+root://cmsxrootd.fnal.gov//store/mc/RunIISummer16NanoAODv6/GluGluToHHTo4B_node_SM_13TeV-madgraph/NANOAODSIM/PUMoriond17_Nano25Oct2019_102X_mcRun2_asymptotic_v7-v1/70000/92B7582E-66DC-6849-87CE-D8241F4B2E09.root
+root://cmsxrootd.fnal.gov//store/mc/RunIISummer16NanoAODv6/GluGluToHHTo4B_node_9_13TeV-madgraph/NANOAODSIM/PUMoriond17_Nano25Oct2019_102X_mcRun2_asymptotic_v7-v1/270000/6E191F96-DAA4-F84A-8FB2-FA97FED47030.root
+root://cmsxrootd.fnal.gov//store/mc/RunIISummer16NanoAODv6/GluGluToHHTo4B_node_box_13TeV-madgraph/NANOAODSIM/PUMoriond17_Nano25Oct2019_102X_mcRun2_asymptotic_v7-v1/270000/72D39E57-26A9-724E-90B0-3D883EC5CD92.root
+root://cmsxrootd.fnal.gov//store/mc/RunIISummer16NanoAODv6/GluGluToHHTo4B_node_6_13TeV-madgraph/NANOAODSIM/PUMoriond17_Nano25Oct2019_102X_mcRun2_asymptotic_v7-v1/270000/99AFC358-6142-5D43-B4F4-4359ACEE7D53.root
+root://cmsxrootd.fnal.gov//store/mc/RunIISummer16NanoAODv6/GluGluToHHTo4B_node_12_13TeV-madgraph/NANOAODSIM/PUMoriond17_Nano25Oct2019_102X_mcRun2_asymptotic_v7-v1/70000/0CE103D0-2489-0B4B-A6B1-D8A66815497A.root
+root://cmsxrootd.fnal.gov//store/mc/RunIISummer16NanoAODv6/GluGluToHHTo4B_node_8_13TeV-madgraph/NANOAODSIM/PUMoriond17_Nano25Oct2019_102X_mcRun2_asymptotic_v7-v1/270000/47F13619-683B-AE4D-9AC3-87376012A2CB.root
+root://cmsxrootd.fnal.gov//store/mc/RunIISummer16NanoAODv6/GluGluToHHTo4B_node_3_13TeV-madgraph/NANOAODSIM/PUMoriond17_Nano25Oct2019_102X_mcRun2_asymptotic_v7-v1/70000/B4E971C8-3C17-3544-97A8-0500AE38E830.root
+root://cmsxrootd.fnal.gov//store/mc/RunIISummer16NanoAODv6/GluGluToHHTo4B_node_2_13TeV-madgraph/NANOAODSIM/PUMoriond17_Nano25Oct2019_102X_mcRun2_asymptotic_v7-v1/70000/771C49E2-B792-204D-A10D-2445922B2B25.root
+root://cmsxrootd.fnal.gov//store/mc/RunIISummer16NanoAODv6/GluGluToHHTo4B_node_7_13TeV-madgraph/NANOAODSIM/PUMoriond17_Nano25Oct2019_102X_mcRun2_asymptotic_v7-v1/270000/2E35C326-819E-F149-8A3A-A7AFC5BF811B.root
+root://cmsxrootd.fnal.gov//store/mc/RunIISummer16NanoAODv6/GluGluToHHTo4B_node_10_13TeV-madgraph/NANOAODSIM/PUMoriond17_Nano25Oct2019_102X_mcRun2_asymptotic_v7-v1/70000/219A629E-6049-BD4B-ACCA-922D3AA3547E.root
+root://cmsxrootd.fnal.gov//store/mc/RunIISummer16NanoAODv6/GluGluToHHTo4B_node_13_13TeV-madgraph/NANOAODSIM/PUMoriond17_Nano25Oct2019_102X_mcRun2_asymptotic_v7-v1/270000/4C54D903-454C-0B4E-B427-3CB9824BD65E.root
+root://cmsxrootd.fnal.gov//store/mc/RunIISummer16NanoAODv6/GluGluToHHTo4B_node_11_13TeV-madgraph/NANOAODSIM/PUMoriond17_Nano25Oct2019_102X_mcRun2_asymptotic_v7-v1/270000/27ECD7B4-1811-CE4E-98E9-BC098DAE1820.root

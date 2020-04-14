@@ -16,6 +16,7 @@ skim_ntuple.exe --input inputFiles/2016ResonantDiHiggs4BDataSets/BTagCSV_Data_Fi
 
 skim_ntuple.exe --input inputFiles/2016_NMSSM_XYH_bbbb_Datasets/BTagCSV_Data.txt --cfg config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb.cfg --is-data --output test_NMSSM_XYH_bbbb_Data.root --maxEvts 1000000
 
+
 cmsDriver.py myNanoProdData -s NANO --data --eventcontent NANOAOD --datatier NANOAOD  --no_exec  --conditions 80X_dataRun2_2016LegacyRepro_v4 --era Run2_2016,run2_nanoAOD_94X2016 --customise_commands="process.add_(cms.Service('InitRootHandlers', EnableIMT = cms.untracked.bool(False)))"
 
 skim_ntuple.exe --input inputFiles/2016ResonantDiHiggs4BDataSets/BTagCSV_Data_FileList_triggerTest.txt  --cfg config/skim_2016ResonantDiHiggs4B.cfg --is-data --output test_BTagCSV.root --maxEvts 50000

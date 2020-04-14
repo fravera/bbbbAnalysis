@@ -49,7 +49,7 @@ SONAME	 =  libbbbbAnalysis.so
 SONAME2  =  bbbbAnalysis
 SOFLAGS  =  -Wl,-soname,$(SONAME)
 
-CMSLIBS =  -L$(CMSSW_BASE)/lib/$(SCRAM_ARCH)/ -lPhysicsToolsKinFitter -lJetMETCorrectionsModules
+CMSLIBS =  -L$(CMSSW_BASE)/lib/$(SCRAM_ARCH)/ -lPhysicsToolsKinFitter -lJetMETCorrectionsModules  -lCondFormatsJetMETObjects -lFWCoreMessageLogger
 GLIBS   =  $(ROOTGLIBS) -lm -ldl -rdynamic -lboost_program_options -lGenVector -lFoam -lMinuit -lTMVA -lMLP -lXMLIO -lGpad  -lTreePlayer -lRooFit -lRooFitCore -lRooStats  $(CMSLIBS)
 
 #################################################

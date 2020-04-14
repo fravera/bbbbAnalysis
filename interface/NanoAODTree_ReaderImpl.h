@@ -148,12 +148,11 @@ class NanoAODTree_ReaderImpl {
         NanoReaderArray<Bool_t>    Electron_mvaSpring16GP_WP80          {fReader, "Electron_mvaSpring16GP_WP80"};
         NanoReaderArray<Bool_t>    Electron_mvaSpring16GP_WP90          {fReader, "Electron_mvaSpring16GP_WP90"};
         NanoReaderArray<Bool_t>    Electron_mvaSpring16HZZ_WPL          {fReader, "Electron_mvaSpring16HZZ_WPL"};
-
-        // NanoReaderArray<Int_t>     Electron_genPartIdx                  {fReader, "Electron_genPartIdx"};
-        // NanoReaderArray<UChar_t>   Electron_genPartFlav                 {fReader, "Electron_genPartFlav"};
+        NanoReaderArray<Bool_t>    Electron_mvaFall17V2Iso_WPL          {fReader, "Electron_mvaFall17V2Iso_WPL"};
+        NanoReaderArray<Bool_t>    Electron_mvaFall17V2Iso_WP90         {fReader, "Electron_mvaFall17V2Iso_WP90"};
+        NanoReaderArray<Bool_t>    Electron_mvaFall17V2Iso_WP80         {fReader, "Electron_mvaFall17V2Iso_WP80"};
         NanoReaderArray<Int_t>     Electron_genPartIdx                   {fReader, "Electron_genPartIdx"};
         NanoReaderArray<UChar_t>   Electron_genPartFlav                  {fReader, "Electron_genPartFlav"};
-
         NanoReaderArray<UChar_t>   Electron_cleanmask                   {fReader, "Electron_cleanmask"};
 
         NanoReaderValue<UInt_t>    nFatJet                              {fReader, "nFatJet"};
@@ -238,6 +237,7 @@ class NanoAODTree_ReaderImpl {
         NanoReaderArray<Float_t>   Jet_rawFactor                        {fReader, "Jet_rawFactor"};
         NanoReaderArray<Float_t>   Jet_bRegCorr                         {fReader, "Jet_bRegCorr"};
         // NanoReaderArray<Float_t>   Jet_bRegCorr                         {fReader, is_2016_MC_ ? "Jet_bReg" :"Jet_bRegCorr"};
+        NanoReaderArray<Float_t>   Jet_bRegRes                          {fReader, "Jet_bRegRes"};
         NanoReaderArray<Int_t>     Jet_electronIdx1                     {fReader, "Jet_electronIdx1"};
         NanoReaderArray<Int_t>     Jet_electronIdx2                     {fReader, "Jet_electronIdx2"};
         NanoReaderArray<Int_t>     Jet_jetId                            {fReader, "Jet_jetId"};
@@ -318,6 +318,7 @@ class NanoAODTree_ReaderImpl {
         NanoReaderArray<Bool_t>    Muon_mediumId                        {fReader, "Muon_mediumId"};
         NanoReaderArray<Bool_t>    Muon_softId                          {fReader, "Muon_softId"};
         NanoReaderArray<Bool_t>    Muon_tightId                         {fReader, "Muon_tightId"};
+        NanoReaderArray<Bool_t>    Muon_looseId                         {fReader, "Muon_looseId"};
         
         NanoReaderValue<UInt_t>    nPhoton                              {fReader, "nPhoton"};
         NanoReaderArray<Float_t>   Photon_eCorr                         {fReader, "Photon_eCorr"};

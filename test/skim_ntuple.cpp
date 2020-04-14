@@ -36,7 +36,7 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-    // gSystem->ResetSignal(kSigSegmentationViolation, kTRUE);
+    gSystem->ResetSignal(kSigSegmentationViolation, kTRUE);
     
     cout << "[INFO] ... starting program" << endl;
 
@@ -57,11 +57,14 @@ int main(int argc, char** argv)
         ("maxEvts"       , po::value<int>()->default_value(-1), "max number of events to process")
         ("puWeight"      , po::value<string>()->default_value(""), "PU weight file name")
         // flags
+        ("jes-shift-syst", po::value<string>()->default_value("nominal"), "Name of the JES (scale) source uncertainty to be shifted. Usage as <name>:<up/down>. Pass -nominal- to not shift the jets")
+        ("jer-shift-syst", po::value<string>()->default_value("nominal"), "Name of the JER (resolution) source uncertainty to be shifted. Usage as <jer/bjer>:<up/down>. Pass -nominal- to not shift the jets")
         ("is-data"       , po::value<bool>()->zero_tokens()->implicit_value(true)->default_value(false), "mark as a data sample (default is false)")
         ("is-signal"     , po::value<bool>()->zero_tokens()->implicit_value(true)->default_value(false), "mark as a HH signal sample (default is false)")
         ("is-VBF-sig"    , po::value<bool>()->zero_tokens()->implicit_value(true)->default_value(false), "mark as a HH VBF signal sample (default is false)")
         ("save-p4"       , po::value<bool>()->zero_tokens()->implicit_value(true)->default_value(false), "save the tlorentzvectors in the output")
         ("skip-trigger"  , po::value<bool>()->zero_tokens()->implicit_value(true)->default_value(false), "Skip trigger check")
+
     ;
 
     po::variables_map opts;
@@ -141,6 +144,10 @@ int main(int argc, char** argv)
             throw std::runtime_error("XYH_4B_selection can be done only using PreselectionCut = FourBjetCut");
         }
     }
+    else if(bbbbChoice == "XYH_4B_selection"){
+        parameterList.emplace("LeadingHiggsMass"   ,config.readFloatOpt("parameters::LeadingHiggsMass")   );
+        parameterList.emplace("SubleadingHiggsMass",config.readFloatOpt("parameters::SubleadingHiggsMass"));
+    }
     // else if(other selection type){
     //     parameters fo be retreived;
     // }  
@@ -165,6 +172,8 @@ int main(int argc, char** argv)
         parameterList.emplace("MinDeepCSV"          ,config.readFloatOpt("parameters::MinDeepCSV"          ));
         parameterList.emplace("MinPt"               ,config.readFloatOpt("parameters::MinPt"               ));
         parameterList.emplace("MaxAbsEta"           ,config.readFloatOpt("parameters::MaxAbsEta"           ));
+        parameterList.emplace("JetId"               ,config.readIntOpt  ("parameters::JetId"               ));
+        parameterList.emplace("PUId"                ,config.readIntOpt  ("parameters::PUId"                ));
         parameterList.emplace("UseAntiTagOnOneBjet" ,config.readBoolOpt ("parameters::UseAntiTagOnOneBjet" ));
     }  
     // else if(other selection type){
@@ -236,6 +245,24 @@ int main(int argc, char** argv)
 
 
     } 
+    else if(objectsForCut == "IsolatedLeptons"){
+        parameterList.emplace("ElectronMinPt"        ,config.readFloatOpt("parameters::ElectronMinPt"       ));
+        parameterList.emplace("ElectronMaxAbsEta"    ,config.readFloatOpt("parameters::ElectronMaxAbsEta"   ));
+        parameterList.emplace("ElectronMaxPfIso"     ,config.readFloatOpt("parameters::ElectronMaxPfIso"    ));
+        parameterList.emplace("ElectronMaxBarrelDxy" ,config.readFloatOpt("parameters::ElectronMaxBarrelDxy"));
+        parameterList.emplace("ElectronMaxBarrelDz"  ,config.readFloatOpt("parameters::ElectronMaxBarrelDz" ));
+        parameterList.emplace("ElectronMaxEndcapDxy" ,config.readFloatOpt("parameters::ElectronMaxEndcapDxy"));
+        parameterList.emplace("ElectronMaxEndcapDz"  ,config.readFloatOpt("parameters::ElectronMaxEndcapDz" ));
+        parameterList.emplace("ElectronID"           ,config.readIntOpt("parameters::ElectronID"            ));
+        parameterList.emplace("MuonMinPt"            ,config.readFloatOpt("parameters::MuonMinPt"           ));
+        parameterList.emplace("MuonMaxAbsEta"        ,config.readFloatOpt("parameters::MuonMaxAbsEta"       ));
+        parameterList.emplace("MuonMaxPfIso"         ,config.readFloatOpt("parameters::MuonMaxPfIso"        ));
+        parameterList.emplace("MuonMaxBarrelDxy"     ,config.readFloatOpt("parameters::MuonMaxBarrelDxy"    ));
+        parameterList.emplace("MuonMaxBarrelDz"      ,config.readFloatOpt("parameters::MuonMaxBarrelDz"     ));
+        parameterList.emplace("MuonMaxEndcapDxy"     ,config.readFloatOpt("parameters::MuonMaxEndcapDxy"    ));
+        parameterList.emplace("MuonMaxEndcapDz"      ,config.readFloatOpt("parameters::MuonMaxEndcapDz"     ));
+        parameterList.emplace("MuonID"               ,config.readIntOpt("parameters::MuonID"                ));
+    }
     else if(objectsForCut == "None"){
     }  
     // else if(other selection type){
@@ -411,8 +438,8 @@ int main(int argc, char** argv)
     {
         parameterList.emplace("SimulateTrigger", config.readBoolOpt("triggers::SimulateTrigger"));
         parameterList.emplace("TriggerEfficiencyFileName", config.readStringOpt("triggers::TriggerEfficiencyFileName"));
-        parameterList.emplace("ApplyTurnOnCuts", config.readBoolOpt("triggers::ApplyTurnOnCuts"));
     }
+    parameterList.emplace("ApplyTurnOnCuts", config.readBoolOpt("triggers::ApplyTurnOnCuts"));
 
     int datasetYear = config.readIntOpt("triggers::DatasetYear");
     parameterList.emplace("DatasetYear", datasetYear);
@@ -451,8 +478,10 @@ int main(int argc, char** argv)
 
     if(!is_data)
     {
-        oph.initializeJERsmearingAndVariations(ot);
-        oph.initializeJECVariations(ot);
+        // oph.initializeJERsmearingAndVariations(ot);
+        // oph.initializeJECVariations(ot);
+        oph.initializeApplyJERAndBregSmearing(opts["jer-shift-syst"].as<string>());
+        oph.initializeApplyJESshift(opts["jes-shift-syst"].as<string>());
         oph.initializeObjectsForEventWeight(ot,ec,opts["puWeight"].as<string>(),xs);
         oph.initializeObjectsBJetForScaleFactors(ot);
     }

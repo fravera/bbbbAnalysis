@@ -1,1 +1,1 @@
-root://cmsxrootd.fnal.gov//store/mc/RunIISummer16NanoAODv4/VBFHHTo4B_CV_1_C2V_1_C3_1_13TeV-madgraph/NANOAODSIM/PUMoriond17_Nano14Dec2018_102X_mcRun2_asymptotic_v6-v1/10000/53A6ABAC-D201-6044-BB37-35F17E1F50F9.root
+root://cmsxrootd.fnal.gov//store/mc/RunIISummer16NanoAODv6/VBFHHTo4B_CV_1_C2V_1_C3_1_13TeV-madgraph/NANOAODSIM/PUMoriond17_Nano25Oct2019_102X_mcRun2_asymptotic_v7-v1/260000/DAB4DB04-A0CD-894C-89A7-73C5638BB86C.root

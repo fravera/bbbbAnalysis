@@ -21,6 +21,7 @@
 #include "BTagCalibrationStandalone.h"
 #include "JetMETCorrections/Modules/interface/JetResolution.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "Jet.h"
 #include "GenJet.h"
 #include "SkimEffCounter.h"
@@ -86,6 +87,18 @@ class OfflineProducerHelper{
         // branch Name, default value
         std::map<std::string, float> branchesAffectedByJetEnergyVariations_;
         float sampleCrossSection_;
+
+                // to apply a single jet energy correction to all the incoming jets
+        const static std::string nominal_jes_syst_shift_name;
+        std::string jes_syst_shift_name_ = nominal_jes_syst_shift_name;
+        bool        jes_syst_shift_dir_is_up_;
+        std::unique_ptr<JetCorrectorParameters>   jcp_;
+        std::unique_ptr<JetCorrectionUncertainty> jcu_;
+
+        // to define the smearing parameters of all the incoming jets
+        Variation jer_dir_;      // NOMINAL, UP, DOWN
+        Variation breg_jer_dir_; // b regression smearing does not use the same class for the smearing, but I encode nominal, up, down with the same enum
+
 
         // -------------------------------------------------------------------------------
         // helpers for the BDT evaluation
@@ -232,6 +245,11 @@ class OfflineProducerHelper{
         }
 
 
+        bool checkBit(int number, int bitpos)
+        {
+            return (number & (1 << bitpos));
+        }
+
         void initializeObjectsForCuts(OutputTree &ot);
         // functions to select events based on non-jet particles:
         // void (OfflineProducerHelper::* save_objects_for_cut)(NanoAODTree&, OutputTree&, EventInfo& ei);
@@ -241,8 +259,10 @@ class OfflineProducerHelper{
         void save_WAndZLeptonDecays (NanoAODTree& nat, OutputTree &ot, EventInfo& ei);
         // save trigger Objects for trigger studies
         void save_TriggerObjects (NanoAODTree& nat, OutputTree &ot, EventInfo& ei);
+        void save_IsolatedLeptons(NanoAODTree& nat, OutputTree &ot, EventInfo& ei);
+        
         // Calculate trigger map
-        void calculateTriggerMatching(const std::vector< std::unique_ptr<Candidate> > &candidateList, const Jet& highestDeepCSVjet, NanoAODTree& nat, OutputTree& ot);
+        void calculateTriggerMatching(const std::vector< std::unique_ptr<const Candidate> > &candidateList, const Jet& highestDeepCSVjet, NanoAODTree& nat, OutputTree& ot);
 
         //Initialize trigger Matching variables
         void initializeTriggerMatching(OutputTree &ot);
@@ -262,8 +282,8 @@ class OfflineProducerHelper{
         void compute_scaleFactors_fourBtag_eventScaleFactor (const std::vector<Jet> &jets, NanoAODTree& nat, OutputTree &ot);
 
 
-        JME::JetResolutionScaleFactor *jetResolutionScaleFactor_;
-        JME::JetResolution *jetResolution_;
+        std::unique_ptr<JME::JetResolutionScaleFactor> jetResolutionScaleFactor_;
+        std::unique_ptr<JME::JetResolution>            jetResolution_;
         void initializeJERsmearingAndVariations(OutputTree &ot);
         // function pointer to MC jet pt smearing
         // std::vector<Jet> (*JERsmearing)(NanoAODTree& nat, std::vector<Jet> &jets);
@@ -277,6 +297,14 @@ class OfflineProducerHelper{
         void standardJERVariations(NanoAODTree& nat, std::vector<Jet> &jets, std::vector< std::pair<std::string, std::vector<Jet> > > &jetEnergyVariationsMap);
         //function to apply JER
         std::vector<Jet> applyJERsmearing(NanoAODTree& nat, std::vector<Jet> jets, Variation variation = Variation::NOMINAL);
+
+        // function that applies whatever smearing strategy is defined in the parameters, and returns the jet
+        void initializeApplyJESshift(std::string syst_and_direction);
+        std::vector<Jet> applyJESshift(NanoAODTree &nat, const std::vector<Jet> &jets, bool direction_is_up);
+
+        // smear the jets (resolution values can be set for up/down with class member parameters for systematic studies)
+        void initializeApplyJERAndBregSmearing(std::string syst_and_direction);
+        std::vector<Jet> applyJERAndBregSmearing(NanoAODTree& nat, std::vector<Jet> jets);
 
 
         void initializeJECVariations(OutputTree &ot);
@@ -298,6 +326,8 @@ class OfflineProducerHelper{
         BTagCalibrationReader *btagCalibrationReader_lightJets_;
         BTagCalibrationReader *btagCalibrationReader_cJets_;
         BTagCalibrationReader *btagCalibrationReader_bJets_;
+        float Get_bRegRes(Jet jet);
+        float Get_bRegCorr(Jet jet);
         //functions fo apply preselection cuts:
         void doAll2JetCombinations (std::vector<TLorentzVector>& jetList, std::vector<float>& valueList, float (*function)(TLorentzVector&, TLorentzVector&));
         void bJets_PreselectionCut(std::vector<Jet> &jets);

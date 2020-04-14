@@ -1,6 +1,7 @@
 #include "NanoAODTree.h"
 #include "OutputTree.h"
 #include "Jet.h"
+#include "TAxis.h"
 #include "TFitResult.h"
 #include "TriggerFitCurves2016.h"
 // #include "TriggerFitCurves2017.h"
@@ -21,6 +22,27 @@ public:
     virtual bool isPassingTurnOnCuts(std::vector<std::string> listOfPassedTriggers, const std::vector<Jet>& selectedJets) = 0;
 
 protected:
+    template<size_t N>
+    double getPointValue(std::tuple<TGraphAsymmErrors*, TGraph*, TGraph*> theGraphTuple, double xValue)
+    {
+        auto theGraph = std::get<0>(theGraphTuple);
+        double yRetrievedValue = 0.;
+        int pointNumber=0;
+        for(; pointNumber<theGraph->GetN(); ++pointNumber)
+        {
+            double xRetrievedValue = 0.;
+            theGraph->GetPoint(pointNumber, xRetrievedValue, yRetrievedValue);
+            double lowEdge  = xRetrievedValue - theGraph->GetErrorXlow (pointNumber);
+            double highEdge = xRetrievedValue + theGraph->GetErrorXhigh(pointNumber);
+            if(xValue > lowEdge && xValue <=highEdge)
+            {
+                if(N == 1) yRetrievedValue += theGraph->GetErrorYhigh (pointNumber);
+                if(N == 2) yRetrievedValue -= theGraph->GetErrorYlow (pointNumber);
+                break;
+            }
+        }
+        return yRetrievedValue;
+    }
     virtual void   createTriggerSimulatedBranches()                              = 0;
     virtual void   extractInformationFromEvent   (std::vector<Jet> selectedJets) = 0;
     inline  float  fixInLimits                   (float efficiency)
