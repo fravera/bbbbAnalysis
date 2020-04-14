@@ -195,7 +195,8 @@ if args.resubCmd or args.issueCmd:
     for val in failed:
         if val[0] in failedButCopied:
             print "file from job ", val[0], " need to be canceled"
-        jobscript = job_proto.format(val[0]).replace(args.folder + '/', '')
+        # jobscript = job_proto.format(val[0]).replace(args.folder + '/', '')
+        jobscript = args.folder + '/job_' + str(val[0]) + '.sh'
         command   = "scripts/t3submit %s" % jobscript
         resubCmds.append(command)
     for cmd in resubCmds:

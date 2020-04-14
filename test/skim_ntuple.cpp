@@ -52,7 +52,7 @@ int main(int argc, char** argv)
         ("input"         , po::value<string>()->required(), "input file list")
         ("output"        , po::value<string>()->required(), "output file LFN")
         // optional
-        ("deltaR_threshold", po::value<float>(), "deltaR threshold for gen matching ")
+        ("maxDeltaR"     , po::value<float>()->default_value(0.25), "max deltaR for gen matching ")
         ("xs"            , po::value<float>(), "cross section [pb]")
         ("yMassSelection", po::value<string>()->default_value("None"), "Y mass selection")
         ("maxEvts"       , po::value<int>()->default_value(-1), "max number of events to process")
@@ -99,8 +99,8 @@ int main(int argc, char** argv)
     const float xs = (is_data ? 1.0 : opts["xs"].as<float>());
     cout << "[INFO] ... cross section is : " << xs << " pb" << endl;
 
-    const float deltaR_threshold = opts["deltaR_threshold"].as<float>();
-    cout << "[INFO] ... deltaR threshold is : " << deltaR_threshold << endl;
+    const float maxDeltaR = opts["maxDeltaR"].as<float>();
+    cout << "[INFO] ... max deltaR is : " << maxDeltaR << endl;
 
     CfgParser config;
     if (!config.init(opts["cfg"].as<string>())) return 1;
@@ -512,7 +512,7 @@ int main(int argc, char** argv)
         if (is_signal)
         {
             oph.select_gen_YH(nat, ei);
-            if (!oph.select_gen_bb_bb_forXYH(nat, ei, deltaR_threshold))
+            if (!oph.select_gen_bb_bb_forXYH(nat, ei, maxDeltaR))
             {
                 std::cout << __PRETTY_FUNCTION__ << __LINE__ << "no gen matching found!!!" << std::endl;
                 continue; 
@@ -526,7 +526,6 @@ int main(int argc, char** argv)
                 continue;
             }
         }
-
 
         oph.save_objects_for_cut(nat, ot, ei);
 
