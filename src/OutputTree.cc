@@ -344,6 +344,12 @@ void OutputTree::init_branches(bool initAllBranches)
     tree_->Branch("gen_H2_b1_matchedflag", &gen_H2_b1_matchedflag);
     BRANCH_m_pt_eta_phi_p4(gen_H2_b2)
     tree_->Branch("gen_H2_b2_matchedflag", &gen_H2_b2_matchedflag);
+
+    tree_->Branch("recoJetMatchedToGenJet1", &recoJetMatchedToGenJet1);
+    tree_->Branch("recoJetMatchedToGenJet2", &recoJetMatchedToGenJet2);
+    tree_->Branch("recoJetMatchedToGenJet3", &recoJetMatchedToGenJet3);
+    tree_->Branch("recoJetMatchedToGenJet4", &recoJetMatchedToGenJet4);
+    
     // BRANCH_m_pt_eta_phi_p4(gen_q1_in)
     // BRANCH_m_pt_eta_phi_p4(gen_q2_in)
     // BRANCH_m_pt_eta_phi_p4(gen_q1_out)
@@ -696,6 +702,12 @@ void OutputTree::clear()
     gen_H2_b1_matchedflag = -1;
     CLEAR_m_pt_eta_phi_p4(gen_H2_b2)
     gen_H2_b2_matchedflag = -1;
+
+    recoJetMatchedToGenJet1 = -1;
+    recoJetMatchedToGenJet2 = -1;
+    recoJetMatchedToGenJet3 = -1;
+    recoJetMatchedToGenJet4 = -1;
+
     CLEAR_m_pt_eta_phi_p4(gen_q1_in)
     CLEAR_m_pt_eta_phi_p4(gen_q2_in)
     CLEAR_m_pt_eta_phi_p4(gen_q1_out)

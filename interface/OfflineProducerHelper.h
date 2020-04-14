@@ -407,7 +407,7 @@ class OfflineProducerHelper{
         bool select_gen_HH           (NanoAODTree& nat, EventInfo& ei);
         bool select_gen_YH           (NanoAODTree& nat, EventInfo& ei);
         bool select_gen_bb_bb        (NanoAODTree& nat, EventInfo& ei);
-        bool select_gen_bb_bb_forXYH (NanoAODTree& nat, EventInfo& ei);
+        bool select_gen_bb_bb_forXYH (NanoAODTree& nat, EventInfo& ei, const float deltaR_threshold);
         bool checkReco_gen_bbbb      (NanoAODTree& nat, EventInfo& ei);
         bool select_gen_VBF_partons  (NanoAODTree& nat, EventInfo& ei);
 
