@@ -13,7 +13,7 @@ from GenHisto import Histogram
 # newcolors[0, :] = white    # Only change bins with 0 entries.
 # newcmp = ListedColormap(newcolors)
 
-filename = '2016DataPlots_NMSSM_XYH_bbbb_Fast_triggerFullRange_test/outPlotter.root'
+filename = '2016DataPlots_NMSSM_XYH_bbbb_Fast_fastSimv1_jetflag/outPlotter.root '
 
 print("[INFO] Opening file {}".format(filename))
 f = TFile(filename)
@@ -22,7 +22,7 @@ mX = np.arange(300,900,100)
 mY = np.array([60,70,80,90,100,125,150,200,250,300,400,500,600,700])
 
 print("[INFO] Creating Pandas DataFrame....")
-df = pd.DataFrame(columns=['mX','mY','Ntot_w','Ntrig_w','Nsel_w','selectionbJets_ControlRegion','selectionbJets_SideBandRegion','selectionbJets_SignalRegion','selectionbJets_genMatched_ControlRegion','selectionbJets_genMatched_SideBandRegion','selectionbJets_genMatched_SignalRegion','eff_tot','eff_trig','eff_sel','pur_tot','pur_trig','pur_sel'])
+df = pd.DataFrame(columns=['mX','mY','Ntot_w','Ntrig_w','Nsel_w','selectionbJets_ControlRegion','selectionbJets_SideBandRegion','selectionbJets_SignalRegion','selectionbJets_genMatched_ControlRegion','selectionbJets_genMatched_SideBandRegion','selectionbJets_genMatched_SignalRegion','eff_tot','eff_trig','eff_sel','pur_tot','pur_trig','pur_sel','alt_pur_sel'])
 
 print("[INFO] Looping over directories in {}".format(filename))
 for MX in mX:
@@ -43,6 +43,7 @@ for MX in mX:
         selectionbJets_genMatched_ControlRegion = h.GetBinContent(7)
         selectionbJets_genMatched_SideBandRegion = h.GetBinContent(8)
         selectionbJets_genMatched_SignalRegion = h.GetBinContent(9)
+        selectionbJets_genMatchedjet_SignalRegion = h.GetBinContent(12)
 
         eff_tot = selectionbJets_SignalRegion / Ntot_w
         eff_trig = selectionbJets_SignalRegion / Ntrig_w
@@ -52,8 +53,10 @@ for MX in mX:
         pur_trig = selectionbJets_genMatched_SignalRegion / Ntrig_w
         pur_sel = selectionbJets_genMatched_SignalRegion / selectionbJets_SignalRegion
 
+        alt_pur_sel = selectionbJets_genMatchedjet_SignalRegion / selectionbJets_SignalRegion
 
-        df = df.append({'mX':MX, 'mY':MY, 'Ntot_w':Ntot_w, 'Nsel_w':Nsel_w,'selectionbJets_ControlRegion':selectionbJets_ControlRegion, 'selectionbJets_SideBandRegion':selectionbJets_SideBandRegion,'selectionbJets_SignalRegion':selectionbJets_SignalRegion, 'selectionbJets_genMatched_ControlRegion':selectionbJets_genMatched_ControlRegion, 'selectionbJets_genMatched_SideBandRegion':selectionbJets_genMatched_SideBandRegion, 'selectionbJets_genMatched_SignalRegion':selectionbJets_genMatched_SignalRegion, 'eff_tot':eff_tot, 'eff_trig':eff_trig, 'eff_sel':eff_sel,'pur_tot':pur_tot, 'pur_trig':pur_trig, 'pur_sel':pur_sel}, ignore_index=True)
+
+        df = df.append({'mX':MX, 'mY':MY, 'Ntot_w':Ntot_w, 'Nsel_w':Nsel_w,'selectionbJets_ControlRegion':selectionbJets_ControlRegion, 'selectionbJets_SideBandRegion':selectionbJets_SideBandRegion,'selectionbJets_SignalRegion':selectionbJets_SignalRegion, 'selectionbJets_genMatched_ControlRegion':selectionbJets_genMatched_ControlRegion, 'selectionbJets_genMatched_SideBandRegion':selectionbJets_genMatched_SideBandRegion, 'selectionbJets_genMatched_SignalRegion':selectionbJets_genMatched_SignalRegion, 'eff_tot':eff_tot, 'eff_trig':eff_trig, 'eff_sel':eff_sel,'pur_tot':pur_tot, 'pur_trig':pur_trig, 'pur_sel':pur_sel, 'alt_pur_sel':alt_pur_sel}, ignore_index=True)
 
 # print("[INFO] Saving Pandas DataFrame to {}".format("outPlotter_efficiencies.csv"))
 # df.to_csv("outPlotter_efficiencies.csv",index=False) # Save DataFrame values as csv.
@@ -61,6 +64,7 @@ for MX in mX:
 df_eff_tot = df.pivot(index='mY',columns='mX',values='eff_tot')
 df_eff_sel = df.pivot(index='mY',columns='mX',values='eff_sel')
 df_pur_sel = df.pivot(index='mY',columns='mX',values='pur_sel')
+df_alt_pur_sel = df.pivot(index='mY',columns='mX',values='alt_pur_sel')
 
 print("[INFO] Plotting efficiencies...")
 hist_eff_tot = Histogram(filesave='eff_tot.png', xdata=df_eff_tot, isDataFrame=True, label=True, comap='rainbow', vmin=0.0, vmax=1.0, fmt='.3f', whiteBkgd=True, labelsize=10)
@@ -69,4 +73,6 @@ hist_eff_sel = Histogram(filesave='eff_sel.pdf', xdata=df_eff_sel, isDataFrame=T
 
 print("[INFO] Plotting purities...")
 hist_eff_sel = Histogram(filesave='pur_sel.pdf', xdata=df_pur_sel, isDataFrame=True, label=True, comap='rainbow', vmin=0.0, vmax=1.0, fmt='.3f')
+
+hist_eff_sel_alt = Histogram(filesave='alt_pur_sel.pdf', xdata=df_alt_pur_sel, isDataFrame=True, label=True, comap='rainbow', vmin=0.0, vmax=1.0, fmt='.3f')
 

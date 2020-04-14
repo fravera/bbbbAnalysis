@@ -3630,6 +3630,7 @@ bool OfflineProducerHelper::select_gen_bb_bb_forXYH (NanoAODTree& nat, EventInfo
         int    candidateMatched=-1;
         for(uint8_t itCandidate=0; itCandidate<4; ++itCandidate) // Loop over the four reco jets.
         {
+            if(isMatchedToGenJet[itCandidate]) continue;
             double tmpDeltaR = deltaPhi(recoBJetPhi[itCandidate],genBJetPhi[itGenBJet])*deltaPhi(recoBJetPhi[itCandidate],genBJetPhi[itGenBJet]) + (recoBJetEta[itCandidate]-genBJetEta[itGenBJet])*(recoBJetEta[itCandidate]-genBJetEta[itGenBJet]); // This is actually DeltaR-squared
             if( tmpDeltaR < deltaR ) // Check if deltaR is lower for this reco jet than previous reco jets
             {
