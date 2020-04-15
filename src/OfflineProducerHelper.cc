@@ -23,6 +23,8 @@
 
 using namespace std;
 
+gROOT->ProcessLine("#include <vector>");
+
 const std::string OfflineProducerHelper::nominal_jes_syst_shift_name = "nominal";
 
 // ----------------- Objects for cut - BEGIN ----------------- //
@@ -1185,7 +1187,16 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
         auto jets_tmp = applyJESshift(nat, unsmearedJets, jes_syst_shift_dir_is_up_);
         unsmearedJets = jets_tmp;
     }
-    
+
+    // Suzanne is working here.
+    // Loop through gen jets and collect their pT to study distribution.
+    std::vector<GenJet> genJets;
+    std::vector<Double_t> genJets_pt;
+
+    for (uint i = 0; i < *(nat.nGenJet); i++){genJets.emplace_back(GenJet(i, &nat)); genJets_pt.emplace(genJets[i].P4().Pt());}
+
+    ei.gen_jet_pt = genJets_pt;
+
 
     //If MC sample, then obtain the jet energy resolution correction strategy and apply it before any selection.
     if(parameterList_->find("JetEnergyResolution") != parameterList_->end())
