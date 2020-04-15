@@ -1215,28 +1215,28 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
     const string preselectionCutStrategy = any_cast<string>(parameterList_->at("PreselectionCut"));
 
     if(preselectionCutStrategy=="bJetCut"){
-        bJets_PreselectionCut(unsmearedJets);
+        bJets_PreselectionCut(jets);
     }
     else if(preselectionCutStrategy=="FourBjetCut")
     {
-        fourBjetCut_PreselectionCut(unsmearedJets, ei);
-        ei.nJet = unsmearedJets.size();
+        fourBjetCut_PreselectionCut(jets, ei);
+        ei.nJet = jets.size();
     }
     else if(preselectionCutStrategy=="None")
     {
-        bJets_PreselectionCut(unsmearedJets);
+        bJets_PreselectionCut(jets);
     }
     else throw std::runtime_error("cannot recognize cut strategy --" + preselectionCutStrategy + "--");
 
     //at least 4 jets required
-    if(unsmearedJets.size()<4)
+    if(jets.size()<4)
     {
         // std::cout << __PRETTY_FUNCTION__ << __LINE__ << "N preselected less then 4" << std::endl;
         return false;
     }
 
     // sort by deepCSV (highest to lowest)
-    stable_sort(unsmearedJets.begin(), unsmearedJets.end(), [](const Jet & a, const Jet & b) -> bool
+    stable_sort(jets.begin(), jets.end(), [](const Jet & a, const Jet & b) -> bool
     {
         return ( a.bTagScore()  > b.bTagScore() );
     });
@@ -1374,15 +1374,7 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
             return ( a->P4().Pt() > b->P4().Pt() );
         });
         
-        std::vector<Jet> jetsForTriggerStudies;
-        if(any_cast<bool>(parameterList_->at("MatchWithSelectedObjects")))
-        {
-            jetsForTriggerStudies = ordered_jets;
-        }
-        else
-        {
-            jetsForTriggerStudies = jets;
-        }
+        std::vector<Jet> jetsForTriggerStudies = ordered_jets;
 
         // sort by deepCSV
         stable_sort(jetsForTriggerStudies.begin(), jetsForTriggerStudies.end(), [](const Jet & a, const Jet & b) -> bool
@@ -1396,6 +1388,7 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
         ot.userFloat("SecondJetDeepCSV") = jetsForTriggerStudies[1].bTagScore();
         ot.userFloat("ThirdJetDeepCSV")  = jetsForTriggerStudies[2].bTagScore();
         ot.userFloat("FourthJetDeepCSV") = jetsForTriggerStudies[3].bTagScore();
+        std::cout << ot.userFloat("FirstJetDeepCSV") << " - "<< ot.userFloat("SecondJetDeepCSV") << " - "<< ot.userFloat("ThirdJetDeepCSV") << " - "<< ot.userFloat("FourthJetDeepCSV") << std::endl;
         
         //order by unregressed pt
         stable_sort(jetsForTriggerStudies.begin(), jetsForTriggerStudies.end(), [](const Jet & a, const Jet & b) -> bool
