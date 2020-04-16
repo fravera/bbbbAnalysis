@@ -43,6 +43,8 @@ struct EventInfo{
     boost::optional<int>     recoJetMatchedToGenJet3;
     boost::optional<int>     recoJetMatchedToGenJet4;
 
+    boost::optional<double>   gen_jet_pt;
+    boost::optional<float>   jet_pt;
 
     // VBF incoming and outcoming partons
     // hard scatter gen particles

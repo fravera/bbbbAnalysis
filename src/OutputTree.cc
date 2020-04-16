@@ -349,6 +349,9 @@ void OutputTree::init_branches(bool initAllBranches)
     tree_->Branch("recoJetMatchedToGenJet2", &recoJetMatchedToGenJet2);
     tree_->Branch("recoJetMatchedToGenJet3", &recoJetMatchedToGenJet3);
     tree_->Branch("recoJetMatchedToGenJet4", &recoJetMatchedToGenJet4);
+
+    tree_->Branch("gen_jet_pt", &gen_jet_pt);
+    tree_->Branch("jet_pt", &jet_pt);
     
     // BRANCH_m_pt_eta_phi_p4(gen_q1_in)
     // BRANCH_m_pt_eta_phi_p4(gen_q2_in)
@@ -707,6 +710,9 @@ void OutputTree::clear()
     recoJetMatchedToGenJet2 = -1;
     recoJetMatchedToGenJet3 = -1;
     recoJetMatchedToGenJet4 = -1;
+
+    // gen_jet_pt = 0;
+    jet_pt = 0;
 
     CLEAR_m_pt_eta_phi_p4(gen_q1_in)
     CLEAR_m_pt_eta_phi_p4(gen_q2_in)
