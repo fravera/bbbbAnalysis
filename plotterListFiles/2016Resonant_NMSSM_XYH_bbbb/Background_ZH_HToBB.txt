@@ -1,0 +1,1 @@
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/backgroundSubmission_v8/SKIM_ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8/output/bbbbNtuple_0.root

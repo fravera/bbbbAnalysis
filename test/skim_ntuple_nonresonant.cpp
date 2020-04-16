@@ -310,7 +310,7 @@ int main(int argc, char** argv)
     {
         oph.initializeJERsmearingAndVariations(ot);
         oph.initializeJECVariations(ot);
-        oph.initializeObjectsForEventWeight(ot,ec,opts["puWeight"].as<string>(),xs);
+        oph.initializeObjectsForEventWeight(ot,ec,opts["puWeight"].as<string>());
         oph.initializeObjectsBJetForScaleFactors(ot);
 
         // MC reweight initialization

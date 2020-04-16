@@ -44,6 +44,10 @@ skim_ntuple.exe --input=inputFiles/2016ResonantDiHiggs4BDataSets/MC_TT_TuneCUETP
 
 skim_ntuple.exe --input=inputFiles/2016ResonantDiHiggs4BDataSets/MC_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8.txt --cfg=config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb_triggerTurnOnCut.cfg --puWeight=weights/MC_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8_PUweights.root --xs=1 --maxEvt 10000 --output test_TTbar_MC_noTrigger_cut.root   --skip-trigger
 
+skim_ntuple.exe --input inputFiles/2016NonResonantDiHiggs4BDataSets/Data_BTagCSV.txt  --cfg config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb_noTriggerMatching.cfg --is-data --output test_BTagCSV.root --maxEvts 50000
+
+skim_ntuple.exe --input=inputFiles/2016NonResonantDiHiggs4BDataSets/QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt --cfg=config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb_noTriggerMatching.cfg                  --puWeight=weights/QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_PUweights.root --xs=1 --maxEvt 50000 --output test_QCD.root
+
 
 
 produceSignalTreeForTraining.exe --cfg=config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb_SignalTraining.cfg --input=inputFiles/2016_NMSSM_XYH_bbbb_Datasets/NMSSM_XYH_bbbb_MX_700_MY_300_privateMC.txt --output=test_signalTreeForTraining.root

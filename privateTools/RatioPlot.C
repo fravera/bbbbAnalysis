@@ -373,6 +373,24 @@ void RatioAll()
 }
 
 
+void RatioAllBackground()
+{
+    gROOT->SetBatch();
+
+    RatioAllVariables("ControlRegionAfterBDTBackgroundHMR", "2016DataPlots_NMSSM_XYH_bbbb_background/outPlotter.root", "data_BTagCSV_background" , "selectionbJetsHMR_ControlRegionBlinded", 
+    "2016DataPlots_NMSSM_XYH_bbbb_background/outPlotter.root", "data_BTagCSV_dataDriven_backgroundHMR" , "selectionbJetsHMR_ControlRegionBlinded",false);
+
+    RatioAllVariables("SideBandAfterBDTBackgroundHMR", "2016DataPlots_NMSSM_XYH_bbbb_background/outPlotter.root", "data_BTagCSV_background" , "selectionbJetsHMR_SideBandBlinded", 
+    "2016DataPlots_NMSSM_XYH_bbbb_background/outPlotter.root", "data_BTagCSV_dataDriven_backgroundHMR" , "selectionbJetsHMR_SideBandBlinded",false);
+
+    RatioAllVariables("ControlRegionAfterBDTBackgroundLMR", "2016DataPlots_NMSSM_XYH_bbbb_background/outPlotter.root", "data_BTagCSV_background" , "selectionbJetsLMR_ControlRegionBlinded", 
+    "2016DataPlots_NMSSM_XYH_bbbb_background/outPlotter.root", "data_BTagCSV_dataDriven_backgroundLMR" , "selectionbJetsLMR_ControlRegionBlinded",false);
+
+    RatioAllVariables("SideBandAfterBDTBackgroundLMR", "2016DataPlots_NMSSM_XYH_bbbb_background/outPlotter.root", "data_BTagCSV_background" , "selectionbJetsLMR_SideBandBlinded", 
+    "2016DataPlots_NMSSM_XYH_bbbb_background/outPlotter.root", "data_BTagCSV_dataDriven_backgroundLMR" , "selectionbJetsLMR_SideBandBlinded",false);
+}
+
+
 
 void DivideTH2D()
 {

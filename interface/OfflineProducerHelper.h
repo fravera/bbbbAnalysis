@@ -86,8 +86,7 @@ class OfflineProducerHelper{
 
         // branch Name, default value
         std::map<std::string, float> branchesAffectedByJetEnergyVariations_;
-        float sampleCrossSection_;
-
+        
                 // to apply a single jet energy correction to all the incoming jets
         const static std::string nominal_jes_syst_shift_name;
         std::string jes_syst_shift_name_ = nominal_jes_syst_shift_name;
@@ -270,7 +269,7 @@ class OfflineProducerHelper{
         bool checkTriggerObjectMatching(std::vector<std::string>, OutputTree &ot);
 
 
-        void initializeObjectsForEventWeight(OutputTree &ot, SkimEffCounter &ec, std::string PUWeightFileName, float crossSection);
+        void initializeObjectsForEventWeight(OutputTree &ot, SkimEffCounter &ec, std::string PUWeightFileName);
         // functions to select events based on non-jet particles:
         std::function<float (NanoAODTree&,  EventInfo& ei, OutputTree&, SkimEffCounter &ec)> calculateEventWeight;
         // reject events with leptons that may come from W and Z decays

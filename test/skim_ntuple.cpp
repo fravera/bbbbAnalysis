@@ -486,7 +486,7 @@ int main(int argc, char** argv)
         // oph.initializeJECVariations(ot);
         oph.initializeApplyJERAndBregSmearing(opts["jer-shift-syst"].as<string>());
         oph.initializeApplyJESshift(opts["jes-shift-syst"].as<string>());
-        oph.initializeObjectsForEventWeight(ot,ec,opts["puWeight"].as<string>(),xs);
+        oph.initializeObjectsForEventWeight(ot,ec,opts["puWeight"].as<string>());
         oph.initializeObjectsBJetForScaleFactors(ot);
     }
     oph.initializeTriggerScaleFactors(nat, ot);
