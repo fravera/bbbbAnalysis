@@ -1623,6 +1623,7 @@ void AnalysisHelper::mergeSamples()
         // create an empty new sample.
         // NOTE: call this method after you finished to fill histos, the new sample has no tree associated and can't be filled!
         shared_ptr<Sample> snew (new Sample(newname, ""));
+        snew->initCutHisto(selections_);
 
         // take the first histo in the list of masters
         string snamefirst = sample_merge_list_.at(isnew).at(0);
@@ -1665,7 +1666,8 @@ void AnalysisHelper::mergeSamples()
 
         Sample::selColl& plmaster = smaster->plots();
         Sample::selColl& plnew    = snew->plots();
-        
+        TH1F* hcnew               = snew->getCutHistogram();
+
         if (DEBUG) cout << "   DEBUG: --- merging histos - going to loop over 1d plot to make structure" << endl;
 
         for (unsigned int isel = 0; isel < plmaster.size(); ++isel){
@@ -1688,6 +1690,17 @@ void AnalysisHelper::mergeSamples()
                     // if (DEBUG) cout << "   DEBUG: ---     3. merging histos - " << selName << " at " << varName << " at " << systName << " done new histo, nbins: " << hist->GetNbinsX() << endl;
                 }   
             }
+        }
+
+        if (DEBUG) cout << "   DEBUG: --- merging histos - going to add the counter histograms" << endl;
+
+        // NB: index starts from 0 because the original histogram is empty
+        // cfr with the plot merge that starts from 1 because the "master" plots were already cloned
+        for (unsigned int idx = 0; idx < sample_merge_list_.at(isnew).size(); ++idx)
+        {
+            string sname = sample_merge_list_.at(isnew).at(idx);
+            TH1F* htoadd = chosenMap->at(sname)->getCutHistogram();
+            hcnew->Add(htoadd);
         }
 
         if (DEBUG) cout << "   DEBUG: --- merging histos - going to add the other samples" << endl;
