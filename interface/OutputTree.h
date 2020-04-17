@@ -74,6 +74,8 @@ class OutputTree {
         DECLARE_m_pt_eta_phi_p4(HH)
         float HH_2DdeltaM;
         float HH_m_kinFit;
+        float H1_H2_sphericity;
+        float FourBjet_sphericity;
 
         //////////////////----- reco bs
         DECLARE_m_pt_ptRegressed_eta_phi_p4(H1_b1)

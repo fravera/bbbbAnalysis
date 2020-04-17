@@ -60,6 +60,9 @@ struct EventInfo{
     boost::optional<float> H1_bb_DeltaR;
     boost::optional<CompositeCandidate> H2;
     boost::optional<float> H2_bb_DeltaR;
+    boost::optional<float> H1_H2_sphericity;
+    boost::optional<float> FourBjet_sphericity;
+    
     boost::optional<CompositeCandidate> HH;
     boost::optional<float> HH_2DdeltaM;
     boost::optional<float> HH_m_kinFit;

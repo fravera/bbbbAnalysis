@@ -19,6 +19,7 @@ from modules.ConfigurationReader import ConfigurationReader
 import modules.Constants as const
 from modules.ReweightModelAndTransferFactor import ReweightModelAndTransferFactor
 import threading
+from ROOT import TFile, TTree
 
 
 def BuildReweightingModel(data_4b, data_3b, trainingVariables, modelArguments, outputDirectory, modelFileName, analysisBackgroundArgument, analysisClassifierArgument):
@@ -158,7 +159,10 @@ stdout,stderr = out.communicate()
 skimFileList = []
 for fileName in stdout.split():
 	if ".root" in fileName:
-		skimFileList.append(const.eosPath + "/" + skimFolder + "/" + fileName)
+		fullFileName = const.eosPath + "/" + skimFolder + "/" + fileName
+		tmpFile = TFile.Open(fullFileName);
+		if tmpFile.Get(const.treeName).GetEntries() == 0: continue
+		skimFileList.append(fullFileName)
 dataset = data.root2pandas(skimFileList, const.treeName, branches=enabledBranches)
 
 print "Number of events in dataset before cuts = ",len(dataset) 

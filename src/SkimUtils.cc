@@ -100,6 +100,8 @@ void SkimUtils::fill_output_tree(OutputTree& ot, NanoAODTree& nat, EventInfo& ei
     COPY_OPTIONAL_m_pt_eta_phi_p4(HH)
     if(ei.HH_2DdeltaM) ot.HH_2DdeltaM  = *ei.HH_2DdeltaM;
     if(ei.HH_m_kinFit) ot.HH_m_kinFit  = *ei.HH_m_kinFit;
+    if(ei.H1_H2_sphericity) ot.H1_H2_sphericity  = *ei.H1_H2_sphericity;
+    if(ei.FourBjet_sphericity) ot.FourBjet_sphericity  = *ei.FourBjet_sphericity;
  
     //set the variables for TTEMU studies
     COPY_OPTIONAL_m_pt_ptRegressed_eta_phi_p4(TT_b1)

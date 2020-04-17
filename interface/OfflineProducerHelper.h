@@ -434,6 +434,8 @@ class OfflineProducerHelper{
             return delphi;
         }
 
+        float evaluateSphericity(const std::vector<TLorentzVector>& theParticleVector);
+
 };
 
 template <typename C>

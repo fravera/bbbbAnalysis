@@ -81,6 +81,8 @@ void OutputTree::init_branches(bool initAllBranches)
     tree_->Branch("H2_bb_DeltaR", &H2_bb_DeltaR);
     BRANCH_m_pt_eta_phi_p4(HH)
     tree_->Branch("HH_2DdeltaM", &HH_2DdeltaM);
+    tree_->Branch("H1_H2_sphericity", &H1_H2_sphericity);
+    tree_->Branch("FourBjet_sphericity", &FourBjet_sphericity);
     tree_->Branch("HH_m_kinFit", &HH_m_kinFit);
 
     tree_->Branch("triggerScaleFactor"       , &triggerScaleFactor       );
@@ -439,6 +441,8 @@ void OutputTree::clear()
     H2_bb_DeltaR = 0.;
     CLEAR_m_pt_eta_phi_p4(HH)
     HH_2DdeltaM = 0.;
+    H1_H2_sphericity = -1.;
+    FourBjet_sphericity = -1.;
     HH_m_kinFit = 0.;
 
     ///TTEMU events
