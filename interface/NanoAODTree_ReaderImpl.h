@@ -32,6 +32,7 @@
 // #define ENABLE_FATJET   true
 // #define ENABLE_ELECTRON true
 // #define ENABLE_CaloMET  true
+#define NO_BRANCH 999;
 
 class NanoAODTree_ReaderImpl {
     public:
@@ -55,13 +56,14 @@ class NanoAODTree_ReaderImpl {
         std::vector<std::string> getTrgPassed() {return trg_reader_.getTrgPassed();};
 
         template<class T> 
-        void attachCustomValueBranch(const std::string& branchName)
+        void attachCustomValueBranch(const std::string& branchName, bool returnDefault = false, const T& defaultValue = T())
         {
             fCustomBranchMap.emplace(branchName, std::make_unique<NanoReaderValue<T>>(fReader, branchName.data()));
+            static_cast<NanoReaderValue<T>*>(fCustomBranchMap[branchName].get())->SetReturnDefault(returnDefault, defaultValue);
         }
 
         template<class T> 
-        std::vector<std::string> attachAllMatchingBranch(const std::string branchNameTemplate)
+        std::vector<std::string> attachAllMatchingBranch(const std::string branchNameTemplate, bool returnDefault = false, const T& defaultValue = T())
         {
             TObjArray* theBranchList = fReader.GetTree()->GetListOfBranches();
             std::vector<std::string> listOfBranchNames;
@@ -70,7 +72,7 @@ class NanoAODTree_ReaderImpl {
                 std::string branchName = branch->GetName();
                 if(branchName.find(branchNameTemplate) != std::string::npos)
                 {
-                    attachCustomValueBranch<T>(branchName);
+                    attachCustomValueBranch<T>(branchName,returnDefault, defaultValue);
                     listOfBranchNames.emplace_back(branchName);
                 }
             }
@@ -80,6 +82,7 @@ class NanoAODTree_ReaderImpl {
         template<class T> 
         T readCustomValueBranch(const std::string branchName)
         {
+            if(static_cast<NanoReaderValue<T>*>(fCustomBranchMap.at(branchName).get()) == nullptr) std::cout<<"Merda"<<std::endl;
             return *static_cast<NanoReaderValue<T>*>(fCustomBranchMap.at(branchName).get())->Get();
         }
 

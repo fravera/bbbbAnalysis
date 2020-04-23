@@ -11,6 +11,7 @@
 #include <numeric>
 #include <future>
 #include <chrono>
+#include "TROOT.h"
 
 using namespace std;
 
@@ -42,6 +43,17 @@ AnalysisHelper::AnalysisHelper(string cfgname)
         cerr << "** AnalysisHelper : error : some information could not be retrieved from config" << endl;
         throw std::runtime_error("Error in initializaton from config");
     }
+    outFileFullName_ = outputFolder_ + "/" + outputFileName_ ;
+    cout << "@@ Saving all plots to file : " << outFileFullName_ << endl;
+    system (Form("mkdir %s", outputFolder_.c_str())); // not checking if already exists, but return message is harmless
+
+    system (Form("cp %s %s", (mainCfg_  ->getCfgName()).c_str() , outputFolder_.c_str()));
+    system (Form("cp %s %s", (cutCfg_   ->getCfgName()).c_str() , outputFolder_.c_str()));
+    system (Form("cp %s %s", (sampleCfg_->getCfgName()).c_str() , outputFolder_.c_str()));
+
+    TFile *outputFile = TFile::Open(outFileFullName_.c_str(), "recreate");
+    outputFile->Close("R");
+    delete outputFile;
 }
 
 AnalysisHelper::~AnalysisHelper()
@@ -108,113 +120,113 @@ bool AnalysisHelper::readMainInfo()
     return true;
 }
 
-void AnalysisHelper::saveOutputsToFile()
+void AnalysisHelper::saveSampleOutputToFile(std::shared_ptr<Sample>& theSample)
 {
-    string outFile = outputFolder_ + "/" + outputFileName_ ;
-    cout << "@@ Saving all plots to file : " << outFile << endl;
-    system (Form("mkdir %s", outputFolder_.c_str())); // not checking if already exists, but return message is harmless
+    TFile *outputFile = TFile::Open(outFileFullName_.c_str(), "update");
+    outputFile->cd();
+    string sampleDir = "";
+    sampleDir  = theSample->getName();
+    outputFile->mkdir(sampleDir.data());
+    outputFile->cd   (sampleDir.data());
 
-    system (Form("cp %s %s", (mainCfg_  ->getCfgName()).c_str() , outputFolder_.c_str()));
-    system (Form("cp %s %s", (cutCfg_   ->getCfgName()).c_str() , outputFolder_.c_str()));
-    system (Form("cp %s %s", (sampleCfg_->getCfgName()).c_str() , outputFolder_.c_str()));
+    // cout << "isample " << isample << "/" << allToSave.at(itype)->size() << endl;
+    Sample::selColl& plotSet = theSample->plots();
+    // TH1F *selections = new TH1F((sampleDir + "_selections",plotSet.size(),0,plotSet.size());
+    TH1F *hCutInSkimTmp = theSample->getCutHistogram();
 
-    TFile* fOut = TFile::Open(outFile.c_str(), "recreate");
-    vector <ordered_map <std::string, std::shared_ptr<Sample>> *> allToSave;
-    allToSave.push_back(&data_samples_); 
-    allToSave.push_back(&sig_samples_); 
-    allToSave.push_back(&bkg_samples_); 
-    allToSave.push_back(&datadriven_samples_); 
-    
-    // nesting orderd: type of events --> sample --> selection --> variable --> systematics
-
-    for (uint itype = 0; itype < allToSave.size(); ++itype)        
+    for (uint isel = 0; isel < plotSet.size(); ++isel)
     {
-        // cout << "itype " << itype << "/" << allToSave.size() << endl;
-        for (uint isample = 0; isample < allToSave.at(itype)->size(); ++isample)
+        bool firstIteration=true;
+        string selectionDir = plotSet.key(isel);
+        string selectionFullDir = sampleDir + "/" + selectionDir;
+        outputFile->mkdir(selectionFullDir.data());
+        outputFile->cd   (selectionFullDir.data());
+        // cout << "isel " << isel << "/" << plotSet.size() << endl;
+        for (uint ivar = 0; ivar < plotSet.at(isel).size(); ++ivar)
         {
-            fOut->cd();
-            string sampleDir = "";
-            sampleDir  = allToSave.at(itype)->at(isample)->getName();
-            fOut->mkdir(sampleDir.data());
-            fOut->cd   (sampleDir.data());
-
-            // cout << "isample " << isample << "/" << allToSave.at(itype)->size() << endl;
-            Sample::selColl& plotSet = allToSave.at(itype)->at(isample)->plots();
-            // TH1F *selections = new TH1F((sampleDir + "_selections",plotSet.size(),0,plotSet.size());
-            TH1F *hCutInSkimTmp = allToSave.at(itype)->at(isample)->getCutHistogram();
-
-            for (uint isel = 0; isel < plotSet.size(); ++isel)
+                // cout << "ivar " << ivar << "/" << plotSet.at(isel).size() << endl;
+            for (uint isyst = 0; isyst < plotSet.at(isel).at(ivar).size(); ++isyst)
             {
-                bool firstIteration=true;
-                string selectionDir = plotSet.key(isel);
-                string selectionFullDir = sampleDir + "/" + selectionDir;
-                fOut->mkdir(selectionFullDir.data());
-                fOut->cd   (selectionFullDir.data());
-                // cout << "isel " << isel << "/" << plotSet.size() << endl;
-                for (uint ivar = 0; ivar < plotSet.at(isel).size(); ++ivar)
-                {
-                     // cout << "ivar " << ivar << "/" << plotSet.at(isel).size() << endl;
-                    for (uint isyst = 0; isyst < plotSet.at(isel).at(ivar).size(); ++isyst)
-                    {
-                        // cout << "isyst " << isyst << "/" << plotSet.at(isel).at(ivar).size() << endl;
-                        if(firstIteration){
-                            firstIteration=false;
-                            bool foundBin = false;
-                            for(int xBin=1; xBin<=hCutInSkimTmp->GetNbinsX(); ++xBin){
-                                if(hCutInSkimTmp->GetXaxis()->GetBinLabel(xBin) == selectionDir){
-                                    foundBin=true;
-                                    hCutInSkimTmp->SetBinContent(xBin,plotSet.at(isel).at(ivar).at(isyst)->Integral(-1,plotSet.at(isel).at(ivar).at(isyst)->GetNbinsX()+1));
-                                    break;
-                                }
-                            }
-                            if(!foundBin) throw std::runtime_error("Bin corresponding to selection " + selectionDir + " not found in the cut histogram");
-                        
-
+                // cout << "isyst " << isyst << "/" << plotSet.at(isel).at(ivar).size() << endl;
+                if(firstIteration){
+                    firstIteration=false;
+                    bool foundBin = false;
+                    for(int xBin=1; xBin<=hCutInSkimTmp->GetNbinsX(); ++xBin){
+                        if(hCutInSkimTmp->GetXaxis()->GetBinLabel(xBin) == selectionDir){
+                            foundBin=true;
+                            hCutInSkimTmp->SetBinContent(xBin,plotSet.at(isel).at(ivar).at(isyst)->Integral(-1,plotSet.at(isel).at(ivar).at(isyst)->GetNbinsX()+1));
+                            break;
                         }
-                        plotSet.at(isel).at(ivar).at(isyst)->Write();
-                        // cout << "DONE" << endl;
                     }
+                    if(!foundBin) throw std::runtime_error("Bin corresponding to selection " + selectionDir + " not found in the cut histogram");
+                
+
                 }
+                plotSet.at(isel).at(ivar).at(isyst)->Write();
+                // cout << "DONE" << endl;
             }
-            fOut->cd(sampleDir.data());
-            hCutInSkimTmp->Write();
+        }
+    }
+    outputFile->cd(sampleDir.data());
+    hCutInSkimTmp->Write();
+    
+    outputFile->cd();
+    outputFile->cd   (sampleDir.data());
+    // cout << "isample " << isample << "/" << allToSave.at(itype)->size() << endl;
+    Sample::selColl2D& plotSet2D = theSample->plots2D();
+    for (uint isel = 0; isel < plotSet2D.size(); ++isel)
+    {
+        string selectionDir = plotSet2D.key(isel);
+        string selectionFullDir = sampleDir + "/" + selectionDir;
+        outputFile->cd   (selectionFullDir.data());
+        // cout << "isel " << isel << "/" << plotSet2D.size() << endl;
+        for (uint ivar = 0; ivar < plotSet2D.at(isel).size(); ++ivar)
+        {
+            // cout << "ivar " << ivar << "/" << plotSet2D.at(isel).size() << endl;
+            for (uint isyst = 0; isyst < plotSet2D.at(isel).at(ivar).size(); ++isyst)
+            {
+                // cout << "isyst " << isyst << "/" << plotSet2D.at(isel).at(ivar).size() << endl;
+                plotSet2D.at(isel).at(ivar).at(isyst)->Write();
+                // cout << "DONE" << endl;
+            }
         }
     }
 
-    for (uint itype = 0; itype < allToSave.size(); ++itype)        
+    bool cleanPlots = !hasToBeMerged(theSample);
+    theSample->clean(cleanPlots);
+    outputFile->Close("R");
+    delete outputFile;
+
+    return;
+     
+}
+
+bool AnalysisHelper::hasToBeMerged(std::shared_ptr<Sample>& theSample)
+{
+    bool hasToBeMergedFlag = false;
+    for (unsigned int isnew = 0; isnew < sample_merge_list_.size(); ++isnew)
     {
-        // cout << "itype " << itype << "/" << allToSave.size() << endl;
-        for (uint isample = 0; isample < allToSave.at(itype)->size(); ++isample)
+        for(const auto& sampleName : sample_merge_list_.at(isnew))
         {
-            fOut->cd();
-            string sampleDir = "";
-            sampleDir  = allToSave.at(itype)->at(isample)->getName();
-            fOut->cd   (sampleDir.data());
-            // cout << "isample " << isample << "/" << allToSave.at(itype)->size() << endl;
-            Sample::selColl2D& plotSet = allToSave.at(itype)->at(isample)->plots2D();
-            for (uint isel = 0; isel < plotSet.size(); ++isel)
+            // std::cout<<theSample->getName() << " == " << sampleName << std::endl;
+            if(sampleName == theSample->getName())
             {
-                string selectionDir = plotSet.key(isel);
-                string selectionFullDir = sampleDir + "/" + selectionDir;
-                fOut->cd   (selectionFullDir.data());
-                // cout << "isel " << isel << "/" << plotSet.size() << endl;
-                for (uint ivar = 0; ivar < plotSet.at(isel).size(); ++ivar)
-                {
-                    // cout << "ivar " << ivar << "/" << plotSet.at(isel).size() << endl;
-                    for (uint isyst = 0; isyst < plotSet.at(isel).at(ivar).size(); ++isyst)
-                    {
-                        // cout << "isyst " << isyst << "/" << plotSet.at(isel).at(ivar).size() << endl;
-                        plotSet.at(isel).at(ivar).at(isyst)->Write();
-                        plotSet.at(isel).at(ivar).at(isyst)->Delete();
-                        // cout << "DONE" << endl;
-                    }
-                }
+                hasToBeMergedFlag = true;
+                break;
             }
         }
     }
+
+    return hasToBeMergedFlag;
+}
+
+
+void AnalysisHelper::closeOutputFile()
+{
     cout << "@@ ... saving completed, closing output file" << endl;
-    fOut->Close();
-    return;        
+    // outputFile->Close();
+    cout << "@@ ... file closed" << endl;
+    return;
 }
 
 void AnalysisHelper::readSamples()
@@ -420,310 +432,273 @@ void AnalysisHelper::readVariables()
 }
 
 
-void AnalysisHelper::prepareSamplesHistos()
+void AnalysisHelper::prepareSamplesHistos(std::shared_ptr<Sample>& theSample)
 {
-    // to loop all in once
-    vector <sampleColl*> allToInit;
-    allToInit.push_back(&data_samples_); 
-    allToInit.push_back(&sig_samples_); 
-    allToInit.push_back(&bkg_samples_); 
-    allToInit.push_back(&datadriven_samples_); 
 
-    vector<int> doselW;
-    doselW.push_back(0); // no sel W for data!
-    doselW.push_back(1);
-    doselW.push_back(1);
-    doselW.push_back(0); // no sel w for datadriven!
-
-    for (uint ismpc = 0; ismpc < allToInit.size(); ++ismpc) // loop on (data, sig, bkg)
+    Sample::selColl& selcoll = theSample->plots();
+    for (uint isel = 0; isel < selections_.size(); ++isel)
     {
-        sampleColl* samcoll = allToInit.at(ismpc);
-        for (uint isample = 0; isample < samcoll->size(); ++isample) // loop on samples
-        {             
-            Sample::selColl& selcoll = samcoll->at(isample)->plots();
-            for (uint isel = 0; isel < selections_.size(); ++isel)
+        selcoll.append(selections_.at(isel).getName(), Sample::varColl());
+        Sample::varColl& varcoll = selcoll.back();
+        for (uint ivar = 0; ivar < variables_.size(); ++ivar)
+        {
+            string varName = variables_.at(ivar);
+
+            varcoll.append(varName, Sample::systColl());
+            Sample::systColl& systcoll = varcoll.back();
+            
+            bool   hasUserBinning = cutCfg_->hasOpt(Form("binning::%s", varName.c_str()));
+            int    nbins = -1;
+            float  xlow = -1.;
+            float  xup = -1.;
+            float* binning = 0;
+
+            if (hasUserBinning)
             {
-                selcoll.append(selections_.at(isel).getName(), Sample::varColl());
-                Sample::varColl& varcoll = selcoll.back();
-                for (uint ivar = 0; ivar < variables_.size(); ++ivar)
+                vector<float> vBins = cutCfg_->readFloatListOpt(Form("binning::%s", varName.c_str()));
+                nbins = vBins.size() -1;
+                
+                if (nbins < 1) // wrong
                 {
-                    string varName = variables_.at(ivar);
+                    cerr << "** AnalysisHelper : prepareSamplesHistos : error : binning of " << varName << " must have at least 2 numbers, dummy one used" << endl;                        
+                    vBins.clear();
+                    vBins.push_back(0.);
+                    vBins.push_back(1.);
+                    nbins = 1;
+                }
+                
+                binning = new float[nbins+1] ;
+                for (uint ibin = 0; ibin < vBins.size(); ++ibin) binning[ibin] = vBins.at(ibin);
+            }
+            else // no user binning
+            {
+                if (!cutCfg_->hasOpt(Form("histos::%s", varName.c_str())))
+                {
+                    cerr << "** AnalysisHelper : prepareSamplesHistos : error : did not find binning for var " << varName << " , dummy one used" << endl;
+                    nbins = 1;
+                    xlow = 0;
+                    xup = 0;
+                }
+                else
+                {
+                    vector<float> vBins  = cutCfg_->readFloatListOpt(Form("histos::%s", varName.c_str()));
+                    nbins = (int) (vBins.at(0) + 0.5); // just to avoid numerical errors
+                    xlow = vBins.at(1);
+                    xup  = vBins.at(2);
+                }
+            }
 
-                    varcoll.append(varName, Sample::systColl());
-                    Sample::systColl& systcoll = varcoll.back();
-                    
-                    bool   hasUserBinning = cutCfg_->hasOpt(Form("binning::%s", varName.c_str()));
-                    int    nbins = -1;
-                    float  xlow = -1.;
-                    float  xup = -1.;
-                    float* binning = 0;
+            // prepare histos -- first one is always the nominal one
+            const Sample& currSample = *(theSample);
+            const Selection& currSel = selections_.at(isel);
+            string sampleName = currSample.getName();
+            string selName    = currSel.getName();
 
-                    if (hasUserBinning)
+            string hname = formHistoName (sampleName, selName, varName, nominal_name_);
+            TH1F* hist;
+            if (hasUserBinning) hist = new TH1F (hname.c_str(), (hname+string(";")+varName+string(";events")).c_str(), nbins, binning);
+            else                hist = new TH1F (hname.c_str(), (hname+string(";")+varName+string(";events")).c_str(), nbins, xlow, xup);
+            systcoll.append(nominal_name_, hist);
+
+            // now loop over available syst and create more histos
+            if (theSample->getType() == Sample::sType::kSig || theSample->getType() == Sample::sType::kBkg)
+            {
+                // sample
+                for (uint iw = 0; iw < currSample.getWeights().size(); ++iw)
+                {
+                    const Weight& currW = currSample.getWeights().at(iw);
+                    for (int isys = 0; isys < currW.getNSysts(); ++isys)
                     {
-                        vector<float> vBins = cutCfg_->readFloatListOpt(Form("binning::%s", varName.c_str()));
-                        nbins = vBins.size() -1;
-                        
-                        if (nbins < 1) // wrong
-                        {
-                            cerr << "** AnalysisHelper : prepareSamplesHistos : error : binning of " << varName << " must have at least 2 numbers, dummy one used" << endl;                        
-                            vBins.clear();
-                            vBins.push_back(0.);
-                            vBins.push_back(1.);
-                            nbins = 1;
-                        }
-                        
-                        binning = new float[nbins+1] ;
-                        for (uint ibin = 0; ibin < vBins.size(); ++ibin) binning[ibin] = vBins.at(ibin);
+                        hname = formHistoName (sampleName, selName, varName, currW.getSystName(isys));
+                        TH1F* histS;
+                        if (hasUserBinning) histS = new TH1F (hname.c_str(), (hname+string(";")+varName+string(";events")).c_str(), nbins, binning);
+                        else                histS = new TH1F (hname.c_str(), (hname+string(";")+varName+string(";events")).c_str(), nbins, xlow, xup);
+                        systcoll.append(currW.getSystName(isys), histS);
                     }
-                    else // no user binning
+                }
+
+                // selection
+                for (uint iw = 0; iw < currSel.getWeights().size(); ++iw)
+                {
+                    const Weight& currW = currSel.getWeights().at(iw);
+                    for (int isys = 0; isys < currW.getNSysts(); ++isys)
                     {
-                        if (!cutCfg_->hasOpt(Form("histos::%s", varName.c_str())))
-                        {
-                            cerr << "** AnalysisHelper : prepareSamplesHistos : error : did not find binning for var " << varName << " , dummy one used" << endl;
-                            nbins = 1;
-                            xlow = 0;
-                            xup = 0;
-                        }
-                        else
-                        {
-                            vector<float> vBins  = cutCfg_->readFloatListOpt(Form("histos::%s", varName.c_str()));
-                            nbins = (int) (vBins.at(0) + 0.5); // just to avoid numerical errors
-                            xlow = vBins.at(1);
-                            xup  = vBins.at(2);
-                        }
+                        hname = formHistoName (sampleName, selName, varName, currW.getSystName(isys));
+                        TH1F* histS;
+                        if (hasUserBinning) histS = new TH1F (hname.c_str(), (hname+string(";")+varName+string(";events")).c_str(), nbins, binning);
+                        else                histS = new TH1F (hname.c_str(), (hname+string(";")+varName+string(";events")).c_str(), nbins, xlow, xup);
+                        systcoll.append(currW.getSystName(isys), histS);
                     }
+                }
+            }
+
+            if (hasUserBinning) delete[] binning ; // was allocated with new
+
+            // set Sumw2() and other stuff for all the histos
+            for (uint ih = 0; ih < systcoll.size(); ++ih)
+            {
+                if (theSample->getType() == Sample::sType::kData || theSample->getType() == Sample::sType::kDatadriven) // is data
+                    systcoll.at(ih)->Sumw2();
+                else
+                    systcoll.at(ih)->SetBinErrorOption(TH1::kPoisson);   
+            }
+
+        } // end loop on 1D variables
+    } // end loop on selections
     
-                    // prepare histos -- first one is always the nominal one
-                    const Sample& currSample = *(samcoll->at(isample));
-                    const Selection& currSel = selections_.at(isel);
-                    string sampleName = currSample.getName();
-                    string selName    = currSel.getName();
-
-                    string hname = formHistoName (sampleName, selName, varName, nominal_name_);
-                    std::shared_ptr<TH1F> hist;
-                    if (hasUserBinning) hist = make_shared<TH1F> (hname.c_str(), (hname+string(";")+varName+string(";events")).c_str(), nbins, binning);
-                    else                hist = make_shared<TH1F> (hname.c_str(), (hname+string(";")+varName+string(";events")).c_str(), nbins, xlow, xup);
-                    systcoll.append(nominal_name_, hist);
-
-                    // now loop over available syst and create more histos
-                    if (doselW.at(ismpc) == 1)
-                    {
-                        // sample
-                        for (uint iw = 0; iw < currSample.getWeights().size(); ++iw)
-                        {
-                            const Weight& currW = currSample.getWeights().at(iw);
-                            for (int isys = 0; isys < currW.getNSysts(); ++isys)
-                            {
-                                hname = formHistoName (sampleName, selName, varName, currW.getSystName(isys));
-                                std::shared_ptr<TH1F> histS;
-                                if (hasUserBinning) histS = make_shared<TH1F> (hname.c_str(), (hname+string(";")+varName+string(";events")).c_str(), nbins, binning);
-                                else                histS = make_shared<TH1F> (hname.c_str(), (hname+string(";")+varName+string(";events")).c_str(), nbins, xlow, xup);
-                                systcoll.append(currW.getSystName(isys), histS);
-                            }
-                        }
-
-                        // selection
-                        for (uint iw = 0; iw < currSel.getWeights().size(); ++iw)
-                        {
-                            const Weight& currW = currSel.getWeights().at(iw);
-                            for (int isys = 0; isys < currW.getNSysts(); ++isys)
-                            {
-                                hname = formHistoName (sampleName, selName, varName, currW.getSystName(isys));
-                                std::shared_ptr<TH1F> histS;
-                                if (hasUserBinning) histS = make_shared<TH1F> (hname.c_str(), (hname+string(";")+varName+string(";events")).c_str(), nbins, binning);
-                                else                histS = make_shared<TH1F> (hname.c_str(), (hname+string(";")+varName+string(";events")).c_str(), nbins, xlow, xup);
-                                systcoll.append(currW.getSystName(isys), histS);
-                            }
-                        }
-                    }
-
-                    if (hasUserBinning) delete[] binning ; // was allocated with new
-
-                    // set Sumw2() and other stuff for all the histos
-                    for (uint ih = 0; ih < systcoll.size(); ++ih)
-                    {
-                        if (doselW.at(ismpc) != 1) // is data
-                            systcoll.at(ih)->Sumw2();
-                        else
-                            systcoll.at(ih)->SetBinErrorOption(TH1::kPoisson);   
-                    }
-
-                } // end loop on 1D variables
-            } // end loop on selections
-        } // end loop on samples
-    } // end loop on (data, sig, bkg)
 }
 
 
-void AnalysisHelper::prepareSamples2DHistos()
+void AnalysisHelper::prepareSamples2DHistos(std::shared_ptr<Sample>& theSample)
 {
-    // to loop all in once
-    vector <sampleColl*> allToInit;
-    allToInit.push_back(&data_samples_); 
-    allToInit.push_back(&sig_samples_); 
-    allToInit.push_back(&bkg_samples_); 
-    allToInit.push_back(&datadriven_samples_); 
 
-    vector<int> doselW;
-    doselW.push_back(0); // no sel W for data!
-    doselW.push_back(1);
-    doselW.push_back(1);
-    doselW.push_back(0); // no sel W for datadriven!
-
-    for (uint ismpc = 0; ismpc < allToInit.size(); ++ismpc) // loop on (data, sig, bkg)
+    Sample::selColl2D& selcoll = theSample->plots2D();
+    for (uint isel = 0; isel < selections_.size(); ++isel)
     {
-        sampleColl* samcoll = allToInit.at(ismpc);
-        for (uint isample = 0; isample < samcoll->size(); ++isample) // loop on samples
-        {             
-            Sample::selColl2D& selcoll = samcoll->at(isample)->plots2D();
-            for (uint isel = 0; isel < selections_.size(); ++isel)
+        selcoll.append(selections_.at(isel).getName(), Sample::varColl2D());
+        Sample::varColl2D& varcoll = selcoll.back();
+        for (uint ivar = 0; ivar < variables2D_.size(); ++ivar)
+        {
+            auto pairName = variables2D_.at(ivar);
+            string varName1 = pairName.first;
+            string varName2 = pairName.second;
+            string packedVarName = pack2DName(varName1, varName2);
+
+            varcoll.append(packedVarName, Sample::systColl2D());
+            Sample::systColl2D& systcoll = varcoll.back();
+
+            bool hasUserBinning1 = cutCfg_->hasOpt(Form("binning2D::%s@%s", packedVarName.c_str(), varName1.c_str()));
+            bool hasUserBinning2 = cutCfg_->hasOpt(Form("binning2D::%s@%s", packedVarName.c_str(), varName2.c_str()));
+
+            vector<float> binning;
+            if (!hasUserBinning1 || !hasUserBinning2) // at least one must have been specified
+                binning = cutCfg_->readFloatListOpt(Form("histos2D::%s", packedVarName.c_str()));
+
+            int    nbins1   = -1;
+            float  xlow1    = -1.;
+            float  xup1     = -1.;
+            double* binning1 = 0;
+
+            int    nbins2   = -1;
+            float  xlow2    = -1.;
+            float  xup2     = -1.;
+            double* binning2 = 0;
+
+            if (hasUserBinning1)
             {
-                selcoll.append(selections_.at(isel).getName(), Sample::varColl2D());
-                Sample::varColl2D& varcoll = selcoll.back();
-                for (uint ivar = 0; ivar < variables2D_.size(); ++ivar)
+                vector<float> vBins = cutCfg_->readFloatListOpt(Form("binning2D::%s@%s", packedVarName.c_str(), varName1.c_str()));
+                nbins1 = vBins.size() -1;
+                
+                if (nbins1 < 1) // wrong
                 {
-                    auto pairName = variables2D_.at(ivar);
-                    string varName1 = pairName.first;
-                    string varName2 = pairName.second;
-                    string packedVarName = pack2DName(varName1, varName2);
+                    cerr << "** AnalysisHelper : prepareSamples2DHistos : error : binning of " << packedVarName << "@" << varName1 << " must have at least 2 numbers, dummy one used" << endl;                        
+                    vBins.clear();
+                    vBins.push_back(0.);
+                    vBins.push_back(1.);
+                    nbins1 = 1;
+                }
+                
+                binning1 = new double[nbins1+1] ;
+                for (uint ibin = 0; ibin < vBins.size(); ++ibin) binning1[ibin] = vBins.at(ibin);
+            }
+            else
+            {
+                nbins1 =  (int) (binning.at(0) + 0.5); // just to avoid numerical errors
+                xlow1  =  binning.at(1);
+                xup1   =  binning.at(2);
+            }
 
-                    varcoll.append(packedVarName, Sample::systColl2D());
-                    Sample::systColl2D& systcoll = varcoll.back();
+            if (hasUserBinning2)
+            {
+                vector<float> vBins = cutCfg_->readFloatListOpt(Form("binning2D::%s@%s", packedVarName.c_str(), varName2.c_str()));
+                nbins2 = vBins.size() -1;
+                
+                if (nbins2 < 1) // wrong
+                {
+                    cerr << "** AnalysisHelper : prepareSamples2DHistos : error : binning of " << packedVarName << "@" << varName2 << " must have at least 2 numbers, dummy one used" << endl;                        
+                    vBins.clear();
+                    vBins.push_back(0.);
+                    vBins.push_back(1.);
+                    nbins2 = 1;
+                }
+                
+                binning2 = new double[nbins2+1] ;
+                for (uint ibin = 0; ibin < vBins.size(); ++ibin) binning2[ibin] = vBins.at(ibin);
+            }
+            else
+            {
+                nbins2 =  (int) (binning.at(3) + 0.5); // just to avoid numerical errors
+                xlow2  =  binning.at(4);
+                xup2   =  binning.at(5);
+            }
 
-                    bool hasUserBinning1 = cutCfg_->hasOpt(Form("binning2D::%s@%s", packedVarName.c_str(), varName1.c_str()));
-                    bool hasUserBinning2 = cutCfg_->hasOpt(Form("binning2D::%s@%s", packedVarName.c_str(), varName2.c_str()));
+            // prepare histos -- first one is always the nominal one
+            const Sample& currSample = *(theSample);
+            const Selection& currSel = selections_.at(isel);
+            string sampleName = currSample.getName();
+            string selName    = currSel.getName();
 
-                    vector<float> binning;
-                    if (!hasUserBinning1 || !hasUserBinning2) // at least one must have been specified
-                      binning = cutCfg_->readFloatListOpt(Form("histos2D::%s", packedVarName.c_str()));
+            string hname = formHisto2DName (sampleName, selName, varName1, varName2, nominal_name_);
+            TH2F* hist;
+            if (hasUserBinning1 && hasUserBinning2)        hist = new TH2F (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, binning1, nbins2, binning2);
+            else if (hasUserBinning1 && !hasUserBinning2)  hist = new TH2F (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, binning1, nbins2, xlow2, xup2);
+            else if (!hasUserBinning1 && hasUserBinning2)  hist = new TH2F (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, xlow1, xup1, nbins2, binning2);
+            else                                           hist = new TH2F (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, xlow1, xup1, nbins2, xlow2, xup2);
+            systcoll.append(nominal_name_, hist);
 
-                    int    nbins1   = -1;
-                    float  xlow1    = -1.;
-                    float  xup1     = -1.;
-                    double* binning1 = 0;
 
-                    int    nbins2   = -1;
-                    float  xlow2    = -1.;
-                    float  xup2     = -1.;
-                    double* binning2 = 0;
-
-                    if (hasUserBinning1)
+            // now loop over available syst and create more histos
+            if (theSample->getType() == Sample::sType::kSig || theSample->getType() == Sample::sType::kBkg)
+            {
+                // sample
+                for (uint iw = 0; iw < currSample.getWeights().size(); ++iw)
+                {
+                    const Weight& currW = currSample.getWeights().at(iw);
+                    for (int isys = 0; isys < currW.getNSysts(); ++isys)
                     {
-                        vector<float> vBins = cutCfg_->readFloatListOpt(Form("binning2D::%s@%s", packedVarName.c_str(), varName1.c_str()));
-                        nbins1 = vBins.size() -1;
-                        
-                        if (nbins1 < 1) // wrong
-                        {
-                            cerr << "** AnalysisHelper : prepareSamples2DHistos : error : binning of " << packedVarName << "@" << varName1 << " must have at least 2 numbers, dummy one used" << endl;                        
-                            vBins.clear();
-                            vBins.push_back(0.);
-                            vBins.push_back(1.);
-                            nbins1 = 1;
-                        }
-                        
-                        binning1 = new double[nbins1+1] ;
-                        for (uint ibin = 0; ibin < vBins.size(); ++ibin) binning1[ibin] = vBins.at(ibin);
+                        hname = formHisto2DName (sampleName, selName, varName1, varName2, currW.getSystName(isys));
+                        TH2F* histS;
+                        if (hasUserBinning1 && hasUserBinning2)        histS = new TH2F (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, binning1, nbins2, binning2);
+                        else if (hasUserBinning1 && !hasUserBinning2)  histS = new TH2F (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, binning1, nbins2, xlow2, xup2);
+                        else if (!hasUserBinning1 && hasUserBinning2)  histS = new TH2F (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, xlow1, xup1, nbins2, binning2);
+                        else                                           histS = new TH2F (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, xlow1, xup1, nbins2, xlow2, xup2);
+                        systcoll.append(currW.getSystName(isys), histS);
                     }
-                    else
+                }
+
+                // selection
+                for (uint iw = 0; iw < currSel.getWeights().size(); ++iw)
+                {
+                    const Weight& currW = currSel.getWeights().at(iw);
+                    for (int isys = 0; isys < currW.getNSysts(); ++isys)
                     {
-                        nbins1 =  (int) (binning.at(0) + 0.5); // just to avoid numerical errors
-                        xlow1  =  binning.at(1);
-                        xup1   =  binning.at(2);
+                        hname = formHisto2DName (sampleName, selName, varName1, varName2, currW.getSystName(isys));
+                        TH2F* histS;
+                        if (hasUserBinning1 && hasUserBinning2)        histS = new TH2F (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, binning1, nbins2, binning2);
+                        else if (hasUserBinning1 && !hasUserBinning2)  histS = new TH2F (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, binning1, nbins2, xlow2, xup2);
+                        else if (!hasUserBinning1 && hasUserBinning2)  histS = new TH2F (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, xlow1, xup1, nbins2, binning2);
+                        else                                           histS = new TH2F (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, xlow1, xup1, nbins2, xlow2, xup2);
+                        systcoll.append(currW.getSystName(isys), histS);
                     }
+                }
+            }
 
-                    if (hasUserBinning2)
-                    {
-                        vector<float> vBins = cutCfg_->readFloatListOpt(Form("binning2D::%s@%s", packedVarName.c_str(), varName2.c_str()));
-                        nbins2 = vBins.size() -1;
-                        
-                        if (nbins2 < 1) // wrong
-                        {
-                            cerr << "** AnalysisHelper : prepareSamples2DHistos : error : binning of " << packedVarName << "@" << varName2 << " must have at least 2 numbers, dummy one used" << endl;                        
-                            vBins.clear();
-                            vBins.push_back(0.);
-                            vBins.push_back(1.);
-                            nbins2 = 1;
-                        }
-                        
-                        binning2 = new double[nbins2+1] ;
-                        for (uint ibin = 0; ibin < vBins.size(); ++ibin) binning2[ibin] = vBins.at(ibin);
-                    }
-                    else
-                    {
-                        nbins2 =  (int) (binning.at(3) + 0.5); // just to avoid numerical errors
-                        xlow2  =  binning.at(4);
-                        xup2   =  binning.at(5);
-                    }
+            if (hasUserBinning1) delete[] binning1 ; // was allocated with new
+            if (hasUserBinning2) delete[] binning2 ; // was allocated with new
 
-                    // prepare histos -- first one is always the nominal one
-                    const Sample& currSample = *(samcoll->at(isample));
-                    const Selection& currSel = selections_.at(isel);
-                    string sampleName = currSample.getName();
-                    string selName    = currSel.getName();
+            // set Sumw2() and other stuff for all the histos
+            for (uint ih = 0; ih < systcoll.size(); ++ih)
+            {
+                if (theSample->getType() == Sample::sType::kData || theSample->getType() == Sample::sType::kDatadriven) // is data
+                    systcoll.at(ih)->Sumw2();
+                else
+                    systcoll.at(ih)->SetBinErrorOption(TH1::kPoisson);   
+            }
 
-                    string hname = formHisto2DName (sampleName, selName, varName1, varName2, nominal_name_);
-                    std::shared_ptr<TH2F> hist;
-                    if (hasUserBinning1 && hasUserBinning2)        hist = make_shared<TH2F> (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, binning1, nbins2, binning2);
-                    else if (hasUserBinning1 && !hasUserBinning2)  hist = make_shared<TH2F> (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, binning1, nbins2, xlow2, xup2);
-                    else if (!hasUserBinning1 && hasUserBinning2)  hist = make_shared<TH2F> (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, xlow1, xup1, nbins2, binning2);
-                    else                                           hist = make_shared<TH2F> (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, xlow1, xup1, nbins2, xlow2, xup2);
-                    systcoll.append(nominal_name_, hist);
-
-
-                    // now loop over available syst and create more histos
-                    if (doselW.at(ismpc) == 1)
-                    {
-                        // sample
-                        for (uint iw = 0; iw < currSample.getWeights().size(); ++iw)
-                        {
-                            const Weight& currW = currSample.getWeights().at(iw);
-                            for (int isys = 0; isys < currW.getNSysts(); ++isys)
-                            {
-                                hname = formHisto2DName (sampleName, selName, varName1, varName2, currW.getSystName(isys));
-                                std::shared_ptr<TH2F> histS;
-                                if (hasUserBinning1 && hasUserBinning2)        histS = make_shared<TH2F> (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, binning1, nbins2, binning2);
-                                else if (hasUserBinning1 && !hasUserBinning2)  histS = make_shared<TH2F> (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, binning1, nbins2, xlow2, xup2);
-                                else if (!hasUserBinning1 && hasUserBinning2)  histS = make_shared<TH2F> (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, xlow1, xup1, nbins2, binning2);
-                                else                                           histS = make_shared<TH2F> (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, xlow1, xup1, nbins2, xlow2, xup2);
-                                systcoll.append(currW.getSystName(isys), histS);
-                            }
-                        }
-
-                        // selection
-                        for (uint iw = 0; iw < currSel.getWeights().size(); ++iw)
-                        {
-                            const Weight& currW = currSel.getWeights().at(iw);
-                            for (int isys = 0; isys < currW.getNSysts(); ++isys)
-                            {
-                                hname = formHisto2DName (sampleName, selName, varName1, varName2, currW.getSystName(isys));
-                                std::shared_ptr<TH2F> histS;
-                                if (hasUserBinning1 && hasUserBinning2)        histS = make_shared<TH2F> (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, binning1, nbins2, binning2);
-                                else if (hasUserBinning1 && !hasUserBinning2)  histS = make_shared<TH2F> (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, binning1, nbins2, xlow2, xup2);
-                                else if (!hasUserBinning1 && hasUserBinning2)  histS = make_shared<TH2F> (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, xlow1, xup1, nbins2, binning2);
-                                else                                           histS = make_shared<TH2F> (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, xlow1, xup1, nbins2, xlow2, xup2);
-                                systcoll.append(currW.getSystName(isys), histS);
-                            }
-                        }
-                    }
-
-                    if (hasUserBinning1) delete[] binning1 ; // was allocated with new
-                    if (hasUserBinning2) delete[] binning2 ; // was allocated with new
-
-                    // set Sumw2() and other stuff for all the histos
-                    for (uint ih = 0; ih < systcoll.size(); ++ih)
-                    {
-                        if (doselW.at(ismpc) != 1) // is data
-                            systcoll.at(ih)->Sumw2();
-                        else
-                            systcoll.at(ih)->SetBinErrorOption(TH1::kPoisson);   
-                    }
-
-                } // end loop on 1D variables
-            } // end loop on selections
-        } // end loop on samples
-    } // end loop on (data, sig, bkg)
+        } // end loop on 1D variables
+    } // end loop on selections
+    
 }
-
 
 vector<pair<string, string> > AnalysisHelper::readWeightSysts(std::string name, std::string section)
 {
@@ -973,6 +948,7 @@ string AnalysisHelper::formHisto2DName (string sample, string sel, string var1, 
     }
     return name;
 }
+
 void AnalysisHelper::fillHistosSample(Sample& sample, std::promise<void> thePromise)
 {
     cout << "@@ Filling histograms of sample " << sample.getName() << endl;
@@ -988,7 +964,9 @@ void AnalysisHelper::fillHistosSample(Sample& sample, std::promise<void> theProm
     {
         // note: no need to call later delete, because fg is set as the owner of the member TTF
         if (DEBUG) cout << sample.getDatasetCut().GetTitle() << endl;
+        mutex_.lock();
         TTreeFormula* TTF = new TTreeFormula (Form("TTF_%i", isel), ("(" + std::string(selections_.at(isel).getValue().GetTitle()) + ") && " + std::string(sample.getDatasetCut().GetTitle())).data(), tree);
+        mutex_.unlock();
         vTTF.push_back(TTF);
         fg->SetNotify(TTF);
     }
@@ -1417,60 +1395,10 @@ string AnalysisHelper::pack2DName (string name1, string name2)
 }
 
 
-// vector<const Weight*> AnalysisHelper::getWeightsWithSyst (const Selection& sel, const Sample& sample)
-// {
-//     vector<const Weight*> vWeights;
-
-//     // sample
-//     for (uint iw = 0; iw < sample.getWeights().size(); ++iw)
-//     {
-//         if (sample.getWeights().at(iw).hasSysts())
-//             vWeights.push_back(&(sample.getWeights().at(iw)));
-//     }
-
-//     // selection
-//     for (uint iw = 0; iw < sel.getWeights().size(); ++iw)
-//     {
-//         if (sel.getWeights().at(iw).hasSysts())
-//             vWeights.push_back(&(sel.getWeights().at(iw)));
-//     }
-
-//     return vWeights;
-
-//     // 1) const for pointers
-//     // 2) pointer to element of a vector
-// }
-
-// bool AnalysisHelper::readSingleSelection (std::string name, bool isComposed)
-// {
-//     if (!cutCfg_->hasOpt(name))
-//     {
-//         cerr << "** AnalysisHelper : readSingleSelection : error : could not find selection " << name << endl;
-//         return false;
-//     }
-
-
-// }
-
 void AnalysisHelper::fillHistos()
 {
-    // std::vector<std::thread> theThreadVector;
-    // auto totalMap = data_samples_ + sig_samples_ + bkg_samples_ + datadriven_samples_;
-    // for(uint isample = 0; isample < totalMap.size(); ++isample)
-    // {
-    //     theThreadVector.emplace_back( std::thread(&AnalysisHelper::fillHistosSample, this, std::ref(*(totalMap.at(isample)) ) ) );
-    //     if(theThreadVector.size() >= numberOfThreads_)
-    //     {
-    //         for(auto &theThread : theThreadVector) theThread.join();
-    //         theThreadVector.clear();
-    //     }
-    // }
-    // for(auto &theThread : theThreadVector) theThread.join();
-    // theThreadVector.clear();
-
-
     using namespace std::chrono_literals;
-    std::vector< std::pair<std::future<void>, std::thread> > theThreadVector;
+    std::vector< std::tuple<std::future<void>, std::thread, uint> > theThreadVector;
     auto totalMap = data_samples_ + datadriven_samples_ + sig_samples_ + bkg_samples_;
 
     for(uint isample = 0; isample < numberOfThreads_; ++isample)
@@ -1478,7 +1406,8 @@ void AnalysisHelper::fillHistos()
         if(isample >= totalMap.size()) break;
         std::promise<void> thePromise;
         auto theFuture = thePromise.get_future();
-        theThreadVector.emplace_back( std::move(theFuture), std::thread(&AnalysisHelper::fillHistosSample, this, std::ref(*(totalMap.at(isample))), std::move(thePromise) ));
+        prepareHistos(totalMap.at(isample));
+        theThreadVector.emplace_back( std::make_tuple(std::move(theFuture), std::thread(&AnalysisHelper::fillHistosSample, this, std::ref(*(totalMap.at(isample))), std::move(thePromise)), isample) );
     }
 
     uint numberOfSampleSubmitted = numberOfThreads_;
@@ -1488,9 +1417,12 @@ void AnalysisHelper::fillHistos()
         size_t completedThreadPosition = 0;
         for(; completedThreadPosition<numberOfThreads_; ++completedThreadPosition)
         {
-            if(theThreadVector[completedThreadPosition].first.wait_for(0ms) == std::future_status::ready) 
+            if(std::get<0>(theThreadVector[completedThreadPosition]).wait_for(0ms) == std::future_status::ready) 
             {
-                theThreadVector[completedThreadPosition].second.join();
+                std::get<1>(theThreadVector[completedThreadPosition]).join();
+                std::shared_ptr<Sample>& theSample = totalMap.at( std::get<2>(theThreadVector[completedThreadPosition]) );
+                if(!hasToBeMerged(theSample)) saveSampleOutputToFile( theSample );
+                else theSample->clean(false);
                 break;
             }
         }
@@ -1498,12 +1430,19 @@ void AnalysisHelper::fillHistos()
         {
             std::promise<void> thePromise;
             auto theFuture = thePromise.get_future();
-            theThreadVector[completedThreadPosition] = std::move(make_pair(std::move(theFuture), std::thread(&AnalysisHelper::fillHistosSample, this, std::ref(*(totalMap.at(numberOfSampleSubmitted))), std::move(thePromise)) ));
+            prepareHistos(totalMap.at(numberOfSampleSubmitted));
+            theThreadVector[completedThreadPosition] = std::move( std::make_tuple(std::move(theFuture), std::thread(&AnalysisHelper::fillHistosSample, this, std::ref(*(totalMap.at(numberOfSampleSubmitted))), std::move(thePromise)), numberOfSampleSubmitted) );
             ++numberOfSampleSubmitted;
         }
     }
 
-    for(auto &theThread : theThreadVector) theThread.second.join();
+    for(auto &theThread : theThreadVector) 
+    {
+        std::get<1>(theThread).join();
+        std::shared_ptr<Sample>& theSample = totalMap.at( std::get<2>(theThread) );
+        if(!hasToBeMerged(theSample)) saveSampleOutputToFile( theSample );
+        else theSample->clean(false);
+    }
     theThreadVector.clear();
 
 }
@@ -1607,10 +1546,11 @@ void AnalysisHelper::dump(int detail)
 
 }
 
-void AnalysisHelper::prepareHistos()
+
+void AnalysisHelper::prepareHistos(std::shared_ptr<Sample>& theSample)
 {
-    prepareSamplesHistos();
-    prepareSamples2DHistos();
+    prepareSamplesHistos(theSample);
+    prepareSamples2DHistos(theSample);
 }
 
 void AnalysisHelper::mergeSamples()
@@ -1656,7 +1596,7 @@ void AnalysisHelper::mergeSamples()
         }
         else {
             cerr << "** AnalysisHelper : mergeSamples : error : could not find the sample " << snamefirst << " to merge, won't merge" << endl;
-            return;
+            continue;
         }
         
         if (DEBUG) cout << "   DEBUG: --- merging histos - type is: " << type << endl;
@@ -1684,7 +1624,7 @@ void AnalysisHelper::mergeSamples()
                     string systName = plmaster.at(isel).at(ivar).key(isyst);
                     string hname = formHistoName (newname, selName, varName, systName);
                     // if (DEBUG) cout << "   DEBUG: ---      .merging histos - new histo name is: " << hname << " from: " << newname << " " <<  selName << " " <<  varName << " " <<  systName << "-||-" << endl;
-                    std::shared_ptr<TH1F> hist ((TH1F*) plmaster.at(isel).at(ivar).at(isyst)->Clone(hname.c_str())) ;
+                    TH1F *hist = (TH1F*)plmaster.at(isel).at(ivar).at(isyst)->Clone(hname.c_str()) ;
                     hist->SetTitle(hist->GetName());
                     plnew.at(isel).at(ivar).append(systName, hist);
                     // if (DEBUG) cout << "   DEBUG: ---     3. merging histos - " << selName << " at " << varName << " at " << systName << " done new histo, nbins: " << hist->GetNbinsX() << endl;
@@ -1713,7 +1653,7 @@ void AnalysisHelper::mergeSamples()
             for (unsigned int isel = 0; isel < plnew.size(); ++isel){
                 for (unsigned int ivar = 0; ivar < plnew.at(isel).size(); ++ivar ){
                     for (unsigned int isyst = 0; isyst < plnew.at(isel).at(ivar).size(); ++isyst ){
-                        plnew.at(isel).at(ivar).at(isyst)->Add(pltoadd.at(isel).at(ivar).at(isyst).get());
+                        plnew.at(isel).at(ivar).at(isyst)->Add(pltoadd.at(isel).at(ivar).at(isyst));
                     }   
                 }
             }
@@ -1742,7 +1682,7 @@ void AnalysisHelper::mergeSamples()
                     string systName = pl2Dmaster.at(isel).at(ivar).key(isyst);
                     string hname = formHisto2DName (newname, selName, varName1, varName2, systName);
                     // if (DEBUG) cout << "   DEBUG: ---      .merging histos - new histo name is: " << hname << " from: " << newname << " " <<  selName << " " <<  varName << " " <<  systName << "-||-" << endl;
-                    std::shared_ptr<TH2F> hist ((TH2F*) pl2Dmaster.at(isel).at(ivar).at(isyst)->Clone(hname.c_str())) ;
+                    TH2F* hist = (TH2F*)pl2Dmaster.at(isel).at(ivar).at(isyst)->Clone(hname.c_str()) ;
                     hist->SetTitle(hist->GetName());
                     pl2Dnew.at(isel).at(ivar).append(systName, hist);
                     // if (DEBUG) cout << "   DEBUG: ---     3. merging histos - " << selName << " at " << varName << " at " << systName << " done new histo, nbins: " << hist->GetNbinsX() << endl;
@@ -1760,7 +1700,7 @@ void AnalysisHelper::mergeSamples()
             for (unsigned int isel = 0; isel < pl2Dnew.size(); ++isel){
                 for (unsigned int ivar = 0; ivar < pl2Dnew.at(isel).size(); ++ivar ){
                     for (unsigned int isyst = 0; isyst < pl2Dnew.at(isel).at(ivar).size(); ++isyst ){
-                        pl2Dnew.at(isel).at(ivar).at(isyst)->Add(pltoadd.at(isel).at(ivar).at(isyst).get());
+                        pl2Dnew.at(isel).at(ivar).at(isyst)->Add(pltoadd.at(isel).at(ivar).at(isyst));
                     }   
                 }
             }
@@ -1779,7 +1719,9 @@ void AnalysisHelper::mergeSamples()
             for (unsigned int ii = 0; ii < chosenMap->size(); ++ii)
                 cout << "    ................ " << chosenMap->key(ii) << endl;
         }
+        saveSampleOutputToFile(snew);
     }
+
 }
 
 

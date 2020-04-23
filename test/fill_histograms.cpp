@@ -44,11 +44,12 @@ int main(int argc, char** argv)
 
     // ah.prepareSamplesHistos();
     // ah.prepareSamples2DHistos();
-    ah.prepareHistos();
+    // ah.prepareHistos();
     ah.dump(2); // can set a level of detail
     ah.fillHistos();
     ah.mergeSamples(); // do it just at the end
-    ah.saveOutputsToFile();
+    // ah.saveOutputsToFile();
+    ah.closeOutputFile();
     cout << "... exiting" << endl;    
     exit(EXIT_SUCCESS);
 }

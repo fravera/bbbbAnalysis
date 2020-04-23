@@ -22,7 +22,8 @@ Sample::Sample (string name, string filelistname, string treename, string histon
 {
     name_ = name;
     // tree_ = new TChain (treename.c_str());
-    tree_ = unique_ptr<TChain>(new TChain(treename.c_str()));
+    tree_ = new TChain(treename.c_str());
+    tree_->CanDeleteRefs();
     filelistname_ = filelistname;
     eff_         = 0.;
     evt_num_     = 0.;
@@ -36,9 +37,43 @@ Sample::Sample (string name, string filelistname, string treename, string histon
 
 Sample::~Sample ()
 {
-    // delete tree_;
+    clean(true);
 }
 
+void Sample::clean(bool cleanPlots)
+{
+    if(cleanPlots)
+    {
+        selColl plots_;
+        for (uint isel = 0; isel < plots_.size(); ++isel)
+        {
+            string selectionDir = plots_.key(isel);
+            for (uint ivar = 0; ivar < plots_.at(isel).size(); ++ivar)
+            {
+                for (uint isyst = 0; isyst < plots_.at(isel).at(ivar).size(); ++isyst)
+                {
+                    delete plots_.at(isel).at(ivar).at(isyst);
+                    plots_.at(isel).at(ivar).at(isyst) = nullptr;
+                }
+            }
+        }
+        selColl2D plots2D_;
+        for (uint isel = 0; isel < plots2D_.size(); ++isel)
+        {
+            string selectionDir = plots2D_.key(isel);
+            for (uint ivar = 0; ivar < plots2D_.at(isel).size(); ++ivar)
+            {
+                for (uint isyst = 0; isyst < plots2D_.at(isel).at(ivar).size(); ++isyst)
+                {
+                    delete plots2D_.at(isel).at(ivar).at(isyst);
+                    plots2D_.at(isel).at(ivar).at(isyst) = nullptr;
+                }
+            }
+        }
+    }
+    delete tree_;
+    tree_ = nullptr;
+}
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 // Sample::Sample(std::string name, std::vector<Sample const *> sampleList)

@@ -472,8 +472,8 @@ int main(int argc, char** argv)
     );
 
     std::string yMassSelection = opts["yMassSelection"].as<std::string>();
-    if(yMassSelection != "None") nat.attachCustomValueBranch<Bool_t>("GenModel_YMass_" + yMassSelection);
-    else ot.declareUserIntBranchList(nat.attachAllMatchingBranch<Bool_t>("GenModel_YMass_"));
+    if(yMassSelection != "None") nat.attachCustomValueBranch<Bool_t>("GenModel_YMass_" + yMassSelection, true, false);
+    else ot.declareUserIntBranchList(nat.attachAllMatchingBranch<Bool_t>("GenModel_YMass_", true, false));
 
     SkimEffCounter ec;
 

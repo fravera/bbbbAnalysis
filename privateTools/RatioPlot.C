@@ -46,6 +46,7 @@ void RatioPlot(TVirtualPad *theCanvas, TH1D *referenceHistogram, std::vector<TH1
     referenceHistogram->GetYaxis()->SetLabelFont(62); // Absolute font size in pixel (precision 3)
     referenceHistogram->GetYaxis()->SetLabelSize(0.06);
     referenceHistogram->GetYaxis()->SetTitle(yAxis.data()); // Remove the ratio title
+    referenceHistogram->SetTitle(title.data());
     // referenceHistogram settings
     referenceHistogram->SetLineColor(kBlack);
     referenceHistogram->SetMarkerColor(kBlack);
@@ -262,7 +263,7 @@ void RatioSlices(std::string canvasName, std::string referenceFileName, std::str
     
     uint numberOfYbins = referenceHistogram2D->GetNbinsY();
     uint nPadPerCanvas = 4;
-    uint rebinFactor = 6;
+    uint rebinFactor = 3;
 
     std::cout << "numberOfYbins = " << numberOfYbins << std::endl;
     std::cout << "nPadPerCanvas = " << nPadPerCanvas << std::endl;
@@ -285,7 +286,9 @@ void RatioSlices(std::string canvasName, std::string referenceFileName, std::str
             TH1D* referenceHistogram = referenceHistogram2D->ProjectionX(Form("reference_Mx_projection_My_%.1f_%.1f",mYmin, mYmax), yBinMin, yBinMax);
             TH1D* inputHistogram     = inputHistogram2D    ->ProjectionX(Form("input_Mx_projection_My_%.1f_%.1f"    ,mYmin, mYmax), yBinMin, yBinMax);
             // if(inputHistogram->GetEntries()==0) continue;
-            RatioPlot(theCanvas->cd(y), referenceHistogram, {inputHistogram}, {kRed}, normalize, normalizeValue, xMin, xMax, rebinNumber, xAxis, yAxis, Form("%.1f < M_{Y} < %.1f", mYmin, mYmax));
+            int correctedRebinNumber = rebinNumber;
+            if(mYmin<125. && mYmax>125.) correctedRebinNumber*=3;
+            RatioPlot(theCanvas->cd(y), referenceHistogram, {inputHistogram}, {kRed}, normalize, normalizeValue, xMin, xMax, correctedRebinNumber, xAxis, yAxis, Form("%.1f < M_{Y} < %.1f", mYmin, mYmax));
         }
 
         theCanvas->SaveAs((std::string(theCanvas->GetName()) + ".png").data());
@@ -298,8 +301,48 @@ void RatioSlices(std::string canvasName, std::string referenceFileName, std::str
 }
 
 
-void RatioAllVariables(std::string canvasName, std::string referenceFileName, std::string referenceDatasetName , std::string referenceCutName, std::string targetFileName, std::string targetDatasetName , std::string targetCutName, bool normalize)
+void RatioAllVariables(std::string canvasName, std::string referenceFileName, std::string referenceDatasetName , std::string referenceCutName, std::string targetFileName, std::string targetDatasetName , std::string targetCutName, bool normalize, std::string region = "HMR")
 {
+
+    float minH2_m;
+    float maxH2_m;
+    int   rebinH2_m;
+    // float minUnroll_m;
+    // float maxUnroll_m;
+    // int   rebinUnroll_m;
+    if(region == "LMR")
+    {
+        minH2_m = 0;
+        maxH2_m = 150;
+        rebinH2_m = 2;
+        // minUnroll_m = 0.;
+        // maxUnroll_m = 3000.;
+        // rebinUnroll_m = 9.;
+    }
+    else if(region == "HMR")
+    {
+        minH2_m = 100;
+        maxH2_m = 2400;
+        rebinH2_m = 2;
+        // minUnroll_m = 110000.;
+        // maxUnroll_m = 250000.;
+        // rebinUnroll_m = 9.;
+    }
+    else if(region == "Full")
+    {
+        minH2_m = 0;
+        maxH2_m = 2400;
+        rebinH2_m = 2;
+        // minUnroll_m = 110000.;
+        // maxUnroll_m = 250000.;
+        // rebinUnroll_m = 9.;
+    }
+    else
+    {
+        std::cout<<"Region not specified"<<std::endl;
+        return;
+    }
+    
 
     std::string referenceHistPrototype = referenceDatasetName +  "/" + referenceCutName + "/" + referenceDatasetName +  "_" + referenceCutName;
     std::string targetHistPrototype    = targetDatasetName    +  "/" + targetCutName    + "/" + targetDatasetName    +  "_" + targetCutName   ;
@@ -311,13 +354,13 @@ void RatioAllVariables(std::string canvasName, std::string referenceFileName, st
     RatioPlotFromFile(theCanvas->cd(4),referenceFileName ,referenceHistPrototype + "_H2_eta"                      , {targetFileName} , {targetHistPrototype + "_H2_eta"                     }, {kRed} , normalize, -1,    -5,     5, 2, "#eta_{Y}");
     RatioPlotFromFile(theCanvas->cd(5),referenceFileName ,referenceHistPrototype + "_H1_bb_DeltaR"                , {targetFileName} , {targetHistPrototype + "_H1_bb_DeltaR"               }, {kRed} , normalize, -1,     0,     5, 1, "#DeltaR_{bb(H)}");
     RatioPlotFromFile(theCanvas->cd(6),referenceFileName ,referenceHistPrototype + "_H2_bb_DeltaR"                , {targetFileName} , {targetHistPrototype + "_H2_bb_DeltaR"               }, {kRed} , normalize, -1,     0,     5, 1, "#DeltaR_{bb(Y)}");
-    RatioPlotFromFile(theCanvas->cd(7),referenceFileName ,referenceHistPrototype + "_H2_m"                        , {targetFileName} , {targetHistPrototype + "_H2_m"                       }, {kRed} , normalize, -1,   130,   900, 4, "m_{Y} [GeV]");
-    RatioPlotFromFile(theCanvas->cd(8),referenceFileName ,referenceHistPrototype + "_HH_m"                        , {targetFileName} , {targetHistPrototype + "_HH_m"                       }, {kRed} , normalize, -1,   300,  1000, 1, "m_{X} [GeV]");
-    RatioPlotFromFile(theCanvas->cd(9),referenceFileName ,referenceHistPrototype + "_HH_m_H2_m_Rebinned_Unrolled" , {targetFileName} , {targetHistPrototype + "_HH_m_H2_m_Rebinned_Unrolled"}, {kRed} , normalize, -1,     0, 52000, 9, "m_{X}*m_{Y}");
+    RatioPlotFromFile(theCanvas->cd(7),referenceFileName ,referenceHistPrototype + "_H2_m"                        , {targetFileName} , {targetHistPrototype + "_H2_m"                       }, {kRed} , normalize, -1, minH2_m, maxH2_m, rebinH2_m, "m_{Y} [GeV]");
+    RatioPlotFromFile(theCanvas->cd(8),referenceFileName ,referenceHistPrototype + "_HH_m"                        , {targetFileName} , {targetHistPrototype + "_HH_m"                       }, {kRed} , normalize, -1,     0,  2000, 1, "m_{X} [GeV]");
+    // RatioPlotFromFile(theCanvas->cd(9),referenceFileName ,referenceHistPrototype + "_HH_m_H2_m_Rebinned_Unrolled" , {targetFileName} , {targetHistPrototype + "_HH_m_H2_m_Rebinned_Unrolled"}, {kRed} , normalize, -1, minUnroll_m, maxUnroll_m, rebinUnroll_m, "m_{X}*m_{Y}");
     theCanvas->SaveAs((std::string(theCanvas->GetName()) + ".png").data());
     delete theCanvas;
 
-    RatioSlices(canvasName, referenceFileName, referenceHistPrototype + "_HH_m_H2_m_Rebinned", targetFileName, targetHistPrototype + "_HH_m_H2_m_Rebinned", normalize, 0.0770485, 0, 2400, 3, "m_{X} [GeV]");
+    RatioSlices(canvasName, referenceFileName, referenceHistPrototype + "_HH_m_H2_m_Rebinned", targetFileName, targetHistPrototype + "_HH_m_H2_m_Rebinned", normalize, 0.0770485, 0, 2400, 1, "m_{X} [GeV]");
   
 }
 
@@ -326,11 +369,33 @@ void RatioAll()
 {
     gROOT->SetBatch();
 
-    RatioAllVariables("ControlRegionAfterBDT", "2016DataPlots_NMSSM_XYH_bbbb_Fast_triggerTurnOnCut/outPlotter.root", "data_BTagCSV" , "selectionbJets_ControlRegionBlinded", 
-    "2016DataPlots_NMSSM_XYH_bbbb_Fast_triggerTurnOnCut/outPlotter.root", "data_BTagCSV_dataDriven" , "selectionbJets_ControlRegionBlinded",false);
+    RatioAllVariables("ControlRegion_AfterBDT", "2016DataPlots_NMSSM_XYH_bbbb_all_Full/outPlotter.root", "data_BTagCSV" , "selectionbJets_ControlRegionBlinded", 
+    "2016DataPlots_NMSSM_XYH_bbbb_all_Full/outPlotter.root", "data_BTagCSV_dataDriven" , "selectionbJets_ControlRegionBlinded",false, "Full");
 
-    RatioAllVariables("SideBandAfterBDT", "2016DataPlots_NMSSM_XYH_bbbb_Fast_triggerTurnOnCut/outPlotter.root", "data_BTagCSV" , "selectionbJets_SideBandBlinded", 
-    "2016DataPlots_NMSSM_XYH_bbbb_Fast_triggerTurnOnCut/outPlotter.root", "data_BTagCSV_dataDriven" , "selectionbJets_SideBandBlinded",false);
+    RatioAllVariables("ControlRegion_BeforeBDT", "2016DataPlots_NMSSM_XYH_bbbb_all_Full/outPlotter.root", "data_BTagCSV" , "selectionbJets_ControlRegionBlinded", 
+    "2016DataPlots_NMSSM_XYH_bbbb_all_Full/outPlotter.root", "data_BTagCSV_3btag" , "selectionbJets_ControlRegionBlinded",true, "Full");
+
+    RatioAllVariables("SideBand_AfterBDT", "2016DataPlots_NMSSM_XYH_bbbb_all_Full/outPlotter.root", "data_BTagCSV" , "selectionbJets_SideBandBlinded", 
+    "2016DataPlots_NMSSM_XYH_bbbb_all_Full/outPlotter.root", "data_BTagCSV_dataDriven" , "selectionbJets_SideBandBlinded",false, "Full");
+
+
+    // RatioAllVariables("ControlRegion_LMR_AfterBDT", "2016DataPlots_NMSSM_XYH_bbbb_all_openClose_copy/outPlotter.root", "data_BTagCSV" , "selectionbJetsLMR_ControlRegionBlinded", 
+    // "2016DataPlots_NMSSM_XYH_bbbb_all_openClose_copy/outPlotter.root", "data_BTagCSV_dataDriven_LMR" , "selectionbJetsLMR_ControlRegionBlinded",false, "LMR");
+
+    // RatioAllVariables("ControlRegion_LMR_BeforeBDT", "2016DataPlots_NMSSM_XYH_bbbb_all_openClose_copy/outPlotter.root", "data_BTagCSV" , "selectionbJetsLMR_ControlRegionBlinded", 
+    // "2016DataPlots_NMSSM_XYH_bbbb_all_openClose_copy/outPlotter.root", "data_BTagCSV_3btag" , "selectionbJetsLMR_ControlRegionBlinded",true, "LMR");
+
+    // RatioAllVariables("SideBand_LMR_AfterBDT", "2016DataPlots_NMSSM_XYH_bbbb_all_openClose_copy/outPlotter.root", "data_BTagCSV" , "selectionbJetsLMR_SideBandBlinded", 
+    // "2016DataPlots_NMSSM_XYH_bbbb_all_openClose_copy/outPlotter.root", "data_BTagCSV_dataDriven_LMR" , "selectionbJetsLMR_SideBandBlinded",false, "LMR");
+
+    // RatioAllVariables("ControlRegion_HMR_AfterBDT", "2016DataPlots_NMSSM_XYH_bbbb_all_openClose_copy/outPlotter.root", "data_BTagCSV" , "selectionbJetsHMR_ControlRegionBlinded", 
+    // "2016DataPlots_NMSSM_XYH_bbbb_all_openClose_copy/outPlotter.root", "data_BTagCSV_dataDriven_HMR" , "selectionbJetsHMR_ControlRegionBlinded",false, "HMR");
+
+    // RatioAllVariables("ControlRegion_HMR_BeforeBDT", "2016DataPlots_NMSSM_XYH_bbbb_all_openClose_copy/outPlotter.root", "data_BTagCSV" , "selectionbJetsHMR_ControlRegionBlinded", 
+    // "2016DataPlots_NMSSM_XYH_bbbb_all_openClose_copy/outPlotter.root", "data_BTagCSV_3btag" , "selectionbJetsHMR_ControlRegionBlinded",true, "HMR");
+
+    // RatioAllVariables("SideBand_HMR_AfterBDT", "2016DataPlots_NMSSM_XYH_bbbb_all_openClose_copy/outPlotter.root", "data_BTagCSV" , "selectionbJetsHMR_SideBandBlinded", 
+    // "2016DataPlots_NMSSM_XYH_bbbb_all_openClose_copy/outPlotter.root", "data_BTagCSV_dataDriven_HMR" , "selectionbJetsHMR_SideBandBlinded",false, "HMR");
 
     // RatioAllVariables("ControlRegionBeforeBDT", "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_4bTag_ControlRegionBlinded", 
     // "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_3bTag_ControlRegionBlinded",true);
@@ -369,6 +434,8 @@ void RatioAll()
 
     // RatioAllVariables("SideBandUpAfterBDT", "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV" , "selectionbJetsAndTrigger_4bTag_SideBandUpBlinded", 
     // "2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root", "data_BTagCSV_dataDriven" , "selectionbJetsAndTrigger_3bTag_SideBandUpBlinded",false);
+    
+    gROOT->SetBatch(false);
 
 }
 
@@ -388,6 +455,9 @@ void RatioAllBackground()
 
     RatioAllVariables("SideBandAfterBDTBackgroundLMR", "2016DataPlots_NMSSM_XYH_bbbb_background/outPlotter.root", "data_BTagCSV_background" , "selectionbJetsLMR_SideBandBlinded", 
     "2016DataPlots_NMSSM_XYH_bbbb_background/outPlotter.root", "data_BTagCSV_dataDriven_backgroundLMR" , "selectionbJetsLMR_SideBandBlinded",false);
+   
+    gROOT->SetBatch(false);
+
 }
 
 

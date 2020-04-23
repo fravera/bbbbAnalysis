@@ -32,6 +32,7 @@
 #include "Weight.h"
 #include "Selection.h"
 #include "ordered_map.h"
+#include <mutex>
 
 #include "TCut.h"
 #include "TH1F.h"
@@ -50,7 +51,8 @@ class AnalysisHelper
         bool readMainInfo(); // all analysis info read here
 
         std::shared_ptr<Sample> openSample(std::string sampleName);
-        void prepareHistos();
+        void prepareHistos(std::shared_ptr<Sample>& theSample);
+        // void prepareHistos();
         
         void readSamples(); // inits the samles
         void readSelections();
@@ -63,7 +65,11 @@ class AnalysisHelper
         void printSelections(bool printWeights=false, bool printSysts=false);
         void printSamples(bool printWeights=false, bool printSysts=false);
 
-        void saveOutputsToFile();
+        void saveSampleOutputToFile(std::shared_ptr<Sample>& theSample);
+        void closeOutputFile();
+        bool hasToBeMerged(std::shared_ptr<Sample>& theSample);
+
+        // void saveOutputsToFile();
 
         void setVerbosity (int v) {verbosity_ = v;}
         void setSplitting (int idxsplit, int nsplit);
@@ -82,8 +88,10 @@ class AnalysisHelper
         void activateBranches(Sample& sample);
         std::pair<std::string, std::string> unpack2DName(std::string packedName);
         std::string pack2DName (std::string name1, std::string name2);
-        void prepareSamplesHistos();
-        void prepareSamples2DHistos();
+        // void prepareSamplesHistos();
+        // void prepareSamples2DHistos();
+        void prepareSamplesHistos(std::shared_ptr<Sample>& theSample);
+        void prepareSamples2DHistos(std::shared_ptr<Sample>& theSample);
         // std::vector<const Weight*> getWeightsWithSyst (const Selection& sel, const Sample& sample); // pointers to all weights that have at least one syst defined
 
         // check if a weight value is declared as default
@@ -93,7 +101,6 @@ class AnalysisHelper
         std::unique_ptr<CfgParser> mainCfg_;
         std::unique_ptr<CfgParser> cutCfg_;
         std::unique_ptr<CfgParser> sampleCfg_;
-        TH1F *hCutInSkim_;
         // FIXME: sytematics cfg?
 
         uint8_t numberOfThreads_;
@@ -103,7 +110,7 @@ class AnalysisHelper
         float lumi_;
         std::string outputFolder_;
         std::string outputFileName_;
-
+        std::string outFileFullName_;
         // parameters configurable for the access of samples
         std::string sample_tree_name_;
         std::string sample_heff_name_;
@@ -122,6 +129,8 @@ class AnalysisHelper
 
         std::string nominal_name_;
         int verbosity_;
+        std::mutex mutex_;
+        // TFile* outputFile_;
 };
 
 // used to access the variant that stores weights and variables

@@ -27,6 +27,8 @@ data_BTagCSV/selectionbJetsAndTrigger_SignalRegion/data_BTagCSV_selectionbJetsAn
 
 float higgsMass = 120;
 float konigsbergLine = 800;
+float mYmin;
+float mYmax;
 
 //-------------------------------------------------------------------------------------------------------------------------------------//
 
@@ -34,6 +36,7 @@ bool isNeededBin(TH2F *the2Dplot, uint xBin, uint yBin)
 {
     float mX = the2Dplot->GetXaxis()->GetBinCenter(xBin);
     float mY = the2Dplot->GetYaxis()->GetBinCenter(yBin);
+    if(mY < mYmin || mY > mYmax) return false;
 
     if( (mX - mY > higgsMass) && (mX - mY < higgsMass + konigsbergLine) )
     {
@@ -80,7 +83,7 @@ void Rebin2DPlot(TH2F *&the2Dplot, bool rebinX=true, uint xBinStart=1, uint yBin
     {
         for(yBin = yBinStart; yBin <= nYbin; yBin++)
         {
-            if(isNeededBin(the2Dplot, xBin, yBin) && the2Dplot->GetBinContent(xBin,yBin) <= 5)
+            if(isNeededBin(the2Dplot, xBin, yBin) && the2Dplot->GetBinContent(xBin,yBin) <= 1)
             {
                 allNeededBinsAreNotEmpty = false;
                 std::cout << "First empty needed bin = " << xBin << " - " << yBin << std::endl;
@@ -258,17 +261,25 @@ int main(int argc, char *argv[])
 {
     gSystem->ResetSignal(kSigSegmentationViolation, kTRUE);
 
-    if(argc < 5)
+    if(argc < 7)
     {
-        std::cout << "Usage: ./Unroll2Dplots <fileName> <dataset> <selection> <variable> <otherSelectionToUnroll - optional>" << std::endl;
+        std::cout << "Usage: ./Unroll2Dplots <fileName> <dataset> <selection> <variable> <mYmin> <mYmax> <otherSelectionToUnroll - optional>" << std::endl;
         return EXIT_FAILURE;
     }
 
     std::string dataDataset = argv[2];
     std::string selection   = argv[3];
     std::string variable    = argv[4];
+    mYmin    = atof(argv[5]);
+    mYmax    = atof(argv[6]);
     std::vector<std::string> selectionsToUnrollList = {selection};
-    for(uint i=5; i<argc; ++i) selectionsToUnrollList.push_back(argv[i]);
+    for(uint i=7; i<argc; ++i) selectionsToUnrollList.push_back(argv[i]);
+
+    // std::string outputFileName = inputFileName.substr(0,inputFileName.find(".root")) + "_rebinned";
+    
+
+    // TFile theInputFile(inputFileName.data());
+    // TFile theOutputFile(argv[1])
 
     TFile theInputFile(argv[1], "UPDATE");
     std::string dataHistogramName = dataDataset + "/" + selection + "/" + dataDataset + "_" + selection + "_"  + variable;
@@ -340,5 +351,6 @@ int main(int argc, char *argv[])
     }
 
     theInputFile.Close();
+    std::cout<<"File closed"<<std::endl;
 
 }

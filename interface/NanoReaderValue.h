@@ -20,6 +20,7 @@ class NanoReaderValueBase
     public:
         NanoReaderValueBase(){}
         ~NanoReaderValueBase(){}
+        virtual void Verify(TTree* tree) = 0;
 };
 
 template <typename T> class NanoReaderValue : public NanoReaderValueBase
@@ -27,7 +28,7 @@ template <typename T> class NanoReaderValue : public NanoReaderValueBase
     public:
         NanoReaderValue(TTreeReader &tr, const char *branchname);
         ~NanoReaderValue(){}
-        void Verify(TTree* tree);
+        void Verify(TTree* tree) override;
         bool IsValid() {return (ttrv_ ? true : false);}
         T* Get          ();
         T& operator *   () {return *Get();}
@@ -74,7 +75,7 @@ template <typename T>
 void NanoReaderValue<T>::Verify(TTree* tree)
 {
     // if (VERBOSE)
-    //     std::cout << "NanoReaderValue :: I am verifying value : " << branchname_ << std::endl;
+        // std::cout << "NanoReaderValue :: I am verifying value : " << branchname_ << std::endl;
 
     if (tree->GetListOfBranches()->FindObject(branchname_.c_str())) {
         if (!ttrv_) // not yet initialized

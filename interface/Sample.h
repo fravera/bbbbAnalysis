@@ -28,12 +28,12 @@ class Sample
 {
     public:
         // hierarchy of objects [selection[variable[systematics]]] 
-        typedef ordered_map<std::string, std::shared_ptr<TH1F> >  systColl;  // histograms stored - map is for systematics
+        typedef ordered_map<std::string, TH1F* >  systColl;  // histograms stored - map is for systematics
         typedef ordered_map<std::string, systColl>                varColl;   // variables plotted
         typedef ordered_map<std::string, varColl>                 selColl;   // all selections
 
         // note: for 2D histos, a 2D plot is still associated to a "single" variable, eg, if I want to plot A vs B, var2D = A:B (as in TTree)
-        typedef ordered_map<std::string, std::shared_ptr<TH2F> >  systColl2D;  // histograms stored - map is for systematics
+        typedef ordered_map<std::string, TH2F* >                  systColl2D;  // histograms stored - map is for systematics
         typedef ordered_map<std::string, systColl2D>              varColl2D;   // variables plotted
         typedef ordered_map<std::string, varColl2D>               selColl2D;   // all selections
 
@@ -58,6 +58,7 @@ class Sample
 
         void  setType (sType sampleType) {sampleType_ = sampleType;}
         sType getType () {return sampleType_;}
+        void clean(bool cleanPlots);
 
         // file handling and preparation
         bool openFileAndTree(const std::vector<Selection> &selections);
@@ -79,7 +80,7 @@ class Sample
         void addWeight  (Weight weight) {weights_.push_back(weight);}
         void clearWeights() {weights_.clear();}
 
-        TChain* getTree() {return tree_.get();}
+        TChain* getTree() {return tree_;}
         TH1F* getCutHistogram() {return hCutInSkim_.get();}
 
         const std::vector<Weight>& getWeights() const {return weights_;}
@@ -96,7 +97,7 @@ class Sample
         std::string treename_;
         std::string histoname_;
         // TChain* tree_;
-        std::unique_ptr<TChain> tree_;
+        TChain* tree_;
         std::string name_;
         
         double eff_;
