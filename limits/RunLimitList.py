@@ -12,7 +12,7 @@ from array import array
 
 enableSystematics = False
 # inputFile              = "2016DataPlots_NMSSM_XYH_bbbb_all_openClose/outPlotter.root"
-inputFile              = "2016DataPlots_NMSSM_XYH_bbbb_all_Full/outPlotter.root"
+inputFile              = "2016DataPlots_NMSSM_XYH_bbbb_all_Full_xsec_test/outPlotter.root"
 bbbbAnalysisFolderPath = "/uscms/home/fravera/nobackup/DiHiggs_v1/CMSSW_10_2_5/src/bbbbAnalysis"
 dataDataset            = "data_BTagCSV"
 inputFileFullPath = bbbbAnalysisFolderPath + "/" + inputFile
@@ -192,21 +192,24 @@ for signal in signalList:
         LimitTagCentral    = "Expected 50.0%: r < "
         LimitTag1SigmaUp   = "Expected 84.0%: r < "
         LimitTag2SigmaUp   = "Expected 97.5%: r < "
+        multiplier = 100.
+        if massX >= 600: multiplier = 10.
+        if massX >= 1600: multiplier = 1.
         for line in stdout.splitlines():
             if LimitTag2SigmaDown in line:
-                limit2SigmaDown = float(line[line.find(LimitTag2SigmaDown) + len(LimitTag2SigmaDown) : ])*1000.
+                limit2SigmaDown = float(line[line.find(LimitTag2SigmaDown) + len(LimitTag2SigmaDown) : ])*multiplier
                 limitMap2sigmaDown.Fill(massX,massY,limit2SigmaDown)
             if LimitTag1SigmaDown in line:
-                limit1SigmaDown = float(line[line.find(LimitTag1SigmaDown) + len(LimitTag1SigmaDown) : ])*1000.
+                limit1SigmaDown = float(line[line.find(LimitTag1SigmaDown) + len(LimitTag1SigmaDown) : ])*multiplier
                 limitMap1sigmaDown.Fill(massX,massY,limit1SigmaDown)
             if LimitTagCentral in line:
-                limitCentral    = float(line[line.find(LimitTagCentral) + len(LimitTagCentral) : ])*1000.
+                limitCentral    = float(line[line.find(LimitTagCentral) + len(LimitTagCentral) : ])*multiplier
                 limitMapCentral.Fill(massX,massY,limitCentral)
             if LimitTag1SigmaUp in line:
-                limit1SigmaUp   = float(line[line.find(LimitTag1SigmaUp) + len(LimitTag1SigmaUp) : ])*1000.
+                limit1SigmaUp   = float(line[line.find(LimitTag1SigmaUp) + len(LimitTag1SigmaUp) : ])*multiplier
                 limitMap1sigmaUp.Fill(massX,massY,limit1SigmaUp)
             if LimitTag2SigmaUp in line:
-                limit2SigmaUp   = float(line[line.find(LimitTag2SigmaUp) + len(LimitTag2SigmaUp) : ])*1000.
+                limit2SigmaUp   = float(line[line.find(LimitTag2SigmaUp) + len(LimitTag2SigmaUp) : ])*multiplier
                 limitMap2sigmaUp.Fill(massX,massY,limit2SigmaUp)
 
         brazilianPlotList[massY][0].SetPoint(brazilianPlotList[massY][0].GetN()  , massX, limitCentral)

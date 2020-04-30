@@ -14,6 +14,7 @@
 #include "TAxis.h"
 #include "TVirtualFitter.h"
 #include "TSpline.h"
+#include "TLegend.h"
 
 ofstream outputFile ("fitCurves.h", ios::out);
 
@@ -109,6 +110,7 @@ void doFit(TFile &outputRootFile, TVirtualPad *theCanvas, TFile &theInputFile, s
     }
     TFitResultPtr fitResults = theTriggerEfficiency->Fit(theFunction, "S0ER");
     if(drawPlot) theTriggerEfficiency->Draw("ap");
+    theTriggerEfficiency->GetYaxis()->SetTitleOffset(1.);
     // theTriggerEfficiency->GetFunction("cdf")->Draw("E3 same");
     theTriggerEfficiency->GetYaxis()->SetRangeUser(0., 1.2);
     theTriggerEfficiency->SetLineColor(kBlack);
@@ -155,6 +157,14 @@ void doFit(TFile &outputRootFile, TVirtualPad *theCanvas, TFile &theInputFile, s
     grint->SetFillStyle(3001);
     grint->Draw("E3 same");
     theFunction->Draw("same");
+    auto theLegend = new TLegend(0.20,0.78,0.88,0.88);
+    theLegend->SetNColumns(3);
+    theTriggerEfficiency->SetMarkerStyle(20);
+    theTriggerEfficiency->SetMarkerSize(0.3);
+    theLegend->AddEntry(theTriggerEfficiency, "eff data", "ep");
+    theLegend->AddEntry(theFunction, "Fit funct", "l");
+    theLegend->AddEntry(grint, "95% CL band", "f");
+    theLegend->Draw("same");
 
     if(fitFunction.find("pol") != string::npos)
     {
@@ -185,7 +195,8 @@ void doAllFit(std::string inputFileName, bool fullRange)
     std::string crystalBallFunction = "ROOT::Math::crystalball_cdf(x, [5], [4], [1], [0])*[3] + [2]";
     std::string crystalBallAndErrorFunction = "ROOT::Math::crystalball_cdf(x, [5], [4], [1], [0]) * (0.5*(1 + TMath::Erf( (x-[0])/[6]) ) ) *[3] + [2]";
 
-    std::string outputFileName = "data/" + inputFileName.substr(0, inputFileName.length() -5) + "_fitResults" + (fullRange ? "_fullRange" : "_turnOnCut") + ".root";
+    std::string outputFileName = "None.root";
+    // std::string outputFileName = "data/" + inputFileName.substr(0, inputFileName.length() -5) + "_fitResults" + (fullRange ? "_fullRange" : "_turnOnCut") + ".root";
     TFile outputRootFile(outputFileName.data(), "RECREATE");
 
     outputFile << "#include \"TFile.h\""                                  << std::endl;

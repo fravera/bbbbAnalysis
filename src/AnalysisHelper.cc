@@ -501,7 +501,7 @@ void AnalysisHelper::prepareSamplesHistos(std::shared_ptr<Sample>& theSample)
             systcoll.append(nominal_name_, hist);
 
             // now loop over available syst and create more histos
-            if (theSample->getType() == Sample::sType::kSig || theSample->getType() == Sample::sType::kBkg)
+            if (theSample->getType() == Sample::sType::kSig || theSample->getType() == Sample::sType::kBkg || theSample->getType() == Sample::sType::kDatadriven)
             {
                 // sample
                 for (uint iw = 0; iw < currSample.getWeights().size(); ++iw)
@@ -648,7 +648,7 @@ void AnalysisHelper::prepareSamples2DHistos(std::shared_ptr<Sample>& theSample)
 
 
             // now loop over available syst and create more histos
-            if (theSample->getType() == Sample::sType::kSig || theSample->getType() == Sample::sType::kBkg)
+            if (theSample->getType() == Sample::sType::kSig || theSample->getType() == Sample::sType::kBkg  || theSample->getType() == Sample::sType::kDatadriven)
             {
                 // sample
                 for (uint iw = 0; iw < currSample.getWeights().size(); ++iw)

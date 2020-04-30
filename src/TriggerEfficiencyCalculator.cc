@@ -3,7 +3,7 @@
 #include "Electron.h"
 #include "TRandom.h"
 
-// #define useFit
+#define useFit
 
 TriggerEfficiencyCalculator::TriggerEfficiencyCalculator(NanoAODTree& nat)
 : theNanoAODTree_(nat)

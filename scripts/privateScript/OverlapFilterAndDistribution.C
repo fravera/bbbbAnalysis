@@ -5,6 +5,7 @@
 #include "TH1F.h"
 #include "TCanvas.h"
 #include "TROOT.h"
+#include "TLegend.h"
 
 void OverlapEfficiencyAndDistributions(TVirtualPad *theCanvas, TFile* inputFile, std::string triggerName, std::string filterName, std::string dataDataset, std::string signalDataset, std::string ttbarDataset, std::string wjetDataset)
 {
@@ -13,21 +14,34 @@ void OverlapEfficiencyAndDistributions(TVirtualPad *theCanvas, TFile* inputFile,
     std::vector<std::string> allDatasetNames;
     allDatasetNames.insert(allDatasetNames.end(), dataAndSignalNames.begin(), dataAndSignalNames.end());
     allDatasetNames.insert(allDatasetNames.end(), backgroundNames   .begin(), backgroundNames   .end());
+    TH1F* dataPlot               = nullptr;
+    TH1F* ttbarPlot              = nullptr;
+    TH1F* wjetPlot               = nullptr;
+    TH1F* signalPlot             = nullptr;
+    TGraphAsymmErrors* dataEff   = nullptr;
+    TGraphAsymmErrors* ttbarEff  = nullptr;
+    TGraphAsymmErrors* signalEff = nullptr;
 
     theCanvas->cd();
-
+    
     TGraphAsymmErrors* firstGraph = (TGraphAsymmErrors*)inputFile->Get( (allDatasetNames[0] + "_" + triggerName + "_Efficiency_" + filterName).data() );
+    dataEff = firstGraph;
     firstGraph->Draw("apl");
-    firstGraph->GetYaxis()->SetRangeUser(0., 1.2);
+    firstGraph->GetYaxis()->SetRangeUser(0., 1.5);
+    firstGraph->GetYaxis()->SetTitleOffset(1.);
 
     TH1F* theDataDistribution = (TH1F*)inputFile->Get( (dataDataset + "_" + triggerName + "_Distribution_" + filterName).data() );
+    dataPlot = theDataDistribution;
     theDataDistribution->SetDirectory(0);
     float scaleValue = 0.8/theDataDistribution->GetBinContent(theDataDistribution->GetMaximumBin());
+    if(filterName == "BTagCaloCSVp087Triple") scaleValue/=3.8;
 
     THStack * theBackgroundStack = new THStack("hs1"," stacked");
     for(const auto & backgroundName : backgroundNames)
     {
         TH1F* theBackgroundDistribution = (TH1F*)inputFile->Get( (backgroundName + "_" + triggerName + "_Distribution_" + filterName).data() );
+        if(backgroundName == wjetDataset) wjetPlot = theBackgroundDistribution;
+        if(backgroundName == ttbarDataset) ttbarPlot = theBackgroundDistribution;
         theBackgroundDistribution->SetDirectory(0);
         theBackgroundDistribution->Scale(scaleValue);
         theBackgroundDistribution->SetFillStyle(3002);
@@ -45,19 +59,34 @@ void OverlapEfficiencyAndDistributions(TVirtualPad *theCanvas, TFile* inputFile,
     theDataDistribution->Draw("same C E0");
 
     TH1F* theSignalDistribution = (TH1F*)inputFile->Get( (signalDataset + "_" + triggerName + "_Distribution_" + filterName).data() );
+    signalPlot = theSignalDistribution;
 
     theSignalDistribution->SetDirectory(0);
     theSignalDistribution->Scale(scaleValue);
     // theSignalDistribution->SetFillColor(theSignalDistribution->GetMarkerColor());
     // theSignalDistribution->SetFillStyle(1001);
     theSignalDistribution->Draw("same HIST");
-    
+
     for(const auto & datasetName : allDatasetNames)
     {
         if(datasetName == wjetDataset) continue;
         TGraphAsymmErrors* theGraph = (TGraphAsymmErrors*)inputFile->Get( (datasetName + "_" + triggerName + "_Efficiency_" + filterName).data() );
+        if(datasetName == dataDataset) dataEff = theGraph;
+        if(datasetName == ttbarDataset) ttbarEff = theGraph;
+        if(datasetName == signalDataset) signalEff = theGraph;
         theGraph->Draw("pl same");
     }
+
+    auto theLegend = new TLegend(0.20,0.7,0.68,0.88);
+    theLegend->SetNColumns(2);
+    theLegend->AddEntry(dataPlot, "data", "ep");
+    theLegend->AddEntry(dataEff , "eff(data)", "epl");
+    theLegend->AddEntry(ttbarPlot, "ttbar", "f");
+    theLegend->AddEntry(ttbarEff , "eff(ttbar)", "epl");
+    theLegend->AddEntry(wjetPlot, "W+Jets", "f");
+    theLegend->AddEntry(signalEff , "eff(X #rightarrow YH #rightarrow bbbb)", "epl");
+    theLegend->AddEntry(signalPlot, "X #rightarrow YH #rightarrow bbbb", "l");
+    theLegend->Draw("same");
 }
 
 
@@ -135,10 +164,10 @@ void OverlapAllEfficiencyAndDistributionsInFile2016(std::string inputFileName, s
 void OverlapAllEfficiencyAndDistributions2016()
 {
     gROOT->SetBatch(true);
-    OverlapAllEfficiencyAndDistributionsInFile2016<std::string, std::string>("TriggerEfficiencies_MuonPt30_matched.root"           , "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
-    OverlapAllEfficiencyAndDistributionsInFile2016<std::string, std::string>("TriggerEfficiencies_MuonPt30_unMatched.root"         , "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
+    // OverlapAllEfficiencyAndDistributionsInFile2016<std::string, std::string>("TriggerEfficiencies_MuonPt30_matched.root"           , "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
+    // OverlapAllEfficiencyAndDistributionsInFile2016<std::string, std::string>("TriggerEfficiencies_MuonPt30_unMatched.root"         , "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
     OverlapAllEfficiencyAndDistributionsInFile2016<std::string, std::string>("TriggerEfficiencies_MuonPt30_matched_TTBarCut.root"  , "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
-    OverlapAllEfficiencyAndDistributionsInFile2016<std::string, std::string>("TriggerEfficiencies_MuonPt30_unMatched_TTBarCut.root", "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
+    // OverlapAllEfficiencyAndDistributionsInFile2016<std::string, std::string>("TriggerEfficiencies_MuonPt30_unMatched_TTBarCut.root", "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
     gROOT->SetBatch(false);
 }
 

@@ -83,12 +83,12 @@ void Rebin2DPlot(TH2F *&the2Dplot, bool rebinX=true, uint xBinStart=1, uint yBin
     {
         for(yBin = yBinStart; yBin <= nYbin; yBin++)
         {
-            if(isNeededBin(the2Dplot, xBin, yBin) && the2Dplot->GetBinContent(xBin,yBin) <= 1)
-            {
-                allNeededBinsAreNotEmpty = false;
-                std::cout << "First empty needed bin = " << xBin << " - " << yBin << std::endl;
-                break;
-            }
+            // if(isNeededBin(the2Dplot, xBin, yBin) && the2Dplot->GetBinContent(xBin,yBin) <= 0.)
+            // {
+            //     allNeededBinsAreNotEmpty = false;
+            //     std::cout << "First empty needed bin = " << xBin << " - " << yBin << std::endl;
+            //     break;
+            // }
         }
 
         if(!allNeededBinsAreNotEmpty) break;
@@ -221,7 +221,7 @@ void Rebin2DPlot(TH2F *&the2Dplot, bool rebinX=true, uint xBinStart=1, uint yBin
 
 //-------------------------------------------------------------------------------------------------------------------------------------//
 
-TH1F* UnrollPlot(TH2F* the2Dplot, float scale = 1.)
+TH1F* UnrollPlot(TH2F* the2Dplot, bool isBkg)
 {
     uint nXbin = the2Dplot->GetNbinsX();
     uint nYbin = the2Dplot->GetNbinsY();
@@ -248,8 +248,15 @@ TH1F* UnrollPlot(TH2F* the2Dplot, float scale = 1.)
     {
         for(uint xBin = 1; xBin <= nXbin; xBin++)
         {
-            the1Dplot->SetBinContent(xBin+(yBin-1)*nXbin, the2Dplot->GetBinContent(xBin,yBin)*scale);
-            the1Dplot->SetBinError(xBin+(yBin-1)*nXbin, the2Dplot->GetBinError(xBin,yBin)*scale);
+            float value = the2Dplot->GetBinContent(xBin,yBin);
+            float error = the2Dplot->GetBinError(xBin,yBin);
+            if(value == 0 && isBkg)
+            {
+                value = 1e-5;
+                error = 1e-5;
+            }
+            the1Dplot->SetBinContent(xBin+(yBin-1)*nXbin, value);
+            the1Dplot->SetBinError(xBin+(yBin-1)*nXbin, error);
         }
     }
     return the1Dplot;
@@ -306,8 +313,6 @@ int main(int argc, char *argv[])
 // std::cout<<__PRETTY_FUNCTION__<<__LINE__<<std::endl;
         std::string theCurrentDataDataset = key->ReadObj()->GetName();
         std::cout << theCurrentDataDataset <<std::endl;
-        float scale=1.;
-        // if(theCurrentDataDataset.find("sig_NMSSM_bbbb_MX_") !=std::string::npos) scale = 1.1;
 // std::cout<<__PRETTY_FUNCTION__<<__LINE__<<std::endl;
         for(const auto& selectionName : selectionsToUnrollList)
         {
@@ -335,6 +340,8 @@ int main(int argc, char *argv[])
                 // std::cout<<theCurrentHistogramFullName<<" - "<<theCurrentHistogramName<<std::endl;
 
                 TH2F *theCurrent2Dplot = (TH2F*)theInputFile.Get((theCurrentDirectory+theCurrentHistogramFullName).data());
+                bool isBkg = false;
+                if(theCurrentDataDataset == dataDataset) isBkg = true;
                 std::string theRebinnedPlotName = theCurrentHistogramFullName + "_Rebinned";
                 TH2F *theRebinnedPlot = new TH2F(theRebinnedPlotName.data(),theRebinnedPlotName.data(),nXbin,xBinArray,nYbin,yBinArray);
 
@@ -342,7 +349,7 @@ int main(int argc, char *argv[])
 
                 theRebinnedPlot->Write(theRebinnedPlot->GetName(), TObject::kOverwrite);
 
-                TH1F* the1Dplot = UnrollPlot(theRebinnedPlot, scale);
+                TH1F* the1Dplot = UnrollPlot(theRebinnedPlot, isBkg);
                 the1Dplot->Write(the1Dplot->GetName(), TObject::kOverwrite);
 
             }

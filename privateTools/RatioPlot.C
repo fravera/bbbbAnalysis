@@ -8,10 +8,75 @@
 #include <string>
 #include <TROOT.h>
 #include <TStyle.h>
+#include <TLegend.h>
 
-void RatioPlot(TVirtualPad *theCanvas, TH1D *referenceHistogram, std::vector<TH1D*> inputHistogramVector, std::vector<EColor> plotColorVector, bool normalize = false, float normalizeValue = -1, float xMin=0, float xMax = 1500, int rebinNumber = 1, std::string xAxis = "", std::string yAxis = "", std::string title = "")
+void normalizeByBinSize(TH1D* inputPlot)
 {
-    assert(inputHistogramVector == plotColorVector);
+    for(int nBin = 1; nBin<=inputPlot->GetNbinsX(); ++nBin)
+    {
+        float binWidth = inputPlot->GetXaxis()->GetBinWidth(nBin);
+        inputPlot->SetBinContent(nBin,inputPlot->GetBinContent(nBin)/binWidth);
+        inputPlot->SetBinError(nBin,inputPlot->GetBinError(nBin)/binWidth);
+    }
+    return;
+
+}
+
+std::tuple<TH1D*, TH1D*> dividePlots(const TH1D* referencePlot, const TH1D* inputPlot)
+{
+    std::string ratioPlotName = std::string(inputPlot->GetName()) + "_ratio";
+    std::string errorPlotName = ratioPlotName + "Error";
+    int numberOfBins = inputPlot->GetNbinsX();
+    TH1D* ratioPlot  = (TH1D*)inputPlot->Clone(ratioPlotName.data());
+    TH1D* ratioError = (TH1D*)inputPlot->Clone(errorPlotName.data());
+    for(int nBin = 1; nBin<=numberOfBins; ++nBin)
+    {
+        float referenceValue = referencePlot->GetBinContent(nBin);
+        float referenceError = referencePlot->GetBinError  (nBin);
+        if(referenceValue == 0.) 
+        {
+            referenceValue = 1.;
+            referenceError = 1.;
+        }
+        ratioPlot->SetBinContent(nBin,inputPlot->GetBinContent(nBin)/referenceValue);
+        ratioPlot->SetBinError  (nBin,inputPlot->GetBinError  (nBin)/referenceValue);
+        ratioError->SetBinContent(nBin,1.);
+        ratioError->SetBinError(nBin,referenceError/referenceValue);
+    }
+
+    ratioError->SetFillStyle(3002);
+    ratioError->SetFillColor(kBlack);
+
+    return {ratioPlot,ratioError};
+}
+
+std::tuple<TH1D*, TH1D*> splitErrorAndPlots(const TH1D* inputPlot)
+{
+    std::string valuePlotName = std::string(inputPlot->GetName()) + "_value";
+    std::string errorPlotName = valuePlotName + "Error";
+    int numberOfBins = inputPlot->GetNbinsX();
+    TH1D* outputPlot  = (TH1D*)inputPlot->Clone(valuePlotName.data());
+    TH1D* outputError = (TH1D*)inputPlot->Clone(errorPlotName.data());
+    for(int nBin = 1; nBin<=numberOfBins; ++nBin)
+    {
+        outputPlot->SetBinError  (nBin,0.);
+    }
+
+    outputError->SetFillStyle(3002);
+    outputError->SetFillColor(kBlack);
+
+    return {outputPlot,outputError};
+}
+
+
+void RatioPlot(TVirtualPad *theCanvas, TH1D *referenceHistogram, std::vector<TH1D*> inputHistogramVector, std::vector<EColor> plotColorVector, bool normalize = false, float normalizeValue = -1, float xMin=0, float xMax = 1500, int rebinNumber = 1, std::string xAxis = "", std::string yAxis = "", std::string title = "", std::string referencePlotName = "", std::vector<std::string> inputPlotNameVector = std::vector<std::string>(), bool normByBin = false)
+{
+
+    // std::cout<<normalize<<std::endl;
+    // std::cout<<normalizeValue<<std::endl;
+
+    if(inputPlotNameVector.size() == 0) inputPlotNameVector = std::vector<std::string>(plotColorVector.size(),"");
+    assert(inputHistogramVector.size() == plotColorVector.size() == inputPlotNameVector.size());
     
     if(rebinNumber!=1)
     {
@@ -21,14 +86,27 @@ void RatioPlot(TVirtualPad *theCanvas, TH1D *referenceHistogram, std::vector<TH1
     referenceHistogram->SetAxisRange(xMin,xMax);
     for(auto inputHistogram : inputHistogramVector) inputHistogram->SetAxisRange(xMin,xMax);
     if(normalize){
-        if(normalizeValue < 0.) 
         for(auto inputHistogram : inputHistogramVector) 
         {
-            normalizeValue = float(referenceHistogram->Integral(-1,999999999))/float(inputHistogram->Integral(-1,999999999));
+            if(normalizeValue < 0.) 
+                normalizeValue = float(referenceHistogram->Integral(-1,999999999))/float(inputHistogram->Integral(-1,999999999));
             std::cout<<normalizeValue<<std::endl;
             inputHistogram->Scale(normalizeValue);
         }
     }
+    auto theRatioPlots = dividePlots(referenceHistogram, inputHistogramVector.at(0));
+    if(normByBin)
+    {
+        normalizeByBinSize(referenceHistogram);
+        for(auto inputHistogram : inputHistogramVector) 
+        {
+            normalizeByBinSize(inputHistogram);
+        }
+    }
+    auto theLegend = new TLegend(0.3,0.75,0.88,0.88);
+    theLegend->SetNColumns(3);
+    theLegend->SetTextSize(0.05);
+
 
     // Upper plot will be in pad1
     TPad *pad1 = new TPad("pad1", "pad1", 0, 0.35, 1, 1.0);
@@ -37,25 +115,31 @@ void RatioPlot(TVirtualPad *theCanvas, TH1D *referenceHistogram, std::vector<TH1
     pad1->SetGridx();         // Vertical grid
     pad1->Draw();             // Draw the upper pad: pad1
     pad1->cd();               // pad1 becomes the current pad
-    referenceHistogram->Draw("E");         // Draw referenceHistogram on top of inputHistogram
+    auto referenceHistAndError = splitErrorAndPlots(referenceHistogram);
+    std::get<0>(referenceHistAndError)->Draw("hist");         // Draw referenceHistogram on top of inputHistogram
+    theLegend->AddEntry(std::get<0>(referenceHistAndError),referencePlotName.data(), "pl");
+    theLegend->AddEntry(std::get<1>(referenceHistAndError),(referencePlotName + " unc.").data(), "f");
     // Y axis inputHistogram plot settings
-    referenceHistogram->SetStats(0);          // No statistics on upper plot
-    referenceHistogram->GetYaxis()->SetTitleSize(0.05);
-    referenceHistogram->GetYaxis()->SetTitleFont(62);
-    referenceHistogram->GetYaxis()->SetTitleOffset(0.9);
-    referenceHistogram->GetYaxis()->SetLabelFont(62); // Absolute font size in pixel (precision 3)
-    referenceHistogram->GetYaxis()->SetLabelSize(0.06);
-    referenceHistogram->GetYaxis()->SetTitle(yAxis.data()); // Remove the ratio title
-    referenceHistogram->SetTitle(title.data());
-    // referenceHistogram settings
-    referenceHistogram->SetLineColor(kBlack);
-    referenceHistogram->SetMarkerColor(kBlack);
-    referenceHistogram->SetLineWidth(2);
+    std::get<0>(referenceHistAndError)->SetStats(0);          // No statistics on upper plot
+    std::get<0>(referenceHistAndError)->GetYaxis()->SetTitleSize(0.07);
+    std::get<0>(referenceHistAndError)->GetYaxis()->SetTitleFont(62);
+    std::get<0>(referenceHistAndError)->GetYaxis()->SetTitleOffset(0.95);
+    std::get<0>(referenceHistAndError)->GetYaxis()->SetLabelFont(62); // Absolute font size in pixel (precision 3)
+    std::get<0>(referenceHistAndError)->GetYaxis()->SetLabelSize(0.06);
+    std::get<0>(referenceHistAndError)->GetYaxis()->SetTitle(yAxis.data());
+    std::get<0>(referenceHistAndError)->SetTitle(title.data());
+    // std::get<0>(referenceHistAndError) settings
+    std::get<0>(referenceHistAndError)->SetLineColor(kBlack);
+    std::get<0>(referenceHistAndError)->SetMarkerColor(kBlack);
+    std::get<0>(referenceHistAndError)->SetLineWidth(1);
+    std::get<1>(referenceHistAndError)->Draw("same E2");         // Draw referenceHistogram on top of inputHistogram
+    float yMaximum = std::get<0>(referenceHistAndError)->GetMaximum();
 
 
     for(uint hIt = 0; hIt <inputHistogramVector.size(); ++hIt)
     {
         TH1D* inputHistogram = inputHistogramVector.at(hIt);
+        theLegend->AddEntry(inputHistogram,inputPlotNameVector[hIt].data(), "epl");
         inputHistogram->SetStats(0);          // No statistics on upper plot
         inputHistogram->SetTitle(title.data()); // Remove the ratio title
         inputHistogram->Draw("E same");               // Draw inputHistogram
@@ -64,9 +148,12 @@ void RatioPlot(TVirtualPad *theCanvas, TH1D *referenceHistogram, std::vector<TH1
         inputHistogram->SetLineColor(plotColorVector.at(hIt));
         inputHistogram->SetMarkerColor(plotColorVector.at(hIt));
         inputHistogram->SetLineWidth(2);
-        if(referenceHistogram->GetMaximum() < inputHistogram->GetMaximum()) referenceHistogram->SetMaximum(inputHistogram->GetMaximum()*1.1);
+        // if(yMaximum < inputHistogram->GetMaximum()) yMaximum = inputHistogram->GetMaximum();
     }
+    if(std::string(inputHistogramVector.at(0)->GetName()).find("selectionbJets_ControlRegionAndSignalRegion") != std::string::npos) yMaximum = 18000;
+    std::get<0>(referenceHistAndError)->SetMaximum(yMaximum * 1.3);
     // gROOT->ForceStyle();
+    theLegend->Draw("");
 
     // lower plot will be in pad
     theCanvas->cd();          // Go back to the main canvas before defining pad2
@@ -84,13 +171,15 @@ void RatioPlot(TVirtualPad *theCanvas, TH1D *referenceHistogram, std::vector<TH1
     for(uint hIt = 0; hIt <inputHistogramVector.size(); ++hIt)
     {
 
-        TH1D *ratio = (TH1D*)inputHistogramVector.at(hIt)->Clone("ratio");
+        TH1D *ratio = std::get<0>(theRatioPlots);
+        TH1D *ratioError = std::get<1>(theRatioPlots);
+        // TH1D *ratio = (TH1D*)inputHistogramVector.at(hIt)->Clone("ratio");
         ratio->SetLineColor(plotColorVector.at(hIt));
         ratio->SetMarkerColor(plotColorVector.at(hIt));
         ratio->SetMinimum(0.5);  // Define Y ..
         ratio->SetMaximum(1.5); // .. range
         ratio->SetStats(0);      // No statistics on lower plot
-        ratio->Divide(referenceHistogram);
+        // ratio->Divide(referenceHistogram);
         ratio->SetMarkerStyle(21);
         ratio->SetMarkerSize(0.3);
 
@@ -99,7 +188,9 @@ void RatioPlot(TVirtualPad *theCanvas, TH1D *referenceHistogram, std::vector<TH1
 
         if(hIt==0)
         {
+            ratio->SetAxisRange(xMin,xMax);
             ratio->Draw("ep");       // Draw the ratio plot
+            ratioError->Draw("same E2");
             // Y axis ratio plot settings
             ratio->GetYaxis()->SetTitle("ratio");
             ratio->GetYaxis()->SetNdivisions(505);
@@ -115,7 +206,7 @@ void RatioPlot(TVirtualPad *theCanvas, TH1D *referenceHistogram, std::vector<TH1
             ratio->GetXaxis()->SetTitleFont(62);
             ratio->GetXaxis()->SetTitleOffset(0.85);
             ratio->GetXaxis()->SetLabelFont(62); // Absolute font size in pixel (precision 3)
-            ratio->GetXaxis()->SetLabelSize(0.09);
+            ratio->GetXaxis()->SetLabelSize(0.13);
         }
         else ratio->Draw("ep same");       // Draw the ratio plot
     }
@@ -124,7 +215,7 @@ void RatioPlot(TVirtualPad *theCanvas, TH1D *referenceHistogram, std::vector<TH1
 
 }
 
-void RatioPlotFromFile(TVirtualPad *theCanvas, std::string referenceFileName, std::string referenceHistogramName, std::vector<std::string> inputFileNameVector, std::vector<std::string> inputHistogramNameVector, std::vector<EColor> plotColorVector, bool normalize = false, float normalizeValue = -1, float xMin=0, float xMax = 1500, int rebinNumber = 1, std::string xAxis = "", std::string yAxis = "") 
+void RatioPlotFromFile(TVirtualPad *theCanvas, std::string referenceFileName, std::string referenceHistogramName, std::vector<std::string> inputFileNameVector, std::vector<std::string> inputHistogramNameVector, std::vector<EColor> plotColorVector, bool normalize = false, float normalizeValue = -1, float xMin=0, float xMax = 1500, int rebinNumber = 1, std::string xAxis = "", std::string yAxis = "", std::string referencePlotName = "", std::vector<std::string> inputPlotNameVector = std::vector<std::string>(), bool normByBin = false) 
 {
     assert(inputFileNameVector == inputHistogramNameVector == plotColorVector);
     TFile referenceFile(referenceFileName.data());
@@ -152,7 +243,7 @@ void RatioPlotFromFile(TVirtualPad *theCanvas, std::string referenceFileName, st
         inputFile.Close();
     }
     
-    RatioPlot(theCanvas, referenceHistogram, inputHistogramVector, plotColorVector,  normalize, normalizeValue, xMin, xMax, rebinNumber, xAxis, yAxis);
+    RatioPlot(theCanvas, referenceHistogram, inputHistogramVector, plotColorVector,  normalize, normalizeValue, xMin, xMax, rebinNumber, xAxis, yAxis, "", referencePlotName, inputPlotNameVector, normByBin);
     
     return;
 }
@@ -237,8 +328,11 @@ void RatioAllMC()
 }
 
 
-void RatioSlices(std::string canvasName, std::string referenceFileName, std::string referenceHistogramName, std::string inputFileName, std::string inputHistogramName, bool normalize = false, float normalizeValue = -1, float xMin=0, float xMax = 1500, int rebinNumber = 1, std::string xAxis = "", std::string yAxis = "") 
+void RatioSlices(std::string canvasName, std::string referenceFileName, std::string referenceHistogramName, std::string inputFileName, std::string inputHistogramName, bool normalize = false, float normalizeValue = -1, float xMin=0, float xMax = 1500, int rebinNumber = 1, std::string xAxis = "", std::string yAxis = "events/GeV") 
 {
+
+    // std::cout<<normalize<<std::endl;
+    // std::cout<<normalizeValue<<std::endl;
 
     TFile referenceFile(referenceFileName.data());
     TH2F *referenceHistogram2D = (TH2F*)referenceFile.Get(referenceHistogramName.data());
@@ -288,7 +382,7 @@ void RatioSlices(std::string canvasName, std::string referenceFileName, std::str
             // if(inputHistogram->GetEntries()==0) continue;
             int correctedRebinNumber = rebinNumber;
             if(mYmin<125. && mYmax>125.) correctedRebinNumber*=3;
-            RatioPlot(theCanvas->cd(y), referenceHistogram, {inputHistogram}, {kRed}, normalize, normalizeValue, xMin, xMax, correctedRebinNumber, xAxis, yAxis, Form("%.1f < M_{Y} < %.1f", mYmin, mYmax));
+            RatioPlot(theCanvas->cd(y), referenceHistogram, {inputHistogram}, {kRed}, normalize, normalizeValue, xMin, xMax, correctedRebinNumber, xAxis, yAxis, Form("%.1f < M_{Yreco} < %.1f", mYmin, mYmax),"4b-tag",{"BKG model"}, true);
         }
 
         theCanvas->SaveAs((std::string(theCanvas->GetName()) + ".png").data());
@@ -330,9 +424,9 @@ void RatioAllVariables(std::string canvasName, std::string referenceFileName, st
     }
     else if(region == "Full")
     {
-        minH2_m = 0;
-        maxH2_m = 2400;
-        rebinH2_m = 2;
+        minH2_m = 30;
+        maxH2_m = 1800;
+        rebinH2_m = 4;
         // minUnroll_m = 110000.;
         // maxUnroll_m = 250000.;
         // rebinUnroll_m = 9.;
@@ -342,25 +436,30 @@ void RatioAllVariables(std::string canvasName, std::string referenceFileName, st
         std::cout<<"Region not specified"<<std::endl;
         return;
     }
+
+    std::string legEntry;
+    if(canvasName.find("BeforeBDT") == std::string::npos) legEntry = "BKG model";
+    else legEntry = "3b-tag scaled";
     
 
     std::string referenceHistPrototype = referenceDatasetName +  "/" + referenceCutName + "/" + referenceDatasetName +  "_" + referenceCutName;
     std::string targetHistPrototype    = targetDatasetName    +  "/" + targetCutName    + "/" + targetDatasetName    +  "_" + targetCutName   ;
     TCanvas *theCanvas = new TCanvas(canvasName.data(), canvasName.data(), 1400, 800);
-    theCanvas->DivideSquare(9,0.005,0.005);
-    RatioPlotFromFile(theCanvas->cd(1),referenceFileName ,referenceHistPrototype + "_H1_pt"                       , {targetFileName} , {targetHistPrototype + "_H1_pt"                      }, {kRed} , normalize, -1,     0,   600, 4, "pT_{H} [GeV]");
-    RatioPlotFromFile(theCanvas->cd(2),referenceFileName ,referenceHistPrototype + "_H2_pt"                       , {targetFileName} , {targetHistPrototype + "_H2_pt"                      }, {kRed} , normalize, -1,     0,   800, 4, "pT_{Y} [GeV]");
-    RatioPlotFromFile(theCanvas->cd(3),referenceFileName ,referenceHistPrototype + "_H1_eta"                      , {targetFileName} , {targetHistPrototype + "_H1_eta"                     }, {kRed} , normalize, -1,    -5,     5, 2, "#eta_{H}");
-    RatioPlotFromFile(theCanvas->cd(4),referenceFileName ,referenceHistPrototype + "_H2_eta"                      , {targetFileName} , {targetHistPrototype + "_H2_eta"                     }, {kRed} , normalize, -1,    -5,     5, 2, "#eta_{Y}");
-    RatioPlotFromFile(theCanvas->cd(5),referenceFileName ,referenceHistPrototype + "_H1_bb_DeltaR"                , {targetFileName} , {targetHistPrototype + "_H1_bb_DeltaR"               }, {kRed} , normalize, -1,     0,     5, 1, "#DeltaR_{bb(H)}");
-    RatioPlotFromFile(theCanvas->cd(6),referenceFileName ,referenceHistPrototype + "_H2_bb_DeltaR"                , {targetFileName} , {targetHistPrototype + "_H2_bb_DeltaR"               }, {kRed} , normalize, -1,     0,     5, 1, "#DeltaR_{bb(Y)}");
-    RatioPlotFromFile(theCanvas->cd(7),referenceFileName ,referenceHistPrototype + "_H2_m"                        , {targetFileName} , {targetHistPrototype + "_H2_m"                       }, {kRed} , normalize, -1, minH2_m, maxH2_m, rebinH2_m, "m_{Y} [GeV]");
-    RatioPlotFromFile(theCanvas->cd(8),referenceFileName ,referenceHistPrototype + "_HH_m"                        , {targetFileName} , {targetHistPrototype + "_HH_m"                       }, {kRed} , normalize, -1,     0,  2000, 1, "m_{X} [GeV]");
+    theCanvas->DivideSquare(6,0.005,0.005);
+    RatioPlotFromFile(theCanvas->cd(1),referenceFileName ,referenceHistPrototype + "_H1_pt"                       , {targetFileName} , {targetHistPrototype + "_H1_pt"                      }, {kRed} , normalize, -1,     0,   600, 4, "pT_{Hreco} [GeV]","events","4b-tag",{legEntry});
+    RatioPlotFromFile(theCanvas->cd(4),referenceFileName ,referenceHistPrototype + "_H2_pt"                       , {targetFileName} , {targetHistPrototype + "_H2_pt"                      }, {kRed} , normalize, -1,     0,   800, 4, "pT_{Yreco} [GeV]","events","4b-tag",{legEntry});
+    // RatioPlotFromFile(theCanvas->cd(2),referenceFileName ,referenceHistPrototype + "_H1_eta"                      , {targetFileName} , {targetHistPrototype + "_H1_eta"                     }, {kRed} , normalize, -1,    -4,     4, 2, "#eta_{Hreco}","events","4b-tag",{legEntry});
+    // RatioPlotFromFile(theCanvas->cd(5),referenceFileName ,referenceHistPrototype + "_H2_eta"                      , {targetFileName} , {targetHistPrototype + "_H2_eta"                     }, {kRed} , normalize, -1,    -4,     4, 2, "#eta_{Yreco}","events","4b-tag",{legEntry});
+    // RatioPlotFromFile(theCanvas->cd(5),referenceFileName ,referenceHistPrototype + "_H1_bb_DeltaR"                , {targetFileName} , {targetHistPrototype + "_H1_bb_DeltaR"               }, {kRed} , normalize, -1,     0,     5, 1, "#DeltaR_{bb(H)}","events","4b-tag",{legEntry});
+    // RatioPlotFromFile(theCanvas->cd(6),referenceFileName ,referenceHistPrototype + "_H2_bb_DeltaR"                , {targetFileName} , {targetHistPrototype + "_H2_bb_DeltaR"               }, {kRed} , normalize, -1,     0,     5, 1, "#DeltaR_{bb(Y)}","events","4b-tag",{legEntry});
+    RatioPlotFromFile(theCanvas->cd(2),referenceFileName ,referenceHistPrototype + "_H2_m"                        , {targetFileName} , {targetHistPrototype + "_H2_m"                       }, {kRed} , normalize, -1, minH2_m, maxH2_m, rebinH2_m, "m_{Yreco} [GeV]","events/GeV","4b-tag",{legEntry},true);
+    RatioPlotFromFile(theCanvas->cd(5),referenceFileName ,referenceHistPrototype + "_HH_m"                        , {targetFileName} , {targetHistPrototype + "_HH_m"                       }, {kRed} , normalize, -1,   250,  2000, 4, "m_{Xreco} [GeV]","events/GeV","4b-tag",{legEntry},true);
     // RatioPlotFromFile(theCanvas->cd(9),referenceFileName ,referenceHistPrototype + "_HH_m_H2_m_Rebinned_Unrolled" , {targetFileName} , {targetHistPrototype + "_HH_m_H2_m_Rebinned_Unrolled"}, {kRed} , normalize, -1, minUnroll_m, maxUnroll_m, rebinUnroll_m, "m_{X}*m_{Y}");
+    RatioPlotFromFile(theCanvas->cd(3),referenceFileName ,referenceDatasetName +  "/" + "selectionbJets_ControlRegionBlinded" + "/" + referenceDatasetName +  "_" + "selectionbJets_ControlRegionBlinded" + "_H1_m"                        , {targetFileName} , {targetDatasetName +  "/" + "selectionbJets_ControlRegionAndSignalRegion" + "/" + targetDatasetName +  "_" + "selectionbJets_ControlRegionAndSignalRegion" + "_H1_m"                       }, {kRed} , normalize, 0.153512,    95,   155, 1, "m_{Hreco}","events","4b-tag",{legEntry});
     theCanvas->SaveAs((std::string(theCanvas->GetName()) + ".png").data());
     delete theCanvas;
 
-    RatioSlices(canvasName, referenceFileName, referenceHistPrototype + "_HH_m_H2_m_Rebinned", targetFileName, targetHistPrototype + "_HH_m_H2_m_Rebinned", normalize, 0.0770485, 0, 2400, 1, "m_{X} [GeV]");
+    // RatioSlices(canvasName, referenceFileName, referenceHistPrototype + "_HH_m_H2_m_Rebinned", targetFileName, targetHistPrototype + "_HH_m_H2_m_Rebinned", normalize, 0.153413, 250, 2200, 1, "m_{Xreco} [GeV]","events/GeV");
   
 }
 
@@ -369,14 +468,14 @@ void RatioAll()
 {
     gROOT->SetBatch();
 
-    RatioAllVariables("ControlRegion_AfterBDT", "2016DataPlots_NMSSM_XYH_bbbb_all_Full/outPlotter.root", "data_BTagCSV" , "selectionbJets_ControlRegionBlinded", 
-    "2016DataPlots_NMSSM_XYH_bbbb_all_Full/outPlotter.root", "data_BTagCSV_dataDriven" , "selectionbJets_ControlRegionBlinded",false, "Full");
+    RatioAllVariables("ControlRegion_AfterBDT", "2016DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", "data_BTagCSV" , "selectionbJets_ControlRegionBlinded", 
+    "2016DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", "data_BTagCSV_dataDriven" , "selectionbJets_ControlRegionBlinded",false, "Full");
 
-    RatioAllVariables("ControlRegion_BeforeBDT", "2016DataPlots_NMSSM_XYH_bbbb_all_Full/outPlotter.root", "data_BTagCSV" , "selectionbJets_ControlRegionBlinded", 
-    "2016DataPlots_NMSSM_XYH_bbbb_all_Full/outPlotter.root", "data_BTagCSV_3btag" , "selectionbJets_ControlRegionBlinded",true, "Full");
+    RatioAllVariables("ControlRegion_BeforeBDT", "2016DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", "data_BTagCSV" , "selectionbJets_ControlRegionBlinded", 
+    "2016DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", "data_BTagCSV_3btag" , "selectionbJets_ControlRegionBlinded",true, "Full");
 
-    RatioAllVariables("SideBand_AfterBDT", "2016DataPlots_NMSSM_XYH_bbbb_all_Full/outPlotter.root", "data_BTagCSV" , "selectionbJets_SideBandBlinded", 
-    "2016DataPlots_NMSSM_XYH_bbbb_all_Full/outPlotter.root", "data_BTagCSV_dataDriven" , "selectionbJets_SideBandBlinded",false, "Full");
+    // RatioAllVariables("SideBand_AfterBDT", "2016DataPlots_NMSSM_XYH_bbbb_all_Full/outPlotter.root", "data_BTagCSV" , "selectionbJets_SideBandBlinded", 
+    // "2016DataPlots_NMSSM_XYH_bbbb_all_Full/outPlotter.root", "data_BTagCSV_dataDriven" , "selectionbJets_SideBandBlinded",false, "Full");
 
 
     // RatioAllVariables("ControlRegion_LMR_AfterBDT", "2016DataPlots_NMSSM_XYH_bbbb_all_openClose_copy/outPlotter.root", "data_BTagCSV" , "selectionbJetsLMR_ControlRegionBlinded", 
@@ -479,87 +578,4 @@ void DivideTH2D()
     extimatedHistogram->Divide(referenceHistogram);
 
     extimatedHistogram->Draw("colz");
-}
-
-void RatioTriggerClosure(bool applyTurnOnCut)
-{
-    std::string datasetAppend   = applyTurnOnCut ? "_turnOnCut"       : "_noTurnOnCut"        ;
-    std::string variationAppend = applyTurnOnCut ? "_HLT_SimulatedMc" : "_triggerMcEfficiency";
-
-    gROOT->SetBatch();
-
-    auto makeTriggerVariationNames = [&datasetAppend, &variationAppend](std::string variableName, std::string selection) -> std::vector<string>
-    {
-        return 
-        {
-            "/ttBarNotTriggered" + datasetAppend + "/PtAndEtaBaseCuts_" + selection + "/ttBarNotTriggered" + datasetAppend + "_PtAndEtaBaseCuts_" + selection + "_" + variableName                           ,
-            "/ttBarNotTriggered" + datasetAppend + "/PtAndEtaBaseCuts_" + selection + "/ttBarNotTriggered" + datasetAppend + "_PtAndEtaBaseCuts_" + selection + "_" + variableName + variationAppend + "Up"  ,
-            "/ttBarNotTriggered" + datasetAppend + "/PtAndEtaBaseCuts_" + selection + "/ttBarNotTriggered" + datasetAppend + "_PtAndEtaBaseCuts_" + selection + "_" + variableName + variationAppend + "Down"
-        };
-        // "/ttBarNotTriggered/notTriggeredSelectionScaledUp_" + selection + "/ttBarNotTriggered_notTriggeredSelectionScaledUp_" + selection + "_" + variableName                             ,
-        // "/ttBarNotTriggered/notTriggeredSelectionScaledDown_" + selection + "/ttBarNotTriggered_notTriggeredSelectionScaledDown_" + selection + "_" + variableName                         };
-        // "/ttBarNotTriggered/notTriggeredSelectionScaled_" + selection + "/ttBarNotTriggered_notTriggeredSelectionScaled_" + selection + "_" + variableName + "_triggerScaleFactorUp"  ,
-        // "/ttBarNotTriggered/notTriggeredSelectionScaled_" + selection + "/ttBarNotTriggered_notTriggeredSelectionScaled_" + selection + "_" + variableName + "_triggerScaleFactorDown"};
-    };
-    
-    std::vector<std::string> inputFileNameList  {"2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", "2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", "2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root"};
-    std::vector<EColor>      histogramColorList {kRed                                                                      , kBlue                                                                     , kGreen                                                                    };
-    
-    TCanvas *theCanvasTriggerClosureTTbar1 = new TCanvas(("TriggerClosureTTbar1" + datasetAppend).data(), ("TriggerClosureTTbar1" + datasetAppend).data(), 1400, 800);
-    theCanvasTriggerClosureTTbar1->DivideSquare(8,0.005,0.005);
-    RatioPlotFromFile(theCanvasTriggerClosureTTbar1->cd(1),"2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", "ttBarTriggered" + datasetAppend + "/PtAndEtaBaseCuts_Full/ttBarTriggered" + datasetAppend + "_PtAndEtaBaseCuts_Full_FirstJetPt"      , inputFileNameList, makeTriggerVariationNames("FirstJetPt"      , "Full"), histogramColorList, false, -1, 0.   , 600., 1, "p_{T} [GeV]", "entries [a.u.]");
-    RatioPlotFromFile(theCanvasTriggerClosureTTbar1->cd(2),"2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", "ttBarTriggered" + datasetAppend + "/PtAndEtaBaseCuts_Full/ttBarTriggered" + datasetAppend + "_PtAndEtaBaseCuts_Full_SecondJetPt"     , inputFileNameList, makeTriggerVariationNames("SecondJetPt"     , "Full"), histogramColorList, false, -1, 0.   , 400., 1, "p_{T} [GeV]", "entries [a.u.]");
-    RatioPlotFromFile(theCanvasTriggerClosureTTbar1->cd(3),"2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", "ttBarTriggered" + datasetAppend + "/PtAndEtaBaseCuts_Full/ttBarTriggered" + datasetAppend + "_PtAndEtaBaseCuts_Full_ThirdJetPt"      , inputFileNameList, makeTriggerVariationNames("ThirdJetPt"      , "Full"), histogramColorList, false, -1, 0.   , 250., 1, "p_{T} [GeV]", "entries [a.u.]");
-    RatioPlotFromFile(theCanvasTriggerClosureTTbar1->cd(4),"2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", "ttBarTriggered" + datasetAppend + "/PtAndEtaBaseCuts_Full/ttBarTriggered" + datasetAppend + "_PtAndEtaBaseCuts_Full_FourthJetPt"     , inputFileNameList, makeTriggerVariationNames("FourthJetPt"     , "Full"), histogramColorList, false, -1, 0.   , 200., 1, "p_{T} [GeV]", "entries [a.u.]");
-    RatioPlotFromFile(theCanvasTriggerClosureTTbar1->cd(5),"2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", "ttBarTriggered" + datasetAppend + "/PtAndEtaBaseCuts_Full/ttBarTriggered" + datasetAppend + "_PtAndEtaBaseCuts_Full_FirstJetEta"     , inputFileNameList, makeTriggerVariationNames("FirstJetEta"     , "Full"), histogramColorList, false, -1, -2.5 , 2.5 , 1, "eta"        , "entries [a.u.]");
-    RatioPlotFromFile(theCanvasTriggerClosureTTbar1->cd(6),"2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", "ttBarTriggered" + datasetAppend + "/PtAndEtaBaseCuts_Full/ttBarTriggered" + datasetAppend + "_PtAndEtaBaseCuts_Full_SecondJetEta"    , inputFileNameList, makeTriggerVariationNames("SecondJetEta"    , "Full"), histogramColorList, false, -1, -2.5 , 2.5 , 1, "eta"        , "entries [a.u.]");
-    RatioPlotFromFile(theCanvasTriggerClosureTTbar1->cd(7),"2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", "ttBarTriggered" + datasetAppend + "/PtAndEtaBaseCuts_Full/ttBarTriggered" + datasetAppend + "_PtAndEtaBaseCuts_Full_ThirdJetEta"     , inputFileNameList, makeTriggerVariationNames("ThirdJetEta"     , "Full"), histogramColorList, false, -1, -2.5 , 2.5 , 1, "eta"        , "entries [a.u.]");
-    RatioPlotFromFile(theCanvasTriggerClosureTTbar1->cd(8),"2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", "ttBarTriggered" + datasetAppend + "/PtAndEtaBaseCuts_Full/ttBarTriggered" + datasetAppend + "_PtAndEtaBaseCuts_Full_FourthJetEta"    , inputFileNameList, makeTriggerVariationNames("FourthJetEta"    , "Full"), histogramColorList, false, -1, -2.5 , 2.5 , 1, "eta"        , "entries [a.u.]");
-    theCanvasTriggerClosureTTbar1->SaveAs((std::string(theCanvasTriggerClosureTTbar1->GetName()) + ".png").data());
-  
-    TCanvas *theCanvasTriggerClosureTTbar2 = new TCanvas(("TriggerClosureTTbar2" + datasetAppend).data(), ("TriggerClosureTTbar2" + datasetAppend).data(), 1400, 800);
-    theCanvasTriggerClosureTTbar2->DivideSquare(8,0.005,0.005);
-    RatioPlotFromFile(theCanvasTriggerClosureTTbar2->cd(1),"2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", "ttBarTriggered" + datasetAppend + "/PtAndEtaBaseCuts_Full/ttBarTriggered" + datasetAppend + "_PtAndEtaBaseCuts_Full_FirstJetDeepCSV" , inputFileNameList, makeTriggerVariationNames("FirstJetDeepCSV" , "Full"), histogramColorList, false, -1, 0.   , 1.   , 1, "deepFlav"   , "entries [a.u.]");
-    RatioPlotFromFile(theCanvasTriggerClosureTTbar2->cd(2),"2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", "ttBarTriggered" + datasetAppend + "/PtAndEtaBaseCuts_Full/ttBarTriggered" + datasetAppend + "_PtAndEtaBaseCuts_Full_SecondJetDeepCSV", inputFileNameList, makeTriggerVariationNames("SecondJetDeepCSV", "Full"), histogramColorList, false, -1, 0.   , 1.   , 1, "deepFlav"   , "entries [a.u.]");
-    RatioPlotFromFile(theCanvasTriggerClosureTTbar2->cd(3),"2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", "ttBarTriggered" + datasetAppend + "/PtAndEtaBaseCuts_Full/ttBarTriggered" + datasetAppend + "_PtAndEtaBaseCuts_Full_ThirdJetDeepCSV" , inputFileNameList, makeTriggerVariationNames("ThirdJetDeepCSV" , "Full"), histogramColorList, false, -1, 0.   , 1.   , 1, "deepFlav"   , "entries [a.u.]");
-    RatioPlotFromFile(theCanvasTriggerClosureTTbar2->cd(4),"2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", "ttBarTriggered" + datasetAppend + "/PtAndEtaBaseCuts_Full/ttBarTriggered" + datasetAppend + "_PtAndEtaBaseCuts_Full_FourthJetDeepCSV", inputFileNameList, makeTriggerVariationNames("FourthJetDeepCSV", "Full"), histogramColorList, false, -1, 0.   , 1.   , 1, "deepFlav"   , "entries [a.u.]");
-    RatioPlotFromFile(theCanvasTriggerClosureTTbar2->cd(5),"2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", "ttBarTriggered" + datasetAppend + "/PtAndEtaBaseCuts_Full/ttBarTriggered" + datasetAppend + "_PtAndEtaBaseCuts_Full_H1_m"            , inputFileNameList, makeTriggerVariationNames("H1_m"            , "Full"), histogramColorList, false, -1, 0.   , 300. , 1, "m [GeV]"    , "entries [a.u.]");
-    RatioPlotFromFile(theCanvasTriggerClosureTTbar2->cd(6),"2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", "ttBarTriggered" + datasetAppend + "/PtAndEtaBaseCuts_Full/ttBarTriggered" + datasetAppend + "_PtAndEtaBaseCuts_Full_H2_m"            , inputFileNameList, makeTriggerVariationNames("H2_m"            , "Full"), histogramColorList, false, -1, 0.   , 800. , 1, "m [GeV]"    , "entries [a.u.]");
-    RatioPlotFromFile(theCanvasTriggerClosureTTbar2->cd(7),"2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", "ttBarTriggered" + datasetAppend + "/PtAndEtaBaseCuts_Full/ttBarTriggered" + datasetAppend + "_PtAndEtaBaseCuts_Full_HH_m"            , inputFileNameList, makeTriggerVariationNames("HH_m"            , "Full"), histogramColorList, false, -1, 200. , 1200., 1, "m [GeV]"    , "entries [a.u.]");
-    theCanvasTriggerClosureTTbar2->SaveAs((std::string(theCanvasTriggerClosureTTbar2->GetName()) + ".png").data());
-
-    
-    TCanvas *theCanvasTriggerClosureTTbarSignalRegion1 = new TCanvas(("TriggerClosureTTbarSignalRegion1" + datasetAppend).data(), ("TriggerClosureTTbarSignalRegion1" + datasetAppend).data(), 1400, 800);
-    theCanvasTriggerClosureTTbarSignalRegion1->DivideSquare(8,0.005,0.005);
-    RatioPlotFromFile(theCanvasTriggerClosureTTbarSignalRegion1->cd(1),"2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", "ttBarTriggered" + datasetAppend + "/PtAndEtaBaseCuts_SignalRegion/ttBarTriggered" + datasetAppend + "_PtAndEtaBaseCuts_SignalRegion_FirstJetPt"      , inputFileNameList, makeTriggerVariationNames("FirstJetPt"      , "SignalRegion"), histogramColorList, false, -1, 0.   , 600., 1, "p_{T} [GeV]", "entries [a.u.]");
-    RatioPlotFromFile(theCanvasTriggerClosureTTbarSignalRegion1->cd(2),"2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", "ttBarTriggered" + datasetAppend + "/PtAndEtaBaseCuts_SignalRegion/ttBarTriggered" + datasetAppend + "_PtAndEtaBaseCuts_SignalRegion_SecondJetPt"     , inputFileNameList, makeTriggerVariationNames("SecondJetPt"     , "SignalRegion"), histogramColorList, false, -1, 0.   , 400., 1, "p_{T} [GeV]", "entries [a.u.]");
-    RatioPlotFromFile(theCanvasTriggerClosureTTbarSignalRegion1->cd(3),"2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", "ttBarTriggered" + datasetAppend + "/PtAndEtaBaseCuts_SignalRegion/ttBarTriggered" + datasetAppend + "_PtAndEtaBaseCuts_SignalRegion_ThirdJetPt"      , inputFileNameList, makeTriggerVariationNames("ThirdJetPt"      , "SignalRegion"), histogramColorList, false, -1, 0.   , 250., 1, "p_{T} [GeV]", "entries [a.u.]");
-    RatioPlotFromFile(theCanvasTriggerClosureTTbarSignalRegion1->cd(4),"2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", "ttBarTriggered" + datasetAppend + "/PtAndEtaBaseCuts_SignalRegion/ttBarTriggered" + datasetAppend + "_PtAndEtaBaseCuts_SignalRegion_FourthJetPt"     , inputFileNameList, makeTriggerVariationNames("FourthJetPt"     , "SignalRegion"), histogramColorList, false, -1, 0.   , 200., 1, "p_{T} [GeV]", "entries [a.u.]");
-    RatioPlotFromFile(theCanvasTriggerClosureTTbarSignalRegion1->cd(5),"2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", "ttBarTriggered" + datasetAppend + "/PtAndEtaBaseCuts_SignalRegion/ttBarTriggered" + datasetAppend + "_PtAndEtaBaseCuts_SignalRegion_FirstJetEta"     , inputFileNameList, makeTriggerVariationNames("FirstJetEta"     , "SignalRegion"), histogramColorList, false, -1, -2.5 , 2.5 , 1, "eta"        , "entries [a.u.]");
-    RatioPlotFromFile(theCanvasTriggerClosureTTbarSignalRegion1->cd(6),"2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", "ttBarTriggered" + datasetAppend + "/PtAndEtaBaseCuts_SignalRegion/ttBarTriggered" + datasetAppend + "_PtAndEtaBaseCuts_SignalRegion_SecondJetEta"    , inputFileNameList, makeTriggerVariationNames("SecondJetEta"    , "SignalRegion"), histogramColorList, false, -1, -2.5 , 2.5 , 1, "eta"        , "entries [a.u.]");
-    RatioPlotFromFile(theCanvasTriggerClosureTTbarSignalRegion1->cd(7),"2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", "ttBarTriggered" + datasetAppend + "/PtAndEtaBaseCuts_SignalRegion/ttBarTriggered" + datasetAppend + "_PtAndEtaBaseCuts_SignalRegion_ThirdJetEta"     , inputFileNameList, makeTriggerVariationNames("ThirdJetEta"     , "SignalRegion"), histogramColorList, false, -1, -2.5 , 2.5 , 1, "eta"        , "entries [a.u.]");
-    RatioPlotFromFile(theCanvasTriggerClosureTTbarSignalRegion1->cd(8),"2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", "ttBarTriggered" + datasetAppend + "/PtAndEtaBaseCuts_SignalRegion/ttBarTriggered" + datasetAppend + "_PtAndEtaBaseCuts_SignalRegion_FourthJetEta"    , inputFileNameList, makeTriggerVariationNames("FourthJetEta"    , "SignalRegion"), histogramColorList, false, -1, -2.5 , 2.5 , 1, "eta"        , "entries [a.u.]");
-    theCanvasTriggerClosureTTbarSignalRegion1->SaveAs((std::string(theCanvasTriggerClosureTTbarSignalRegion1->GetName()) + ".png").data());
-  
-    TCanvas *theCanvasTriggerClosureTTbarSignalRegion2 = new TCanvas(("TriggerClosureTTbarSignalRegion2" + datasetAppend).data(), ("TriggerClosureTTbarSignalRegion2" + datasetAppend).data(), 1400, 800);
-    theCanvasTriggerClosureTTbarSignalRegion2->DivideSquare(8,0.005,0.005);
-    RatioPlotFromFile(theCanvasTriggerClosureTTbarSignalRegion2->cd(1),"2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", "ttBarTriggered" + datasetAppend + "/PtAndEtaBaseCuts_SignalRegion/ttBarTriggered" + datasetAppend + "_PtAndEtaBaseCuts_SignalRegion_FirstJetDeepCSV" , inputFileNameList, makeTriggerVariationNames("FirstJetDeepCSV" , "SignalRegion"), histogramColorList, false, -1, 0.   , 1.   , 1, "deepFlav"   , "entries [a.u.]");
-    RatioPlotFromFile(theCanvasTriggerClosureTTbarSignalRegion2->cd(2),"2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", "ttBarTriggered" + datasetAppend + "/PtAndEtaBaseCuts_SignalRegion/ttBarTriggered" + datasetAppend + "_PtAndEtaBaseCuts_SignalRegion_SecondJetDeepCSV", inputFileNameList, makeTriggerVariationNames("SecondJetDeepCSV", "SignalRegion"), histogramColorList, false, -1, 0.   , 1.   , 1, "deepFlav"   , "entries [a.u.]");
-    RatioPlotFromFile(theCanvasTriggerClosureTTbarSignalRegion2->cd(3),"2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", "ttBarTriggered" + datasetAppend + "/PtAndEtaBaseCuts_SignalRegion/ttBarTriggered" + datasetAppend + "_PtAndEtaBaseCuts_SignalRegion_ThirdJetDeepCSV" , inputFileNameList, makeTriggerVariationNames("ThirdJetDeepCSV" , "SignalRegion"), histogramColorList, false, -1, 0.   , 1.   , 1, "deepFlav"   , "entries [a.u.]");
-    RatioPlotFromFile(theCanvasTriggerClosureTTbarSignalRegion2->cd(4),"2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", "ttBarTriggered" + datasetAppend + "/PtAndEtaBaseCuts_SignalRegion/ttBarTriggered" + datasetAppend + "_PtAndEtaBaseCuts_SignalRegion_FourthJetDeepCSV", inputFileNameList, makeTriggerVariationNames("FourthJetDeepCSV", "SignalRegion"), histogramColorList, false, -1, 0.   , 1.   , 1, "deepFlav"   , "entries [a.u.]");
-    RatioPlotFromFile(theCanvasTriggerClosureTTbarSignalRegion2->cd(5),"2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", "ttBarTriggered" + datasetAppend + "/PtAndEtaBaseCuts_SignalRegion/ttBarTriggered" + datasetAppend + "_PtAndEtaBaseCuts_SignalRegion_H1_m"            , inputFileNameList, makeTriggerVariationNames("H1_m"            , "SignalRegion"), histogramColorList, false, -1, 0.   , 300. , 1, "m [GeV]"    , "entries [a.u.]");
-    RatioPlotFromFile(theCanvasTriggerClosureTTbarSignalRegion2->cd(6),"2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", "ttBarTriggered" + datasetAppend + "/PtAndEtaBaseCuts_SignalRegion/ttBarTriggered" + datasetAppend + "_PtAndEtaBaseCuts_SignalRegion_H2_m"            , inputFileNameList, makeTriggerVariationNames("H2_m"            , "SignalRegion"), histogramColorList, false, -1, 0.   , 800. , 1, "m [GeV]"    , "entries [a.u.]");
-    RatioPlotFromFile(theCanvasTriggerClosureTTbarSignalRegion2->cd(7),"2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", "ttBarTriggered" + datasetAppend + "/PtAndEtaBaseCuts_SignalRegion/ttBarTriggered" + datasetAppend + "_PtAndEtaBaseCuts_SignalRegion_HH_m"            , inputFileNameList, makeTriggerVariationNames("HH_m"            , "SignalRegion"), histogramColorList, false, -1, 200. , 1200., 1, "m [GeV]"    , "entries [a.u.]");
-    theCanvasTriggerClosureTTbarSignalRegion2->SaveAs((std::string(theCanvasTriggerClosureTTbarSignalRegion2->GetName()) + ".png").data());
-
-    gROOT->SetBatch(false);
-
-}
-
-
-void RatioAllTriggerClosure()
-{
-    RatioTriggerClosure(true );
-    RatioTriggerClosure(false);
-
 }
