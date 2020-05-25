@@ -27,7 +27,7 @@ void OverlapEfficiencyAndDistributions(TVirtualPad *theCanvas, TFile* inputFile,
     dataEff = firstGraph;
     firstGraph->Draw("apl");
     if(plotHistograms) firstGraph->GetYaxis()->SetRangeUser(0., 1.5);
-    else firstGraph->GetYaxis()->SetRangeUser(0., 1.2);
+    else firstGraph->GetYaxis()->SetRangeUser(0., 1.3);
     firstGraph->GetYaxis()->SetTitleOffset(1.);
 
     TH1F* theDataDistribution = (TH1F*)inputFile->Get( (dataDataset + "_" + triggerName + "_Distribution_" + filterName).data() );
@@ -79,8 +79,9 @@ void OverlapEfficiencyAndDistributions(TVirtualPad *theCanvas, TFile* inputFile,
         theGraph->Draw("pl same");
     }
 
-    auto theLegend = new TLegend(0.20,0.7,0.68,0.88);
+    auto theLegend = new TLegend(0.20,0.75,0.68,0.86);
     theLegend->SetNColumns(2);
+    theLegend->SetTextSize(0.05);
     if(plotHistograms) theLegend->AddEntry(dataPlot, "data", "ep");
     theLegend->AddEntry(dataEff , "eff(data)", "epl");
     if(plotHistograms) theLegend->AddEntry(ttbarPlot, "ttbar", "f");
