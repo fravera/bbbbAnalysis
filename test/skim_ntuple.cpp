@@ -299,7 +299,7 @@ int main(int argc, char** argv)
             if(opts["puWeight"].as<string>()==""){
                 throw std::runtime_error( "** [ERROR] please provide PU weight file needed for WeightMethod " + weightMethod );
             }
-            parameterList.emplace("WeightVariations",config.readBoolOpt("parameters::WeightVariations"));
+            parameterList.emplace("WeightVariations",config.readStringOpt("parameters::WeightVariations"));
         }
         else if(weightMethod == "None"){
         }  
@@ -339,6 +339,9 @@ int main(int argc, char** argv)
         //     parameters fo be retreived;
         // }  
         else throw std::runtime_error("cannot recognize event choice ObjectsForCut " + JECstrategy);
+        if (opts["jes-shift-syst"].as<string>() != OfflineProducerHelper::nominal_jes_syst_shift_name)
+            parameterList.emplace("JECFileName", config.readStringOpt("parameters::JECFileName"));
+
 
     }
 
@@ -478,7 +481,8 @@ int main(int argc, char** argv)
     SkimEffCounter ec;
 
     oph.initializeObjectsForCuts(ot);
-    oph.initializeTriggerMatching(ot);
+    // oph.initializeTriggerMatching(ot);
+    oph.initializeTriggerMatching(ot, 4);
 
     if(!is_data)
     {

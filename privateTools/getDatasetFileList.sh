@@ -1,0 +1,29 @@
+
+echo;
+dasgoclient --query="file dataset=/NMSSM_XToYHTo4b_MX-1000_TuneCUEP8M1_13TeV-madgraph-pythia8/RunIISummer16NanoAODv6-PUSummer16v3Fast_Nano25Oct2019_102X_mcRun2_asymptotic_v7-v1/NANOAODSIM"
+echo;
+dasgoclient --query="file dataset=/NMSSM_XToYHTo4b_MX-1100_TuneCUEP8M1_13TeV-madgraph-pythia8/RunIISummer16NanoAODv6-PUSummer16v3Fast_Nano25Oct2019_102X_mcRun2_asymptotic_v7-v1/NANOAODSIM"
+echo;
+dasgoclient --query="file dataset=/NMSSM_XToYHTo4b_MX-1200_TuneCUEP8M1_13TeV-madgraph-pythia8/RunIISummer16NanoAODv6-PUSummer16v3Fast_Nano25Oct2019_102X_mcRun2_asymptotic_v7-v1/NANOAODSIM"
+echo;
+dasgoclient --query="file dataset=/NMSSM_XToYHTo4b_MX-1400_TuneCUEP8M1_13TeV-madgraph-pythia8/RunIISummer16NanoAODv6-PUSummer16v3Fast_Nano25Oct2019_102X_mcRun2_asymptotic_v7-v1/NANOAODSIM"
+echo;
+dasgoclient --query="file dataset=/NMSSM_XToYHTo4b_MX-1600_TuneCUEP8M1_13TeV-madgraph-pythia8/RunIISummer16NanoAODv6-PUSummer16v3Fast_Nano25Oct2019_102X_mcRun2_asymptotic_v7-v1/NANOAODSIM"
+echo;
+dasgoclient --query="file dataset=/NMSSM_XToYHTo4b_MX-1800_TuneCUEP8M1_13TeV-madgraph-pythia8/RunIISummer16NanoAODv6-PUSummer16v3Fast_Nano25Oct2019_102X_mcRun2_asymptotic_v7-v1/NANOAODSIM"
+echo;
+dasgoclient --query="file dataset=/NMSSM_XToYHTo4b_MX-2000_TuneCUEP8M1_13TeV-madgraph-pythia8/RunIISummer16NanoAODv6-PUSummer16v3Fast_Nano25Oct2019_102X_mcRun2_asymptotic_v7-v1/NANOAODSIM"
+echo;
+dasgoclient --query="file dataset=/NMSSM_XToYHTo4b_MX-300_TuneCUETP8M1_13TeV-madgraph-pythia8/RunIISummer16NanoAODv6-PUSummer16v3Fast_Nano25Oct2019_102X_mcRun2_asymptotic_v7-v1/NANOAODSIM"
+echo;
+dasgoclient --query="file dataset=/NMSSM_XToYHTo4b_MX-400_TuneCUETP8M1_13TeV-madgraph-pythia8/RunIISummer16NanoAODv6-PUSummer16v3Fast_Nano25Oct2019_102X_mcRun2_asymptotic_v7-v1/NANOAODSIM"
+echo;
+dasgoclient --query="file dataset=/NMSSM_XToYHTo4b_MX-500_TuneCUETP8M1_13TeV-madgraph-pythia8/RunIISummer16NanoAODv6-PUSummer16v3Fast_Nano25Oct2019_102X_mcRun2_asymptotic_v7-v1/NANOAODSIM"
+echo;
+dasgoclient --query="file dataset=/NMSSM_XToYHTo4b_MX-600_TuneCUETP8M1_13TeV-madgraph-pythia8/RunIISummer16NanoAODv6-PUSummer16v3Fast_Nano25Oct2019_102X_mcRun2_asymptotic_v7-v1/NANOAODSIM"
+echo;
+dasgoclient --query="file dataset=/NMSSM_XToYHTo4b_MX-700_TuneCUETP8M1_13TeV-madgraph-pythia8/RunIISummer16NanoAODv6-PUSummer16v3Fast_Nano25Oct2019_102X_mcRun2_asymptotic_v7-v1/NANOAODSIM"
+echo;
+dasgoclient --query="file dataset=/NMSSM_XToYHTo4b_MX-800_TuneCUETP8M1_13TeV-madgraph-pythia8/RunIISummer16NanoAODv6-PUSummer16v3Fast_Nano25Oct2019_102X_mcRun2_asymptotic_v7-v1/NANOAODSIM"
+echo;
+dasgoclient --query="file dataset=/NMSSM_XToYHTo4b_MX-900_TuneCUETP8M1_13TeV-madgraph-pythia8/RunIISummer16NanoAODv6-PUSummer16v3Fast_Nano25Oct2019_102X_mcRun2_asymptotic_v7-v1/NANOAODSIM"

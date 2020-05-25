@@ -7,7 +7,19 @@ import argparse
 import os.path
 from array import array
 
-inputFileName = "Full/Limits_statOnly.root"
+
+ROOT.gROOT.SetBatch(True)
+
+parser = argparse.ArgumentParser(description='Command line parser of skim options')
+parser.add_argument('--year'   , dest='year'   , help='year'   , required = True)
+parser.add_argument('--systematics'   , dest='systematics'   , help='systematics'   , action="store_true", default = False, required = False)
+
+args = parser.parse_args()
+year = args.year
+append = "statOnly"
+if args.systematics : append = "syst"
+
+inputFileName = "Limits" + year + "Limits_" + append +  ".root"
 inputTheoryFileName = "/uscms/home/fravera/nobackup/DiHiggs_v1/CMSSW_10_2_5/src/bbbbAnalysis/HXSG_NMSSM_recommendations_00.root"
 inputTheoryPlotName = "g_bbbb"
 massList  = [100.]
@@ -73,5 +85,5 @@ inputFile.Close()
 theLegend.AddEntry(theScaledTheoryGraph, "#splitline{(pp #rightarrow H_{MSSM}) #times BR(H_{S}(b#bar{b}) h(b#bar{b}))}{m(H_{S}) = 100-110 GeV}", "plf")
 
 theLegend.Draw("same")
-    
-raw_input("Press Enter to continue...")
+
+theCanvas.SaveAs("Limits" + year + "Limits_" + append +  "_Theory.png")

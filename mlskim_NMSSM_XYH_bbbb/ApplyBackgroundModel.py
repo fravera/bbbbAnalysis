@@ -59,11 +59,13 @@ def ApplyBDTweightsToFileList(fileList, treeName, trainingVariables, theReweight
 	for theRootFileName in fileList:
 		theRootFile = ROOT.TFile.Open(theRootFileName)
 		theTree = theRootFile.Get(const.treeName)
+		branchAlreadyExists = False
 		for branch in theTree.GetListOfBranches():
 			if branch.GetName() == backgroundWeightName :
-				print "Error: branch ", backgroundWeightName, " already exists!!! Aborting..."
-				sys.exit()
+				print "Error: branch ", backgroundWeightName, " already exists!!! skypping..."
+				branchAlreadyExists = True
 		theRootFile.Close()
+		if branchAlreadyExists: continue
 		singleListFile = [theRootFileName]
 		theDataFile = data.root2pandas(singleListFile, treeName, branches=trainingVariables)
 		theBackgroudWeights = getWeightsForBackground(theDataFile, theReweightModelAndTransferFactor, backgroundWeightName)
@@ -75,9 +77,13 @@ def ApplyBDTweightsToFileList(fileList, treeName, trainingVariables, theReweight
 
 ###########OPTIONS
 parser = argparse.ArgumentParser(description='Command line parser of skim options')
-parser.add_argument('--dir', dest='bdtModelDir',  help='Name of config file',   required = True)
+parser.add_argument('--dir'       , dest='bdtModelDir',  help='Name of config file',   required = True)
+parser.add_argument('--signals'   , dest='signalPath' ,  help='Name of config file',   required = False, default = "None")
+parser.add_argument('--singleFile', dest='singleFile' ,  help='Name of config file',   required = False, default = "None")
 args = parser.parse_args()
 bdtModelDir = args.bdtModelDir
+signalPath  = args.signalPath
+singleFile  = args.singleFile
 
 configFileName = bdtModelDir + "/" + const.outputConfigFileName
 configFile = ConfigurationReader(configFileName)
@@ -89,8 +95,28 @@ threadNumber                = configFile.threadNumber
 
 modelFileName = bdtModelDir + "/" + const.modelFileName
 
-out = subprocess.Popen(['eos', const.eosPath, 'ls', skimFolder], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-stdout,stderr = out.communicate()
+if singleFile == "None":
+	if signalPath == "None":
+		out = subprocess.Popen(['eos', const.eosPath, 'ls', skimFolder], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+		stdout,stderr = out.communicate()
+		fileList = stdout.split()
+		for fileNameIt in range(0,len(fileList)):
+			fileList[fileNameIt] = const.eosPath + "/" + skimFolder + "/" + fileList[fileNameIt]
+
+	else:
+		out = subprocess.Popen(['eos', const.eosPath, 'ls', signalPath], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+		stdoutFirst,stderr = out.communicate()
+		fileList = []
+		for signalFolderName in stdoutFirst.split():
+			if "SKIM_NMSSM_XYH_bbbb" in signalFolderName:
+				signalOutputPath = signalPath + "/" + signalFolderName + "/output/"
+				out = subprocess.Popen(['eos', const.eosPath, 'ls', signalOutputPath], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+				stdoutSecond,stderr = out.communicate()
+				for signalFileName in stdoutSecond.split():
+					fileList.append(const.eosPath + "/" + signalOutputPath + signalFileName)
+else:
+	fileList = [singleFile] 
+
 
 # loading formula
 with open(modelFileName) as reweighterInputFile:
@@ -99,9 +125,9 @@ with open(modelFileName) as reweighterInputFile:
 skimFileListOfList = [[] for i in range(threadNumber)]
 
 listNumber = 0
-for fileName in stdout.split():
+for fileName in fileList:
     if ".root" in fileName:
-		skimFileListOfList[listNumber].append(const.eosPath + "/" + skimFolder + "/" + fileName)
+		skimFileListOfList[listNumber].append(fileName)
 		listNumber = listNumber + 1
 		if listNumber >= threadNumber: 
 			listNumber = 0

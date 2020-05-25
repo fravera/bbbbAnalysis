@@ -4,8 +4,8 @@
 #include "TAxis.h"
 #include "TFitResult.h"
 #include "TriggerFitCurves2016.h"
-// #include "TriggerFitCurves2017.h"
-// #include "TriggerFitCurves2018.h"
+#include "TriggerFitCurves2017.h"
+#include "TriggerFitCurves2018.h"
 
 class TriggerEfficiencyCalculator
 {
@@ -60,6 +60,40 @@ protected:
         return yError;
     }
 
+    inline float computeThreeBtagEfficiency(float bTagEffJet0, float bTagEffJet1, float bTagEffJet2, float bTagEffJet3)
+    {
+        float effJet0 = fixInLimits(bTagEffJet0);
+        float effJet1 = fixInLimits(bTagEffJet1);
+        float effJet2 = fixInLimits(bTagEffJet2);
+        float effJet3 = fixInLimits(bTagEffJet3);
+
+        return   effJet0   *   effJet1   *   effJet2   *   effJet3   +
+               (1-effJet0) *   effJet1   *   effJet2   *   effJet3   +
+                 effJet0   * (1-effJet1) *   effJet2   *   effJet3   +
+                 effJet0   *   effJet1   * (1-effJet2) *   effJet3   +
+                 effJet0   *   effJet1   *   effJet2   * (1-effJet3) ;
+    }
+
+    inline float computeTwoBtagEfficiency(float bTagEffJet0, float bTagEffJet1, float bTagEffJet2, float bTagEffJet3)
+    {
+        float effJet0 = fixInLimits(bTagEffJet0);
+        float effJet1 = fixInLimits(bTagEffJet1);
+        float effJet2 = fixInLimits(bTagEffJet2);
+        float effJet3 = fixInLimits(bTagEffJet3);
+
+        float ineffJet0 = 1 - effJet0;
+        float ineffJet1 = 1 - effJet1;
+        float ineffJet2 = 1 - effJet2;
+        float ineffJet3 = 1 - effJet3;
+
+        return 1 - ineffJet0 * ineffJet1 * ineffJet2 * ineffJet3 -
+                    effJet0  * ineffJet1 * ineffJet2 * ineffJet3 -
+                   ineffJet0 *  effJet1  * ineffJet2 * ineffJet3 -
+                   ineffJet0 * ineffJet1 *  effJet2  * ineffJet3 -
+                   ineffJet0 * ineffJet1 * ineffJet2 *  effJet3 ;
+
+    }
+
     virtual std::tuple<float, float, float>  calculateDataTriggerEfficiency      () = 0;
     virtual std::tuple<float, float, float>  calculateMonteCarloTriggerEfficiency() = 0;
     NanoAODTree &theNanoAODTree_;
@@ -100,20 +134,6 @@ private:
     std::tuple<float, float, float> calculateMonteCarloQuad45Efficiency           ();
     std::tuple<float, float, float> calculateMonteCarloAndEfficiency              ();
 
-    inline float computeThreeBtagEfficiency(float bTagEffJet0, float bTagEffJet1, float bTagEffJet2, float bTagEffJet3)
-    {
-        float effJet0 = fixInLimits(bTagEffJet0);
-        float effJet1 = fixInLimits(bTagEffJet1);
-        float effJet2 = fixInLimits(bTagEffJet2);
-        float effJet3 = fixInLimits(bTagEffJet3);
-
-        return   effJet0   *   effJet1   *   effJet2   *   effJet3   +
-               (1-effJet0) *   effJet1   *   effJet2   *   effJet3   +
-                 effJet0   * (1-effJet1) *   effJet2   *   effJet3   +
-                 effJet0   *   effJet1   * (1-effJet2) *   effJet3   +
-                 effJet0   *   effJet1   *   effJet2   * (1-effJet3) ;
-    }
-
     inline float computeDouble90Double30Efficiency(float bTagEffJet0, float bTagEffJet1, float bTagEffJet2, float bTagEffJet3, float effL1, float effQuad30CaloJet, float effDouble90CaloJet, float effQuad30PFJet, float effDouble90PFJet)
     {
         float bTagEfficiency = computeThreeBtagEfficiency(bTagEffJet0, bTagEffJet1, bTagEffJet2, bTagEffJet3);
@@ -150,23 +170,29 @@ private:
 class TriggerEfficiencyCalculator_2017 : public TriggerEfficiencyCalculator
 {
 public:
-    TriggerEfficiencyCalculator_2017(std::string inputFileName, NanoAODTree& nat) : TriggerEfficiencyCalculator(nat) {}
-    ~TriggerEfficiencyCalculator_2017() {}
+    TriggerEfficiencyCalculator_2017(std::string inputFileName, NanoAODTree& nat);
+    ~TriggerEfficiencyCalculator_2017();
     bool isPassingTurnOnCuts(std::vector<std::string> listOfPassedTriggers, const std::vector<Jet>& selectedJets) override {return false;}
     
     
 private:
     void  createTriggerSimulatedBranches()                                    override;
-    void  extractInformationFromEvent         (std::vector<Jet> selectedJets) override {}
-    std::tuple<float, float, float> calculateMonteCarloTriggerEfficiency() override {return {1., 1., 1.};}
-    std::tuple<float, float, float> calculateDataTriggerEfficiency      () override {return {1., 1., 1.};}
+    void  extractInformationFromEvent         (std::vector<Jet> selectedJets) override;
+    std::tuple<float, float, float> calculateMonteCarloTriggerEfficiency()    override;
+    std::tuple<float, float, float> calculateDataTriggerEfficiency      ()    override;
 
-    // TriggerFitCurves2017 fTriggerFitCurves;
-    float pt1_        {0.};
-    float pt2_        {0.};
-    float pt3_        {0.};
-    float pt4_        {0.};
-    float sumPt_      {0.};
+    inline float computeTriggerEfficiency(float threeBtagEfficiency, float twoBtagEfficiency, float effL1, float effQuad30CaloJet, float effCaloHT, float effQuad30PFJet, float effSingle75PFJet, float effDouble60PFJet, float effTriple54PFJet, float effQuad40PFJet, float effPFHT)
+    {
+        return threeBtagEfficiency * twoBtagEfficiency * fixInLimits(effL1) * fixInLimits(effQuad30CaloJet) * fixInLimits(effCaloHT) * fixInLimits(effQuad30PFJet) * fixInLimits(effSingle75PFJet) * fixInLimits(effDouble60PFJet) * fixInLimits(effTriple54PFJet) * fixInLimits(effQuad40PFJet) * fixInLimits(effPFHT);
+    }
+
+    TriggerFitCurves2017 fTriggerFitCurves;
+    float pt1_         {0.};
+    float pt2_         {0.};
+    float pt3_         {0.};
+    float pt4_         {0.};
+    float sumPt_       {0.};
+    float sumPtAbove30_{0.} ;
     std::vector<float> deepFlavBVector {0., 0., 0., 0.} ;
 };
 
@@ -174,22 +200,28 @@ private:
 class TriggerEfficiencyCalculator_2018 : public TriggerEfficiencyCalculator
 {
 public:
-    TriggerEfficiencyCalculator_2018(std::string inputFileName, NanoAODTree& nat) : TriggerEfficiencyCalculator(nat) {}
-    ~TriggerEfficiencyCalculator_2018() {}
+    TriggerEfficiencyCalculator_2018(std::string inputFileName, NanoAODTree& nat);
+    ~TriggerEfficiencyCalculator_2018();
     bool isPassingTurnOnCuts(std::vector<std::string> listOfPassedTriggers, const std::vector<Jet>& selectedJets) override {return false;}
     
     
 private:
     void  createTriggerSimulatedBranches()                                    override;
-    void  extractInformationFromEvent         (std::vector<Jet> selectedJets) override {}
-    std::tuple<float, float, float> calculateMonteCarloTriggerEfficiency() override {return {1., 1., 1.};}
-    std::tuple<float, float, float> calculateDataTriggerEfficiency      () override {return {1., 1., 1.};}
+    void  extractInformationFromEvent         (std::vector<Jet> selectedJets) override;
+    std::tuple<float, float, float> calculateMonteCarloTriggerEfficiency()    override;
+    std::tuple<float, float, float> calculateDataTriggerEfficiency      ()    override;
 
-    // TriggerFitCurves2018 fTriggerFitCurves;
-    float pt1_        {0.} ;
-    float pt2_        {0.} ;
-    float pt3_        {0.} ;
-    float pt4_        {0.} ;
-    float sumPt_      {0.} ;
+    inline float computeTriggerEfficiency(float threeBtagEfficiency, float twoBtagEfficiency, float effL1, float effQuad30CaloJet, float effCaloHT, float effQuad30PFJet, float effSingle75PFJet, float effDouble60PFJet, float effTriple54PFJet, float effQuad40PFJet, float effPFHT)
+    {
+        return threeBtagEfficiency * twoBtagEfficiency * fixInLimits(effL1) * fixInLimits(effQuad30CaloJet) * fixInLimits(effCaloHT) * fixInLimits(effQuad30PFJet) * fixInLimits(effSingle75PFJet) * fixInLimits(effDouble60PFJet) * fixInLimits(effTriple54PFJet) * fixInLimits(effQuad40PFJet) * fixInLimits(effPFHT);
+    }
+
+    TriggerFitCurves2018 fTriggerFitCurves;
+    float pt1_         {0.} ;
+    float pt2_         {0.} ;
+    float pt3_         {0.} ;
+    float pt4_         {0.} ;
+    float sumPt_       {0.} ;
+    float sumPtAbove30_{0.} ;
     std::vector<float> deepFlavBVector {0., 0., 0., 0.} ;
 };

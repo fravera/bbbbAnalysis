@@ -343,6 +343,10 @@ shared_ptr<Sample> AnalysisHelper::openSample(string sampleName)
 
     if (DEBUG) cout << " ..........DEBUG: " << sampleName << " has weights associated, will be listed" << endl;
     vector<string> weights = cutCfg_->readStringListOpt(Form("sampleWeights::%s", sampleName.c_str()));
+
+    vector<string> sampleToApplyWeightVarations = cutCfg_->readStringListOpt("systematics::doSystematicVariations");
+    bool applySampleSystematicVar = find (sampleToApplyWeightVarations.begin(), sampleToApplyWeightVarations.end(), sampleName) != sampleToApplyWeightVarations.end();
+
     for (string wname : weights)
     {
         // cout << " +++ adding " << wname << endl;
@@ -353,7 +357,7 @@ shared_ptr<Sample> AnalysisHelper::openSample(string sampleName)
             cout << " ..........DEBUG:    > nsyst: " << wsyst.size() << endl;
             for (auto pp : wsyst) cout << "................>> DEBUG: " << pp.first << " " << pp.second << endl;
         }
-        w.addSysts(wsyst); // can be empty as well
+        if(applySampleSystematicVar) w.addSysts(wsyst); // can be empty as well
         sample->addWeight(w);
     }
 

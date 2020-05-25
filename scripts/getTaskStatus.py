@@ -191,7 +191,8 @@ if args.resubCmd or args.issueCmd:
     print "\n** Resubmit commands\n"
     # print "cd %s" % args.folder
     resubCmds = []
-    failed = failed + notCopied
+    failed = failed
+    # failed = failed + notCopied
     for val in failed:
         if val[0] in failedButCopied:
             print "file from job ", val[0], " need to be canceled"

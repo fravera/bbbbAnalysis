@@ -6,8 +6,22 @@ import os
 import argparse
 import os.path
 from array import array
+import argparse
+import os.path
+from array import array
 
-inputFileName = "Full/Limits_statOnly.root"
+ROOT.gROOT.SetBatch(True)
+
+parser = argparse.ArgumentParser(description='Command line parser of skim options')
+parser.add_argument('--year'   , dest='year'   , help='year'   , required = True)
+parser.add_argument('--systematics'   , dest='systematics'   , help='systematics'   , action="store_true", default = False, required = False)
+
+args = parser.parse_args()
+year = args.year
+append = "statOnly"
+if args.systematics : append = "syst"
+
+inputFileName = "Limits" + year + "Limits_" + append +  ".root"
 massList  = [90.  , 125., 300.   , 600.  , 1000.  ]
 colorList = [ROOT.kBlue, ROOT.kRed, ROOT.kOrange, ROOT.kGreen, ROOT.kViolet]
 
@@ -40,5 +54,6 @@ for (massY, color) in zip(massList, colorList):
         theGraph.Draw("same pl")
 
 theLegend.Draw("same")
+theCanvas.SaveAs("Limits" + year + "Limits_" + append +  "_Overlap.png")
     
-raw_input("Press Enter to continue...")
+# raw_input("Press Enter to continue...")

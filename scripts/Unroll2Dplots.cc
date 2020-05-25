@@ -11,6 +11,11 @@
 #include <iostream>
 #include <cmath>
 
+// year  -> minEntries per Bin
+// 2016  -> 1.0
+// 2017  -> 0.3
+// 2018  -> 0.7
+
 // g++  -std=c++17 -I `root-config --incdir` -o Unroll2Dplots Unroll2Dplots.cc `root-config --libs` -O3
 
 // ./Unroll2Dplots ..//2016DataPlots_NMSSM_XYH_bbbb_triggerMatchedBKGNorm/outPlotter.root \
@@ -25,10 +30,11 @@ data_BTagCSV/selectionbJetsAndTrigger_SignalRegion/data_BTagCSV_selectionbJetsAn
 // ./scripts/Unroll2Dplots 2016DataPlots_NMSSM_XYH_bbbb_PtRegressedAndHigherLevel_VCR_30_VSR_10/outPlotter.root data_BTagCSV_dataDriven_noTrigMatch selectionbJets_3bTag_SignalRegion HH_m_H2_m selectionbJets_3bTag_ControlRegionBlinded selectionbJets_3bTag_SideBandBlinded selectionbJets_4bTag_ControlRegionBlinded selectionbJets_4bTag_SideBandBlinded selectionbJets_4bTag_SignalRegion
 // ./scripts/Unroll2Dplots 2016DataPlots_NMSSM_XYH_bbbb_Fast/outPlotter.root data_BTagCSV_dataDriven selectionbJets_SignalRegion HH_m_H2_m selectionbJets_ControlRegionBlinded selectionbJets_SideBandBlinded
 
+// float konigsbergLine = 800;
 float higgsMass = 120;
-float konigsbergLine = 800;
 float mYmin;
 float mYmax;
+bool firstTime = true;
 
 //-------------------------------------------------------------------------------------------------------------------------------------//
 
@@ -38,12 +44,15 @@ bool isNeededBin(TH2F *the2Dplot, uint xBin, uint yBin)
     float mY = the2Dplot->GetYaxis()->GetBinCenter(yBin);
     if(mY < mYmin || mY > mYmax) return false;
 
-    if( (mX - mY > higgsMass) && (mX - mY < higgsMass + konigsbergLine) )
-    {
-        return true;
-    }
+    // if( (mX - mY > higgsMass) && (mX - mY < higgsMass + konigsbergLine) )
+    // {
+    //     return true;
+    // }
+    if( mX - mY < higgsMass)  return false;
+    if( mX > 1200 && mY < 80) return false;
 
-    return false;
+
+    return true;
 }
 
 //-------------------------------------------------------------------------------------------------------------------------------------//
@@ -67,7 +76,7 @@ void FillRebinnedPlot (TH2F *the2DsourcePlot, TH2F *the2DtargetPlot)
 
 //-------------------------------------------------------------------------------------------------------------------------------------//
 
-void Rebin2DPlot(TH2F *&the2Dplot, bool rebinX=true, uint xBinStart=1, uint yBinStart=1)
+void Rebin2DPlot(TH2F *&the2Dplot, float minNumberOfEntries, bool rebinX=true, uint xBinStart=1, uint yBinStart=1)
 {
     std::cout<<"Rebinning\n";
   
@@ -83,12 +92,12 @@ void Rebin2DPlot(TH2F *&the2Dplot, bool rebinX=true, uint xBinStart=1, uint yBin
     {
         for(yBin = yBinStart; yBin <= nYbin; yBin++)
         {
-            // if(isNeededBin(the2Dplot, xBin, yBin) && the2Dplot->GetBinContent(xBin,yBin) <= 0.)
-            // {
-            //     allNeededBinsAreNotEmpty = false;
-            //     std::cout << "First empty needed bin = " << xBin << " - " << yBin << std::endl;
-            //     break;
-            // }
+            if(isNeededBin(the2Dplot, xBin, yBin) && the2Dplot->GetBinContent(xBin,yBin) <= minNumberOfEntries)
+            {
+                allNeededBinsAreNotEmpty = false;
+                std::cout << "First empty needed bin = " << xBin << " - " << yBin << std::endl;
+                break;
+            }
         }
 
         if(!allNeededBinsAreNotEmpty) break;
@@ -148,6 +157,9 @@ void Rebin2DPlot(TH2F *&the2Dplot, bool rebinX=true, uint xBinStart=1, uint yBin
             }
             binArray[nXbin] = the2Dplot->GetXaxis()->GetBinUpEdge(nXbin);
             theUntouchedBinArray.Set(nXbin+1,binArray);
+
+            for(uint i=0; i<nXbin; ++i) std::cout<<binArray[i]<<" - ";
+            std::cout<<std::endl;
         }
 
         theOriginalBinArray = *the2Dplot->GetYaxis()->GetXbins();
@@ -183,12 +195,14 @@ void Rebin2DPlot(TH2F *&the2Dplot, bool rebinX=true, uint xBinStart=1, uint yBin
             {
                 theBinList[binListSize] = theOriginalBinArray.At(theOriginalBinArray.GetSize()-1);
                 break;
-            }
+            }        
             //if just 1 bin remains, I merge it with the last one
         }
         binListSize++;
     }
     std::cout<<"New number of Bins = " <<binListSize<<std::endl;
+    for(uint i=0; i<binListSize; ++i) std::cout<<theBinList[i]<<" - ";
+    std::cout<<std::endl;
 
     uint xBinListSize;
     uint yBinListSize;
@@ -215,7 +229,7 @@ void Rebin2DPlot(TH2F *&the2Dplot, bool rebinX=true, uint xBinStart=1, uint yBin
     delete the2Dplot;
     the2Dplot = theRebinnedPlot;
 
-    Rebin2DPlot(the2Dplot, !rebinX, xBinStart, yBinStart);
+    Rebin2DPlot(the2Dplot, minNumberOfEntries, !rebinX, xBinStart, yBinStart);
 
 }
 
@@ -225,22 +239,25 @@ TH1F* UnrollPlot(TH2F* the2Dplot, bool isBkg)
 {
     uint nXbin = the2Dplot->GetNbinsX();
     uint nYbin = the2Dplot->GetNbinsY();
-    uint numberOfBins = nXbin*nYbin;
-    float theBinArray[numberOfBins+1];
-    theBinArray[0] = the2Dplot->GetXaxis()->GetBinLowEdge(1);
+    // uint numberOfBins = nXbin*nYbin;
+    // float theBinArray[numberOfBins+1];
+    // theBinArray[0] = the2Dplot->GetXaxis()->GetBinLowEdge(1);
     
-    uint position = 1;
+    uint totalNumberOfBins = 0;
     for(uint yBin=1; yBin<=nYbin; ++yBin)
     {
         for(uint xBin=1; xBin<=nXbin; ++xBin)
         {
-            theBinArray[position] = theBinArray[position-1] + the2Dplot->GetXaxis()->GetBinWidth(xBin);
-            ++position;
+            if(isNeededBin(the2Dplot, xBin, yBin)) ++totalNumberOfBins;
         }
     }
-
+    if(firstTime)
+    {
+        std::cout<<"Total number of bins = " << totalNumberOfBins << std::endl;
+        firstTime = false;
+    }
     std::string unRolledPlotName = std::string(the2Dplot->GetName()) + "_Unrolled";
-    TH1F *the1Dplot = new TH1F(unRolledPlotName.data(),unRolledPlotName.data(),numberOfBins,theBinArray);
+    TH1F *the1Dplot = new TH1F(unRolledPlotName.data(),unRolledPlotName.data(),totalNumberOfBins,0, totalNumberOfBins);
     the1Dplot->SetDirectory(0);
 
     uint newBinNumber = 1;
@@ -248,15 +265,25 @@ TH1F* UnrollPlot(TH2F* the2Dplot, bool isBkg)
     {
         for(uint xBin = 1; xBin <= nXbin; xBin++)
         {
+            float mX = the2Dplot->GetXaxis()->GetBinCenter(xBin);
+            float mY = the2Dplot->GetYaxis()->GetBinCenter(yBin);
+            if(!isNeededBin(the2Dplot, xBin, yBin)) continue;
+
             float value = the2Dplot->GetBinContent(xBin,yBin);
             float error = the2Dplot->GetBinError(xBin,yBin);
             if(value == 0 && isBkg)
             {
+                std::cout<<"This should never happen!!!"<<std::endl;
                 value = 1e-5;
                 error = 1e-5;
             }
-            the1Dplot->SetBinContent(xBin+(yBin-1)*nXbin, value);
-            the1Dplot->SetBinError(xBin+(yBin-1)*nXbin, error);
+            // if(!isBkg)
+            // {
+            //     value*=0.9;
+            //     error*=0.9;
+            // }
+            the1Dplot->SetBinContent(newBinNumber, value);
+            the1Dplot->SetBinError(newBinNumber++, error);
         }
     }
     return the1Dplot;
@@ -268,7 +295,7 @@ int main(int argc, char *argv[])
 {
     gSystem->ResetSignal(kSigSegmentationViolation, kTRUE);
 
-    if(argc < 7)
+    if(argc < 8)
     {
         std::cout << "Usage: ./Unroll2Dplots <fileName> <dataset> <selection> <variable> <mYmin> <mYmax> <otherSelectionToUnroll - optional>" << std::endl;
         return EXIT_FAILURE;
@@ -279,8 +306,9 @@ int main(int argc, char *argv[])
     std::string variable    = argv[4];
     mYmin    = atof(argv[5]);
     mYmax    = atof(argv[6]);
+    float minNumberOfEntries  = atof(argv[7]);
     std::vector<std::string> selectionsToUnrollList = {selection};
-    for(uint i=7; i<argc; ++i) selectionsToUnrollList.push_back(argv[i]);
+    for(uint i=8; i<argc; ++i) selectionsToUnrollList.push_back(argv[i]);
 
     // std::string outputFileName = inputFileName.substr(0,inputFileName.find(".root")) + "_rebinned";
     
@@ -293,7 +321,7 @@ int main(int argc, char *argv[])
     TH2F *the2Dplot = (TH2F*)theInputFile.Get(dataHistogramName.data());
     the2Dplot->SetDirectory(0);
    
-    Rebin2DPlot(the2Dplot);
+    // Rebin2DPlot(the2Dplot, minNumberOfEntries);
 
     uint nXbin = the2Dplot->GetNbinsX();
     uint nYbin = the2Dplot->GetNbinsY();

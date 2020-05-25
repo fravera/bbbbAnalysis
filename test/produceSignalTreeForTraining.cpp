@@ -138,6 +138,8 @@ int main(int argc, char** argv)
         ("output", po::value<string>()->required(), "output file LFN")
         ("yMassSelection", po::value<string>()->default_value("None"), "Y mass selection")
         // optional
+        ("jes-shift-syst", po::value<string>()->default_value("nominal"), "Name of the JES (scale) source uncertainty to be shifted. Usage as <name>:<up/down>. Pass -nominal- to not shift the jets")
+        ("jer-shift-syst", po::value<string>()->default_value("nominal"), "Name of the JER (resolution) source uncertainty to be shifted. Usage as <jer/bjer>:<up/down>. Pass -nominal- to not shift the jets")
         ("maxEvts"  , po::value<int>()->default_value(-1), "max number of events to process")
 
     ;
@@ -307,8 +309,9 @@ int main(int argc, char** argv)
     TFile outputFile(outputFileName.c_str(), "recreate");
 
     OutputTree ot; //dummy;
-    oph.initializeJERsmearingAndVariations(ot);
-
+    oph.initializeApplyJERAndBregSmearing(opts["jer-shift-syst"].as<string>());
+    oph.initializeApplyJESshift(opts["jes-shift-syst"].as<string>());
+        
 
     ////////////////////////////////////////////////////////////////////////
     // Execute event loop

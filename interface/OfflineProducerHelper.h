@@ -83,9 +83,15 @@ class OfflineProducerHelper{
         std::map<int, std::vector<int> >  mapTriggerObjectIdAndFilter_;
         // < <particleId, filterId> numberOfObjects> 
         std::map<std::pair<int,int>, int> mapTriggerMatching_;
+        // <triggeName, vector of candidates< map< pair<trgId, trgFilter>, hasFlag> > >
+        std::map< std::string, std::vector<std::map<std::pair<int,int>, bool>>> triggerObjectPerJetCount_;
+        std::map< std::string, std::map<std::pair<int,int>, int>> triggerObjectTotalCount_;
+        void initializeTriggerMatching(OutputTree &ot, int numberOfCandidates);
+        void calculateTriggerMatching(const std::vector< std::unique_ptr<const Candidate> > &candidateList, NanoAODTree& nat);
+        bool checkTriggerObjectMatching(std::vector<std::string>, OutputTree &ot);
 
         // branch Name, default value
-        std::map<std::string, float> branchesAffectedByJetEnergyVariations_;
+        // std::map<std::string, float> branchesAffectedByJetEnergyVariations_;
         
                 // to apply a single jet energy correction to all the incoming jets
         const static std::string nominal_jes_syst_shift_name;
@@ -176,26 +182,26 @@ class OfflineProducerHelper{
         void initializeOfflineProducerHelper(const std::map<std::string, std::any> *parameterList) {
             parameterList_ = parameterList;
             //standard branches present in the EventInfo, other branches should de added when declaring the standard ones (see bTagScaleFactor_central)
-            branchesAffectedByJetEnergyVariations_["H1_b1_pt"] = -1.;
-            branchesAffectedByJetEnergyVariations_["H1_b2_pt"] = -1.;
-            branchesAffectedByJetEnergyVariations_["H2_b1_pt"] = -1.;
-            branchesAffectedByJetEnergyVariations_["H2_b2_pt"] = -1.;
-            // branchesAffectedByJetEnergyVariations_["H1_b1_m"] = -1.;
-            // branchesAffectedByJetEnergyVariations_["H1_b2_m"] = -1.;
-            // branchesAffectedByJetEnergyVariations_["H2_b1_m"] = -1.;
-            // branchesAffectedByJetEnergyVariations_["H2_b2_m"] = -1.;
-            branchesAffectedByJetEnergyVariations_["H1_b1_ptRegressed"] = -1.;
-            branchesAffectedByJetEnergyVariations_["H1_b2_ptRegressed"] = -1.;
-            branchesAffectedByJetEnergyVariations_["H2_b1_ptRegressed"] = -1.;
-            branchesAffectedByJetEnergyVariations_["H2_b2_ptRegressed"] = -1.;
-            branchesAffectedByJetEnergyVariations_["H1_m"] = -1.;
-            branchesAffectedByJetEnergyVariations_["H2_m"] = -1.;
-            // branchesAffectedByJetEnergyVariations_["H1_pt"] = -1.;
-            // branchesAffectedByJetEnergyVariations_["H2_pt"] = -1.;
-            branchesAffectedByJetEnergyVariations_["HH_m"] = -1.;
-            // branchesAffectedByJetEnergyVariations_["HH_pt"] = -1.;
-            branchesAffectedByJetEnergyVariations_["HH_m_kinFit"] = -1.;
-            branchesAffectedByJetEnergyVariations_["HH_2DdeltaM"] = 999.;
+            // branchesAffectedByJetEnergyVariations_["H1_b1_pt"] = -1.;
+            // branchesAffectedByJetEnergyVariations_["H1_b2_pt"] = -1.;
+            // branchesAffectedByJetEnergyVariations_["H2_b1_pt"] = -1.;
+            // branchesAffectedByJetEnergyVariations_["H2_b2_pt"] = -1.;
+            // // branchesAffectedByJetEnergyVariations_["H1_b1_m"] = -1.;
+            // // branchesAffectedByJetEnergyVariations_["H1_b2_m"] = -1.;
+            // // branchesAffectedByJetEnergyVariations_["H2_b1_m"] = -1.;
+            // // branchesAffectedByJetEnergyVariations_["H2_b2_m"] = -1.;
+            // branchesAffectedByJetEnergyVariations_["H1_b1_ptRegressed"] = -1.;
+            // branchesAffectedByJetEnergyVariations_["H1_b2_ptRegressed"] = -1.;
+            // branchesAffectedByJetEnergyVariations_["H2_b1_ptRegressed"] = -1.;
+            // branchesAffectedByJetEnergyVariations_["H2_b2_ptRegressed"] = -1.;
+            // branchesAffectedByJetEnergyVariations_["H1_m"] = -1.;
+            // branchesAffectedByJetEnergyVariations_["H2_m"] = -1.;
+            // // branchesAffectedByJetEnergyVariations_["H1_pt"] = -1.;
+            // // branchesAffectedByJetEnergyVariations_["H2_pt"] = -1.;
+            // branchesAffectedByJetEnergyVariations_["HH_m"] = -1.;
+            // // branchesAffectedByJetEnergyVariations_["HH_pt"] = -1.;
+            // branchesAffectedByJetEnergyVariations_["HH_m_kinFit"] = -1.;
+            // branchesAffectedByJetEnergyVariations_["HH_2DdeltaM"] = 999.;
 
             // init_BDT_evals();
             // if (parameterList_->count("do_kl_rew") > 0 && std::any_cast<bool>(parameterList_->at("do_kl_rew")))
@@ -261,12 +267,12 @@ class OfflineProducerHelper{
         void save_IsolatedLeptons(NanoAODTree& nat, OutputTree &ot, EventInfo& ei);
         
         // Calculate trigger map
-        void calculateTriggerMatching(const std::vector< std::unique_ptr<const Candidate> > &candidateList, const Jet& highestDeepCSVjet, NanoAODTree& nat, OutputTree& ot);
+        // void calculateTriggerMatching(const std::vector< std::unique_ptr<const Candidate> > &candidateList, const Jet& highestDeepCSVjet, NanoAODTree& nat, OutputTree& ot);
 
         //Initialize trigger Matching variables
-        void initializeTriggerMatching(OutputTree &ot);
+        // void initializeTriggerMatching(OutputTree &ot);
         //Function to check that the selected objects are the one that fired at list one of the triggers
-        bool checkTriggerObjectMatching(std::vector<std::string>, OutputTree &ot);
+        // bool checkTriggerObjectMatching(std::vector<std::string>, OutputTree &ot);
 
 
         void initializeObjectsForEventWeight(OutputTree &ot, SkimEffCounter &ec, std::string PUWeightFileName);
@@ -283,19 +289,19 @@ class OfflineProducerHelper{
 
         std::unique_ptr<JME::JetResolutionScaleFactor> jetResolutionScaleFactor_;
         std::unique_ptr<JME::JetResolution>            jetResolution_;
-        void initializeJERsmearingAndVariations(OutputTree &ot);
+        // void initializeJERsmearingAndVariations(OutputTree &ot);
         // function pointer to MC jet pt smearing
         // std::vector<Jet> (*JERsmearing)(NanoAODTree& nat, std::vector<Jet> &jets);
         std::function<std::vector<Jet> (NanoAODTree& nat, std::vector<Jet> &jets)> JERsmearing;
         // function to smear the jet pt as indicated in https://twiki.cern.ch/twiki/bin/view/CMS/JetResolution#Smearing_procedures
-        std::vector<Jet> standardJERsmearing(NanoAODTree& nat, std::vector<Jet> &jets);
+        // std::vector<Jet> standardJERsmearing(NanoAODTree& nat, std::vector<Jet> &jets);
         // function pointer for JER variations
         // void (OfflineProducerHelper::* JERvariations)(NanoAODTree& nat, std::vector<Jet> &jets, std::vector< std::pair<std::string, std::vector<Jet> > > &jetEnergyVariationsMap);
         std::function <void (NanoAODTree& nat, std::vector<Jet> &jets, std::vector< std::pair<std::string, std::vector<Jet> > > &jetEnergyVariationsMap)> JERvariations;
         // function to apply JER variation
-        void standardJERVariations(NanoAODTree& nat, std::vector<Jet> &jets, std::vector< std::pair<std::string, std::vector<Jet> > > &jetEnergyVariationsMap);
+        // void standardJERVariations(NanoAODTree& nat, std::vector<Jet> &jets, std::vector< std::pair<std::string, std::vector<Jet> > > &jetEnergyVariationsMap);
         //function to apply JER
-        std::vector<Jet> applyJERsmearing(NanoAODTree& nat, std::vector<Jet> jets, Variation variation = Variation::NOMINAL);
+        // std::vector<Jet> applyJERsmearing(NanoAODTree& nat, std::vector<Jet> jets, Variation variation = Variation::NOMINAL);
 
         // function that applies whatever smearing strategy is defined in the parameters, and returns the jet
         void initializeApplyJESshift(std::string syst_and_direction);
@@ -306,17 +312,17 @@ class OfflineProducerHelper{
         std::vector<Jet> applyJERAndBregSmearing(NanoAODTree& nat, std::vector<Jet> jets);
 
 
-        void initializeJECVariations(OutputTree &ot);
+        // void initializeJECVariations(OutputTree &ot);
         // function pointer for JEC variations
         // void (OfflineProducerHelper::* JECvariations)(NanoAODTree& nat, std::vector<Jet> &jets, std::vector< std::pair<std::string, std::vector<Jet> > > &jetEnergyVariationsMap);
         std::function<void (NanoAODTree& nat, std::vector<Jet> &jets, std::vector< std::pair<std::string, std::vector<Jet> > > &jetEnergyVariationsMap)> JECvariations;
         // function to apply all JEC variations
-        void standardJECVariations(NanoAODTree& nat, std::vector<Jet> &jetsUnsmeared, std::vector< std::pair<std::string, std::vector<Jet> > > &jetEnergyVariationsMap);
+        // void standardJECVariations(NanoAODTree& nat, std::vector<Jet> &jetsUnsmeared, std::vector< std::pair<std::string, std::vector<Jet> > > &jetEnergyVariationsMap);
         //function to apply JEC variation
-        std::vector<Jet> applyJECVariation(NanoAODTree& nat, std::vector<Jet> jetsUnsmeared, std::string variationName, bool direction);
+        // std::vector<Jet> applyJECVariation(NanoAODTree& nat, std::vector<Jet> jetsUnsmeared, std::string variationName, bool direction);
 
         //function to fill branches for JEC and JER variations
-        void fillJetEnergyVariationBranch(OutputTree &ot, std::string branchName, std::string variation, float value);
+        // void fillJetEnergyVariationBranch(OutputTree &ot, std::string branchName, std::string variation, float value);
 
         // compute events weight for four b
         // void compute_scaleFactors_fourBtag_eventScaleFactor (const std::vector<Jet> &jets, NanoAODTree& nat, OutputTree &ot);

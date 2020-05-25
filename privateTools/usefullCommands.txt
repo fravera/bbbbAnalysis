@@ -48,6 +48,10 @@ skim_ntuple.exe --input inputFiles/2016NonResonantDiHiggs4BDataSets/Data_BTagCSV
 
 skim_ntuple.exe --input=inputFiles/2016NonResonantDiHiggs4BDataSets/QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt --cfg=config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb_noTriggerMatching.cfg                  --puWeight=weights/QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_PUweights.root --xs=1 --maxEvt 50000 --output test_QCD.root
 
+skim_ntuple.exe --input=inputFiles/2017_NMSSM_XYH_bbbb_Datasets/SingleMuon_Data.txt  --cfg=config/Resonant_NMSSM_bbbb/skim_2017Resonant_NMSSM_XYH_bbbb_triggerClosure.cfg  --is-data  --output SingleMuon_2017.root --maxEvt 50000 
+
+skim_trigger.exe --input inputFiles/TriggerEfficiencyMeasurement/2017/gg_HH_4B_SM_2017_forTrigger.txt      --cfg config/Resonant_NMSSM_bbbb/skim_2017_TriggerEfficiencyMeasurement.cfg  --match --puWeight weights/gg_HH_4B_SM_2017_forTrigger_PUweights.root      --output gg_HH_4B_SM_2017_forTrigger_new.root
+
 
 
 produceSignalTreeForTraining.exe --cfg=config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb_SignalTraining.cfg --input=inputFiles/2016_NMSSM_XYH_bbbb_Datasets/NMSSM_XYH_bbbb_MX_700_MY_300_privateMC.txt --output=test_signalTreeForTraining.root
@@ -117,3 +121,7 @@ MergeCanvas<>("ScaleFactor_L1triggerQuad45AndPrevious_FourHighetJetPtSum", "Scal
 
 python mlskim_NMSSM_XYH_bbbb/BuildBackgroundModel.py --config=mlskim_NMSSM_XYH_bbbb/config/outputskim_2016.cfg 
 python mlskim_NMSSM_XYH_bbbb/BuildBackgroundModel.py --config=mlskim_NMSSM_XYH_bbbb/config/outputskim_2016.cfg 
+
+
+hadd SingleMuon_Data_forTrigger.root `xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_2020_05_02_v4/SKIM_SingleMuon_Data/output`
+hadd TTbar_MC_forTrigger.root `xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_2020_05_02_v4/SKIM_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/output`

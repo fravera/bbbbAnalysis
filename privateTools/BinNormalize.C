@@ -26,7 +26,7 @@ void normalizeByBinSize1D(TH1D* inputPlot)
 }
 
 
-void plot1D(std::string inputFileName, std::string dataset, std::string selection, std::string variable, std::string title, std::string xAxis, std::string yAxis, float xMin, float xMax)
+void plot1D(std::string inputFileName, std::string dataset, std::string selection, std::string variable, std::string title, std::string xAxis, std::string yAxis, float xMin, float xMax, int rebin = -1)
 {
     TFile inputFile(inputFileName.data());
     std::string inputHistogramName = dataset +  "/" + selection + "/" + dataset +  "_" + selection + "_" + variable;
@@ -35,6 +35,7 @@ void plot1D(std::string inputFileName, std::string dataset, std::string selectio
     inputHistogram->SetStats(0);
     inputHistogram->SetTitle(title.data());
     normalizeByBinSize1D(inputHistogram);
+    if(rebin>0) inputHistogram->Rebin(rebin);
 
     inputHistogram->GetXaxis()->SetTitle(xAxis.data());
     inputHistogram->GetXaxis()->SetRangeUser(xMin, xMax);
@@ -50,9 +51,9 @@ void plot1D(std::string inputFileName, std::string dataset, std::string selectio
 void doPlot1D()
 {
     gROOT->ForceStyle();
-    plot1D("2016DataPlots_NMSSM_XYH_bbbb_quickTest/outPlotter.root", "sig_NMSSM_bbbb_MX_700_MY_300", "selectionbJets_Full", "H1_m", "m_{Hreco} distribution - m_{X} = 700 GeV  m_{Y} = 300 GeV", "m_{Hreco} [GeV]", "events/GeV^{2} [a.u.]", 60, 190);
-    plot1D("2016DataPlots_NMSSM_XYH_bbbb_quickTest/outPlotter.root", "sig_NMSSM_bbbb_MX_700_MY_300", "selectionbJets_Full", "H2_m", "m_{Yreco} distribution - m_{X} = 700 GeV  m_{Y} = 300 GeV", "m_{Yreco} [GeV]", "events/GeV^{2} [a.u.]", 100, 500);
-    plot1D("2016DataPlots_NMSSM_XYH_bbbb_quickTest/outPlotter.root", "sig_NMSSM_bbbb_MX_700_MY_300", "selectionbJets_Full", "HH_m", "m_{Xreco} distribution - m_{X} = 700 GeV  m_{Y} = 300 GeV", "m_{Xreco} [GeV]", "events/GeV^{2} [a.u.]", 400, 1000);
+    plot1D("2016DataPlots_NMSSM_XYH_bbbb_quickTestSignal/outPlotter.root", "sig_NMSSM_bbbb_MX_700_MY_300", "selectionbJets_Full", "H1_m", "m_{Hreco} distribution - m_{X} = 700 GeV  m_{Y} = 300 GeV", "m_{Hreco} [GeV]", "events/GeV^{2} [a.u.]", 60, 190, 4);
+    plot1D("2016DataPlots_NMSSM_XYH_bbbb_quickTestSignal/outPlotter.root", "sig_NMSSM_bbbb_MX_700_MY_300", "selectionbJets_Full", "H2_m", "m_{Yreco} distribution - m_{X} = 700 GeV  m_{Y} = 300 GeV", "m_{Yreco} [GeV]", "events/GeV^{2} [a.u.]", 100, 500);
+    plot1D("2016DataPlots_NMSSM_XYH_bbbb_quickTestSignal/outPlotter.root", "sig_NMSSM_bbbb_MX_700_MY_300", "selectionbJets_Full", "HH_m", "m_{Xreco} distribution - m_{X} = 700 GeV  m_{Y} = 300 GeV", "m_{Xreco} [GeV]", "events/GeV^{2} [a.u.]", 400, 1000);
     // plot2D("2016DataPlots_NMSSM_XYH_bbbb_all_Full/outPlotter.root", "data_BTagCSV_dataDriven", "selectionbJets_SignalRegion", "HH_m_H2_m", "Extimated background distribution");
 }
 
@@ -98,11 +99,11 @@ void plot2D(std::string inputFileName, std::string dataset, std::string selectio
 
 }
 
-void doPlot2D()
+void doPlot2D(int year, std::string datasetName)
 {
     gROOT->ForceStyle();
-    // plot2D("2016DataPlots_NMSSM_XYH_bbbb_all_Full/outPlotter.root", "sig_NMSSM_bbbb_MX_700_MY_300", "selectionbJets_SignalRegion", "HH_m_H2_m", "Signal distribution - m_{X} = 700 GeV  m_{Y} = 300 GeV  ");
-    plot2D("2016DataPlots_NMSSM_XYH_bbbb_all_Full/outPlotter.root", "data_BTagCSV_dataDriven", "selectionbJets_SignalRegion", "HH_m_H2_m", "Extimated background distribution");
+    plot2D( std::to_string(year) + "DataPlots_NMSSM_XYH_bbbb_Full_syst/outPlotter.root", datasetName, "selectionbJets_SignalRegion", "HH_m_H2_m_Rebinned", "Signal distribution - m_{X} = 700 GeV  m_{Y} = 300 GeV  ");
+    // plot2D("2016DataPlots_NMSSM_XYH_bbbb_Full_syst/outPlotter.root", "data_BTagCSV_dataDriven", "selectionbJets_SignalRegion", "HH_m_H2_m_Rebinned", "Extimated background distribution");
 }
 
 
@@ -175,4 +176,30 @@ void doOverlapSlices()
 {
     gROOT->ForceStyle();
     overlapSlices("2016DataPlots_NMSSM_XYH_bbbb_all_Full/outPlotter.root", "data_BTagCSV_dataDriven", "sig_NMSSM_bbbb_MX_700_MY_300", "selectionbJets_SignalRegion", "HH_m_H2_m", 204, 360);
+}
+
+void getBinList(int year)
+{
+    std::string inputFileName = std::to_string(year) + "DataPlots_NMSSM_XYH_bbbb_Full_syst/outPlotter.root";
+    std::string datasetName  = "data_BTagCSV_dataDriven";
+    std::string selection    = "selectionbJets_SignalRegion";
+    std::string variable     = "HH_m_H2_m_Rebinned";
+    gROOT->ForceStyle();
+    plot2D( std::to_string(year) + "DataPlots_NMSSM_XYH_bbbb_Full_syst/outPlotter.root", datasetName, "selectionbJets_SignalRegion", "HH_m_H2_m_Rebinned", "Signal distribution - m_{X} = 700 GeV  m_{Y} = 300 GeV  ");
+    TFile inputFile(inputFileName.data());
+    std::string histogramName = datasetName +  "/" + selection + "/" + datasetName +  "_" + selection + "_" + variable;
+    TH2D *histogram = (TH2D*)inputFile.Get(histogramName.data());
+    histogram->SetDirectory(0);
+    inputFile.Close();
+
+    int numberOfBinX = histogram->GetNbinsX();
+    int numberOfBinY = histogram->GetNbinsY();
+    std::cout<<"Number of bin X = " << numberOfBinX<< std::endl;
+    for(int nBin = 1; nBin<=numberOfBinX+1; ++nBin) std::cout<<histogram->GetXaxis()->GetBinLowEdge(nBin)<< ", ";
+    std::cout<<std::endl;
+    
+    std::cout<<"Number of bin Y = " << numberOfBinY<< std::endl;
+    for(int nBin = 1; nBin<=numberOfBinY+1; ++nBin) std::cout<<histogram->GetYaxis()->GetBinLowEdge(nBin)<< ", ";
+    std::cout<<std::endl;
+
 }
