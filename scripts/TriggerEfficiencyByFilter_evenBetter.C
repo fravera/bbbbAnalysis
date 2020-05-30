@@ -80,6 +80,17 @@ struct TriggerEfficiencyTool
 
     std::tuple<std::shared_ptr<TGraphAsymmErrors>,std::shared_ptr<TH1F> > getEfficiencyAndDistribution(float renormalizationValue)
     {
+        int numberOfEntries =  fFilterEfficiencyHistogram.get()->GetNbinsX();
+        for(Int_t i = 0; i < numberOfEntries+1; ++i) {
+            if(fFilterEfficiencyHistogram.get()->GetBinContent(i) > fFilterNormalizationHistogram.get()->GetBinContent(i)) {
+                std::cout<<"NumberOfEntries not consisten for Bin " << i << " values - "<<  fFilterEfficiencyHistogram.get()->GetBinContent(0) << " - " << fFilterNormalizationHistogram.get()->GetBinContent(0) << std::endl;
+                fFilterEfficiencyHistogram.get()->SetBinContent(i,0.);
+                fFilterNormalizationHistogram.get()->SetBinContent(i,0.);
+            }
+        }
+        // for(int bin=0; bin<=numberOfEntries)
+        // std::cout<<"NumberOfEntries underflow - "<<  fFilterEfficiencyHistogram.get()->GetBinContent(0) << " - " << fFilterNormalizationHistogram.get()->GetBinContent(0) << std::endl;
+        // std::cout<<"NumberOfEntries overflow - "<<  fFilterEfficiencyHistogram.get()->GetBinContent(numberOfEntries+1) << " - " << fFilterNormalizationHistogram.get()->GetBinContent(numberOfEntries+1) << std::endl;
         fEfficiency->Divide(fFilterEfficiencyHistogram.get(),fFilterNormalizationHistogram.get(),"cl=0.683 b(1,1) mode");
         fFilterNormalizationHistogram->Scale(renormalizationValue);
         for(int bin=0; bin<= fFilterNormalizationHistogram->GetNbinsX(); ++bin)
@@ -438,7 +449,7 @@ void ProduceAllTriggerEfficiencyInAFile2017(std::vector<std::tuple<std::shared_p
 
     std::string normalizationCut = preselectionCut;
     std::string filterCut = normalizationCut + "&& QuadCentralJet30>=1";
-    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "allJetPt_sum"                  , normalizationCut, "L1filterHT; #sum p_{T} [GeV]; online efficiency"                 ,100, 100,1500, theColor);
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "allJetAbove30Eta24_sum"                  , normalizationCut, "L1filterHT; #sum p_{T} [GeV]; online efficiency"                 ,100, 100., 1500., theColor);
     
     normalizationCut = filterCut;
     filterCut = normalizationCut + "&& QuadCentralJet30>=4";
@@ -512,10 +523,10 @@ void ProduceAllTriggerEfficienciesFiles2017(std::string singleMuonInputFileName,
     
     
     gROOT->SetBatch();
-    std::vector<std::string> inputFilesNames = {singleMuonInputFileName, ttbarInputFileName , xyhInputSignal   };
-    std::vector<std::string> datasetName     = {"SingleMuon"           , "TTbar"            , "gg_HH_4B_SM_2017" };
-    std::vector<float>       expectedEvents  = {-1.                    , ttbarExpectedEvents, xyhExpectedEvents};
-    std::vector<Color_t>     theColorVector =  {kBlack                 , kBlue              , kRed             };
+    std::vector<std::string> inputFilesNames = {singleMuonInputFileName, ttbarInputFileName };
+    std::vector<std::string> datasetName     = {"SingleMuon"           , "TTbar"            };
+    std::vector<float>       expectedEvents  = {-1.                    , ttbarExpectedEvents};
+    std::vector<Color_t>     theColorVector =  {kBlack                 , kBlue              };
     std::vector<std::vector<std::tuple<std::shared_ptr<TGraphAsymmErrors>,std::shared_ptr<TH1F> > > > vectorOfDatasetResults(inputFilesNames.size());
 
     std::vector<std::thread> theThreadList;
@@ -577,7 +588,7 @@ void ProduceAllTriggerEfficiencyInAFile2018(std::vector<std::tuple<std::shared_p
 
     std::string normalizationCut = preselectionCut;
     std::string filterCut = normalizationCut + "&& QuadCentralJet30>=1";
-    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "allJetPt_sum"                  , normalizationCut, "L1filterHT; #sum p_{T} [GeV]; online efficiency"                 ,100, 100,1500, theColor);
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "allJetAbove30Eta24_sum"                  , normalizationCut, "L1filterHT; #sum p_{T} [GeV]; online efficiency"                 ,100, 100, 1500, theColor);
     
     normalizationCut = filterCut;
     filterCut = normalizationCut + "&& QuadCentralJet30>=4";
@@ -651,10 +662,10 @@ void ProduceAllTriggerEfficienciesFiles2018(std::string singleMuonInputFileName,
     
     
     gROOT->SetBatch();
-    std::vector<std::string> inputFilesNames = {singleMuonInputFileName, ttbarInputFileName , xyhInputSignal   };
-    std::vector<std::string> datasetName     = {"SingleMuon"           , "TTbar"            , "gg_HH_4B_SM_2018" };
-    std::vector<float>       expectedEvents  = {-1.                    , ttbarExpectedEvents, xyhExpectedEvents};
-    std::vector<Color_t>     theColorVector =  {kBlack                 , kBlue              , kRed             };
+    std::vector<std::string> inputFilesNames = {singleMuonInputFileName, ttbarInputFileName };
+    std::vector<std::string> datasetName     = {"SingleMuon"           , "TTbar"            };
+    std::vector<float>       expectedEvents  = {-1.                    , ttbarExpectedEvents};
+    std::vector<Color_t>     theColorVector =  {kBlack                 , kBlue              };
     std::vector<std::vector<std::tuple<std::shared_ptr<TGraphAsymmErrors>,std::shared_ptr<TH1F> > > > vectorOfDatasetResults(inputFilesNames.size());
 
     std::vector<std::thread> theThreadList;

@@ -882,7 +882,7 @@ void applyAllBackgroundShapeVariations()
 
     for(auto year : yearList)
     {
-        std::string inputFileName = std::to_string(year) + "DataPlots_NMSSM_XYH_bbbb_Full_syst/outPlotter.root";
+        std::string inputFileName = std::to_string(year) + "DataPlots_NMSSM_XYH_bbbb_Full_syst_trgData/outPlotter.root";
         std::cout<<inputFileName<<std::endl;
         for(auto minBinContent : minBinContentList)
         {

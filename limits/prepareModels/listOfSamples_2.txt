@@ -1,0 +1,10 @@
+sig_NMSSM_bbbb_MX_400_MY_100
+sig_NMSSM_bbbb_MX_400_MY_125
+sig_NMSSM_bbbb_MX_400_MY_150
+sig_NMSSM_bbbb_MX_400_MY_200
+sig_NMSSM_bbbb_MX_400_MY_250
+sig_NMSSM_bbbb_MX_500_MY_60
+sig_NMSSM_bbbb_MX_500_MY_70
+sig_NMSSM_bbbb_MX_500_MY_80
+sig_NMSSM_bbbb_MX_500_MY_90
+sig_NMSSM_bbbb_MX_500_MY_100

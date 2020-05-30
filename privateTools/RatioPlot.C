@@ -478,25 +478,47 @@ void RatioAll(std::string dataDrivenDatasetName="data_BTagCSV_dataDriven")
 {
     gROOT->SetBatch();
 
-    // RatioAllVariables("ControlRegion_AfterBDT_2016", "2016DataPlots_NMSSM_XYH_bbbb_Full/outPlotter.root", "data_BTagCSV" , "selectionbJets_ControlRegionBlinded", 
-    // "2016DataPlots_NMSSM_XYH_bbbb_Full/outPlotter.root", dataDrivenDatasetName , "selectionbJets_ControlRegionBlinded",false, "Full");
+    RatioAllVariables("ControlRegion_AfterBDT_2016", "2016DataPlots_NMSSM_XYH_bbbb_Full/outPlotter.root", "data_BTagCSV" , "selectionbJets_ControlRegionBlinded", 
+    "2016DataPlots_NMSSM_XYH_bbbb_Full/outPlotter.root", dataDrivenDatasetName , "selectionbJets_ControlRegionBlinded",false, "Full");
 
-    // RatioAllVariables("ControlRegion_BeforeBDT_2016", "2016DataPlots_NMSSM_XYH_bbbb_Full/outPlotter.root", "data_BTagCSV" , "selectionbJets_ControlRegionBlinded", 
-    // "2016DataPlots_NMSSM_XYH_bbbb_Full/outPlotter.root", "data_BTagCSV_3btag" , "selectionbJets_ControlRegionBlinded",true, "Full");
-
-
-    RatioAllVariables("ControlRegion_AfterBDT_2017", "2017DataPlots_NMSSM_XYH_bbbb_dataDrivenOptimization/outPlotter.root", "data_BTagCSV" , "selectionbJets_ControlRegionBlinded", 
-    "2017DataPlots_NMSSM_XYH_bbbb_dataDrivenOptimization/outPlotter.root", dataDrivenDatasetName , "selectionbJets_ControlRegionBlinded",false, "Full");
-
-    RatioAllVariables("ControlRegion_BeforeBDT_2017", "2017DataPlots_NMSSM_XYH_bbbb_dataDrivenOptimization/outPlotter.root", "data_BTagCSV" , "selectionbJets_ControlRegionBlinded", 
-    "2017DataPlots_NMSSM_XYH_bbbb_dataDrivenOptimization/outPlotter.root", "data_BTagCSV_3btag" , "selectionbJets_ControlRegionBlinded",true, "Full");
+    RatioAllVariables("ControlRegion_BeforeBDT_2016", "2016DataPlots_NMSSM_XYH_bbbb_Full/outPlotter.root", "data_BTagCSV" , "selectionbJets_ControlRegionBlinded", 
+    "2016DataPlots_NMSSM_XYH_bbbb_Full/outPlotter.root", "data_BTagCSV_3btag" , "selectionbJets_ControlRegionBlinded",true, "Full");
 
 
-    RatioAllVariables("ControlRegion_AfterBDT_2018", "2018DataPlots_NMSSM_XYH_bbbb_dataDrivenOptimization/outPlotter.root", "data_BTagCSV" , "selectionbJets_ControlRegionBlinded", 
-    "2018DataPlots_NMSSM_XYH_bbbb_dataDrivenOptimization/outPlotter.root", dataDrivenDatasetName , "selectionbJets_ControlRegionBlinded",false, "Full");
+    RatioAllVariables("ControlRegion_AfterBDT_2017", "2017DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", "data_BTagCSV" , "selectionbJets_ControlRegionBlinded", 
+    "2017DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", dataDrivenDatasetName , "selectionbJets_ControlRegionBlinded",false, "Full");
 
-    RatioAllVariables("ControlRegion_BeforeBDT_2018", "2018DataPlots_NMSSM_XYH_bbbb_dataDrivenOptimization/outPlotter.root", "data_BTagCSV" , "selectionbJets_ControlRegionBlinded", 
+    RatioAllVariables("ControlRegion_BeforeBDT_2017", "2017DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", "data_BTagCSV" , "selectionbJets_ControlRegionBlinded", 
+    "2017DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", "data_BTagCSV_3btag" , "selectionbJets_ControlRegionBlinded",true, "Full");
+
+
+    RatioAllVariables("ControlRegion_AfterBDT_2018", "2018DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", "data_BTagCSV" , "selectionbJets_ControlRegionBlinded", 
+    "2018DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", dataDrivenDatasetName , "selectionbJets_ControlRegionBlinded",false, "Full");
+
+    RatioAllVariables("ControlRegion_BeforeBDT_2018", "2018DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", "data_BTagCSV" , "selectionbJets_ControlRegionBlinded", 
     "2018DataPlots_NMSSM_XYH_bbbb_Full/outPlotter.root", "data_BTagCSV_3btag" , "selectionbJets_ControlRegionBlinded",true, "Full");
+
+
+
+    RatioAllVariables("SideBand_AfterBDT_2016", "2016DataPlots_NMSSM_XYH_bbbb_Full/outPlotter.root", "data_BTagCSV" , "selectionbJets_SideBandBlinded", 
+    "2016DataPlots_NMSSM_XYH_bbbb_Full/outPlotter.root", dataDrivenDatasetName , "selectionbJets_SideBandBlinded",false, "Full");
+
+    RatioAllVariables("SideBand_BeforeBDT_2016", "2016DataPlots_NMSSM_XYH_bbbb_Full/outPlotter.root", "data_BTagCSV" , "selectionbJets_SideBandBlinded", 
+    "2016DataPlots_NMSSM_XYH_bbbb_Full/outPlotter.root", "data_BTagCSV_3btag" , "selectionbJets_SideBandBlinded",true, "Full");
+
+
+    RatioAllVariables("SideBand_AfterBDT_2017", "2017DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", "data_BTagCSV" , "selectionbJets_SideBandBlinded", 
+    "2017DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", dataDrivenDatasetName , "selectionbJets_SideBandBlinded",false, "Full");
+
+    RatioAllVariables("SideBand_BeforeBDT_2017", "2017DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", "data_BTagCSV" , "selectionbJets_SideBandBlinded", 
+    "2017DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", "data_BTagCSV_3btag" , "selectionbJets_SideBandBlinded",true, "Full");
+
+
+    RatioAllVariables("SideBand_AfterBDT_2018", "2018DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", "data_BTagCSV" , "selectionbJets_SideBandBlinded", 
+    "2018DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", dataDrivenDatasetName , "selectionbJets_SideBandBlinded",false, "Full");
+
+    RatioAllVariables("SideBand_BeforeBDT_2018", "2018DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", "data_BTagCSV" , "selectionbJets_SideBandBlinded", 
+    "2018DataPlots_NMSSM_XYH_bbbb_Full/outPlotter.root", "data_BTagCSV_3btag" , "selectionbJets_SideBandBlinded",true, "Full");
 
 
     // RatioAllVariables("SideBand_AfterBDT", "2016DataPlots_NMSSM_XYH_bbbb_all_Full/outPlotter.root", "data_BTagCSV" , "selectionbJets_SideBandBlinded", 

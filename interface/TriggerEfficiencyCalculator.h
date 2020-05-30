@@ -193,6 +193,7 @@ private:
     float pt4_         {0.};
     float sumPt_       {0.};
     float sumPtAbove30_{0.} ;
+    float sumPtEtaRestricted_{0.};
     std::vector<float> deepFlavBVector {0., 0., 0., 0.} ;
 };
 
@@ -223,5 +224,6 @@ private:
     float pt4_         {0.} ;
     float sumPt_       {0.} ;
     float sumPtAbove30_{0.} ;
+    float sumPtEtaRestricted_{0.};
     std::vector<float> deepFlavBVector {0., 0., 0., 0.} ;
 };

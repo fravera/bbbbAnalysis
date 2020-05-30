@@ -32,7 +32,7 @@ skim_ntuple.exe --cfg config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbb
 
 skim_ntuple.exe --cfg config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb_Fast.cfg --input inputFiles/2016_NMSSM_XYH_bbbb_Datasets/NMSSM_XYH_bbbb_MX_700_NANOAOD_v7.txt --output test_NMSSM_XYH_bbbb_MC.root --is-signal --xs=1 --puWeight weights/2016_NMSSM_XYH_bbbb_weights/NMSSM_XYH_bbbb_MX_700_NANOAOD_v7_PUweights.root --maxEvt 100000
 
-skim_ntuple.exe --cfg config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb_Fast.cfg --input inputFiles/2016_NMSSM_XYH_bbbb_Datasets/NMSSM_XYH_bbbb_MX_700_NANOAOD_v7.txt --output test_NMSSM_XYH_bbbb_MC.root --is-signal --xs=1 --puWeight weights/2016_NMSSM_XYH_bbbb_weights/NMSSM_XYH_bbbb_MX_700_NANOAOD_v7_PUweights.root --maxEvt 100000 --yMassSelection=300
+skim_ntuple.exe --cfg config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb_Fast.cfg --input inputFiles/2017_NMSSM_XYH_bbbb_Datasets/NMSSM_XYH_bbbb_MX_900_NANOAOD_v7.txt --output test_NMSSM_XYH_bbbb_MC.root --is-signal --xs=1 --puWeight weights/2017_NMSSM_XYH_bbbb_weights/NMSSM_XYH_bbbb_MX_900_NANOAOD_v7_PUweights.root --maxEvt 100000 --yMassSelection=125
 
 
 
@@ -123,5 +123,8 @@ python mlskim_NMSSM_XYH_bbbb/BuildBackgroundModel.py --config=mlskim_NMSSM_XYH_b
 python mlskim_NMSSM_XYH_bbbb/BuildBackgroundModel.py --config=mlskim_NMSSM_XYH_bbbb/config/outputskim_2016.cfg 
 
 
-hadd SingleMuon_Data_forTrigger.root `xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_2020_05_02_v4/SKIM_SingleMuon_Data/output`
-hadd TTbar_MC_forTrigger.root `xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_2020_05_02_v4/SKIM_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/output`
+hadd SingleMuon_Data_forTrigger_2017.root `xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2017_v4/SKIM_SingleMuon_Data/output`
+hadd TTbar_MC_forTrigger_2017.root `xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2017_v4/SKIM_TTTo2L2Nu_TuneCP5_13TeV/output`
+
+hadd SingleMuon_Data_forTrigger_2018.root `xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2018_v4/SKIM_SingleMuon_Data/output`
+hadd TTbar_MC_forTrigger_2018.root `xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2018_v4/SKIM_TTTo2L2Nu_TuneCP5_13TeV/output`

@@ -148,7 +148,7 @@ for signal in signalList:
     brazilianPlotList[massY][2].SetPointError(brazilianPlotList[massY][2].GetN()-1, 0., 0., limitCentral - limit2SigmaDown, limit2SigmaUp - limitCentral)
 
 theCanvas = TCanvas("limitMapCentral", "limitMapCentral", 1400, 800)
-limitMapCentral.Draw("colz text")
+limitMapCentral.Draw("colz")
 limitMapCentral.SetStats(0)
 limitMapCentral.SetMaximum(2000)
 limitMapCentral.SetMinimum(1)

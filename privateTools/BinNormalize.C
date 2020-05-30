@@ -72,7 +72,7 @@ void normalizeByBinSize2D(TH2D* inputPlot)
 
 }
 
-void plot2D(std::string inputFileName, std::string dataset, std::string selection, std::string variable, std::string title)
+void plot2D(std::string inputFileName, std::string dataset, std::string selection, std::string variable, std::string title, int year)
 {
     TFile inputFile(inputFileName.data());
     std::string inputHistogramName = dataset +  "/" + selection + "/" + dataset +  "_" + selection + "_" + variable;
@@ -93,21 +93,28 @@ void plot2D(std::string inputFileName, std::string dataset, std::string selectio
     inputHistogram->GetZaxis()->SetLabelSize(0.04);
 
 
-    TCanvas *theCanvas = new TCanvas("2Dplot","2Dplot",1400,800);
+    TCanvas *theCanvas = new TCanvas((variable + "_" + dataset + "_" + std::to_string(year)).data(),"",1400,800);
     inputHistogram->Draw("colz");
     theCanvas->SaveAs((std::string(theCanvas->GetName()) + ".png").data());
 
 }
 
-void doPlot2D(int year, std::string datasetName)
+void doPlot2D(int year)
 {
+    gROOT->SetBatch(true);
     gROOT->ForceStyle();
-    plot2D( std::to_string(year) + "DataPlots_NMSSM_XYH_bbbb_Full_syst/outPlotter.root", datasetName, "selectionbJets_SignalRegion", "HH_m_H2_m_Rebinned", "Signal distribution - m_{X} = 700 GeV  m_{Y} = 300 GeV  ");
-    // plot2D("2016DataPlots_NMSSM_XYH_bbbb_Full_syst/outPlotter.root", "data_BTagCSV_dataDriven", "selectionbJets_SignalRegion", "HH_m_H2_m_Rebinned", "Extimated background distribution");
+    plot2D(std::to_string(year) + "DataPlots_NMSSM_XYH_bbbb_Full_syst/outPlotter.root", "data_BTagCSV_dataDriven"     , "selectionbJets_SignalRegion", "HH_m_H2_m", "Extimated background distribution"                     , year);
+    plot2D(std::to_string(year) + "DataPlots_NMSSM_XYH_bbbb_Full_syst/outPlotter.root", "sig_NMSSM_bbbb_MX_700_MY_300", "selectionbJets_SignalRegion", "HH_m_H2_m", "Signal distribution - m_{X} = 700 GeV  m_{Y} = 300 GeV", year);
+    gROOT->SetBatch(false);
 }
 
+// void doPlot2D(int year, std::string datasetName)
+// {
 
-void overlapSlices(std::string inputFileName, std::string backgroundDataset, std::string signalDataset, std::string selection, std::string variable, float yMin, float yMax)
+// }
+
+
+void overlapSlices(std::string inputFileName, std::string backgroundDataset, std::string signalDataset, std::string selection, std::string variable, float yMin, float yMax, float scale = 1.)
 {
 
     gStyle->SetTitleFontSize(0.3); 
@@ -121,12 +128,13 @@ void overlapSlices(std::string inputFileName, std::string backgroundDataset, std
     TH2D *signalHistogram = (TH2D*)inputFile.Get(signalHistogramName.data());
     signalHistogram->SetDirectory(0);
     normalizeByBinSize2D(signalHistogram);
+    signalHistogram->Scale(scale);
 
     auto theYaxis = backgroundHistogram->GetYaxis();
-    int rebinValue = 3;
+    int rebinValue = 1;
     int  firstBin = theYaxis->FindBin(yMin);
     int  lastBin  = theYaxis->FindBin(yMax);
-    int  nBins = (lastBin - firstBin)/rebinValue;
+    int  nBins = (lastBin - firstBin)/(rebinValue+1);
     TCanvas *theCanvas = new TCanvas("UnrolledPlot", "UnrolledPlot", 1200, 800);
     theCanvas->Divide(nBins,1,0,0);
 
@@ -141,7 +149,7 @@ void overlapSlices(std::string inputFileName, std::string backgroundDataset, std
         backgroundHistogramSlice->SetDirectory(0);
         TH1D* signalHistogramSlice     = signalHistogram    ->ProjectionX(Form("signal_Mx_projection_My_%.1f_%.1f"        ,mYmin, mYmax), bin, bin+rebinValue);
         signalHistogramSlice->SetDirectory(0);
-        backgroundHistogramSlice->GetYaxis()->SetRangeUser(0.1,100.);
+        backgroundHistogramSlice->GetYaxis()->SetRangeUser(0.001,5000.);
         backgroundHistogramSlice->GetXaxis()->SetNdivisions(305);
         backgroundHistogramSlice->SetTitle(Form("%.0f < M_{Yreco} < %.0f", mYmin, mYmax));
         backgroundHistogramSlice->GetXaxis()->SetTitle("m_{Xreco} [GeV]");
@@ -172,10 +180,10 @@ void overlapSlices(std::string inputFileName, std::string backgroundDataset, std
 }
 
 
-void doOverlapSlices()
+void doOverlapSlices(int year)
 {
     gROOT->ForceStyle();
-    overlapSlices("2016DataPlots_NMSSM_XYH_bbbb_all_Full/outPlotter.root", "data_BTagCSV_dataDriven", "sig_NMSSM_bbbb_MX_700_MY_300", "selectionbJets_SignalRegion", "HH_m_H2_m", 204, 360);
+    overlapSlices(std::to_string(year) + "DataPlots_NMSSM_XYH_bbbb_Full_syst/outPlotter.root", "data_BTagCSV_dataDriven", "sig_NMSSM_bbbb_MX_700_MY_300", "selectionbJets_SignalRegion", "HH_m_H2_m", 180, 350, 10);
 }
 
 void getBinList(int year)
@@ -185,7 +193,7 @@ void getBinList(int year)
     std::string selection    = "selectionbJets_SignalRegion";
     std::string variable     = "HH_m_H2_m_Rebinned";
     gROOT->ForceStyle();
-    plot2D( std::to_string(year) + "DataPlots_NMSSM_XYH_bbbb_Full_syst/outPlotter.root", datasetName, "selectionbJets_SignalRegion", "HH_m_H2_m_Rebinned", "Signal distribution - m_{X} = 700 GeV  m_{Y} = 300 GeV  ");
+    plot2D( std::to_string(year) + "DataPlots_NMSSM_XYH_bbbb_Full_syst/outPlotter.root", datasetName, "selectionbJets_SignalRegion", "HH_m_H2_m_Rebinned", "Signal distribution - m_{X} = 700 GeV  m_{Y} = 300 GeV  ", year);
     TFile inputFile(inputFileName.data());
     std::string histogramName = datasetName +  "/" + selection + "/" + datasetName +  "_" + selection + "_" + variable;
     TH2D *histogram = (TH2D*)inputFile.Get(histogramName.data());

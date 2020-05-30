@@ -307,7 +307,9 @@ int main(int argc, char** argv)
     float jetForthHighestPt_pt_;
     float fourHighestJetPt_sum_;
     float allJetPt_sum_; // https://arxiv.org/pdf/1609.02366.pdf Sum of jet pT for all jets with pt >10 GeV and |eta| < 0.3
+    float allJetPtEtaRestricted_sum_;
     float allJetPtAbove30_sum_;
+    float allJetAbove30Eta24_sum_;
     int numberOfJetsForHT_;
     float jetFirstHighestDeepFlavB_deepFlavB_;
     float jetFirstHighestDeepFlavB_pt_;
@@ -331,7 +333,9 @@ int main(int argc, char** argv)
     tOut->Branch("jetForthHighestPt_pt" , &jetForthHighestPt_pt_ );
     tOut->Branch("fourHighestJetPt_sum" , &fourHighestJetPt_sum_ );
     tOut->Branch("allJetPt_sum"         , &allJetPt_sum_         );
+    tOut->Branch("allJetPtEtaRestricted_sum"         , &allJetPtEtaRestricted_sum_         );
     tOut->Branch("allJetPtAbove30_sum"  , &allJetPtAbove30_sum_  );
+    tOut->Branch("allJetAbove30Eta24_sum", &allJetAbove30Eta24_sum_);
     tOut->Branch("numberOfJetsForHT"    , &numberOfJetsForHT_    );
     tOut->Branch("jetFirstHighestDeepFlavB_deepFlavB" , &jetFirstHighestDeepFlavB_deepFlavB_ );
     tOut->Branch("jetFirstHighestDeepFlavB_pt" , &jetFirstHighestDeepFlavB_pt_ );
@@ -513,7 +517,9 @@ int main(int argc, char** argv)
         std::vector<Jet> all_jets;
         all_jets.reserve(*(nat.nJet));
         allJetPt_sum_ = 0.;
+        allJetPtEtaRestricted_sum_ =0.;
         allJetPtAbove30_sum_ = 0.;
+        allJetAbove30Eta24_sum_ = 0.;
         numberOfJetsForHT_ = 0;
 
         for (uint ij = 0; ij < *(nat.nJet); ++ij)
@@ -521,6 +527,8 @@ int main(int argc, char** argv)
             // here preselect jets
             Jet jet (ij, &nat);
             if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 3.) allJetPt_sum_ += jet.P4().Pt();
+            if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 2.1) allJetPtEtaRestricted_sum_ += jet.P4().Pt();
+            if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.4) allJetAbove30Eta24_sum_ += jet.P4().Pt();
 
             if(isoMuonJetId  == jet.getIdx()) continue;
 

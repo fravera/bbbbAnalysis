@@ -111,6 +111,9 @@
 # python scripts/submitSkimOnTier3.py --input=inputFiles/2016NonResonantDiHiggs4BDataSets/ttHTobb_M125_13TeV_powheg_pythia8.txt                         --tag=$1_background --cfg=config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb_noTriggerMatching.cfg --puWeight weights/ttHTobb_M125_13TeV_powheg_pythia8_PUweights.root                       --xs=0.5401   --njobs=100 --no-tar --no-xrdcp-tar
 
 
+
+
+
 python scripts/submitSkimOnTier3.py --input=inputFiles/2016_NMSSM_XYH_bbbb_Datasets/BTagCSV_Data.txt                       --tag=$1  --cfg=config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb.cfg --is-data --njobs=200 --maxDeltaR=0.25
 
 python scripts/submitSkimOnTier3.py --input=inputFiles/2016_NMSSM_XYH_bbbb_Datasets/NMSSM_XYH_bbbb_MX_300_NANOAOD_v7.txt   --tag=$1 --append=_MY_60   --cfg=config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb_Fast.cfg  --puWeight=weights/2016_NMSSM_XYH_bbbb_weights/NMSSM_XYH_bbbb_MX_300_NANOAOD_v7_PUweights.root  --is-signal --xs=0.1   --njobs=1 --yMassSelection=60   --no-tar --no-xrdcp-tar --maxDeltaR=0.25

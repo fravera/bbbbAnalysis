@@ -7,7 +7,7 @@ import argparse
 import os.path
 from array import array
 
-# ROOT.gROOT.SetBatch(True)
+ROOT.gROOT.SetBatch(True)
 
 parser = argparse.ArgumentParser(description='Command line parser of skim options')
 parser.add_argument('--year'   , dest='year'   , help='year'   , required = True)
@@ -37,7 +37,7 @@ for xBin in range(1, nXBins):
             outputPlot.SetBinContent(xBin,yBin, (systematicInputHistogram.GetBinContent(xBin,yBin) / statOnlyInputHistogram.GetBinContent(xBin,yBin) -1.)*100.)
 
 theCanvas = TCanvas("SystematicEffect", "SystematicEffect", 1200, 800)
-outputPlot.Draw("colz text")
+outputPlot.Draw("colz")
 outputPlot.SetMinimum(0.)
 outputPlot.SetMaximum(50.)
 

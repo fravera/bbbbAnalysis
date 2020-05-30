@@ -493,9 +493,9 @@ void TriggerEfficiencyCalculator_2016::extractInformationFromEvent(std::vector<J
         if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 3.) sumPt_ += jet.P4().Pt();
     }
 
-    theOutputTree_->userInt("HLT_Pt2"  ) = pt2_  ;
-    theOutputTree_->userInt("HLT_Pt4"  ) = pt4_  ;
-    theOutputTree_->userInt("HLT_SumPt") = sumPt_;
+    theOutputTree_->userFloat("HLT_Pt2"  ) = pt2_  ;
+    theOutputTree_->userFloat("HLT_Pt4"  ) = pt4_  ;
+    theOutputTree_->userFloat("HLT_SumPt") = sumPt_;
 
 }
 
@@ -526,9 +526,9 @@ void  TriggerEfficiencyCalculator_2016::createTriggerSimulatedBranches()
     theOutputTree_->declareUserIntBranch("HLT_SimulatedMcUp"             , 0);
     theOutputTree_->declareUserIntBranch("HLT_SimulatedMcDown"           , 0);
 
-    theOutputTree_->declareUserIntBranch("HLT_Pt2"             , 0);
-    theOutputTree_->declareUserIntBranch("HLT_Pt4"             , 0);
-    theOutputTree_->declareUserIntBranch("HLT_SumPt"           , 0);
+    theOutputTree_->declareUserFloatBranch("HLT_Pt2"             , 0);
+    theOutputTree_->declareUserFloatBranch("HLT_Pt4"             , 0);
+    theOutputTree_->declareUserFloatBranch("HLT_SumPt"           , 0);
 
 }
 
@@ -542,12 +542,37 @@ void  TriggerEfficiencyCalculator_2017::createTriggerSimulatedBranches()
     theOutputTree_->declareUserIntBranch("HLT_SimulatedMcUp"  , 0);
     theOutputTree_->declareUserIntBranch("HLT_SimulatedMcDown", 0);
 
-    theOutputTree_->declareUserIntBranch("HLT_Pt1"             , 0);
-    theOutputTree_->declareUserIntBranch("HLT_Pt2"             , 0);
-    theOutputTree_->declareUserIntBranch("HLT_Pt3"             , 0);
-    theOutputTree_->declareUserIntBranch("HLT_Pt4"             , 0);
-    theOutputTree_->declareUserIntBranch("HLT_SumPt"           , 0);
-    theOutputTree_->declareUserIntBranch("HLT_SumPtAbove30"    , 0);
+    theOutputTree_->declareUserFloatBranch("HLT_Pt1"             , 0);
+    theOutputTree_->declareUserFloatBranch("HLT_Pt2"             , 0);
+    theOutputTree_->declareUserFloatBranch("HLT_Pt3"             , 0);
+    theOutputTree_->declareUserFloatBranch("HLT_Pt4"             , 0);
+    theOutputTree_->declareUserFloatBranch("HLT_SumPt"           , 0);
+    theOutputTree_->declareUserFloatBranch("HLT_SumPtEtaRes"     , 0);
+    theOutputTree_->declareUserFloatBranch("HLT_SumPtAbove30"    , 0);
+
+    theOutputTree_->declareUserFloatBranch("HLT_Data_effL1"              , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_Data_effQuad30CaloJet"   , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_Data_effCaloHT"          , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_Data_effQuad30PFJet"     , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_Data_effSingle75PFJet"   , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_Data_effDouble60PFJet"   , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_Data_effTriple54PFJet"   , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_Data_effQuad40PFJet"     , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_Data_effPFHT"            , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_Data_threeBtagEfficiency", 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_Data_twoBtagEfficiency"  , 0.);
+
+    theOutputTree_->declareUserFloatBranch("HLT_MC_effL1"              , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_MC_effQuad30CaloJet"   , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_MC_effCaloHT"          , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_MC_effQuad30PFJet"     , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_MC_effSingle75PFJet"   , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_MC_effDouble60PFJet"   , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_MC_effTriple54PFJet"   , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_MC_effQuad40PFJet"     , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_MC_effPFHT"            , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_MC_threeBtagEfficiency", 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_MC_twoBtagEfficiency"  , 0.);
 
 }
 
@@ -586,6 +611,7 @@ void TriggerEfficiencyCalculator_2017::extractInformationFromEvent(std::vector<J
     pt4_ = selectedJets[3].P4().Pt();
 
     sumPt_ = 0;
+    sumPtEtaRestricted_ = 0;
     sumPtAbove30_ = 0;
     for (uint ij = 0; ij < *(theNanoAODTree_.nJet); ++ij)
     {
@@ -593,6 +619,7 @@ void TriggerEfficiencyCalculator_2017::extractInformationFromEvent(std::vector<J
         Jet jet (ij, &theNanoAODTree_);
 
         if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 3.) sumPt_ += jet.P4().Pt();
+        if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 2.1) sumPtEtaRestricted_ += jet.P4().Pt();
 
         // Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto
         // but note that bit1 means idx 0 and so on
@@ -631,12 +658,13 @@ void TriggerEfficiencyCalculator_2017::extractInformationFromEvent(std::vector<J
 
     }
 
-    theOutputTree_->userInt("HLT_Pt1"         ) = pt1_         ;
-    theOutputTree_->userInt("HLT_Pt2"         ) = pt2_         ;
-    theOutputTree_->userInt("HLT_Pt3"         ) = pt3_         ;
-    theOutputTree_->userInt("HLT_Pt4"         ) = pt4_         ;
-    theOutputTree_->userInt("HLT_SumPt"       ) = sumPt_       ;
-    theOutputTree_->userInt("HLT_SumPtAbove30") = sumPtAbove30_;
+    theOutputTree_->userFloat("HLT_Pt1"         ) = pt1_         ;
+    theOutputTree_->userFloat("HLT_Pt2"         ) = pt2_         ;
+    theOutputTree_->userFloat("HLT_Pt3"         ) = pt3_         ;
+    theOutputTree_->userFloat("HLT_Pt4"         ) = pt4_         ;
+    theOutputTree_->userFloat("HLT_SumPt"       ) = sumPt_       ;
+    theOutputTree_->userFloat("HLT_SumPtEtaRes" ) = sumPtEtaRestricted_ ;
+    theOutputTree_->userFloat("HLT_SumPtAbove30") = sumPtAbove30_;
 
 }
 
@@ -664,7 +692,7 @@ std::tuple<float, float, float> TriggerEfficiencyCalculator_2017::calculateDataT
         static_assert(false, "Do not use fit not implemented for TriggerEfficiencyCalculator_2017");
     #endif
     
-    float effL1            = fTriggerFitCurves.fSingleMuon__Efficiency_L1filterHTPair.first                     ->Eval(sumPt_       );
+    float effL1            = fTriggerFitCurves.fSingleMuon__Efficiency_L1filterHTPair.first                     ->Eval(sumPtEtaRestricted_);
     float effQuad30CaloJet = fTriggerFitCurves.fSingleMuon__Efficiency_QuadCentralJet30Pair.first               ->Eval(pt4_         );
     float effCaloHT        = fTriggerFitCurves.fSingleMuon__Efficiency_CaloQuadJet30HT300Pair.first             ->Eval(sumPtAbove30_);
     float effQuad30PFJet   = fTriggerFitCurves.fSingleMuon__Efficiency_PFCentralJetLooseIDQuad30Pair.first      ->Eval(pt4_         );
@@ -674,7 +702,7 @@ std::tuple<float, float, float> TriggerEfficiencyCalculator_2017::calculateDataT
     float effQuad40PFJet   = fTriggerFitCurves.fSingleMuon__Efficiency_4PFCentralJetLooseID40Pair.first         ->Eval(pt4_         );
     float effPFHT          = fTriggerFitCurves.fSingleMuon__Efficiency_PFCentralJetsLooseIDQuad30HT300Pair.first->Eval(sumPtAbove30_);
        
-    float effL1Error            = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_L1filterHTPair.second                     , sumPt_       );
+    float effL1Error            = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_L1filterHTPair.second                     , sumPtEtaRestricted_);
     float effQuad30CaloJetError = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_QuadCentralJet30Pair.second               , pt4_         );
     float effCaloHTError        = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_CaloQuadJet30HT300Pair.second             , sumPtAbove30_);
     float effQuad30PFJetError   = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_PFCentralJetLooseIDQuad30Pair.second      , pt4_         );
@@ -691,6 +719,18 @@ std::tuple<float, float, float> TriggerEfficiencyCalculator_2017::calculateDataT
     float twoBtagEfficiency            = computeTwoBtagEfficiency  (bTagEffJet0ForDouble, bTagEffJet1ForDouble, bTagEffJet2ForDouble, bTagEffJet3ForDouble);
     float twoBtagEfficiencyErrorUp     = computeTwoBtagEfficiency  (bTagEffJet0ForDouble + bTagEffJet0ForDoubleError, bTagEffJet1ForDouble + bTagEffJet1ForDoubleError, bTagEffJet2ForDouble + bTagEffJet2ForDoubleError, bTagEffJet3ForDouble + bTagEffJet3ForDoubleError);
     float twoBtagEfficiencyErrorDown   = computeTwoBtagEfficiency  (bTagEffJet0ForDouble - bTagEffJet0ForDoubleError, bTagEffJet1ForDouble - bTagEffJet1ForDoubleError, bTagEffJet2ForDouble - bTagEffJet2ForDoubleError, bTagEffJet3ForDouble - bTagEffJet3ForDoubleError);
+    
+    theOutputTree_->userFloat("HLT_Data_effL1"              ) = effL1              ;
+    theOutputTree_->userFloat("HLT_Data_effQuad30CaloJet"   ) = effQuad30CaloJet   ;
+    theOutputTree_->userFloat("HLT_Data_effCaloHT"          ) = effCaloHT          ;
+    theOutputTree_->userFloat("HLT_Data_effQuad30PFJet"     ) = effQuad30PFJet     ;
+    theOutputTree_->userFloat("HLT_Data_effSingle75PFJet"   ) = effSingle75PFJet   ;
+    theOutputTree_->userFloat("HLT_Data_effDouble60PFJet"   ) = effDouble60PFJet   ;
+    theOutputTree_->userFloat("HLT_Data_effTriple54PFJet"   ) = effTriple54PFJet   ;
+    theOutputTree_->userFloat("HLT_Data_effQuad40PFJet"     ) = effQuad40PFJet     ;
+    theOutputTree_->userFloat("HLT_Data_effPFHT"            ) = effPFHT            ;
+    theOutputTree_->userFloat("HLT_Data_threeBtagEfficiency") = threeBtagEfficiency;
+    theOutputTree_->userFloat("HLT_Data_twoBtagEfficiency"  ) = twoBtagEfficiency  ;
     
     float efficiencyCentral = computeTriggerEfficiency(threeBtagEfficiency, twoBtagEfficiency, effL1, effQuad30CaloJet, effCaloHT, effQuad30PFJet, effSingle75PFJet, effDouble60PFJet, effTriple54PFJet, effQuad40PFJet, effPFHT);
     #ifdef useFit
@@ -728,7 +768,7 @@ std::tuple<float, float, float> TriggerEfficiencyCalculator_2017::calculateMonte
         static_assert(false, "Do not use fit not implemented for TriggerEfficiencyCalculator_2017");
     #endif
     
-    float effL1            = fTriggerFitCurves.fTTbar__Efficiency_L1filterHTPair.first                     ->Eval(sumPt_       );
+    float effL1            = fTriggerFitCurves.fTTbar__Efficiency_L1filterHTPair.first                     ->Eval(sumPtEtaRestricted_);
     float effQuad30CaloJet = fTriggerFitCurves.fTTbar__Efficiency_QuadCentralJet30Pair.first               ->Eval(pt4_         );
     float effCaloHT        = fTriggerFitCurves.fTTbar__Efficiency_CaloQuadJet30HT300Pair.first             ->Eval(sumPtAbove30_);
     float effQuad30PFJet   = fTriggerFitCurves.fTTbar__Efficiency_PFCentralJetLooseIDQuad30Pair.first      ->Eval(pt4_         );
@@ -738,7 +778,7 @@ std::tuple<float, float, float> TriggerEfficiencyCalculator_2017::calculateMonte
     float effQuad40PFJet   = fTriggerFitCurves.fTTbar__Efficiency_4PFCentralJetLooseID40Pair.first         ->Eval(pt4_         );
     float effPFHT          = fTriggerFitCurves.fTTbar__Efficiency_PFCentralJetsLooseIDQuad30HT300Pair.first->Eval(sumPtAbove30_);
        
-    float effL1Error            = getFitError(fTriggerFitCurves.fTTbar__Efficiency_L1filterHTPair.second                     , sumPt_       );
+    float effL1Error            = getFitError(fTriggerFitCurves.fTTbar__Efficiency_L1filterHTPair.second                     , sumPtEtaRestricted_);
     float effQuad30CaloJetError = getFitError(fTriggerFitCurves.fTTbar__Efficiency_QuadCentralJet30Pair.second               , pt4_         );
     float effCaloHTError        = getFitError(fTriggerFitCurves.fTTbar__Efficiency_CaloQuadJet30HT300Pair.second             , sumPtAbove30_);
     float effQuad30PFJetError   = getFitError(fTriggerFitCurves.fTTbar__Efficiency_PFCentralJetLooseIDQuad30Pair.second      , pt4_         );
@@ -755,6 +795,18 @@ std::tuple<float, float, float> TriggerEfficiencyCalculator_2017::calculateMonte
     float twoBtagEfficiency            = computeTwoBtagEfficiency  (bTagEffJet0ForDouble, bTagEffJet1ForDouble, bTagEffJet2ForDouble, bTagEffJet3ForDouble);
     float twoBtagEfficiencyErrorUp     = computeTwoBtagEfficiency  (bTagEffJet0ForDouble + bTagEffJet0ForDoubleError, bTagEffJet1ForDouble + bTagEffJet1ForDoubleError, bTagEffJet2ForDouble + bTagEffJet2ForDoubleError, bTagEffJet3ForDouble + bTagEffJet3ForDoubleError);
     float twoBtagEfficiencyErrorDown   = computeTwoBtagEfficiency  (bTagEffJet0ForDouble - bTagEffJet0ForDoubleError, bTagEffJet1ForDouble - bTagEffJet1ForDoubleError, bTagEffJet2ForDouble - bTagEffJet2ForDoubleError, bTagEffJet3ForDouble - bTagEffJet3ForDoubleError);
+    
+    theOutputTree_->userFloat("HLT_MC_effL1"              ) = effL1              ;
+    theOutputTree_->userFloat("HLT_MC_effQuad30CaloJet"   ) = effQuad30CaloJet   ;
+    theOutputTree_->userFloat("HLT_MC_effCaloHT"          ) = effCaloHT          ;
+    theOutputTree_->userFloat("HLT_MC_effQuad30PFJet"     ) = effQuad30PFJet     ;
+    theOutputTree_->userFloat("HLT_MC_effSingle75PFJet"   ) = effSingle75PFJet   ;
+    theOutputTree_->userFloat("HLT_MC_effDouble60PFJet"   ) = effDouble60PFJet   ;
+    theOutputTree_->userFloat("HLT_MC_effTriple54PFJet"   ) = effTriple54PFJet   ;
+    theOutputTree_->userFloat("HLT_MC_effQuad40PFJet"     ) = effQuad40PFJet     ;
+    theOutputTree_->userFloat("HLT_MC_effPFHT"            ) = effPFHT            ;
+    theOutputTree_->userFloat("HLT_MC_threeBtagEfficiency") = threeBtagEfficiency;
+    theOutputTree_->userFloat("HLT_MC_twoBtagEfficiency"  ) = twoBtagEfficiency  ;
     
     float efficiencyCentral = computeTriggerEfficiency(threeBtagEfficiency, twoBtagEfficiency, effL1, effQuad30CaloJet, effCaloHT, effQuad30PFJet, effSingle75PFJet, effDouble60PFJet, effTriple54PFJet, effQuad40PFJet, effPFHT);
     #ifdef useFit
@@ -791,12 +843,37 @@ void  TriggerEfficiencyCalculator_2018::createTriggerSimulatedBranches()
     theOutputTree_->declareUserIntBranch("HLT_SimulatedMcUp"  , 0);
     theOutputTree_->declareUserIntBranch("HLT_SimulatedMcDown", 0);
 
-    theOutputTree_->declareUserIntBranch("HLT_Pt1"             , 0);
-    theOutputTree_->declareUserIntBranch("HLT_Pt2"             , 0);
-    theOutputTree_->declareUserIntBranch("HLT_Pt3"             , 0);
-    theOutputTree_->declareUserIntBranch("HLT_Pt4"             , 0);
-    theOutputTree_->declareUserIntBranch("HLT_SumPt"           , 0);
-    theOutputTree_->declareUserIntBranch("HLT_SumPtAbove30"    , 0);
+    theOutputTree_->declareUserFloatBranch("HLT_Pt1"             , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_Pt2"             , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_Pt3"             , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_Pt4"             , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_SumPt"           , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_SumPtEtaRes"     , 0);
+    theOutputTree_->declareUserFloatBranch("HLT_SumPtAbove30"    , 0.);
+
+    theOutputTree_->declareUserFloatBranch("HLT_Data_effL1"              , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_Data_effQuad30CaloJet"   , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_Data_effCaloHT"          , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_Data_effQuad30PFJet"     , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_Data_effSingle75PFJet"   , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_Data_effDouble60PFJet"   , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_Data_effTriple54PFJet"   , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_Data_effQuad40PFJet"     , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_Data_effPFHT"            , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_Data_threeBtagEfficiency", 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_Data_twoBtagEfficiency"  , 0.);
+
+    theOutputTree_->declareUserFloatBranch("HLT_MC_effL1"              , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_MC_effQuad30CaloJet"   , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_MC_effCaloHT"          , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_MC_effQuad30PFJet"     , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_MC_effSingle75PFJet"   , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_MC_effDouble60PFJet"   , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_MC_effTriple54PFJet"   , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_MC_effQuad40PFJet"     , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_MC_effPFHT"            , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_MC_threeBtagEfficiency", 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_MC_twoBtagEfficiency"  , 0.);
 
 }
 
@@ -823,6 +900,7 @@ void TriggerEfficiencyCalculator_2018::extractInformationFromEvent(std::vector<J
     pt4_ = selectedJets[3].P4().Pt();
 
     sumPt_ = 0;
+    sumPtEtaRestricted_ = 0.;
     sumPtAbove30_ = 0;
     for (uint ij = 0; ij < *(theNanoAODTree_.nJet); ++ij)
     {
@@ -830,6 +908,7 @@ void TriggerEfficiencyCalculator_2018::extractInformationFromEvent(std::vector<J
         Jet jet (ij, &theNanoAODTree_);
 
         if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 3.) sumPt_ += jet.P4().Pt();
+        if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 2.1) sumPtEtaRestricted_ += jet.P4().Pt();
 
         // Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto
         // but note that bit1 means idx 0 and so on
@@ -868,12 +947,13 @@ void TriggerEfficiencyCalculator_2018::extractInformationFromEvent(std::vector<J
 
     }
 
-    theOutputTree_->userInt("HLT_Pt1"         ) = pt1_         ;
-    theOutputTree_->userInt("HLT_Pt2"         ) = pt2_         ;
-    theOutputTree_->userInt("HLT_Pt3"         ) = pt3_         ;
-    theOutputTree_->userInt("HLT_Pt4"         ) = pt4_         ;
-    theOutputTree_->userInt("HLT_SumPt"       ) = sumPt_       ;
-    theOutputTree_->userInt("HLT_SumPtAbove30") = sumPtAbove30_;
+    theOutputTree_->userFloat("HLT_Pt1"         ) = pt1_         ;
+    theOutputTree_->userFloat("HLT_Pt2"         ) = pt2_         ;
+    theOutputTree_->userFloat("HLT_Pt3"         ) = pt3_         ;
+    theOutputTree_->userFloat("HLT_Pt4"         ) = pt4_         ;
+    theOutputTree_->userFloat("HLT_SumPt"       ) = sumPt_       ;
+    theOutputTree_->userFloat("HLT_SumPtEtaRes" ) = sumPtEtaRestricted_ ;
+    theOutputTree_->userFloat("HLT_SumPtAbove30") = sumPtAbove30_;
 
 }
 
@@ -902,7 +982,7 @@ std::tuple<float, float, float> TriggerEfficiencyCalculator_2018::calculateDataT
         static_assert(false, "Do not use fit not implemented for TriggerEfficiencyCalculator_2018");
     #endif
     
-    float effL1            = fTriggerFitCurves.fSingleMuon__Efficiency_L1filterHTPair.first                     ->Eval(sumPt_       );
+    float effL1            = fTriggerFitCurves.fSingleMuon__Efficiency_L1filterHTPair.first                     ->Eval(sumPtEtaRestricted_);
     float effQuad30CaloJet = fTriggerFitCurves.fSingleMuon__Efficiency_QuadCentralJet30Pair.first               ->Eval(pt4_         );
     float effCaloHT        = fTriggerFitCurves.fSingleMuon__Efficiency_CaloQuadJet30HT320Pair.first             ->Eval(sumPtAbove30_);
     float effQuad30PFJet   = fTriggerFitCurves.fSingleMuon__Efficiency_PFCentralJetLooseIDQuad30Pair.first      ->Eval(pt4_         );
@@ -911,8 +991,7 @@ std::tuple<float, float, float> TriggerEfficiencyCalculator_2018::calculateDataT
     float effTriple54PFJet = fTriggerFitCurves.fSingleMuon__Efficiency_3PFCentralJetLooseID45Pair.first         ->Eval(pt3_         );
     float effQuad40PFJet   = fTriggerFitCurves.fSingleMuon__Efficiency_4PFCentralJetLooseID40Pair.first         ->Eval(pt4_         );
     float effPFHT          = fTriggerFitCurves.fSingleMuon__Efficiency_PFCentralJetsLooseIDQuad30HT330Pair.first->Eval(sumPtAbove30_);
-       
-    float effL1Error            = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_L1filterHTPair.second                     , sumPt_       );
+    float effL1Error            = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_L1filterHTPair.second                     , sumPtEtaRestricted_);
     float effQuad30CaloJetError = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_QuadCentralJet30Pair.second               , pt4_         );
     float effCaloHTError        = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_CaloQuadJet30HT320Pair.second             , sumPtAbove30_);
     float effQuad30PFJetError   = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_PFCentralJetLooseIDQuad30Pair.second      , pt4_         );
@@ -929,6 +1008,18 @@ std::tuple<float, float, float> TriggerEfficiencyCalculator_2018::calculateDataT
     float twoBtagEfficiency            = computeTwoBtagEfficiency  (bTagEffJet0ForDouble, bTagEffJet1ForDouble, bTagEffJet2ForDouble, bTagEffJet3ForDouble);
     float twoBtagEfficiencyErrorUp     = computeTwoBtagEfficiency  (bTagEffJet0ForDouble + bTagEffJet0ForDoubleError, bTagEffJet1ForDouble + bTagEffJet1ForDoubleError, bTagEffJet2ForDouble + bTagEffJet2ForDoubleError, bTagEffJet3ForDouble + bTagEffJet3ForDoubleError);
     float twoBtagEfficiencyErrorDown   = computeTwoBtagEfficiency  (bTagEffJet0ForDouble - bTagEffJet0ForDoubleError, bTagEffJet1ForDouble - bTagEffJet1ForDoubleError, bTagEffJet2ForDouble - bTagEffJet2ForDoubleError, bTagEffJet3ForDouble - bTagEffJet3ForDoubleError);
+
+    theOutputTree_->userFloat("HLT_Data_effL1"              ) = effL1              ;
+    theOutputTree_->userFloat("HLT_Data_effQuad30CaloJet"   ) = effQuad30CaloJet   ;
+    theOutputTree_->userFloat("HLT_Data_effCaloHT"          ) = effCaloHT          ;
+    theOutputTree_->userFloat("HLT_Data_effQuad30PFJet"     ) = effQuad30PFJet     ;
+    theOutputTree_->userFloat("HLT_Data_effSingle75PFJet"   ) = effSingle75PFJet   ;
+    theOutputTree_->userFloat("HLT_Data_effDouble60PFJet"   ) = effDouble60PFJet   ;
+    theOutputTree_->userFloat("HLT_Data_effTriple54PFJet"   ) = effTriple54PFJet   ;
+    theOutputTree_->userFloat("HLT_Data_effQuad40PFJet"     ) = effQuad40PFJet     ;
+    theOutputTree_->userFloat("HLT_Data_effPFHT"            ) = effPFHT            ;
+    theOutputTree_->userFloat("HLT_Data_threeBtagEfficiency") = threeBtagEfficiency;
+    theOutputTree_->userFloat("HLT_Data_twoBtagEfficiency"  ) = twoBtagEfficiency  ;
     
     float efficiencyCentral = computeTriggerEfficiency(threeBtagEfficiency, twoBtagEfficiency, effL1, effQuad30CaloJet, effCaloHT, effQuad30PFJet, effSingle75PFJet, effDouble60PFJet, effTriple54PFJet, effQuad40PFJet, effPFHT);
     #ifdef useFit
@@ -966,7 +1057,7 @@ std::tuple<float, float, float> TriggerEfficiencyCalculator_2018::calculateMonte
         static_assert(false, "Do not use fit not implemented for TriggerEfficiencyCalculator_2018");
     #endif
     
-    float effL1            = fTriggerFitCurves.fTTbar__Efficiency_L1filterHTPair.first                     ->Eval(sumPt_       );
+    float effL1            = fTriggerFitCurves.fTTbar__Efficiency_L1filterHTPair.first                     ->Eval(sumPtEtaRestricted_);
     float effQuad30CaloJet = fTriggerFitCurves.fTTbar__Efficiency_QuadCentralJet30Pair.first               ->Eval(pt4_         );
     float effCaloHT        = fTriggerFitCurves.fTTbar__Efficiency_CaloQuadJet30HT320Pair.first             ->Eval(sumPtAbove30_);
     float effQuad30PFJet   = fTriggerFitCurves.fTTbar__Efficiency_PFCentralJetLooseIDQuad30Pair.first      ->Eval(pt4_         );
@@ -976,7 +1067,7 @@ std::tuple<float, float, float> TriggerEfficiencyCalculator_2018::calculateMonte
     float effQuad40PFJet   = fTriggerFitCurves.fTTbar__Efficiency_4PFCentralJetLooseID40Pair.first         ->Eval(pt4_         );
     float effPFHT          = fTriggerFitCurves.fTTbar__Efficiency_PFCentralJetsLooseIDQuad30HT330Pair.first->Eval(sumPtAbove30_);
        
-    float effL1Error            = getFitError(fTriggerFitCurves.fTTbar__Efficiency_L1filterHTPair.second                     , sumPt_       );
+    float effL1Error            = getFitError(fTriggerFitCurves.fTTbar__Efficiency_L1filterHTPair.second                     , sumPtEtaRestricted_);
     float effQuad30CaloJetError = getFitError(fTriggerFitCurves.fTTbar__Efficiency_QuadCentralJet30Pair.second               , pt4_         );
     float effCaloHTError        = getFitError(fTriggerFitCurves.fTTbar__Efficiency_CaloQuadJet30HT320Pair.second             , sumPtAbove30_);
     float effQuad30PFJetError   = getFitError(fTriggerFitCurves.fTTbar__Efficiency_PFCentralJetLooseIDQuad30Pair.second      , pt4_         );
@@ -993,6 +1084,18 @@ std::tuple<float, float, float> TriggerEfficiencyCalculator_2018::calculateMonte
     float twoBtagEfficiency            = computeTwoBtagEfficiency  (bTagEffJet0ForDouble, bTagEffJet1ForDouble, bTagEffJet2ForDouble, bTagEffJet3ForDouble);
     float twoBtagEfficiencyErrorUp     = computeTwoBtagEfficiency  (bTagEffJet0ForDouble + bTagEffJet0ForDoubleError, bTagEffJet1ForDouble + bTagEffJet1ForDoubleError, bTagEffJet2ForDouble + bTagEffJet2ForDoubleError, bTagEffJet3ForDouble + bTagEffJet3ForDoubleError);
     float twoBtagEfficiencyErrorDown   = computeTwoBtagEfficiency  (bTagEffJet0ForDouble - bTagEffJet0ForDoubleError, bTagEffJet1ForDouble - bTagEffJet1ForDoubleError, bTagEffJet2ForDouble - bTagEffJet2ForDoubleError, bTagEffJet3ForDouble - bTagEffJet3ForDoubleError);
+    
+    theOutputTree_->userFloat("HLT_MC_effL1"              ) = effL1              ;
+    theOutputTree_->userFloat("HLT_MC_effQuad30CaloJet"   ) = effQuad30CaloJet   ;
+    theOutputTree_->userFloat("HLT_MC_effCaloHT"          ) = effCaloHT          ;
+    theOutputTree_->userFloat("HLT_MC_effQuad30PFJet"     ) = effQuad30PFJet     ;
+    theOutputTree_->userFloat("HLT_MC_effSingle75PFJet"   ) = effSingle75PFJet   ;
+    theOutputTree_->userFloat("HLT_MC_effDouble60PFJet"   ) = effDouble60PFJet   ;
+    theOutputTree_->userFloat("HLT_MC_effTriple54PFJet"   ) = effTriple54PFJet   ;
+    theOutputTree_->userFloat("HLT_MC_effQuad40PFJet"     ) = effQuad40PFJet     ;
+    theOutputTree_->userFloat("HLT_MC_effPFHT"            ) = effPFHT            ;
+    theOutputTree_->userFloat("HLT_MC_threeBtagEfficiency") = threeBtagEfficiency;
+    theOutputTree_->userFloat("HLT_MC_twoBtagEfficiency"  ) = twoBtagEfficiency  ;
     
     float efficiencyCentral = computeTriggerEfficiency(threeBtagEfficiency, twoBtagEfficiency, effL1, effQuad30CaloJet, effCaloHT, effQuad30PFJet, effSingle75PFJet, effDouble60PFJet, effTriple54PFJet, effQuad40PFJet, effPFHT);
     #ifdef useFit
