@@ -321,7 +321,7 @@ void RatioTriggerClosure(std::string inputFileName, bool applyTurnOnCut)
 void RatioAllTriggerClosure()
 {
     // RatioTriggerClosure(true );
-    RatioTriggerClosure("2016DataPlots_NMSSM_XYH_bbbb_triggerClosure_withSingleMuon_new2/outPlotter.root", false);
+    RatioTriggerClosure("2016DataPlots_NMSSM_XYH_bbbb_triggerClosure/outPlotter.root", false);
 
 }
 

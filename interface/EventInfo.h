@@ -23,6 +23,7 @@ struct EventInfo{
     boost::optional<unsigned int>           Run;
     boost::optional<unsigned int>           LumiSec;
     boost::optional<unsigned long long int> Event;
+    boost::optional<unsigned int>           pileUp;
 
     boost::optional<GenPart> gen_H1;
     boost::optional<GenPart> gen_H2;
@@ -62,15 +63,35 @@ struct EventInfo{
     boost::optional<float> H2_bb_DeltaR;
     boost::optional<float> H1_H2_sphericity;
     boost::optional<float> FourBjet_sphericity;
+
+    boost::optional<CompositeCandidate> offShell_H1;
+    boost::optional<float> offShell_H1_bb_DeltaR;
+    boost::optional<CompositeCandidate> offShell_H2;
+    boost::optional<float> offShell_H2_bb_DeltaR;
     
     boost::optional<CompositeCandidate> HH;
+    boost::optional<CompositeCandidate> offShell_HH;
     boost::optional<float> HH_2DdeltaM;
-    boost::optional<float> HH_m_kinFit;
+    boost::optional<CompositeCandidate> H1_kinFit;
+    boost::optional<float> H1_kinFit_bb_DeltaR;
+    boost::optional<CompositeCandidate> H2_kinFit;
+    boost::optional<float> H2_kinFit_bb_DeltaR;
+    boost::optional<CompositeCandidate> HH_kinFit;
 
     boost::optional<Jet> H1_b1;
     boost::optional<Jet> H1_b2;
     boost::optional<Jet> H2_b1;
     boost::optional<Jet> H2_b2;
+
+    boost::optional<Jet> offShell_H1_b1;
+    boost::optional<Jet> offShell_H1_b2;
+    boost::optional<Jet> offShell_H2_b1;
+    boost::optional<Jet> offShell_H2_b2;
+
+    boost::optional<Jet> H1_b1_kinFit;
+    boost::optional<Jet> H1_b2_kinFit;
+    boost::optional<Jet> H2_b1_kinFit;
+    boost::optional<Jet> H2_b2_kinFit;
 
     //Non-resonant analysis and studies
     boost::optional<int>  gen_H1_b1_matched;

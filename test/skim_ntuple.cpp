@@ -147,10 +147,19 @@ int main(int argc, char** argv)
         {
             throw std::runtime_error("XYH_4B_selection can be done only using PreselectionCut = FourBjetCut");
         }
-    }
-    else if(bbbbChoice == "XYH_4B_selection"){
-        parameterList.emplace("LeadingHiggsMass"   ,config.readFloatOpt("parameters::LeadingHiggsMass")   );
-        parameterList.emplace("SubleadingHiggsMass",config.readFloatOpt("parameters::SubleadingHiggsMass"));
+        if(config.hasOpt("parameters::OutOfShellHiggsMass"))
+        {
+            parameterList.emplace("OutOfShellHiggsMass",config.readFloatOpt("parameters::OutOfShellHiggsMass"));
+            parameterList.emplace("MinSignalRegion"    ,config.readFloatOpt("parameters::MinSignalRegion"    ));
+            parameterList.emplace("MaxSignalRegion"    ,config.readFloatOpt("parameters::MaxSignalRegion"    ));
+        }
+        else
+        {
+            parameterList.emplace("OutOfShellHiggsMass", -1.);
+            parameterList.emplace("MinSignalRegion"    , -1.);
+            parameterList.emplace("MaxSignalRegion"    , -1.);
+        }
+
     }
     // else if(other selection type){
     //     parameters fo be retreived;
@@ -273,6 +282,8 @@ int main(int argc, char** argv)
     //     parameters fo be retreived;
     // }  
     else throw std::runtime_error("cannot recognize event choice ObjectsForCut " + objectsForCut);
+    
+    parameterList.emplace("KinematicFitFile"        ,config.readStringOpt("parameters::KinematicFitFile"       ));
 
     // MC only procedures
     if(!is_data){

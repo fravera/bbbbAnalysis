@@ -28,6 +28,7 @@
 #include "BDTEval.h"
 #include "HHReweight5D.h"
 #include "TriggerEfficiencyCalculator.h"
+#include "HH4b_kinFit.h"
 
 #include <array>
 #include <utility>
@@ -64,6 +65,7 @@ class OfflineProducerHelper{
         float hhreweighter_kl_;
 
         TriggerEfficiencyCalculator *theTriggerEfficiencyCalculator_ {nullptr};
+        HH4b_kinFit *theKinFitter_ {nullptr};
 
         bool debug = false;
         // Load configurations to match the b jets
@@ -181,6 +183,7 @@ class OfflineProducerHelper{
 
         void initializeOfflineProducerHelper(const std::map<std::string, std::any> *parameterList) {
             parameterList_ = parameterList;
+            theKinFitter_ = new HH4b_kinFit(std::any_cast<std::string>(parameterList_->at("KinematicFitFile")));
             //standard branches present in the EventInfo, other branches should de added when declaring the standard ones (see bTagScaleFactor_central)
             // branchesAffectedByJetEnergyVariations_["H1_b1_pt"] = -1.;
             // branchesAffectedByJetEnergyVariations_["H1_b2_pt"] = -1.;
@@ -366,7 +369,7 @@ class OfflineProducerHelper{
         //pair by ordering the jets by CSV and then finding the compination closer to targetmH for both candidates
         std::vector<Jet> bbbb_jets_idxs_HighestCSVandClosestToMh(const std::vector<Jet> *presel_jets);
         // Select among the 4 jets the couple cloasest to the SM Higgs
-        std::vector<Jet> bbbb_jets_XYHselection(const std::vector<Jet> *presel_jets);
+        std::vector<Jet> bbbb_jets_XYHselection(const std::vector<Jet> *presel_jets, float targetHiggsMass);
         //A la ATLAS
         std::vector<Jet> bbbb_jets_idxs_BothClosestToDiagonal(const std::vector<Jet> *presel_jets);
         // A la 2016 paper

@@ -17,8 +17,13 @@
 #include "TLegend.h"
 
 ofstream outputFile ("fitCurves.h", ios::out);
+std::string crystalBallFunction = "ROOT::Math::crystalball_cdf(x, [5], [4], [1], [0])*([3]-[2]) + [2]";
+std::string crystalBallAndErrorFunction = "ROOT::Math::crystalball_cdf(x, [5], [4], [1], [0]) * (0.5*(1 + TMath::Erf( (x-[0])/[6]) ) ) *([3]-[2]) + [2]";
 
-void doFit(TFile &outputRootFile, TVirtualPad *theCanvas, TFile &theInputFile, std::string&& plotName, std::string fitFunction, std::vector<double> initialParameters , double xMin, double xMax, bool drawPlot = true, std::string appendToFunctionName = "")
+// std::string crystalBallFunction = "ROOT::Math::crystalball_cdf(x, [5], [4], [1], [0])*([3]-[2]) + [2]";
+// std::string crystalBallAndErrorFunction = "(ROOT::Math::crystalball_cdf(x, [5], [4], [1], [0]) + (0.5*(1 + TMath::Erf( (x-[7])/[6]) ) ) ) *([3]-[2]) + [2]";
+
+void doFit(TFile &outputRootFile, TVirtualPad *theCanvas, TFile &theInputFile, std::string&& plotName, std::string fitFunction, std::vector<double> initialParameters , double xMin, double xMax, bool drawPlot = true, std::string appendToFunctionName = "", bool forceToOne = false)
 {
     std::cout << "--- Fitting plot " << plotName << std::endl;
     TGraphAsymmErrors* theTriggerEfficiency = (TGraphAsymmErrors*)theInputFile.Get(plotName.data());
@@ -29,10 +34,11 @@ void doFit(TFile &outputRootFile, TVirtualPad *theCanvas, TFile &theInputFile, s
     TF1 *theFunction  = new TF1("cdf",fitFunction.data(), xMin, xMax);
     if(fitFunction.find("crystalball_cdf") != string::npos)
     {
-        TF1 *theSCurveFunction = new TF1("fitFunction", "0.5*(1 + TMath::Erf( (x[0]-[0])/[1]) ) * [3] + [2]", xMin, xMax);
+        TF1 *theSCurveFunction = new TF1("fitFunction", "0.5*(1 + TMath::Erf( (x[0]-[0])/[1]) ) * ([3]-[2]) + [2]", xMin, xMax);
         theSCurveFunction->SetParameters(initialParameters.data());
+        theFunction->SetParameters(initialParameters.data());
         theSCurveFunction->SetParLimits(2,0,1);
-        theSCurveFunction->SetParLimits(3,0,2);
+        theSCurveFunction->SetParLimits(3,0,1);
         theTriggerEfficiency->Fit(theSCurveFunction, "Q0RE");
 
         theFunction->SetParameter(0, theSCurveFunction->GetParameter(0));
@@ -72,6 +78,9 @@ void doFit(TFile &outputRootFile, TVirtualPad *theCanvas, TFile &theInputFile, s
         theFunction->SetParLimits(2,0,1);
         theFunction->SetParLimits(3,0,1);
         theFunction->SetParLimits(4,1.01,10);
+        // theFunction->SetParLimits(8,0.,300.);
+        // theFunction->SetParLimits(9,0.,1.);
+        if(forceToOne) theFunction->FixParameter(3,1.);
     }
 
     theFunction->SetLineColor(kBlack);
@@ -82,8 +91,8 @@ void doFit(TFile &outputRootFile, TVirtualPad *theCanvas, TFile &theInputFile, s
     if(fitFunction.find("pol") != string::npos)
     {
 
-        theTriggerEfficiency->Fit(theFunction, "0ERQ");
-        theTriggerEfficiency->Fit(theFunction, "0ERQ");
+        theTriggerEfficiency->Fit(theFunction, "0ERQW");
+        theTriggerEfficiency->Fit(theFunction, "0ERQW");
         uint16_t numberOfPoints = theTriggerEfficiency->GetN();
         std::vector<double> pointX(numberOfPoints);
         std::vector<double> pointY(numberOfPoints);
@@ -167,14 +176,14 @@ void doFit(TFile &outputRootFile, TVirtualPad *theCanvas, TFile &theInputFile, s
     theLegend->AddEntry(grint, "68% CL band", "f");
     theLegend->Draw("same");
 
-    if(fitFunction.find("pol") != string::npos)
-    {
-        // refer to http://root.cern.ch/root/html/Tspline3.html for the usage of TSpline3
-        // "b2e2" together with the last two "0" means that the second derivatives 
-        // of the begin and end points equal to zero
-        theSpline->SetLineColor(kBlue);
-        theSpline->Draw("lsame");
-    }
+    // if(fitFunction.find("pol") != string::npos)
+    // {
+    //     // refer to http://root.cern.ch/root/html/Tspline3.html for the usage of TSpline3
+    //     // "b2e2" together with the last two "0" means that the second derivatives 
+    //     // of the begin and end points equal to zero
+    //     theSpline->SetLineColor(kBlue);
+    //     theSpline->Draw("lsame");
+    // }
 
     // std::cout<< "initialParameters = { " << theFunction->GetParameter(0) << ",  " << theFunction->GetParameter(1) << ",  " << theFunction->GetParameter(2) << ",  " << theFunction->GetParameter(3) << " };"<<std::endl;
 
@@ -185,7 +194,7 @@ void doFit(TFile &outputRootFile, TVirtualPad *theCanvas, TFile &theInputFile, s
     return;
 }
 
-void doAllFit2016(std::string inputFileName, bool fullRange)
+void doAllFit2016(std::string inputFileName, bool fullRange = true)
 {
     gROOT->SetBatch(true);
 
@@ -193,10 +202,9 @@ void doAllFit2016(std::string inputFileName, bool fullRange)
     gStyle->SetStatY(0.5);
     TFile theInputFile(inputFileName.data());
     std::vector<double> initialParameters;
-    std::string crystalBallFunction = "ROOT::Math::crystalball_cdf(x, [5], [4], [1], [0])*[3] + [2]";
-    std::string crystalBallAndErrorFunction = "ROOT::Math::crystalball_cdf(x, [5], [4], [1], [0]) * (0.5*(1 + TMath::Erf( (x-[0])/[6]) ) ) *[3] + [2]";
+    
+    std::string outputFileName = "TriggerEfficiency_Fit_2016.root";
 
-    std::string outputFileName = "None.root";
     // std::string outputFileName = "data/" + inputFileName.substr(0, inputFileName.length() -5) + "_fitResults" + (fullRange ? "_fullRange" : "_turnOnCut") + ".root";
     TFile outputRootFile(outputFileName.data(), "RECREATE");
 
@@ -242,9 +250,9 @@ void doAllFit2016(std::string inputFileName, bool fullRange)
     initialParameters = { 0.209598,  0.765024,  1.21809e-09,  1.05882 };
     doFit(outputRootFile, theCanvasSingleMuonDouble90Quad30Ratio->cd(4),theInputFile, "SingleMuon_Double90Quad30_Efficiency_BTagCaloCSVp087Triple"      , "pol5", initialParameters,  fullRange ? 0.1 : 0.1,   1.);
     initialParameters = { 26.7507,  12.9058,  8.91746e-08,  0.992066 };
-    doFit(outputRootFile, theCanvasSingleMuonDouble90Quad30Ratio->cd(5),theInputFile, "SingleMuon_Double90Quad30_Efficiency_QuadPFCentralJetLooseID30"  , crystalBallFunction, initialParameters,  fullRange ? 25. : 30, 300.);
+    doFit(outputRootFile, theCanvasSingleMuonDouble90Quad30Ratio->cd(5),theInputFile, "SingleMuon_Double90Quad30_Efficiency_QuadPFCentralJetLooseID30"  , crystalBallAndErrorFunction, initialParameters,  fullRange ? 25. : 30, 300.);
     initialParameters = { 92.9863,  11.7114,  0.26419,  0.734074 };
-    doFit(outputRootFile, theCanvasSingleMuonDouble90Quad30Ratio->cd(6),theInputFile, "SingleMuon_Double90Quad30_Efficiency_DoublePFCentralJetLooseID90", crystalBallFunction, initialParameters,  fullRange ? 70. : 90, 500.);
+    doFit(outputRootFile, theCanvasSingleMuonDouble90Quad30Ratio->cd(6),theInputFile, "SingleMuon_Double90Quad30_Efficiency_DoublePFCentralJetLooseID90", crystalBallAndErrorFunction, initialParameters,  fullRange ? 70. : 90, 500.);
     theCanvasSingleMuonDouble90Quad30Ratio->SaveAs((std::string(inputFileName.substr(0,inputFileName.length()-5) + "_" + theCanvasSingleMuonDouble90Quad30Ratio->GetName()) + "_Fit" + (fullRange ? "_fullRange" : "_turnOnCut") + ".png").data());
     outputRootFile.WriteObject(theCanvasSingleMuonDouble90Quad30Ratio, theCanvasSingleMuonDouble90Quad30Ratio->GetName());
     delete theCanvasSingleMuonDouble90Quad30Ratio;
@@ -258,21 +266,21 @@ void doAllFit2016(std::string inputFileName, bool fullRange)
     initialParameters = { 0.209598,  0.765024,  1.21809e-09,  1.05882 };
     doFit(outputRootFile, theCanvasSingleMuonQuad45Ratio->cd(3),theInputFile, "SingleMuon_Quad45_Efficiency_BTagCaloCSVp087Triple"      , "pol5", initialParameters,  fullRange ? 0.1 : 0.1,   1.);
     initialParameters = { 43.2393,  12.5233,  0.074217,  0.918021 };
-    doFit(outputRootFile, theCanvasSingleMuonQuad45Ratio->cd(4),theInputFile, "SingleMuon_Quad45_Efficiency_QuadPFCentralJetLooseID45"  , crystalBallFunction, initialParameters,  fullRange ? 30. : 45, 300.);
+    doFit(outputRootFile, theCanvasSingleMuonQuad45Ratio->cd(4),theInputFile, "SingleMuon_Quad45_Efficiency_QuadPFCentralJetLooseID45"  , crystalBallAndErrorFunction, initialParameters,  fullRange ? 30. : 45, 300.);
     theCanvasSingleMuonQuad45Ratio->SaveAs((std::string(inputFileName.substr(0,inputFileName.length()-5) + "_" + theCanvasSingleMuonQuad45Ratio->GetName()) + "_Fit" + (fullRange ? "_fullRange" : "_turnOnCut") + ".png").data());
     outputRootFile.WriteObject(theCanvasSingleMuonQuad45Ratio, theCanvasSingleMuonDouble90Quad30Ratio->GetName());
     delete theCanvasSingleMuonQuad45Ratio;
 
     TCanvas *theCanvasSingleMuonQuad45AfterDoubleRatio = new TCanvas("SingleMuon_And", "SingleMuon_And", 1400, 800);
     theCanvasSingleMuonQuad45AfterDoubleRatio->DivideSquare(4,0.005,0.005);
-    initialParameters = { 121.327,  124.553,  7.53672e-07,  0.999811 };
-    doFit(outputRootFile, theCanvasSingleMuonQuad45AfterDoubleRatio->cd(1),theInputFile, "SingleMuon_And_Efficiency_L1filterQuad45HT"           , crystalBallAndErrorFunction, initialParameters, fullRange ? 375. : 375. ,1500.);
+    initialParameters = { 394,  10,  0.6,  1};
+    doFit(outputRootFile, theCanvasSingleMuonQuad45AfterDoubleRatio->cd(1),theInputFile, "SingleMuon_And_Efficiency_L1filterQuad45HT"           , crystalBallFunction, initialParameters, 350. ,1500.);
     initialParameters = { 44.7711,  16.8627,  1.17955e-09,  0.981758 };
     doFit(outputRootFile, theCanvasSingleMuonQuad45AfterDoubleRatio->cd(2),theInputFile, "SingleMuon_And_Efficiency_QuadCentralJet45"           , crystalBallAndErrorFunction, initialParameters,  fullRange ? 30. : 45, 300.);
     // initialParameters = { -499.291,  80,  9.53674e-07,  1 };
     // doFit(outputRootFile, theCanvasSingleMuonQuad45AfterDoubleRatio->cd(3),theInputFile, "SingleMuon_And_Efficiency_BTagCaloCSVp087Triple"      , crystalBallFunction, initialParameters,  0.2,   1.);
     initialParameters = { 43.9976,  11.5532,  0.150397,  0.847895 };
-    doFit(outputRootFile, theCanvasSingleMuonQuad45AfterDoubleRatio->cd(4),theInputFile, "SingleMuon_And_Efficiency_QuadPFCentralJetLooseID45"  , crystalBallFunction, initialParameters,  fullRange ? 30. : 45, 300.);
+    doFit(outputRootFile, theCanvasSingleMuonQuad45AfterDoubleRatio->cd(4),theInputFile, "SingleMuon_And_Efficiency_QuadPFCentralJetLooseID45"  , crystalBallAndErrorFunction, initialParameters,  fullRange ? 30. : 45, 300.);
     theCanvasSingleMuonQuad45AfterDoubleRatio->SaveAs((std::string(inputFileName.substr(0,inputFileName.length()-5) + "_" + theCanvasSingleMuonQuad45AfterDoubleRatio->GetName()) + "_Fit" + (fullRange ? "_fullRange" : "_turnOnCut") + ".png").data());
     outputRootFile.WriteObject(theCanvasSingleMuonQuad45AfterDoubleRatio, theCanvasSingleMuonQuad45AfterDoubleRatio->GetName());
     delete theCanvasSingleMuonQuad45AfterDoubleRatio;
@@ -292,9 +300,9 @@ void doAllFit2016(std::string inputFileName, bool fullRange)
     initialParameters = { 0.209598,  0.765024,  1.21809e-09,  1.05882 };
     doFit(outputRootFile, theCanvasTTbarDouble90Quad30Ratio->cd(4),theInputFile, "TTbar_Double90Quad30_Efficiency_BTagCaloCSVp087Triple"      , "pol5", initialParameters,  fullRange ? 0.1 : 0.1,   1.);
     initialParameters = { 26.7507,  12.9058,  8.91746e-08,  0.992066 };
-    doFit(outputRootFile, theCanvasTTbarDouble90Quad30Ratio->cd(5),theInputFile, "TTbar_Double90Quad30_Efficiency_QuadPFCentralJetLooseID30"  , crystalBallFunction, initialParameters,  fullRange ? 25. : 30, 300.);
-    initialParameters = { 92.9863,  11.7114,  0.26419,  0.734074 };
-    doFit(outputRootFile, theCanvasTTbarDouble90Quad30Ratio->cd(6),theInputFile, "TTbar_Double90Quad30_Efficiency_DoublePFCentralJetLooseID90", crystalBallFunction, initialParameters,  fullRange ? 70. : 90, 500.);
+    doFit(outputRootFile, theCanvasTTbarDouble90Quad30Ratio->cd(5),theInputFile, "TTbar_Double90Quad30_Efficiency_QuadPFCentralJetLooseID30"  , crystalBallAndErrorFunction, initialParameters,  fullRange ? 25. : 30, 300.);
+    initialParameters = { 92.9863,  6,  0.26419,  1. };
+    doFit(outputRootFile, theCanvasTTbarDouble90Quad30Ratio->cd(6),theInputFile, "TTbar_Double90Quad30_Efficiency_DoublePFCentralJetLooseID90", crystalBallAndErrorFunction, initialParameters,  fullRange ? 70. : 90, 500.);
     theCanvasTTbarDouble90Quad30Ratio->SaveAs((std::string(inputFileName.substr(0,inputFileName.length()-5) + "_" + theCanvasTTbarDouble90Quad30Ratio->GetName()) + "_Fit" + (fullRange ? "_fullRange" : "_turnOnCut") + ".png").data());
     outputRootFile.WriteObject(theCanvasTTbarDouble90Quad30Ratio, theCanvasTTbarDouble90Quad30Ratio->GetName());
     delete theCanvasTTbarDouble90Quad30Ratio;
@@ -308,21 +316,21 @@ void doAllFit2016(std::string inputFileName, bool fullRange)
     initialParameters = { 0.209598,  0.765024,  1.21809e-09,  1.05882 };
     doFit(outputRootFile, theCanvasTTbarQuad45Ratio->cd(3),theInputFile, "TTbar_Quad45_Efficiency_BTagCaloCSVp087Triple"      , "pol5", initialParameters,  fullRange ? 0.1 : 0.1,   1.);
     initialParameters = { 43.2393,  12.5233,  0.074217,  0.918021 };
-    doFit(outputRootFile, theCanvasTTbarQuad45Ratio->cd(4),theInputFile, "TTbar_Quad45_Efficiency_QuadPFCentralJetLooseID45"  , crystalBallFunction, initialParameters,  fullRange ? 30. : 45, 300.);
+    doFit(outputRootFile, theCanvasTTbarQuad45Ratio->cd(4),theInputFile, "TTbar_Quad45_Efficiency_QuadPFCentralJetLooseID45"  , crystalBallAndErrorFunction, initialParameters,  fullRange ? 30. : 45, 300.);
     theCanvasTTbarQuad45Ratio->SaveAs((std::string(inputFileName.substr(0,inputFileName.length()-5) + "_" + theCanvasTTbarQuad45Ratio->GetName()) + "_Fit" + (fullRange ? "_fullRange" : "_turnOnCut") + ".png").data());
     outputRootFile.WriteObject(theCanvasTTbarQuad45Ratio, theCanvasTTbarQuad45Ratio->GetName());
     delete theCanvasTTbarQuad45Ratio;
 
     TCanvas *theCanvasTTbarQuad45AfterDoubleRatio = new TCanvas("TTbar_And", "TTbar_And", 1400, 800);
     theCanvasTTbarQuad45AfterDoubleRatio->DivideSquare(4,0.005,0.005);
-    initialParameters = { 121.327,  124.553,  7.53672e-07,  0.999811 };
-    doFit(outputRootFile, theCanvasTTbarQuad45AfterDoubleRatio->cd(1),theInputFile, "TTbar_And_Efficiency_L1filterQuad45HT"           , crystalBallAndErrorFunction, initialParameters, fullRange ? 375. : 375.,1500.);
+    initialParameters = { 394,  0.1,  0.9,  1};
+    doFit(outputRootFile, theCanvasTTbarQuad45AfterDoubleRatio->cd(1),theInputFile, "TTbar_And_Efficiency_L1filterQuad45HT"           , crystalBallAndErrorFunction, initialParameters, 350.,1500.);
     initialParameters = { 44.7711,  16.8627,  1.17955e-09,  0.981758 };
     doFit(outputRootFile, theCanvasTTbarQuad45AfterDoubleRatio->cd(2),theInputFile, "TTbar_And_Efficiency_QuadCentralJet45"           , crystalBallAndErrorFunction, initialParameters,  fullRange ? 30. : 45, 300.);
     // initialParameters = { -499.291,  80,  9.53674e-07,  1 };
     // doFit(outputRootFile, theCanvasTTbarQuad45AfterDoubleRatio->cd(3),theInputFile, "TTbar_And_Efficiency_BTagCaloCSVp087Triple"      , crystalBallFunction, initialParameters,  0.,   1.);
     initialParameters = { 43.9976,  11.5532,  0.150397,  0.847895 };
-    doFit(outputRootFile, theCanvasTTbarQuad45AfterDoubleRatio->cd(4),theInputFile, "TTbar_And_Efficiency_QuadPFCentralJetLooseID45"  , crystalBallFunction, initialParameters,  fullRange ? 30. : 45, 300.);
+    doFit(outputRootFile, theCanvasTTbarQuad45AfterDoubleRatio->cd(4),theInputFile, "TTbar_And_Efficiency_QuadPFCentralJetLooseID45"  , crystalBallAndErrorFunction, initialParameters,  fullRange ? 30. : 45, 300.);
     theCanvasTTbarQuad45AfterDoubleRatio->SaveAs((std::string(inputFileName.substr(0,inputFileName.length()-5) + "_" + theCanvasTTbarQuad45AfterDoubleRatio->GetName()) + "_Fit" + (fullRange ? "_fullRange" : "_turnOnCut") + ".png").data());
     outputRootFile.WriteObject(theCanvasTTbarQuad45AfterDoubleRatio, theCanvasTTbarQuad45AfterDoubleRatio->GetName());
     delete theCanvasTTbarQuad45AfterDoubleRatio;
@@ -344,9 +352,7 @@ void doAllFit2017(std::string inputFileName)
     gStyle->SetStatY(0.5);
     TFile theInputFile(inputFileName.data());
     std::vector<double> initialParameters;
-    std::string crystalBallFunction = "ROOT::Math::crystalball_cdf(x, [5], [4], [1], [0])*[3] + [2]";
-    std::string crystalBallAndErrorFunction = "ROOT::Math::crystalball_cdf(x, [5], [4], [1], [0]) * (0.5*(1 + TMath::Erf( (x-[0])/[6]) ) ) *[3] + [2]";
-
+    
     std::string outputFileName = "TriggerEfficiency_Fit_2017.root";
     // std::string outputFileName = "data/" + inputFileName.substr(0, inputFileName.length() -5) + "_fitResults" + (fullRange ? "_fullRange" : "_turnOnCut") + ".root";
     TFile outputRootFile(outputFileName.data(), "RECREATE");
@@ -390,9 +396,9 @@ void doAllFit2017(std::string inputFileName)
     initialParameters = { 0.209598,  0.765024,  1.21809e-09,  1.05882 };
     doFit(outputRootFile, theCanvasSingleMuonRatio1->cd(4),theInputFile, "SingleMuon__Efficiency_BTagCaloCSVp05Double"           , "pol5", initialParameters,  0.1 ,   1.);
     initialParameters = { 31.4358,  15.9878,  2.56566e-10,  0.976469 };
-    doFit(outputRootFile, theCanvasSingleMuonRatio1->cd(5),theInputFile, "SingleMuon__Efficiency_PFCentralJetLooseIDQuad30"      , crystalBallFunction, initialParameters,  40., 250.);
+    doFit(outputRootFile, theCanvasSingleMuonRatio1->cd(5),theInputFile, "SingleMuon__Efficiency_PFCentralJetLooseIDQuad30"      , crystalBallAndErrorFunction, initialParameters,  40., 250.);
     initialParameters = { 31.4358,  15.9878,  2.56566e-10,  0.976469 };
-    doFit(outputRootFile, theCanvasSingleMuonRatio1->cd(6),theInputFile, "SingleMuon__Efficiency_1PFCentralJetLooseID75"         , crystalBallFunction, initialParameters,  40., 500.);
+    doFit(outputRootFile, theCanvasSingleMuonRatio1->cd(6),theInputFile, "SingleMuon__Efficiency_1PFCentralJetLooseID75"         , crystalBallAndErrorFunction, initialParameters,  40., 500.);
     initialParameters = { 31.4358,  15.9878,  2.56566e-10,  0.976469 };
     theCanvasSingleMuonRatio1->SaveAs((std::string(inputFileName.substr(0,inputFileName.length()-5) + "_" + theCanvasSingleMuonRatio1->GetName()) + "_Fit" + ".png").data());
     outputRootFile.WriteObject(theCanvasSingleMuonRatio1, theCanvasSingleMuonRatio1->GetName());
@@ -400,13 +406,13 @@ void doAllFit2017(std::string inputFileName)
 
     TCanvas *theCanvasSingleMuonRatio2 = new TCanvas("SingleMuon_2017_2", "SingleMuon_2017_2", 1400, 800);
     theCanvasSingleMuonRatio2->DivideSquare(6,0.005,0.005);
-    doFit(outputRootFile, theCanvasSingleMuonRatio2->cd(1),theInputFile, "SingleMuon__Efficiency_2PFCentralJetLooseID60"         , crystalBallFunction, initialParameters,  40., 300.);
+    doFit(outputRootFile, theCanvasSingleMuonRatio2->cd(1),theInputFile, "SingleMuon__Efficiency_2PFCentralJetLooseID60"         , crystalBallAndErrorFunction, initialParameters,  40., 300.);
+    initialParameters = { 50,  13,  0.12,  1., 1., 2.3, 10. };
+    doFit(outputRootFile, theCanvasSingleMuonRatio2->cd(2),theInputFile, "SingleMuon__Efficiency_3PFCentralJetLooseID45"         , crystalBallAndErrorFunction, initialParameters,  40., 300.);
     initialParameters = { 31.4358,  15.9878,  2.56566e-10,  0.976469 };
-    doFit(outputRootFile, theCanvasSingleMuonRatio2->cd(2),theInputFile, "SingleMuon__Efficiency_3PFCentralJetLooseID45"         , crystalBallFunction, initialParameters,  40., 300.);
-    initialParameters = { 31.4358,  15.9878,  2.56566e-10,  0.976469 };
-    doFit(outputRootFile, theCanvasSingleMuonRatio2->cd(3),theInputFile, "SingleMuon__Efficiency_4PFCentralJetLooseID40"         , crystalBallFunction, initialParameters,  40., 200.);
-    initialParameters = { 300,  15.9878,  2.56566e-10,  0.976469 };
-    doFit(outputRootFile, theCanvasSingleMuonRatio2->cd(4),theInputFile, "SingleMuon__Efficiency_PFCentralJetsLooseIDQuad30HT300", crystalBallFunction, initialParameters, 200., 1500.);
+    doFit(outputRootFile, theCanvasSingleMuonRatio2->cd(3),theInputFile, "SingleMuon__Efficiency_4PFCentralJetLooseID40"         , crystalBallAndErrorFunction, initialParameters,  40., 200.);
+    initialParameters = { 320,  2.,  0.8,  1., 1.3, 5., 10. };
+    doFit(outputRootFile, theCanvasSingleMuonRatio2->cd(4),theInputFile, "SingleMuon__Efficiency_PFCentralJetsLooseIDQuad30HT300", crystalBallAndErrorFunction, initialParameters, 200., 1500.);
     initialParameters = { 0.209598,  0.765024,  1.21809e-09,  1.05882 };
     doFit(outputRootFile, theCanvasSingleMuonRatio2->cd(5),theInputFile, "SingleMuon__Efficiency_BTagPFCSVp070Triple"            , "pol5", initialParameters,  0.1 ,   1.);
     theCanvasSingleMuonRatio2->SaveAs((std::string(inputFileName.substr(0,inputFileName.length()-5) + "_" + theCanvasSingleMuonRatio2->GetName()) + "_Fit" + ".png").data());
@@ -420,16 +426,16 @@ void doAllFit2017(std::string inputFileName)
     theCanvasTTbarRatio1->DivideSquare(6,0.005,0.005);
     initialParameters = { 240.731,  77.3069,  0.018671,  0.981187 };
     doFit(outputRootFile, theCanvasTTbarRatio1->cd(1),theInputFile, "TTbar__Efficiency_L1filterHT"                     , crystalBallAndErrorFunction, initialParameters, 200.,1500.);
-    initialParameters = { 31.4358,  15.9878,  2.56566e-10,  0.976469 };
+    initialParameters = { 38,  15.9878,  0.2,  1., 1.3, 0.8, 10. };
     doFit(outputRootFile, theCanvasTTbarRatio1->cd(2),theInputFile, "TTbar__Efficiency_QuadCentralJet30"               , crystalBallAndErrorFunction, initialParameters,  40., 250.);
     initialParameters = { 300,  15.9878,  2.56566e-10,  0.976469 };
     doFit(outputRootFile, theCanvasTTbarRatio1->cd(3),theInputFile, "TTbar__Efficiency_CaloQuadJet30HT300"             , crystalBallAndErrorFunction, initialParameters, 150.,1200.);
     initialParameters = { 0.209598,  0.765024,  1.21809e-09,  1.05882 };
     doFit(outputRootFile, theCanvasTTbarRatio1->cd(4),theInputFile, "TTbar__Efficiency_BTagCaloCSVp05Double"           , "pol5", initialParameters,  0.1 ,   1.);
     initialParameters = { 31.4358,  15.9878,  2.56566e-10,  0.976469 };
-    doFit(outputRootFile, theCanvasTTbarRatio1->cd(5),theInputFile, "TTbar__Efficiency_PFCentralJetLooseIDQuad30"      , crystalBallFunction, initialParameters,  40., 250.);
+    doFit(outputRootFile, theCanvasTTbarRatio1->cd(5),theInputFile, "TTbar__Efficiency_PFCentralJetLooseIDQuad30"      , crystalBallAndErrorFunction, initialParameters,  40., 250.);
     initialParameters = { 31.4358,  15.9878,  2.56566e-10,  0.976469 };
-    doFit(outputRootFile, theCanvasTTbarRatio1->cd(6),theInputFile, "TTbar__Efficiency_1PFCentralJetLooseID75"         , crystalBallFunction, initialParameters,  40., 500.);
+    doFit(outputRootFile, theCanvasTTbarRatio1->cd(6),theInputFile, "TTbar__Efficiency_1PFCentralJetLooseID75"         , crystalBallAndErrorFunction, initialParameters,  40., 500.);
     initialParameters = { 31.4358,  15.9878,  2.56566e-10,  0.976469 };
     theCanvasTTbarRatio1->SaveAs((std::string(inputFileName.substr(0,inputFileName.length()-5) + "_" + theCanvasTTbarRatio1->GetName()) + "_Fit" + ".png").data());
     outputRootFile.WriteObject(theCanvasTTbarRatio1, theCanvasTTbarRatio1->GetName());
@@ -437,13 +443,13 @@ void doAllFit2017(std::string inputFileName)
 
     TCanvas *theCanvasTTbarRatio2 = new TCanvas("TTbar_2017_2", "TTbar_2017_2", 1400, 800);
     theCanvasTTbarRatio2->DivideSquare(6,0.005,0.005);
-    doFit(outputRootFile, theCanvasTTbarRatio2->cd(1),theInputFile, "TTbar__Efficiency_2PFCentralJetLooseID60"         , crystalBallFunction, initialParameters,  40., 300.);
+    doFit(outputRootFile, theCanvasTTbarRatio2->cd(1),theInputFile, "TTbar__Efficiency_2PFCentralJetLooseID60"         , crystalBallAndErrorFunction, initialParameters,  40., 300.);
     initialParameters = { 31.4358,  15.9878,  2.56566e-10,  0.976469 };
-    doFit(outputRootFile, theCanvasTTbarRatio2->cd(2),theInputFile, "TTbar__Efficiency_3PFCentralJetLooseID45"         , crystalBallFunction, initialParameters,  40., 300.);
+    doFit(outputRootFile, theCanvasTTbarRatio2->cd(2),theInputFile, "TTbar__Efficiency_3PFCentralJetLooseID45"         , crystalBallAndErrorFunction, initialParameters,  40., 300.);
     initialParameters = { 31.4358,  15.9878,  2.56566e-10,  0.976469 };
-    doFit(outputRootFile, theCanvasTTbarRatio2->cd(3),theInputFile, "TTbar__Efficiency_4PFCentralJetLooseID40"         , crystalBallFunction, initialParameters,  40., 200.);
+    doFit(outputRootFile, theCanvasTTbarRatio2->cd(3),theInputFile, "TTbar__Efficiency_4PFCentralJetLooseID40"         , crystalBallAndErrorFunction, initialParameters,  40., 200.);
     initialParameters = { 300,  15.9878,  2.56566e-10,  0.976469 };
-    doFit(outputRootFile, theCanvasTTbarRatio2->cd(4),theInputFile, "TTbar__Efficiency_PFCentralJetsLooseIDQuad30HT300", crystalBallFunction, initialParameters, 200., 1500.);
+    doFit(outputRootFile, theCanvasTTbarRatio2->cd(4),theInputFile, "TTbar__Efficiency_PFCentralJetsLooseIDQuad30HT300", crystalBallAndErrorFunction, initialParameters, 200., 1500.);
     initialParameters = { 0.209598,  0.765024,  1.21809e-09,  1.05882 };
     doFit(outputRootFile, theCanvasTTbarRatio2->cd(5),theInputFile, "TTbar__Efficiency_BTagPFCSVp070Triple"            , "pol5", initialParameters,  0.1 ,   1.);
     theCanvasTTbarRatio2->SaveAs((std::string(inputFileName.substr(0,inputFileName.length()-5) + "_" + theCanvasTTbarRatio2->GetName()) + "_Fit" + ".png").data());
@@ -468,9 +474,7 @@ void doAllFit2018(std::string inputFileName)
     gStyle->SetStatY(0.5);
     TFile theInputFile(inputFileName.data());
     std::vector<double> initialParameters;
-    std::string crystalBallFunction = "ROOT::Math::crystalball_cdf(x, [5], [4], [1], [0])*[3] + [2]";
-    std::string crystalBallAndErrorFunction = "ROOT::Math::crystalball_cdf(x, [5], [4], [1], [0]) * (0.5*(1 + TMath::Erf( (x-[0])/[6]) ) ) *[3] + [2]";
-
+    
     std::string outputFileName = "TriggerEfficiency_Fit_2018.root";
     // std::string outputFileName = "data/" + inputFileName.substr(0, inputFileName.length() -5) + "_fitResults" + (fullRange ? "_fullRange" : "_turnOnCut") + ".root";
     TFile outputRootFile(outputFileName.data(), "RECREATE");
@@ -508,15 +512,15 @@ void doAllFit2018(std::string inputFileName)
     initialParameters = { 240.731,  77.3069,  0.018671,  0.981187 };
     doFit(outputRootFile, theCanvasSingleMuonRatio1->cd(1),theInputFile, "SingleMuon__Efficiency_L1filterHT"                     , crystalBallAndErrorFunction, initialParameters, 200.,1500.);
     initialParameters = { 31.4358,  15.9878,  2.56566e-10,  0.976469 };
-    doFit(outputRootFile, theCanvasSingleMuonRatio1->cd(2),theInputFile, "SingleMuon__Efficiency_QuadCentralJet30"               , crystalBallAndErrorFunction, initialParameters,  40., 250.);
+    doFit(outputRootFile, theCanvasSingleMuonRatio1->cd(2),theInputFile, "SingleMuon__Efficiency_QuadCentralJet30"               , crystalBallAndErrorFunction, initialParameters,  40., 300.);
     initialParameters = { 300,  15.9878,  2.56566e-10,  0.976469 };
     doFit(outputRootFile, theCanvasSingleMuonRatio1->cd(3),theInputFile, "SingleMuon__Efficiency_CaloQuadJet30HT320"             , crystalBallAndErrorFunction, initialParameters, 150.,1200.);
     initialParameters = { 0.209598,  0.765024,  1.21809e-09,  1.05882 };
     doFit(outputRootFile, theCanvasSingleMuonRatio1->cd(4),theInputFile, "SingleMuon__Efficiency_BTagCaloDeepCSVp17Double"       , "pol5", initialParameters,  0.1 ,   1.);
     initialParameters = { 31.4358,  15.9878,  2.56566e-10,  0.976469 };
-    doFit(outputRootFile, theCanvasSingleMuonRatio1->cd(5),theInputFile, "SingleMuon__Efficiency_PFCentralJetLooseIDQuad30"      , crystalBallFunction, initialParameters,  30., 250.);
+    doFit(outputRootFile, theCanvasSingleMuonRatio1->cd(5),theInputFile, "SingleMuon__Efficiency_PFCentralJetLooseIDQuad30"      , crystalBallAndErrorFunction, initialParameters,  30., 250.);
     initialParameters = { 31.4358,  15.9878,  2.56566e-10,  0.976469 };
-    doFit(outputRootFile, theCanvasSingleMuonRatio1->cd(6),theInputFile, "SingleMuon__Efficiency_1PFCentralJetLooseID75"         , crystalBallFunction, initialParameters,  40., 500.);
+    doFit(outputRootFile, theCanvasSingleMuonRatio1->cd(6),theInputFile, "SingleMuon__Efficiency_1PFCentralJetLooseID75"         , crystalBallAndErrorFunction, initialParameters,  40., 500.);
     initialParameters = { 31.4358,  15.9878,  2.56566e-10,  0.976469 };
     theCanvasSingleMuonRatio1->SaveAs((std::string(inputFileName.substr(0,inputFileName.length()-5) + "_" + theCanvasSingleMuonRatio1->GetName()) + "_Fit" + ".png").data());
     outputRootFile.WriteObject(theCanvasSingleMuonRatio1, theCanvasSingleMuonRatio1->GetName());
@@ -524,13 +528,13 @@ void doAllFit2018(std::string inputFileName)
 
     TCanvas *theCanvasSingleMuonRatio2 = new TCanvas("SingleMuon_2018_2", "SingleMuon_2018_2", 1400, 800);
     theCanvasSingleMuonRatio2->DivideSquare(6,0.005,0.005);
-    doFit(outputRootFile, theCanvasSingleMuonRatio2->cd(1),theInputFile, "SingleMuon__Efficiency_2PFCentralJetLooseID60"         , crystalBallFunction, initialParameters,  40., 300.);
+    doFit(outputRootFile, theCanvasSingleMuonRatio2->cd(1),theInputFile, "SingleMuon__Efficiency_2PFCentralJetLooseID60"         , crystalBallAndErrorFunction, initialParameters,  40., 300.);
     initialParameters = { 31.4358,  15.9878,  2.56566e-10,  0.976469 };
-    doFit(outputRootFile, theCanvasSingleMuonRatio2->cd(2),theInputFile, "SingleMuon__Efficiency_3PFCentralJetLooseID45"         , crystalBallFunction, initialParameters,  40., 300.);
+    doFit(outputRootFile, theCanvasSingleMuonRatio2->cd(2),theInputFile, "SingleMuon__Efficiency_3PFCentralJetLooseID45"         , crystalBallAndErrorFunction, initialParameters,  40., 300.);
     initialParameters = { 31.4358,  15.9878,  2.56566e-10,  0.976469 };
-    doFit(outputRootFile, theCanvasSingleMuonRatio2->cd(3),theInputFile, "SingleMuon__Efficiency_4PFCentralJetLooseID40"         , crystalBallFunction, initialParameters,  40., 200.);
+    doFit(outputRootFile, theCanvasSingleMuonRatio2->cd(3),theInputFile, "SingleMuon__Efficiency_4PFCentralJetLooseID40"         , crystalBallAndErrorFunction, initialParameters,  40., 200.);
     initialParameters = { 300,  15.9878,  2.56566e-10,  0.976469 };
-    doFit(outputRootFile, theCanvasSingleMuonRatio2->cd(4),theInputFile, "SingleMuon__Efficiency_PFCentralJetsLooseIDQuad30HT330", crystalBallFunction, initialParameters, 200., 1500.);
+    doFit(outputRootFile, theCanvasSingleMuonRatio2->cd(4),theInputFile, "SingleMuon__Efficiency_PFCentralJetsLooseIDQuad30HT330", crystalBallAndErrorFunction, initialParameters, 200., 1500.);
     initialParameters = { 0.209598,  0.765024,  1.21809e-09,  1.05882 };
     doFit(outputRootFile, theCanvasSingleMuonRatio2->cd(5),theInputFile, "SingleMuon__Efficiency_BTagPFDeepCSV4p5Triple"         , "pol5", initialParameters,  0.1 ,   1.);
     theCanvasSingleMuonRatio2->SaveAs((std::string(inputFileName.substr(0,inputFileName.length()-5) + "_" + theCanvasSingleMuonRatio2->GetName()) + "_Fit" + ".png").data());
@@ -551,7 +555,7 @@ void doAllFit2018(std::string inputFileName)
     initialParameters = { 0.209598,  0.765024,  1.21809e-09,  1.05882 };
     doFit(outputRootFile, theCanvasTTbarRatio1->cd(4),theInputFile, "TTbar__Efficiency_BTagCaloDeepCSVp17Double"       , "pol5", initialParameters,  0.1 ,   1.);
     initialParameters = { 31.4358,  15.9878,  2.56566e-10,  0.976469 };
-    doFit(outputRootFile, theCanvasTTbarRatio1->cd(5),theInputFile, "TTbar__Efficiency_PFCentralJetLooseIDQuad30"      , crystalBallFunction, initialParameters,  30., 250.);
+    doFit(outputRootFile, theCanvasTTbarRatio1->cd(5),theInputFile, "TTbar__Efficiency_PFCentralJetLooseIDQuad30"      , crystalBallAndErrorFunction, initialParameters,  30., 250.);
     initialParameters = { 31.4358,  15.9878,  2.56566e-10,  0.976469 };
     doFit(outputRootFile, theCanvasTTbarRatio1->cd(6),theInputFile, "TTbar__Efficiency_1PFCentralJetLooseID75"         , crystalBallAndErrorFunction, initialParameters,  40., 500.);
     initialParameters = { 31.4358,  15.9878,  2.56566e-10,  0.976469 };
@@ -567,7 +571,7 @@ void doAllFit2018(std::string inputFileName)
     initialParameters = { 31.4358,  15.9878,  2.56566e-10,  0.976469 };
     doFit(outputRootFile, theCanvasTTbarRatio2->cd(3),theInputFile, "TTbar__Efficiency_4PFCentralJetLooseID40"         , crystalBallAndErrorFunction, initialParameters,  40., 200.);
     initialParameters = { 300,  15.9878,  2.56566e-10,  0.976469 };
-    doFit(outputRootFile, theCanvasTTbarRatio2->cd(4),theInputFile, "TTbar__Efficiency_PFCentralJetsLooseIDQuad30HT330", crystalBallFunction, initialParameters, 200., 1500.);
+    doFit(outputRootFile, theCanvasTTbarRatio2->cd(4),theInputFile, "TTbar__Efficiency_PFCentralJetsLooseIDQuad30HT330", crystalBallAndErrorFunction, initialParameters, 200., 1500.);
     initialParameters = { 0.209598,  0.765024,  1.21809e-09,  1.05882 };
     doFit(outputRootFile, theCanvasTTbarRatio2->cd(5),theInputFile, "TTbar__Efficiency_BTagPFDeepCSV4p5Triple"         , "pol5", initialParameters,  0.1 ,   1.);
     theCanvasTTbarRatio2->SaveAs((std::string(inputFileName.substr(0,inputFileName.length()-5) + "_" + theCanvasTTbarRatio2->GetName()) + "_Fit" + ".png").data());

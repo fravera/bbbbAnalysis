@@ -1,5 +1,6 @@
 python scripts/getTaskStatus.py --dir job_<tag>/SKIM_<Data or MC>
 
+condor_rm  -name lpcschedd1.fnal.gov -all
 
 while true; do echo "`date +%Y\/%m\/%d---%H-%M-%S`"; condor_q | grep 'Total\ for\ fravera:'; echo; sleep 5; done
 
@@ -52,7 +53,7 @@ skim_ntuple.exe --input=inputFiles/2017_NMSSM_XYH_bbbb_Datasets/SingleMuon_Data.
 
 skim_trigger.exe --input inputFiles/TriggerEfficiencyMeasurement/2017/gg_HH_4B_SM_2017_forTrigger.txt      --cfg config/Resonant_NMSSM_bbbb/skim_2017_TriggerEfficiencyMeasurement.cfg  --match --puWeight weights/gg_HH_4B_SM_2017_forTrigger_PUweights.root      --output gg_HH_4B_SM_2017_forTrigger_new.root
 
-
+python scripts/checkAllJobs.py --dir jobs_fullSubmission_2016_v10*
 
 produceSignalTreeForTraining.exe --cfg=config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb_SignalTraining.cfg --input=inputFiles/2016_NMSSM_XYH_bbbb_Datasets/NMSSM_XYH_bbbb_MX_700_MY_300_privateMC.txt --output=test_signalTreeForTraining.root
 

@@ -23,6 +23,7 @@ from modules.ReweightModelAndTransferFactor import ReweightModelAndTransferFacto
 # from ROOT import TFile, TTree, TBranch
 import ROOT
 import threading
+import time
 
 def CreatePredictionModel(reweightermodel,transferfactor,normalization,dataset_3bTag, backgroundWeightName):
 	############################################################################
@@ -51,14 +52,18 @@ def getWeightsForBackground(dataset, theReweightModelAndTransferFactor, backgrou
 
 
 def updateFile(fileName, theBackgroudWeights):
-    data.pandas2root(theBackgroudWeights,'bbbbTree', fileName, mode='a')
-
+	data.pandas2root(theBackgroudWeights,'bbbbTree', fileName, mode='a')
+	
 
 def ApplyBDTweightsToFileList(fileList, treeName, trainingVariables, theReweightModelAndTransferFactor, backgroundWeightName):
 	print "Staring with list of ", len(fileList), " files"
 	for theRootFileName in fileList:
 		theRootFile = ROOT.TFile.Open(theRootFileName)
 		theTree = theRootFile.Get(const.treeName)
+		if theTree.GetEntries() == 0 :
+			print "Error: no entries in tree for file ", theRootFileName, " - skypping..."
+			continue
+
 		branchAlreadyExists = False
 		for branch in theTree.GetListOfBranches():
 			if branch.GetName() == backgroundWeightName :
@@ -66,10 +71,23 @@ def ApplyBDTweightsToFileList(fileList, treeName, trainingVariables, theReweight
 				branchAlreadyExists = True
 		theRootFile.Close()
 		if branchAlreadyExists: continue
-		singleListFile = [theRootFileName]
+
+
+		tmpFileName = theRootFileName.replace(const.eosPath, "")
+		tmpFileName = tmpFileName.replace("/", "_")
+		copyFromEosCommand = "xrdcp -f " + theRootFileName + " " + tmpFileName
+		print copyFromEosCommand
+		os.system(copyFromEosCommand)
+		# time.sleep(2)
+		singleListFile = [tmpFileName]
 		theDataFile = data.root2pandas(singleListFile, treeName, branches=trainingVariables)
 		theBackgroudWeights = getWeightsForBackground(theDataFile, theReweightModelAndTransferFactor, backgroundWeightName)
-		updateFile(singleListFile[0], theBackgroudWeights)
+		updateFile(tmpFileName, theBackgroudWeights)
+		copyToEosCommand = "xrdcp -f " + tmpFileName + " " + theRootFileName
+		os.system(copyToEosCommand)
+		removeCommand = "rm " + tmpFileName
+		os.system(removeCommand)
+
 	print "Done with list of ", len(fileList), " files"
 
 

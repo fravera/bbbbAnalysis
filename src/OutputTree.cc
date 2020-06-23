@@ -51,6 +51,7 @@ void OutputTree::init_branches(bool initAllBranches)
     tree_->Branch("Run", &Run);
     tree_->Branch("LumiSec", &LumiSec);
     tree_->Branch("Event", &Event);
+    tree_->Branch("pileUp", &pileUp);
     if(!initAllBranches) return;
     // reco b jets
     BRANCH_m_pt_ptRegressed_eta_phi_p4(H1_b1)
@@ -83,7 +84,28 @@ void OutputTree::init_branches(bool initAllBranches)
     tree_->Branch("HH_2DdeltaM", &HH_2DdeltaM);
     tree_->Branch("H1_H2_sphericity", &H1_H2_sphericity);
     tree_->Branch("FourBjet_sphericity", &FourBjet_sphericity);
-    tree_->Branch("HH_m_kinFit", &HH_m_kinFit);
+
+    BRANCH_m_pt_eta_phi_p4(offShell_H1)
+    tree_->Branch("offShell_H1_bb_DeltaR", &offShell_H1_bb_DeltaR);
+    BRANCH_m_pt_eta_phi_p4(offShell_H2)
+    tree_->Branch("offShell_H2_bb_DeltaR", &offShell_H2_bb_DeltaR);
+    BRANCH_m_pt_eta_phi_p4(offShell_HH)
+
+    BRANCH_m_pt_ptRegressed_eta_phi_p4(H1_b1_kinFit)
+    BRANCH_m_pt_ptRegressed_eta_phi_p4(H1_b2_kinFit)
+    BRANCH_m_pt_ptRegressed_eta_phi_p4(H2_b1_kinFit)
+    BRANCH_m_pt_ptRegressed_eta_phi_p4(H2_b2_kinFit)
+
+    BRANCH_m_pt_ptRegressed_eta_phi_p4(offShell_H1_b1)
+    BRANCH_m_pt_ptRegressed_eta_phi_p4(offShell_H1_b2)
+    BRANCH_m_pt_ptRegressed_eta_phi_p4(offShell_H2_b1)
+    BRANCH_m_pt_ptRegressed_eta_phi_p4(offShell_H2_b2)
+
+    BRANCH_m_pt_eta_phi_p4(H1_kinFit)
+    BRANCH_m_pt_eta_phi_p4(H2_kinFit)
+    BRANCH_m_pt_eta_phi_p4(HH_kinFit)
+    tree_->Branch("H1_kinFit_bb_DeltaR", &H1_kinFit_bb_DeltaR);
+    tree_->Branch("H2_kinFit_bb_DeltaR", &H2_kinFit_bb_DeltaR);
 
     tree_->Branch("triggerScaleFactor"       , &triggerScaleFactor       );
     tree_->Branch("triggerDataEfficiency"    , &triggerDataEfficiency    );
@@ -425,6 +447,7 @@ void OutputTree::clear()
     Run=0;
     LumiSec=0;
     Event=0;
+    pileUp=0;
 
     CLEAR_m_pt_ptRegressed_eta_phi_p4(H1_b1)
     H1_b1_deepCSV = 0.;
@@ -443,8 +466,29 @@ void OutputTree::clear()
     HH_2DdeltaM = 0.;
     H1_H2_sphericity = -1.;
     FourBjet_sphericity = -1.;
-    HH_m_kinFit = 0.;
 
+    CLEAR_m_pt_ptRegressed_eta_phi_p4(H1_b1_kinFit)
+    CLEAR_m_pt_ptRegressed_eta_phi_p4(H1_b2_kinFit)
+    CLEAR_m_pt_ptRegressed_eta_phi_p4(H2_b1_kinFit)
+    CLEAR_m_pt_ptRegressed_eta_phi_p4(H2_b2_kinFit)
+
+    CLEAR_m_pt_eta_phi_p4(H1_kinFit)
+    CLEAR_m_pt_eta_phi_p4(H2_kinFit)
+    CLEAR_m_pt_eta_phi_p4(HH_kinFit)
+    H1_kinFit_bb_DeltaR = 0.;
+    H2_kinFit_bb_DeltaR = 0.;
+    
+    CLEAR_m_pt_ptRegressed_eta_phi_p4(offShell_H1_b1)
+    CLEAR_m_pt_ptRegressed_eta_phi_p4(offShell_H1_b2)
+    CLEAR_m_pt_ptRegressed_eta_phi_p4(offShell_H2_b1)
+    CLEAR_m_pt_ptRegressed_eta_phi_p4(offShell_H2_b2)
+
+    CLEAR_m_pt_eta_phi_p4(offShell_H1)
+    CLEAR_m_pt_eta_phi_p4(offShell_H2)
+    CLEAR_m_pt_eta_phi_p4(offShell_HH)
+    offShell_H1_bb_DeltaR = 0.;
+    offShell_H2_bb_DeltaR = 0.;
+    
     ///TTEMU events
     CLEAR_m_pt_ptRegressed_eta_phi_p4(TT_b1)
     TT_b1_deepCSV = 0.;

@@ -134,16 +134,14 @@ private:
     std::tuple<float, float, float> calculateMonteCarloQuad45Efficiency           ();
     std::tuple<float, float, float> calculateMonteCarloAndEfficiency              ();
 
-    inline float computeDouble90Double30Efficiency(float bTagEffJet0, float bTagEffJet1, float bTagEffJet2, float bTagEffJet3, float effL1, float effQuad30CaloJet, float effDouble90CaloJet, float effQuad30PFJet, float effDouble90PFJet)
+    inline float computeDouble90Double30Efficiency(float bTagEfficiency, float effL1, float effQuad30CaloJet, float effDouble90CaloJet, float effQuad30PFJet, float effDouble90PFJet)
     {
-        float bTagEfficiency = computeThreeBtagEfficiency(bTagEffJet0, bTagEffJet1, bTagEffJet2, bTagEffJet3);
-        return fixInLimits(effL1) * fixInLimits(effQuad30CaloJet) * fixInLimits(effDouble90CaloJet) * bTagEfficiency * fixInLimits(effQuad30PFJet) * fixInLimits(effDouble90PFJet);
+        return fixInLimits(effL1) * fixInLimits(effQuad30CaloJet) * fixInLimits(effDouble90CaloJet) * fixInLimits(bTagEfficiency) * fixInLimits(effQuad30PFJet) * fixInLimits(effDouble90PFJet);
     }
 
-    inline float computeQuad45Efficiency(float bTagEffJet0, float bTagEffJet1, float bTagEffJet2, float bTagEffJet3, float effL1, float effQuad45CaloJet, float effQuad45PFJet)
+    inline float computeQuad45Efficiency(float bTagEfficiency, float effL1, float effQuad45CaloJet, float effQuad45PFJet)
     {
-        float bTagEfficiency = computeThreeBtagEfficiency(bTagEffJet0, bTagEffJet1, bTagEffJet2, bTagEffJet3);
-        return fixInLimits(effL1) * fixInLimits(effQuad45CaloJet) * bTagEfficiency * fixInLimits(effQuad45PFJet);
+        return fixInLimits(effL1) * fixInLimits(effQuad45CaloJet) * fixInLimits(bTagEfficiency) * fixInLimits(effQuad45PFJet);
     }
 
     inline float computeAndEfficiency(float effL1, float effQuad45CaloJet, float effQuad45PFJet)
@@ -194,6 +192,7 @@ private:
     float sumPt_       {0.};
     float sumPtAbove30_{0.} ;
     float sumPtEtaRestricted_{0.};
+    float allJetAbove30Eta24_sum_{0.};
     std::vector<float> deepFlavBVector {0., 0., 0., 0.} ;
 };
 
@@ -225,5 +224,6 @@ private:
     float sumPt_       {0.} ;
     float sumPtAbove30_{0.} ;
     float sumPtEtaRestricted_{0.};
+    float allJetAbove30Eta24_sum_{0.};
     std::vector<float> deepFlavBVector {0., 0., 0., 0.} ;
 };

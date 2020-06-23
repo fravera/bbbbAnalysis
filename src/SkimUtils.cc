@@ -75,6 +75,7 @@ void SkimUtils::fill_output_tree(OutputTree& ot, NanoAODTree& nat, EventInfo& ei
     if(ei.Run) ot.Run  = *ei.Run;
     if(ei.LumiSec) ot.LumiSec  = *ei.LumiSec;
     if(ei.Event) ot.Event  = *ei.Event;
+    if(ei.pileUp) ot.pileUp  = *ei.pileUp;
 
     COPY_OPTIONAL_m_pt_ptRegressed_eta_phi_p4(H1_b1)
     if (ei.H1_b1) ot.H1_b1_deepCSV = ei.H1_b1.get().bTagScore();   
@@ -93,16 +94,39 @@ void SkimUtils::fill_output_tree(OutputTree& ot, NanoAODTree& nat, EventInfo& ei
     if (ei.H2_b2) ot.H2_b2_jetId   = get_property(ei.H2_b2.get(),Jet_jetId); 
     if (ei.H2_b2) ot.H2_b2_puId    = get_property(ei.H2_b2.get(),Jet_puId);
 
+    COPY_OPTIONAL_m_pt_ptRegressed_eta_phi_p4(H1_b1_kinFit)
+    COPY_OPTIONAL_m_pt_ptRegressed_eta_phi_p4(H1_b2_kinFit)
+    COPY_OPTIONAL_m_pt_ptRegressed_eta_phi_p4(H2_b1_kinFit)
+    COPY_OPTIONAL_m_pt_ptRegressed_eta_phi_p4(H2_b2_kinFit)
+
     COPY_OPTIONAL_m_pt_eta_phi_p4(H1)
     if(ei.H1_bb_DeltaR) ot.H1_bb_DeltaR  = *ei.H1_bb_DeltaR;
     COPY_OPTIONAL_m_pt_eta_phi_p4(H2)
     if(ei.H2_bb_DeltaR) ot.H2_bb_DeltaR  = *ei.H2_bb_DeltaR;
     COPY_OPTIONAL_m_pt_eta_phi_p4(HH)
     if(ei.HH_2DdeltaM) ot.HH_2DdeltaM  = *ei.HH_2DdeltaM;
-    if(ei.HH_m_kinFit) ot.HH_m_kinFit  = *ei.HH_m_kinFit;
     if(ei.H1_H2_sphericity) ot.H1_H2_sphericity  = *ei.H1_H2_sphericity;
     if(ei.FourBjet_sphericity) ot.FourBjet_sphericity  = *ei.FourBjet_sphericity;
  
+     COPY_OPTIONAL_m_pt_eta_phi_p4(offShell_H1)
+    if(ei.offShell_H1_bb_DeltaR) ot.offShell_H1_bb_DeltaR  = *ei.offShell_H1_bb_DeltaR;
+    COPY_OPTIONAL_m_pt_eta_phi_p4(offShell_H2)
+    if(ei.offShell_H2_bb_DeltaR) ot.offShell_H2_bb_DeltaR  = *ei.offShell_H2_bb_DeltaR;
+    COPY_OPTIONAL_m_pt_eta_phi_p4(offShell_HH)
+
+    COPY_OPTIONAL_m_pt_ptRegressed_eta_phi_p4(offShell_H1_b1)
+    COPY_OPTIONAL_m_pt_ptRegressed_eta_phi_p4(offShell_H1_b2)
+    COPY_OPTIONAL_m_pt_ptRegressed_eta_phi_p4(offShell_H2_b1)
+    COPY_OPTIONAL_m_pt_ptRegressed_eta_phi_p4(offShell_H2_b2)
+
+    COPY_OPTIONAL_m_pt_eta_phi_p4(H1_kinFit)
+    COPY_OPTIONAL_m_pt_eta_phi_p4(H2_kinFit)
+    COPY_OPTIONAL_m_pt_eta_phi_p4(HH_kinFit)
+    if(ei.H1_kinFit_bb_DeltaR) ot.H1_kinFit_bb_DeltaR  = *ei.H1_kinFit_bb_DeltaR;
+    if(ei.H1_kinFit_bb_DeltaR) ot.H1_kinFit_bb_DeltaR  = *ei.H1_kinFit_bb_DeltaR;
+
+
+
     //set the variables for TTEMU studies
     COPY_OPTIONAL_m_pt_ptRegressed_eta_phi_p4(TT_b1)
     if (ei.TT_b1) ot.TT_b1_deepCSV = ei.TT_b1.get().bTagScore();   

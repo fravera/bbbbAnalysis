@@ -492,7 +492,7 @@ int main(int argc, char** argv)
         int numberOfIsoMuon03 = 0;
         int isoMuonJetId      = -1;
         electronTimesMuoncharge_ = 1;
-        float muonPtCut = 30;
+        float muonPtCut = 26;
         for (uint candIt = 0; candIt < *(nat.nMuon); ++candIt)
         {
             Muon theMuon (candIt, &nat);

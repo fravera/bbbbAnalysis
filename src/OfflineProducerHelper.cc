@@ -11,7 +11,6 @@
 #include "Electron.h"
 #include "Muon.h"
 #include "GenPart.h"
-#include "HH4b_kinFit.h"
 #include "TRandom.h"
 
 #include "TMVA/GeneticAlgorithm.h"
@@ -1272,15 +1271,6 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
     //     if(jets.first == originalSampleName) //Original sample without variations
     // {
     // calculate scaleFactors after preselection cuts
-    if(parameterList_->find("BTagScaleFactorMethod") != parameterList_->end()) //is it a MC event
-    { 
-        const string BJetcaleFactorsMethod = any_cast<string>(parameterList_->at("BTagScaleFactorMethod"));
-
-        if(BJetcaleFactorsMethod == "FourBtag_ScaleFactor")
-        {
-            compute_scaleFactors_fourBtag_eventScaleFactor(jets,nat,ot);
-        }
-    }
 
     // now need to pair the jets
     std::vector<Jet> presel_jets = {{
@@ -1289,6 +1279,16 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
         (jets[2]),
         (jets[3])
     }};
+    
+    if(parameterList_->find("BTagScaleFactorMethod") != parameterList_->end()) //is it a MC event
+    { 
+        const string BJetcaleFactorsMethod = any_cast<string>(parameterList_->at("BTagScaleFactorMethod"));
+
+        if(BJetcaleFactorsMethod == "FourBtag_ScaleFactor")
+        {
+            compute_scaleFactors_fourBtag_eventScaleFactor(presel_jets,nat,ot);
+        }
+    }
 
     std::vector<Jet> ordered_jets;
     string strategy = any_cast<string>(parameterList_->at("bbbbChoice"));
@@ -1302,8 +1302,7 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
         ordered_jets = bbbb_jets_idxs_MostBackToBack(&presel_jets);
     else if(strategy == "XYH_4B_selection")
     {
-        ordered_jets = bbbb_jets_XYHselection(&presel_jets);
-
+        ordered_jets = bbbb_jets_XYHselection(&presel_jets, any_cast<float>(parameterList_->at("HiggsMass")));
 
         std::vector<TLorentzVector> theJetVector;
         TLorentzVector theTotalVector(0.,0.,0.,0.);
@@ -1528,22 +1527,58 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
     
     ei.HH_2DdeltaM = pow(ei.H1->P4().M() - targetHiggsMass,2) + pow(ei.H2->P4().M() - targetHiggsMass,2);
 
-    // bool applyKineamticFit=false;
-    // if(applyKineamticFit)
-    // {
-    //     HH4b_kinFit::constrainHH_signalMeasurement(&ordered_jets.at(0).p4Regressed_, &ordered_jets.at(1).p4Regressed_, &ordered_jets.at(2).p4Regressed_, &ordered_jets.at(3).p4Regressed_);
-    //     CompositeCandidate H1kf = CompositeCandidate(ordered_jets.at(0), ordered_jets.at(1));
-    //     H1kf.rebuildP4UsingRegressedPt(true,true);
+    theKinFitter_->constrainHH_signalMeasurement(&ordered_jets.at(0).p4Regressed_, &ordered_jets.at(1).p4Regressed_, &ordered_jets.at(2).p4Regressed_, &ordered_jets.at(3).p4Regressed_, 125., -1);
 
-    //     CompositeCandidate H2kf = CompositeCandidate(ordered_jets.at(2), ordered_jets.at(3));
-    //     H2kf.rebuildP4UsingRegressedPt(true,true);
+    ei.H1_b1_kinFit = ordered_jets.at(0);
+    ei.H1_b2_kinFit = ordered_jets.at(1);
+    ei.H2_b1_kinFit = ordered_jets.at(2);
+    ei.H2_b2_kinFit = ordered_jets.at(3);
 
-    //     ei.HH_m_kinFit = CompositeCandidate(H1kf, H2kf).P4().M();
-    // }
+    CompositeCandidate H1kf = CompositeCandidate(ordered_jets.at(0), ordered_jets.at(1));
+    H1kf.rebuildP4UsingRegressedPt(true,true);
+    ei.H1_kinFit = H1kf;
+    
+    CompositeCandidate H2kf = CompositeCandidate(ordered_jets.at(2), ordered_jets.at(3));
+    H2kf.rebuildP4UsingRegressedPt(true,true);
+    ei.H2_kinFit = H2kf;
+
+    ei.H1_kinFit_bb_DeltaR = sqrt(pow(ordered_jets.at(0).P4Regressed().Eta() - ordered_jets.at(1).P4Regressed().Eta(),2) + pow(deltaPhi(ordered_jets.at(0).P4Regressed().Phi(), ordered_jets.at(1).P4Regressed().Phi()),2));
+    ei.H2_kinFit_bb_DeltaR = sqrt(pow(ordered_jets.at(2).P4Regressed().Eta() - ordered_jets.at(3).P4Regressed().Eta(),2) + pow(deltaPhi(ordered_jets.at(2).P4Regressed().Phi(), ordered_jets.at(3).P4Regressed().Phi()),2));
+
+    ei.HH_kinFit = CompositeCandidate(H1kf, H2kf);
+
+    if( strategy == "XYH_4B_selection") if(any_cast<float>(parameterList_->at("OutOfShellHiggsMass")) > 0)
+    {
+        if(ei.H1->P4().M() < any_cast<float>(parameterList_->at("MinSignalRegion")) || ei.H1->P4().M() > any_cast<float>(parameterList_->at("MaxSignalRegion")) )
+        {
+            std::vector<Jet> outOfShell_ordered_jets = bbbb_jets_XYHselection(&presel_jets, any_cast<float>(parameterList_->at("OutOfShellHiggsMass")));
+            
+            CompositeCandidate offShell_H1 = CompositeCandidate(outOfShell_ordered_jets.at(0), outOfShell_ordered_jets.at(1));
+            offShell_H1.rebuildP4UsingRegressedPt(true,true);
+
+            CompositeCandidate offShell_H2 = CompositeCandidate(outOfShell_ordered_jets.at(2), outOfShell_ordered_jets.at(3));
+            offShell_H2.rebuildP4UsingRegressedPt(true,true);
+            ei.offShell_H1 = offShell_H1;
+            ei.offShell_H2 = offShell_H2;
+
+            ei.offShell_H1_b1 = outOfShell_ordered_jets.at(0);
+            ei.offShell_H1_b2 = outOfShell_ordered_jets.at(1);
+            ei.offShell_H2_b1 = outOfShell_ordered_jets.at(2);
+            ei.offShell_H2_b2 = outOfShell_ordered_jets.at(3);
+
+            ei.offShell_H1_bb_DeltaR = sqrt(pow(ei.offShell_H1_b1->P4Regressed().Eta() - ei.offShell_H1_b2->P4Regressed().Eta(),2) + pow(deltaPhi(ei.offShell_H1_b1->P4Regressed().Phi(), ei.offShell_H1_b2->P4Regressed().Phi()),2));
+            ei.offShell_H2_bb_DeltaR = sqrt(pow(ei.offShell_H2_b1->P4Regressed().Eta() - ei.offShell_H2_b2->P4Regressed().Eta(),2) + pow(deltaPhi(ei.offShell_H2_b1->P4Regressed().Phi(), ei.offShell_H2_b2->P4Regressed().Phi()),2));
+
+            ei.offShell_HH = CompositeCandidate(ei.offShell_H1.get(), ei.offShell_H2.get());
+
+        }
+    }
+
 
     ei.Run = *(nat.run);
     ei.LumiSec = *(nat.luminosityBlock);
     ei.Event = *(nat.event);
+    if(parameterList_->find("BTagScaleFactorMethod") != parameterList_->end()) ei.pileUp = *(nat.Pileup_nTrueInt);;
 
 
     // }
@@ -1925,9 +1960,8 @@ std::vector<Jet> OfflineProducerHelper::bbbb_jets_idxs_HighestCSVandClosestToMh(
     return output_jets;
 }
 
-std::vector<Jet> OfflineProducerHelper::bbbb_jets_XYHselection(const std::vector<Jet> *jets)
+std::vector<Jet> OfflineProducerHelper::bbbb_jets_XYHselection(const std::vector<Jet> *jets, float targetHiggsMass)
 {
-    float targetHiggsMass = any_cast<float>(parameterList_->at("HiggsMass"));
     size_t numberOfJets = jets->size();
     assert(numberOfJets == 4);
 

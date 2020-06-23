@@ -66,6 +66,7 @@ class OutputTree {
         unsigned int           Run;
         unsigned int           LumiSec;
         unsigned long long int Event;
+        unsigned int           pileUp;
         //////////////////----- reco H1 and H2
         DECLARE_m_pt_eta_phi_p4(H1)
         float H1_bb_DeltaR;
@@ -73,9 +74,31 @@ class OutputTree {
         float H2_bb_DeltaR;
         DECLARE_m_pt_eta_phi_p4(HH)
         float HH_2DdeltaM;
-        float HH_m_kinFit;
         float H1_H2_sphericity;
         float FourBjet_sphericity;
+
+        DECLARE_m_pt_eta_phi_p4(offShell_H1)
+        float offShell_H1_bb_DeltaR;
+        DECLARE_m_pt_eta_phi_p4(offShell_H2)
+        float offShell_H2_bb_DeltaR;
+        DECLARE_m_pt_eta_phi_p4(offShell_HH)
+
+        DECLARE_m_pt_eta_phi_p4(H1_kinFit)
+        DECLARE_m_pt_eta_phi_p4(H2_kinFit)
+        DECLARE_m_pt_eta_phi_p4(HH_kinFit)
+        float H1_kinFit_bb_DeltaR;
+        float H2_kinFit_bb_DeltaR;
+
+        DECLARE_m_pt_ptRegressed_eta_phi_p4(H1_b1_kinFit)
+        DECLARE_m_pt_ptRegressed_eta_phi_p4(H1_b2_kinFit)
+        DECLARE_m_pt_ptRegressed_eta_phi_p4(H2_b1_kinFit)
+        DECLARE_m_pt_ptRegressed_eta_phi_p4(H2_b2_kinFit)
+
+
+        DECLARE_m_pt_ptRegressed_eta_phi_p4(offShell_H1_b1)
+        DECLARE_m_pt_ptRegressed_eta_phi_p4(offShell_H1_b2)
+        DECLARE_m_pt_ptRegressed_eta_phi_p4(offShell_H2_b1)
+        DECLARE_m_pt_ptRegressed_eta_phi_p4(offShell_H2_b2)
 
         //////////////////----- reco bs
         DECLARE_m_pt_ptRegressed_eta_phi_p4(H1_b1)

@@ -22,6 +22,20 @@ void normalizeByBinSize(TH1D* inputPlot)
 
 }
 
+template<typename Hist>
+Hist* getHistogramFromFile(TFile& inputFile, std::string histogramName)
+{
+    Hist* histogram = (Hist*)inputFile.Get(histogramName.data());
+    if(histogram == nullptr)
+    {
+        std::cout<< "Histogram " << histogramName << " does not exist" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    histogram->SetDirectory(0);
+
+    return histogram;
+}
+
 std::tuple<TH1D*, TH1D*> dividePlots(const TH1D* referencePlot, const TH1D* inputPlot)
 {
     std::string ratioPlotName = std::string(inputPlot->GetName()) + "_ratio";
@@ -332,9 +346,6 @@ void RatioAllMC()
 void RatioSlices(std::string canvasName, std::string referenceFileName, std::string referenceHistogramName, std::string inputFileName, std::string inputHistogramName, bool normalize = false, float normalizeValue = -1, float xMin=0, float xMax = 1500, int rebinNumber = 1, std::string xAxis = "", std::string yAxis = "events/GeV") 
 {
 
-    // std::cout<<normalize<<std::endl;
-    // std::cout<<normalizeValue<<std::endl;
-
     TFile referenceFile(referenceFileName.data());
     TH2F *referenceHistogram2D = (TH2F*)referenceFile.Get(referenceHistogramName.data());
     if(referenceHistogram2D == NULL)
@@ -471,6 +482,28 @@ void RatioAllVariables(std::string canvasName, std::string referenceFileName, st
 
     RatioSlices(canvasName, referenceFileName, referenceHistPrototype + "_HH_m_H2_m_Rebinned", targetFileName, targetHistPrototype + "_HH_m_H2_m_Rebinned", normalize, scaleValue, 250, 2200, 3, "m_{Xreco} [GeV]","events/GeV");
   
+}
+
+
+
+
+void RatioBackgroundSculpting(std::string canvasName = "BackgroundSculpting", std::string fileName = "2016DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies_norm/outPlotter.root", std::string referenceDatasetName = "data_BTagCSV" , std::string targetDatasetName = "data_BTagCSV_3btag")
+{
+
+    TFile theFile(fileName.data());
+    auto *entriesIn4b = getHistogramFromFile<TH1F>(theFile, referenceDatasetName + "/" + referenceDatasetName);
+    auto *entriesIn3b = getHistogramFromFile<TH1F>(theFile, targetDatasetName + "/" + targetDatasetName);
+    float nEntriesIn3b = entriesIn3b->GetBinContent(entriesIn3b->GetXaxis()->FindBin("selectionbJets_SideBandBlinded"));
+    float nEntriesIn4b = entriesIn4b->GetBinContent(entriesIn4b->GetXaxis()->FindBin("selectionbJets_SideBandBlinded"));
+    float normalizationValue = nEntriesIn4b / nEntriesIn3b;
+    theFile.Close();
+    std::cout << nEntriesIn4b << " - " << nEntriesIn3b << " - " << normalizationValue << std::endl;
+
+    TCanvas *theCanvas = new TCanvas(canvasName.data(), canvasName.data(), 1400, 800);
+    theCanvas->DivideSquare(2,0.005,0.005);
+    RatioPlotFromFile(theCanvas->cd(1),fileName ,referenceDatasetName +  "/" + "selectionbJets_ControlAndSideBandBlinded" + "/" + referenceDatasetName +  "_" + "selectionbJets_ControlAndSideBandBlinded" + "_H1_m"                        , {fileName} , {targetDatasetName +  "/" + "selectionbJets_FullRegion" + "/" + targetDatasetName +  "_" + "selectionbJets_FullRegion" + "_H1_m"                       }, {kRed} , true, normalizationValue,    65,   185, 1, "m_{Hreco}","events","4b-tag", {std::string("3b-tag scaled")});
+    RatioPlotFromFile(theCanvas->cd(2),fileName ,referenceDatasetName +  "/" + "selectionbJets_ControlAndSideBandBlinded" + "/" + referenceDatasetName +  "_" + "selectionbJets_ControlAndSideBandBlinded" + "_H1_m"                        , {fileName} , {"data_BTagCSV_dataDriven/selectionbJets_FullRegion/data_BTagCSV_dataDriven_selectionbJets_FullRegion_H1_m"                       }, {kRed} , false, normalizationValue,    65,   185, 1, "m_{Hreco}","events","4b-tag", {std::string("BKG model")});
+
 }
 
 

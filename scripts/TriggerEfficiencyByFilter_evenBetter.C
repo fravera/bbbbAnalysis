@@ -83,6 +83,18 @@ struct TriggerEfficiencyTool
         int numberOfEntries =  fFilterEfficiencyHistogram.get()->GetNbinsX();
         for(Int_t i = 0; i < numberOfEntries+1; ++i) {
             if(fFilterEfficiencyHistogram.get()->GetBinContent(i) > fFilterNormalizationHistogram.get()->GetBinContent(i)) {
+                TCanvas theTmpCanvas("c1", "c1");
+                auto tmpNormalization = (TH1F*)fFilterNormalizationHistogram.get()->Clone("fTmpNormalization");
+                auto tmpEfficiency    = (TH1F*)fFilterEfficiencyHistogram   .get()->Clone("fTmpEfficiency"   );
+                tmpNormalization->SetDirectory(0);
+                tmpEfficiency   ->SetDirectory(0);
+                tmpNormalization->SetLineColor(kBlue);
+                tmpEfficiency   ->SetLineColor(kRed );
+                tmpNormalization->Draw("hist");
+                tmpEfficiency   ->Draw("same");
+                theTmpCanvas.SaveAs("tmpsCanvas.png");
+                delete tmpNormalization;
+                delete tmpEfficiency   ;
                 std::cout<<"NumberOfEntries not consisten for Bin " << i << " values - "<<  fFilterEfficiencyHistogram.get()->GetBinContent(0) << " - " << fFilterNormalizationHistogram.get()->GetBinContent(0) << std::endl;
                 fFilterEfficiencyHistogram.get()->SetBinContent(i,0.);
                 fFilterNormalizationHistogram.get()->SetBinContent(i,0.);
@@ -91,6 +103,7 @@ struct TriggerEfficiencyTool
         // for(int bin=0; bin<=numberOfEntries)
         // std::cout<<"NumberOfEntries underflow - "<<  fFilterEfficiencyHistogram.get()->GetBinContent(0) << " - " << fFilterNormalizationHistogram.get()->GetBinContent(0) << std::endl;
         // std::cout<<"NumberOfEntries overflow - "<<  fFilterEfficiencyHistogram.get()->GetBinContent(numberOfEntries+1) << " - " << fFilterNormalizationHistogram.get()->GetBinContent(numberOfEntries+1) << std::endl;
+        // fEfficiency->Divide(fFilterEfficiencyHistogram.get(),fFilterNormalizationHistogram.get(),"cl=0.683 pois mode");
         fEfficiency->Divide(fFilterEfficiencyHistogram.get(),fFilterNormalizationHistogram.get(),"cl=0.683 b(1,1) mode");
         fFilterNormalizationHistogram->Scale(renormalizationValue);
         for(int bin=0; bin<= fFilterNormalizationHistogram->GetNbinsX(); ++bin)
@@ -420,7 +433,7 @@ void ProduceAllTriggerEfficiencies2016()
 
     // std::thread theMatchedTriggerThread          (ProduceAllTriggerEfficienciesFiles2016, "SingleMuon_Data_forTrigger_MuonPt30_matched.root"  , "TTbar_MC_forTrigger_MuonPt30_matched.root"  , "WJetsToLNu_Data_forTrigger_MuonPt30_matched.root"  , "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_matched.root",   "TriggerEfficiencies_MuonPt30_matched.root"           , false);
     // std::thread theUnMatchedTriggerThread        (ProduceAllTriggerEfficienciesFiles2016, "SingleMuon_Data_forTrigger_MuonPt30_unMatched.root", "TTbar_MC_forTrigger_MuonPt30_unMatched.root", "WJetsToLNu_Data_forTrigger_MuonPt30_unMatched.root", "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_unMatched.root", "TriggerEfficiencies_MuonPt30_unMatched.root"         , false);
-    std::thread theMatchedTriggerThreadTTbarCut  (ProduceAllTriggerEfficienciesFiles2016, "SingleMuon_Data_forTrigger_new.root"  , "TTbar_MC_forTrigger_new.root"  ,  "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_matched.root",  "TriggerEfficiencies_2016_TTBarCut_new.root", true );
+    std::thread theMatchedTriggerThreadTTbarCut  (ProduceAllTriggerEfficienciesFiles2016, "SingleMuon_Data_forTrigger_2016.root"  , "TTbar_MC_forTrigger_2016.root"  ,  "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_matched.root",  "TriggerEfficiencies_2016_TTBarCut.root", true );
     // std::thread theMatchedTriggerThreadTTbarCut  (ProduceAllTriggerEfficienciesFiles2016, "SingleMuon_Data_forTrigger_MuonPt30_matched.root"  , "TTbar_MC_forTrigger_MuonPt30_matched.root"  , "WJetsToLNu_Data_forTrigger_MuonPt30_matched.root"  , "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_matched.root",   "TriggerEfficiencies_MuonPt30_matched_TTBarCut.root"  , true );
     // std::thread theUnMatchedTriggerThreadTTbarCut(ProduceAllTriggerEfficienciesFiles2016, "SingleMuon_Data_forTrigger_MuonPt30_unMatched.root", "TTbar_MC_forTrigger_MuonPt30_unMatched.root", "WJetsToLNu_Data_forTrigger_MuonPt30_unMatched.root", "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_unMatched.root", "TriggerEfficiencies_MuonPt30_unMatched_TTBarCut.root", true );
     // theMatchedTriggerThread          .join();
@@ -454,7 +467,7 @@ void ProduceAllTriggerEfficiencyInAFile2017(std::vector<std::tuple<std::shared_p
     normalizationCut = filterCut;
     filterCut = normalizationCut + "&& QuadCentralJet30>=4";
     customBinning.clear();
-    customBinCreator(customBinning, 20., 100., 3.,  180., 8.,  220., 15.,  300., 30.);
+    customBinCreator(customBinning, 20., 100., 3.,  180., 10.,  220., 30.,  300., 40.);
     theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "jetForthHighestPt_pt"          , normalizationCut, "QuadCentralJet30; p_{T}^{4} [GeV]; online efficiency"           , customBinning, theColor);
     
     normalizationCut = filterCut;
@@ -472,12 +485,14 @@ void ProduceAllTriggerEfficiencyInAFile2017(std::vector<std::tuple<std::shared_p
     normalizationCut = normalizationCut + "&& BTagCaloCSVp05Double>=2";
     filterCut = normalizationCut + "&& PFCentralJetLooseIDQuad30>=4";
     customBinning.clear();
-    customBinCreator(customBinning, 20., 100., 5., 150., 10.,  250., 20.);
-    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "jetForthHighestPt_pt"         , normalizationCut, "PFCentralJetLooseIDQuad30; p_{T}^{4} [GeV]; online efficiency"         ,100, 20 , 500, theColor);
+    customBinCreator(customBinning, 20., 80., 5., 120., 10., 200., 20.);
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "jetForthHighestPt_pt"         , normalizationCut, "PFCentralJetLooseIDQuad30; p_{T}^{4} [GeV]; online efficiency"         ,customBinning, theColor);
    
     normalizationCut = normalizationCut;
     filterCut = normalizationCut + "&& 1PFCentralJetLooseID75>=1";
-    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "jetFirstHighestPt_pt"         , normalizationCut, "1PFCentralJetLooseID75; p_{T}^{1} [GeV]; online efficiency"         ,50, 20 , 500, theColor);
+    customBinning.clear();
+    customBinCreator(customBinning, 20., 200., 10.,  500., 20.);
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "jetFirstHighestPt_pt"         , normalizationCut, "1PFCentralJetLooseID75; p_{T}^{1} [GeV]; online efficiency"         ,customBinning, theColor);
     
     normalizationCut = filterCut;
     filterCut = normalizationCut + "&& 2PFCentralJetLooseID60>=2";
@@ -489,7 +504,9 @@ void ProduceAllTriggerEfficiencyInAFile2017(std::vector<std::tuple<std::shared_p
     
     normalizationCut = filterCut;
     filterCut = normalizationCut + "&& 4PFCentralJetLooseID40>=4";
-    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "jetForthHighestPt_pt"         , normalizationCut, "4PFCentralJetLooseID40; p_{T}^{4} [GeV]; online efficiency"         ,40, 20 , 200, theColor);
+    customBinning.clear();
+    customBinCreator(customBinning, 20., 80., 5., 120., 10., 200., 20.);
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "jetForthHighestPt_pt"         , normalizationCut, "4PFCentralJetLooseID40; p_{T}^{4} [GeV]; online efficiency"         , customBinning, theColor);
     
     normalizationCut = filterCut;
     filterCut = normalizationCut + " && PFCentralJetsLooseIDQuad30HT300_MaxHT>=300";
