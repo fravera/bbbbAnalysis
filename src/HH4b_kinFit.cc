@@ -94,7 +94,7 @@ double HH4b_kinFit::constrainHH_signalMeasurement(TLorentzVector *j1, TLorentzVe
   
   fitter->fit();
   
-  double chi2=fitter->getS();
+  double chi2Normalized=fitter->getS()/fitter->getNDF();
   
   *j1 = TLorentzVector(*(fitter->get4Vec(0)));
   *j2 = TLorentzVector(*(fitter->get4Vec(1)));
@@ -114,6 +114,6 @@ double HH4b_kinFit::constrainHH_signalMeasurement(TLorentzVector *j1, TLorentzVe
 
   delete fitter;
   
-  return chi2;
+  return chi2Normalized;
 }
 

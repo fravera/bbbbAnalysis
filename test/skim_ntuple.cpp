@@ -155,9 +155,9 @@ int main(int argc, char** argv)
         }
         else
         {
-            parameterList.emplace("OutOfShellHiggsMass", -1.);
-            parameterList.emplace("MinSignalRegion"    , -1.);
-            parameterList.emplace("MaxSignalRegion"    , -1.);
+            parameterList.emplace("OutOfShellHiggsMass", -1.f);
+            parameterList.emplace("MinSignalRegion"    , -1.f);
+            parameterList.emplace("MaxSignalRegion"    , -1.f);
         }
 
     }

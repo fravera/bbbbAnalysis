@@ -1,1 +1,1 @@
-root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2016_v5/SKIM_NMSSM_XYH_bbbb_MX_800_NANOAOD_v7_MY_70/output/bbbbNtuple_0.root
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2016_v11/SKIM_NMSSM_XYH_bbbb_MX_800_NANOAOD_v7_MY_70/output/bbbbNtuple_0.root

@@ -124,8 +124,9 @@ void SkimUtils::fill_output_tree(OutputTree& ot, NanoAODTree& nat, EventInfo& ei
     COPY_OPTIONAL_m_pt_eta_phi_p4(HH_kinFit)
     if(ei.H1_kinFit_bb_DeltaR) ot.H1_kinFit_bb_DeltaR  = *ei.H1_kinFit_bb_DeltaR;
     if(ei.H1_kinFit_bb_DeltaR) ot.H1_kinFit_bb_DeltaR  = *ei.H1_kinFit_bb_DeltaR;
-
-
+    if(ei.kinFit_chi2        ) ot.kinFit_chi2          = *ei.kinFit_chi2        ;
+    if(ei.abs_costh_H1_ggfcm ) ot.abs_costh_H1_ggfcm   = *ei.abs_costh_H1_ggfcm ;
+    if(ei.abs_costh_H2_ggfcm ) ot.abs_costh_H2_ggfcm   = *ei.abs_costh_H2_ggfcm ;
 
     //set the variables for TTEMU studies
     COPY_OPTIONAL_m_pt_ptRegressed_eta_phi_p4(TT_b1)

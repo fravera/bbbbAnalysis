@@ -106,6 +106,10 @@ void OutputTree::init_branches(bool initAllBranches)
     BRANCH_m_pt_eta_phi_p4(HH_kinFit)
     tree_->Branch("H1_kinFit_bb_DeltaR", &H1_kinFit_bb_DeltaR);
     tree_->Branch("H2_kinFit_bb_DeltaR", &H2_kinFit_bb_DeltaR);
+    tree_->Branch("H2_kinFit_bb_DeltaR", &H2_kinFit_bb_DeltaR);
+    tree_->Branch("kinFit_chi2", &kinFit_chi2);
+    tree_->Branch("abs_costh_H1_ggfcm", &abs_costh_H1_ggfcm);
+    tree_->Branch("abs_costh_H2_ggfcm", &abs_costh_H2_ggfcm);
 
     tree_->Branch("triggerScaleFactor"       , &triggerScaleFactor       );
     tree_->Branch("triggerDataEfficiency"    , &triggerDataEfficiency    );
@@ -477,6 +481,9 @@ void OutputTree::clear()
     CLEAR_m_pt_eta_phi_p4(HH_kinFit)
     H1_kinFit_bb_DeltaR = 0.;
     H2_kinFit_bb_DeltaR = 0.;
+    kinFit_chi2         = -1.;
+    abs_costh_H1_ggfcm  = -1.;
+    abs_costh_H2_ggfcm  = -1.;
     
     CLEAR_m_pt_ptRegressed_eta_phi_p4(offShell_H1_b1)
     CLEAR_m_pt_ptRegressed_eta_phi_p4(offShell_H1_b2)

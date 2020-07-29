@@ -88,6 +88,9 @@ class OutputTree {
         DECLARE_m_pt_eta_phi_p4(HH_kinFit)
         float H1_kinFit_bb_DeltaR;
         float H2_kinFit_bb_DeltaR;
+        float kinFit_chi2;
+        float abs_costh_H1_ggfcm;
+        float abs_costh_H2_ggfcm;
 
         DECLARE_m_pt_ptRegressed_eta_phi_p4(H1_b1_kinFit)
         DECLARE_m_pt_ptRegressed_eta_phi_p4(H1_b2_kinFit)

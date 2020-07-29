@@ -526,18 +526,19 @@ int main(int argc, char** argv)
         {
             // here preselect jets
             Jet jet (ij, &nat);
-            if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 3.) allJetPt_sum_ += jet.P4().Pt();
-            if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 2.1) allJetPtEtaRestricted_sum_ += jet.P4().Pt();
-            if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.4) allJetAbove30Eta24_sum_ += jet.P4().Pt();
 
-            if(isoMuonJetId  == jet.getIdx()) continue;
-
-            // Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto
-            // but note that bit1 means idx 0 and so on
-            int jetid = get_property(jet, Jet_jetId); 
-
-            if (!checkBit(jetid, 1)) // tight jet Id
-                continue;
+            bool isMuon = false;
+            for (uint candIt = 0; candIt < *(nat.nMuon); ++candIt)
+            {
+                Muon theMuon (candIt, &nat);
+                if(get_property(theMuon, Muon_pfRelIso04_all) > 0.3) continue;
+                if(jet.getIdx() == get_property(theMuon, Muon_jetIdx))
+                {
+                    isMuon = true;
+                    break;
+                }
+            }
+            if(isMuon) continue;
 
             bool isElectron = false;
             for (uint candIt = 0; candIt < *(nat.nElectron); ++candIt)
@@ -552,11 +553,22 @@ int main(int argc, char** argv)
             }
             if(isElectron) continue;
 
+            if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 3.) allJetPt_sum_ += jet.P4().Pt();
+            if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 2.1) allJetPtEtaRestricted_sum_ += jet.P4().Pt();
+            if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.4) allJetAbove30Eta24_sum_ += jet.P4().Pt();
             if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.5) 
             {
                 allJetPtAbove30_sum_ += jet.P4().Pt();
                 numberOfJetsForHT_++;
             }
+            
+            // Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto
+            // but note that bit1 means idx 0 and so on
+            
+            int jetid = get_property(jet, Jet_jetId); 
+
+            if (!checkBit(jetid, 1)) // tight jet Id
+                continue;
 
             if (jet.P4().Pt() <= 25)
                 continue;

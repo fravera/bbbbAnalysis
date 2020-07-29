@@ -53,10 +53,14 @@ limitMap1sigmaUp   = TH2D("LimitMap1sigmaUp"  ,"1 Sigma Up Limit [pb]; m_{X} [Ge
 limitMap2sigmaUp   = TH2D("LimitMap2sigmaUp"  ,"2 Sigma Up Limit [pb]; m_{X} [GeV]; m_{Y} [GeV]; #sigma(pp #rightarrow X) #times BR(Y(b#bar{b}) H(b#bar{b})) [fb]", len(xBinning)-1, array('d',xBinning), len(yBinning)-1, array('d',yBinning))
 
 parser = argparse.ArgumentParser(description='Command line parser of skim options')
-parser.add_argument('--year', dest='year', help='Output Directory', default = ""   , required = True)
+parser.add_argument('--year'  , dest='year', help='Output Directory', default = ""   , required = True)
+parser.add_argument('--kinFit', dest='kinFit', help='use kinfit', default = False   , action='store_true', required = False)
+parser.add_argument('--addScaleSignal',    dest='addScaleSignal',          help='add scale signal',         action='store_true' , default=False)
+
 args = parser.parse_args()
 
 year = args.year
+kinFit = args.kinFit
 
 
 yMassesList = []
@@ -89,7 +93,9 @@ for signal in signalList:
         brazilianPlotList[massYTmp][1].SetFillColor(ROOT.kGreen)
         brazilianPlotList[massYTmp][2].SetFillColor(ROOT.kYellow)
 
-outputFolderName = "Limits" + str(year)
+kinFitTag = ""
+if kinFit: kinFitTag = "_kinFit_"
+outputFolderName = "Limits" + kinFitTag + str(year)
 
 for signal in signalList:
 

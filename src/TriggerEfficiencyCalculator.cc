@@ -504,40 +504,41 @@ void TriggerEfficiencyCalculator_2016::extractInformationFromEvent(std::vector<J
         // here preselect jets
         Jet jet (ij, &theNanoAODTree_);
 
-        // // Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto
-        // // but note that bit1 means idx 0 and so on
+        // Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto
+        // but note that bit1 means idx 0 and so on
         // int jetId = get_property(jet, Jet_jetId); 
 
         // if (!(jetId & (1 << 1))) // tight jet Id
         //     continue;
 
-        // bool isElectron = false;
-        // for (uint candIt = 0; candIt < *(theNanoAODTree_.nElectron); ++candIt)
-        // {
-        //     Electron theElectron (candIt, &theNanoAODTree_);
-        //     if(get_property(theElectron, Electron_pfRelIso03_all) > 0.3) continue;
-        //     if(jet.getIdx() == get_property(theElectron, Electron_jetIdx))
-        //     {
-        //         isElectron = true;
-        //         break;
-        //     }
-        // }
-        // if(isElectron) continue;
+        bool isElectron = false;
+        for (uint candIt = 0; candIt < *(theNanoAODTree_.nElectron); ++candIt)
+        {
+            Electron theElectron (candIt, &theNanoAODTree_);
+            if(get_property(theElectron, Electron_pfRelIso03_all) > 0.3) continue;
+            if(jet.getIdx() == get_property(theElectron, Electron_jetIdx))
+            {
+                isElectron = true;
+                break;
+            }
+        }
+        if(isElectron) continue;
 
-        // bool isMuon = false;
-        // for (uint candIt = 0; candIt < *(theNanoAODTree_.nMuon); ++candIt)
-        // {
-        //     Muon theMuon (candIt, &theNanoAODTree_);
-        //     if(get_property(theMuon, Muon_pfRelIso04_all) > 0.3) continue;
-        //     if(jet.getIdx() == get_property(theMuon, Muon_jetIdx))
-        //     {
-        //         isMuon = true;
-        //         break;
-        //     }
-        // }
-        // if(isMuon) continue;
+        bool isMuon = false;
+        for (uint candIt = 0; candIt < *(theNanoAODTree_.nMuon); ++candIt)
+        {
+            Muon theMuon (candIt, &theNanoAODTree_);
+            if(get_property(theMuon, Muon_pfRelIso04_all) > 0.3) continue;
+            if(jet.getIdx() == get_property(theMuon, Muon_jetIdx))
+            {
+                isMuon = true;
+                break;
+            }
+        }
+        if(isMuon) continue;
 
         if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 3.) sumPt_ += jet.P4().Pt();
+
     }
 
     theOutputTree_->userFloat("HLT_Pt2"  ) = pt2_  ;
@@ -702,16 +703,12 @@ void TriggerEfficiencyCalculator_2017::extractInformationFromEvent(std::vector<J
         // here preselect jets
         Jet jet (ij, &theNanoAODTree_);
 
-        if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 3.) sumPt_ += jet.P4().Pt();
-        if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 2.1) sumPtEtaRestricted_ += jet.P4().Pt();
-        if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.4) allJetAbove30Eta24_sum_ += jet.P4().Pt();
-
         // Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto
         // but note that bit1 means idx 0 and so on
-        int jetId = get_property(jet, Jet_jetId); 
+        // int jetId = get_property(jet, Jet_jetId); 
 
-        if (!(jetId & (1 << 1))) // tight jet Id
-            continue;
+        // if (!(jetId & (1 << 1))) // tight jet Id
+        //     continue;
 
         bool isElectron = false;
         for (uint candIt = 0; candIt < *(theNanoAODTree_.nElectron); ++candIt)
@@ -739,6 +736,9 @@ void TriggerEfficiencyCalculator_2017::extractInformationFromEvent(std::vector<J
         }
         if(isMuon) continue;
 
+        if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 3.) sumPt_ += jet.P4().Pt();
+        if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 2.1) sumPtEtaRestricted_ += jet.P4().Pt();
+        if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.4) allJetAbove30Eta24_sum_ += jet.P4().Pt();
         if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.5) sumPtAbove30_ += jet.P4().Pt();
 
     }
@@ -995,16 +995,12 @@ void TriggerEfficiencyCalculator_2018::extractInformationFromEvent(std::vector<J
         // here preselect jets
         Jet jet (ij, &theNanoAODTree_);
 
-        if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 3.) sumPt_ += jet.P4().Pt();
-        if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 2.1) sumPtEtaRestricted_ += jet.P4().Pt();
-        if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.4) allJetAbove30Eta24_sum_ += jet.P4().Pt();
-
         // Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto
         // but note that bit1 means idx 0 and so on
-        int jetId = get_property(jet, Jet_jetId); 
+        // int jetId = get_property(jet, Jet_jetId); 
 
-        if (!(jetId & (1 << 1))) // tight jet Id
-            continue;
+        // if (!(jetId & (1 << 1))) // tight jet Id
+        //     continue;
 
         bool isElectron = false;
         for (uint candIt = 0; candIt < *(theNanoAODTree_.nElectron); ++candIt)
@@ -1032,6 +1028,9 @@ void TriggerEfficiencyCalculator_2018::extractInformationFromEvent(std::vector<J
         }
         if(isMuon) continue;
 
+        if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 3.) sumPt_ += jet.P4().Pt();
+        if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 2.1) sumPtEtaRestricted_ += jet.P4().Pt();
+        if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.4) allJetAbove30Eta24_sum_ += jet.P4().Pt();
         if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.5) sumPtAbove30_ += jet.P4().Pt();
 
     }

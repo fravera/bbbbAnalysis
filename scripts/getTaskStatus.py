@@ -54,6 +54,7 @@ parser.add_argument('--dir',          dest='folder',      help='process folder',
 parser.add_argument('--resubCmd',     dest='resubCmd',    help='print resubmit cmd',  action='store_true',   default=False)
 parser.add_argument('--issueCmd',     dest='issueCmd',    help='issue resubmit cmd',  action='store_true',   default=False)
 parser.add_argument('--long',         dest='short',       help='want long summary',   action='store_false',  default=True)
+parser.add_argument('--resubMissing', dest='resubMissing',help='resubmit also missing',action='store_true',  default=False)
 
 args = parser.parse_args()
 
@@ -200,6 +201,12 @@ if args.resubCmd or args.issueCmd:
         jobscript = args.folder + '/job_' + str(val[0]) + '.sh'
         command   = "scripts/t3submit %s" % jobscript
         resubCmds.append(command)
+    if args.resubMissing:
+        for val in missing:
+            # jobscript = job_proto.format(val[0]).replace(args.folder + '/', '')
+            jobscript = args.folder + '/job_' + str(val[0]) + '.sh'
+            command   = "scripts/t3submit %s" % jobscript
+            resubCmds.append(command)
     for cmd in resubCmds:
         print cmd
 

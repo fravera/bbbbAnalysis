@@ -1512,6 +1512,13 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
     ei.FourBjet_sphericity = evaluateSphericity( {ei.H1_b1->P4Regressed(), ei.H1_b2->P4Regressed(), ei.H2_b1->P4Regressed(), ei.H2_b2->P4Regressed()} );
 
     ei.HH = CompositeCandidate(ei.H1.get(), ei.H2.get());
+    auto cmBoost = ei.HH->P4().BoostVector();
+    TLorentzVector H1_cm(ei.H1->P4());
+    TLorentzVector H2_cm(ei.H2->P4());
+    H1_cm.Boost(-cmBoost);
+    H2_cm.Boost(-cmBoost);
+    ei.abs_costh_H1_ggfcm    = abs(H1_cm.CosTheta());
+    ei.abs_costh_H2_ggfcm    = abs(H2_cm.CosTheta());
 
     float targetHiggsMass;
     if(strategy == "HighestCSVandClosestToMh")
@@ -1527,7 +1534,7 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
     
     ei.HH_2DdeltaM = pow(ei.H1->P4().M() - targetHiggsMass,2) + pow(ei.H2->P4().M() - targetHiggsMass,2);
 
-    theKinFitter_->constrainHH_signalMeasurement(&ordered_jets.at(0).p4Regressed_, &ordered_jets.at(1).p4Regressed_, &ordered_jets.at(2).p4Regressed_, &ordered_jets.at(3).p4Regressed_, 125., -1);
+    ei.kinFit_chi2 = theKinFitter_->constrainHH_signalMeasurement(&ordered_jets.at(0).p4Regressed_, &ordered_jets.at(1).p4Regressed_, &ordered_jets.at(2).p4Regressed_, &ordered_jets.at(3).p4Regressed_, 125., -1);
 
     ei.H1_b1_kinFit = ordered_jets.at(0);
     ei.H1_b2_kinFit = ordered_jets.at(1);

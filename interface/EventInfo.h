@@ -77,6 +77,9 @@ struct EventInfo{
     boost::optional<CompositeCandidate> H2_kinFit;
     boost::optional<float> H2_kinFit_bb_DeltaR;
     boost::optional<CompositeCandidate> HH_kinFit;
+    
+    boost::optional<float> abs_costh_H1_ggfcm;
+    boost::optional<float> abs_costh_H2_ggfcm;
 
     boost::optional<Jet> H1_b1;
     boost::optional<Jet> H1_b2;
@@ -92,6 +95,7 @@ struct EventInfo{
     boost::optional<Jet> H1_b2_kinFit;
     boost::optional<Jet> H2_b1_kinFit;
     boost::optional<Jet> H2_b2_kinFit;
+    boost::optional<float> kinFit_chi2;
 
     //Non-resonant analysis and studies
     boost::optional<int>  gen_H1_b1_matched;

@@ -407,7 +407,7 @@ void RatioSlices(std::string canvasName, std::string referenceFileName, std::str
 }
 
 
-void RatioAllVariables(std::string canvasName, std::string referenceFileName, std::string referenceDatasetName , std::string referenceCutName, std::string targetFileName, std::string targetDatasetName , std::string targetCutName, bool normalize, std::string region = "HMR")
+void RatioAllVariables(std::string canvasName, std::string referenceFileName, std::string referenceDatasetName , std::string referenceCutName, std::string targetFileName, std::string targetDatasetName , std::string targetCutName, bool normalize, std::string region = "HMR", bool useKinFitVariables = false)
 {
 
     float minH2_m;
@@ -448,6 +448,7 @@ void RatioAllVariables(std::string canvasName, std::string referenceFileName, st
         std::cout<<"Region not specified"<<std::endl;
         return;
     }
+    std::string append = useKinFitVariables ? "_kinFit" : "";
 
     std::string legEntry;
     if(canvasName.find("BeforeBDT") == std::string::npos) legEntry = "BKG model";
@@ -458,11 +459,11 @@ void RatioAllVariables(std::string canvasName, std::string referenceFileName, st
     std::string targetHistPrototype    = targetDatasetName    +  "/" + targetCutName    + "/" + targetDatasetName    +  "_" + targetCutName   ;
     TCanvas *theCanvas = new TCanvas(canvasName.data(), canvasName.data(), 1400, 800);
     theCanvas->DivideSquare(6,0.005,0.005);
-    RatioPlotFromFile(theCanvas->cd(1),referenceFileName ,referenceHistPrototype + "_H1_pt"                       , {targetFileName} , {targetHistPrototype + "_H1_pt"                      }, {kRed} , normalize, scaleValue,     0,   600, 4, "pT_{Hreco} [GeV]","events","4b-tag",{legEntry});
+    RatioPlotFromFile(theCanvas->cd(1),referenceFileName ,referenceHistPrototype + "_H1" + append + "_pt"                       , {targetFileName} , {targetHistPrototype + "_H1" + append + "_pt"                      }, {kRed} , normalize, scaleValue,     0,   600, 4, "pT_{H" + append + "reco} [GeV]","events","4b-tag",{legEntry});
     scaleValue = -1;
     RatioPlotFromFile(theCanvas->cd(4),referenceFileName ,referenceHistPrototype + "_H2_pt"                       , {targetFileName} , {targetHistPrototype + "_H2_pt"                      }, {kRed} , normalize, scaleValue,     0,   800, 4, "pT_{Yreco} [GeV]","events","4b-tag",{legEntry});
     scaleValue = -1;
-    RatioPlotFromFile(theCanvas->cd(2),referenceFileName ,referenceHistPrototype + "_H1_eta"                      , {targetFileName} , {targetHistPrototype + "_H1_eta"                     }, {kRed} , normalize, scaleValue,    -4,     4, 2, "#eta_{Hreco}","events","4b-tag",{legEntry});
+    RatioPlotFromFile(theCanvas->cd(2),referenceFileName ,referenceHistPrototype + "_H1" + append + "_eta"                      , {targetFileName} , {targetHistPrototype + "_H1" + append + "_eta"                     }, {kRed} , normalize, scaleValue,    -4,     4, 2, "#eta_{H" + append + "reco}","events","4b-tag",{legEntry});
     scaleValue = -1;
     RatioPlotFromFile(theCanvas->cd(5),referenceFileName ,referenceHistPrototype + "_H2_eta"                      , {targetFileName} , {targetHistPrototype + "_H2_eta"                     }, {kRed} , normalize, scaleValue,    -4,     4, 2, "#eta_{Yreco}","events","4b-tag",{legEntry});
     scaleValue = -1;
@@ -472,7 +473,7 @@ void RatioAllVariables(std::string canvasName, std::string referenceFileName, st
     // scaleValue = -1;
     RatioPlotFromFile(theCanvas->cd(3),referenceFileName ,referenceHistPrototype + "_H2_m"                        , {targetFileName} , {targetHistPrototype + "_H2_m"                       }, {kRed} , normalize, scaleValue, minH2_m, maxH2_m, rebinH2_m, "m_{Yreco} [GeV]","events/GeV","4b-tag",{legEntry},true);
     scaleValue = -1;
-    RatioPlotFromFile(theCanvas->cd(6),referenceFileName ,referenceHistPrototype + "_HH_m"                        , {targetFileName} , {targetHistPrototype + "_HH_m"                       }, {kRed} , normalize, scaleValue,   250,  2000, 4, "m_{Xreco} [GeV]","events/GeV","4b-tag",{legEntry},true);
+    RatioPlotFromFile(theCanvas->cd(6),referenceFileName ,referenceHistPrototype + "_HH" + append + "_m"                        , {targetFileName} , {targetHistPrototype + "_HH" + append + "_m"                       }, {kRed} , normalize, scaleValue,   250,  2000, 4, "m" + append + "_{Xreco} [GeV]","events/GeV","4b-tag",{legEntry},true);
     // RatioPlotFromFile(theCanvas->cd(9),referenceFileName ,referenceHistPrototype + "_HH_m_H2_m_Rebinned_Unrolled" , {targetFileName} , {targetHistPrototype + "_HH_m_H2_m_Rebinned_Unrolled"}, {kRed} , normalize, scaleValue, minUnroll_m, maxUnroll_m, rebinUnroll_m, "m_{X}*m_{Y}");
     // scaleValue = -1;
     // RatioPlotFromFile(theCanvas->cd(3),referenceFileName ,referenceDatasetName +  "/" + "selectionbJets_ControlRegionBlinded" + "/" + referenceDatasetName +  "_" + "selectionbJets_ControlRegionBlinded" + "_H1_m"                        , {targetFileName} , {targetDatasetName +  "/" + "selectionbJets_ControlRegionAndSignalRegion" + "/" + targetDatasetName +  "_" + "selectionbJets_ControlRegionAndSignalRegion" + "_H1_m"                       }, {kRed} , normalize, 0.153512,    95,   155, 1, "m_{Hreco}","events","4b-tag",{legEntry});
@@ -480,7 +481,7 @@ void RatioAllVariables(std::string canvasName, std::string referenceFileName, st
     theCanvas->SaveAs((std::string(theCanvas->GetName()) + ".png").data());
     delete theCanvas;
 
-    RatioSlices(canvasName, referenceFileName, referenceHistPrototype + "_HH_m_H2_m_Rebinned", targetFileName, targetHistPrototype + "_HH_m_H2_m_Rebinned", normalize, scaleValue, 250, 2200, 3, "m_{Xreco} [GeV]","events/GeV");
+    RatioSlices(canvasName, referenceFileName, referenceHistPrototype + "_HH" + append + "_m_H2_m", targetFileName, targetHistPrototype + "_HH" + append + "_m_H2_m", normalize, scaleValue, 250, 2200, 3, "m" + append + "_{Xreco} [GeV]","events/GeV");
   
 }
 
@@ -507,51 +508,71 @@ void RatioBackgroundSculpting(std::string canvasName = "BackgroundSculpting", st
 }
 
 
-void RatioAll(std::string dataDrivenDatasetName="data_BTagCSV_dataDriven")
+void RatioBackgroundSculptingOffShell(std::string canvasName = "BackgroundSculpting_offShell", std::string fileName = "2016DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies_offShell/outPlotter.root", std::string referenceDatasetName = "data_BTagCSV_offShell" , std::string targetDatasetName = "data_BTagCSV_3btag_offShell")
+{
+
+    TFile theFile(fileName.data());
+    auto *entriesIn4b = getHistogramFromFile<TH1F>(theFile, referenceDatasetName + "/" + referenceDatasetName);
+    auto *entriesIn3b = getHistogramFromFile<TH1F>(theFile, targetDatasetName + "/" + targetDatasetName);
+    float nEntriesIn3b = entriesIn3b->GetBinContent(entriesIn3b->GetXaxis()->FindBin("selectionbJets_offShell_SideBand"));
+    float nEntriesIn4b = entriesIn4b->GetBinContent(entriesIn4b->GetXaxis()->FindBin("selectionbJets_offShell_SideBand"));
+    float normalizationValue = nEntriesIn4b / nEntriesIn3b;
+    theFile.Close();
+    std::cout << nEntriesIn4b << " - " << nEntriesIn3b << " - " << normalizationValue << std::endl;
+
+    TCanvas *theCanvas = new TCanvas(canvasName.data(), canvasName.data(), 1400, 800);
+    theCanvas->DivideSquare(2,0.005,0.005);
+    RatioPlotFromFile(theCanvas->cd(1),fileName ,referenceDatasetName +  "/" + "selectionbJets_offShell_FullRegion" + "/" + referenceDatasetName +  "_" + "selectionbJets_offShell_FullRegion" + "_offShell_H1_m"                        , {fileName} , {targetDatasetName +  "/" + "selectionbJets_offShell_FullRegion" + "/" + targetDatasetName +  "_" + "selectionbJets_offShell_FullRegion" + "_offShell_H1_m"                       }, {kRed} , true, normalizationValue,    145,   265, 16, "m_{Hreco}","events","4b-tag", {std::string("3b-tag scaled")});
+    RatioPlotFromFile(theCanvas->cd(2),fileName ,referenceDatasetName +  "/" + "selectionbJets_offShell_FullRegion" + "/" + referenceDatasetName +  "_" + "selectionbJets_offShell_FullRegion" + "_offShell_H1_m"                        , {fileName} , {"data_BTagCSV_dataDriven_offShell/selectionbJets_offShell_FullRegion/data_BTagCSV_dataDriven_offShell_selectionbJets_offShell_FullRegion_offShell_H1_m"                       }, {kRed} , false, normalizationValue,    145,   265, 16, "m_{Hreco}","events","4b-tag", {std::string("BKG model")});
+
+}
+
+
+void RatioAll(bool useKinFitVariables=false, std::string dataDrivenDatasetName="data_BTagCSV_dataDriven")
 {
     gROOT->SetBatch();
 
-    RatioAllVariables("ControlRegion_AfterBDT_2016", "2016DataPlots_NMSSM_XYH_bbbb_Full/outPlotter.root", "data_BTagCSV" , "selectionbJets_ControlRegionBlinded", 
-    "2016DataPlots_NMSSM_XYH_bbbb_Full/outPlotter.root", dataDrivenDatasetName , "selectionbJets_ControlRegionBlinded",false, "Full");
+    RatioAllVariables("ControlRegion_AfterBDT_2016", "2016DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", "data_BTagCSV" , "selectionbJets_ControlRegionBlinded", 
+    "2016DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", dataDrivenDatasetName , "selectionbJets_ControlRegionBlinded",false, "Full", useKinFitVariables);
 
-    RatioAllVariables("ControlRegion_BeforeBDT_2016", "2016DataPlots_NMSSM_XYH_bbbb_Full/outPlotter.root", "data_BTagCSV" , "selectionbJets_ControlRegionBlinded", 
-    "2016DataPlots_NMSSM_XYH_bbbb_Full/outPlotter.root", "data_BTagCSV_3btag" , "selectionbJets_ControlRegionBlinded",true, "Full");
+    RatioAllVariables("ControlRegion_BeforeBDT_2016", "2016DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", "data_BTagCSV" , "selectionbJets_ControlRegionBlinded", 
+    "2016DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", "data_BTagCSV_3btag" , "selectionbJets_ControlRegionBlinded",true, "Full", useKinFitVariables);
 
 
     RatioAllVariables("ControlRegion_AfterBDT_2017", "2017DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", "data_BTagCSV" , "selectionbJets_ControlRegionBlinded", 
-    "2017DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", dataDrivenDatasetName , "selectionbJets_ControlRegionBlinded",false, "Full");
+    "2017DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", dataDrivenDatasetName , "selectionbJets_ControlRegionBlinded",false, "Full", useKinFitVariables);
 
     RatioAllVariables("ControlRegion_BeforeBDT_2017", "2017DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", "data_BTagCSV" , "selectionbJets_ControlRegionBlinded", 
-    "2017DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", "data_BTagCSV_3btag" , "selectionbJets_ControlRegionBlinded",true, "Full");
+    "2017DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", "data_BTagCSV_3btag" , "selectionbJets_ControlRegionBlinded",true, "Full", useKinFitVariables);
 
 
     RatioAllVariables("ControlRegion_AfterBDT_2018", "2018DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", "data_BTagCSV" , "selectionbJets_ControlRegionBlinded", 
-    "2018DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", dataDrivenDatasetName , "selectionbJets_ControlRegionBlinded",false, "Full");
+    "2018DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", dataDrivenDatasetName , "selectionbJets_ControlRegionBlinded",false, "Full", useKinFitVariables);
 
     RatioAllVariables("ControlRegion_BeforeBDT_2018", "2018DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", "data_BTagCSV" , "selectionbJets_ControlRegionBlinded", 
-    "2018DataPlots_NMSSM_XYH_bbbb_Full/outPlotter.root", "data_BTagCSV_3btag" , "selectionbJets_ControlRegionBlinded",true, "Full");
+    "2018DataPlots_NMSSM_XYH_bbbb_Full/outPlotter.root", "data_BTagCSV_3btag" , "selectionbJets_ControlRegionBlinded",true, "Full", useKinFitVariables);
 
 
 
-    RatioAllVariables("SideBand_AfterBDT_2016", "2016DataPlots_NMSSM_XYH_bbbb_Full/outPlotter.root", "data_BTagCSV" , "selectionbJets_SideBandBlinded", 
-    "2016DataPlots_NMSSM_XYH_bbbb_Full/outPlotter.root", dataDrivenDatasetName , "selectionbJets_SideBandBlinded",false, "Full");
+    RatioAllVariables("SideBand_AfterBDT_2016", "2016DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", "data_BTagCSV" , "selectionbJets_SideBandBlinded", 
+    "2016DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", dataDrivenDatasetName , "selectionbJets_SideBandBlinded",false, "Full", useKinFitVariables);
 
-    RatioAllVariables("SideBand_BeforeBDT_2016", "2016DataPlots_NMSSM_XYH_bbbb_Full/outPlotter.root", "data_BTagCSV" , "selectionbJets_SideBandBlinded", 
-    "2016DataPlots_NMSSM_XYH_bbbb_Full/outPlotter.root", "data_BTagCSV_3btag" , "selectionbJets_SideBandBlinded",true, "Full");
+    RatioAllVariables("SideBand_BeforeBDT_2016", "2016DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", "data_BTagCSV" , "selectionbJets_SideBandBlinded", 
+    "2016DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", "data_BTagCSV_3btag" , "selectionbJets_SideBandBlinded",true, "Full", useKinFitVariables);
 
 
     RatioAllVariables("SideBand_AfterBDT_2017", "2017DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", "data_BTagCSV" , "selectionbJets_SideBandBlinded", 
-    "2017DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", dataDrivenDatasetName , "selectionbJets_SideBandBlinded",false, "Full");
+    "2017DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", dataDrivenDatasetName , "selectionbJets_SideBandBlinded",false, "Full", useKinFitVariables);
 
     RatioAllVariables("SideBand_BeforeBDT_2017", "2017DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", "data_BTagCSV" , "selectionbJets_SideBandBlinded", 
-    "2017DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", "data_BTagCSV_3btag" , "selectionbJets_SideBandBlinded",true, "Full");
+    "2017DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", "data_BTagCSV_3btag" , "selectionbJets_SideBandBlinded",true, "Full", useKinFitVariables);
 
 
     RatioAllVariables("SideBand_AfterBDT_2018", "2018DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", "data_BTagCSV" , "selectionbJets_SideBandBlinded", 
-    "2018DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", dataDrivenDatasetName , "selectionbJets_SideBandBlinded",false, "Full");
+    "2018DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", dataDrivenDatasetName , "selectionbJets_SideBandBlinded",false, "Full", useKinFitVariables);
 
     RatioAllVariables("SideBand_BeforeBDT_2018", "2018DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root", "data_BTagCSV" , "selectionbJets_SideBandBlinded", 
-    "2018DataPlots_NMSSM_XYH_bbbb_Full/outPlotter.root", "data_BTagCSV_3btag" , "selectionbJets_SideBandBlinded",true, "Full");
+    "2018DataPlots_NMSSM_XYH_bbbb_Full/outPlotter.root", "data_BTagCSV_3btag" , "selectionbJets_SideBandBlinded",true, "Full", useKinFitVariables);
 
 
     // RatioAllVariables("SideBand_AfterBDT", "2016DataPlots_NMSSM_XYH_bbbb_all_Full/outPlotter.root", "data_BTagCSV" , "selectionbJets_SideBandBlinded", 
