@@ -306,11 +306,15 @@ int main(int argc, char** argv)
     float jetThirdHighestPt_pt_;
     float jetForthHighestPt_pt_;
     float fourHighestJetPt_sum_;
-    float allJetPt_sum_; // https://arxiv.org/pdf/1609.02366.pdf Sum of jet pT for all jets with pt >10 GeV and |eta| < 0.3
-    float allJetPtEtaRestricted_sum_;
-    float allJetPtAbove30_sum_;
-    float allJetAbove30Eta24_sum_;
-    int numberOfJetsForHT_;
+    float caloJetSum_;
+    int numberOfJetsCaloHT_;
+    float pfJetSum_;
+    int numberOfJetsPfHT_;
+    float onlyJetSum_;
+    int numberOfJetsOnlyHT_;
+    // float allJetPt_sum_; // https://arxiv.org/pdf/1609.02366.pdf Sum of jet pT for all jets with pt >10 GeV and |eta| < 0.3
+    // float allJetPtEtaRestricted_sum_;
+    // float allJetAbove30Eta24_sum_;
     float jetFirstHighestDeepFlavB_deepFlavB_;
     float jetFirstHighestDeepFlavB_pt_;
     float jetFirstHighestDeepFlavB_eta_;
@@ -332,11 +336,15 @@ int main(int argc, char** argv)
     tOut->Branch("jetThirdHighestPt_pt" , &jetThirdHighestPt_pt_ );
     tOut->Branch("jetForthHighestPt_pt" , &jetForthHighestPt_pt_ );
     tOut->Branch("fourHighestJetPt_sum" , &fourHighestJetPt_sum_ );
-    tOut->Branch("allJetPt_sum"         , &allJetPt_sum_         );
-    tOut->Branch("allJetPtEtaRestricted_sum"         , &allJetPtEtaRestricted_sum_         );
-    tOut->Branch("allJetPtAbove30_sum"  , &allJetPtAbove30_sum_  );
-    tOut->Branch("allJetAbove30Eta24_sum", &allJetAbove30Eta24_sum_);
-    tOut->Branch("numberOfJetsForHT"    , &numberOfJetsForHT_    );
+    tOut->Branch("caloJetSum"  , &caloJetSum_  );
+    tOut->Branch("numberOfJetsCaloHT"    , &numberOfJetsCaloHT_    );
+    tOut->Branch("pfJetSum"  , &pfJetSum_  );
+    tOut->Branch("numberOfJetsPfHT"    , &numberOfJetsPfHT_    );
+    tOut->Branch("onlyJetSum"  , &onlyJetSum_  );
+    tOut->Branch("numberOfJetsOnlyHT"    , &numberOfJetsOnlyHT_    );
+    // tOut->Branch("allJetPt_sum"         , &allJetPt_sum_         );
+    // tOut->Branch("allJetPtEtaRestricted_sum"         , &allJetPtEtaRestricted_sum_         );
+    // tOut->Branch("allJetAbove30Eta24_sum", &allJetAbove30Eta24_sum_);
     tOut->Branch("jetFirstHighestDeepFlavB_deepFlavB" , &jetFirstHighestDeepFlavB_deepFlavB_ );
     tOut->Branch("jetFirstHighestDeepFlavB_pt" , &jetFirstHighestDeepFlavB_pt_ );
     tOut->Branch("jetFirstHighestDeepFlavB_eta" , &jetFirstHighestDeepFlavB_eta_ );
@@ -516,16 +524,26 @@ int main(int argc, char** argv)
 
         std::vector<Jet> all_jets;
         all_jets.reserve(*(nat.nJet));
-        allJetPt_sum_ = 0.;
-        allJetPtEtaRestricted_sum_ =0.;
-        allJetPtAbove30_sum_ = 0.;
-        allJetAbove30Eta24_sum_ = 0.;
-        numberOfJetsForHT_ = 0;
+        // allJetPt_sum_ = 0.;
+        // allJetPtEtaRestricted_sum_ =0.;
+        // allJetAbove30Eta24_sum_ = 0.;
+        caloJetSum_ = 0.;
+        numberOfJetsCaloHT_ = 0;
+        pfJetSum_ = 0.;
+        numberOfJetsPfHT_ = 0;
+        onlyJetSum_ = 0.;
+        numberOfJetsOnlyHT_ = 0;
 
         for (uint ij = 0; ij < *(nat.nJet); ++ij)
         {
             // here preselect jets
             Jet jet (ij, &nat);
+
+            if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.5) 
+            {
+                pfJetSum_ += jet.P4().Pt();
+                numberOfJetsPfHT_++;
+            }
 
             bool isMuon = false;
             for (uint candIt = 0; candIt < *(nat.nMuon); ++candIt)
@@ -540,6 +558,16 @@ int main(int argc, char** argv)
             }
             if(isMuon) continue;
 
+
+            // if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 3.) allJetPt_sum_ += jet.P4().Pt();
+            // if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 2.1) allJetPtEtaRestricted_sum_ += jet.P4().Pt();
+            // if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.4) allJetAbove30Eta24_sum_ += jet.P4().Pt();
+            if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.5) 
+            {
+                caloJetSum_ += jet.P4().Pt();
+                numberOfJetsCaloHT_++;
+            }
+            
             bool isElectron = false;
             for (uint candIt = 0; candIt < *(nat.nElectron); ++candIt)
             {
@@ -553,18 +581,15 @@ int main(int argc, char** argv)
             }
             if(isElectron) continue;
 
-            if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 3.) allJetPt_sum_ += jet.P4().Pt();
-            if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 2.1) allJetPtEtaRestricted_sum_ += jet.P4().Pt();
-            if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.4) allJetAbove30Eta24_sum_ += jet.P4().Pt();
+            
             if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.5) 
             {
-                allJetPtAbove30_sum_ += jet.P4().Pt();
-                numberOfJetsForHT_++;
+                onlyJetSum_ += jet.P4().Pt();
+                numberOfJetsOnlyHT_++;
             }
-            
+
             // Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto
             // but note that bit1 means idx 0 and so on
-            
             int jetid = get_property(jet, Jet_jetId); 
 
             if (!checkBit(jetid, 1)) // tight jet Id

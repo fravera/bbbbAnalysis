@@ -227,7 +227,7 @@ void ProduceAllTriggerEfficiencyInAFile2016(std::vector<std::tuple<std::shared_p
     std::string normalizationCutDouble90Quad30 = preselectionCut;
     std::string filterCutDouble90Quad30 = normalizationCutDouble90Quad30 + "&& QuadCentralJet30>=1";
     // theEfficiencyEvaluator.addTrigger(triggerName, filterCutDouble90Quad30, "fourHighestJetPt_sum"          , normalizationCutDouble90Quad30, "L1filter; #sum p_{T} [GeV]; online efficiency"                   ,100, 100,1500, theColor);
-    theEfficiencyEvaluator.addTrigger(triggerName, filterCutDouble90Quad30, "allJetPt_sum"                  , normalizationCutDouble90Quad30, "L1filterHT; #sum p_{T} [GeV]; online efficiency"                 ,100, 100,1500, theColor);
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCutDouble90Quad30, "caloJetSum"                  , normalizationCutDouble90Quad30, "L1filterHT; #sum p_{T} [GeV]; online efficiency"                 ,100, 100,1500, theColor);
     
     normalizationCutDouble90Quad30 = filterCutDouble90Quad30;
     filterCutDouble90Quad30 = normalizationCutDouble90Quad30 + "&& QuadCentralJet30>=4";
@@ -285,7 +285,7 @@ void ProduceAllTriggerEfficiencyInAFile2016(std::vector<std::tuple<std::shared_p
     std::string normalizationCutQuad45 = preselectionCut;
     std::string filterCutQuad45 = normalizationCutQuad45 + "&& QuadCentralJet45>=1";
     // theEfficiencyEvaluator.addTrigger(triggerName, filterCutQuad45        , "fourHighestJetPt_sum"          , normalizationCutQuad45        , "L1filter; #sum p_{T} [GeV]; online efficiency"                   ,100, 100,1500, theColor);
-    theEfficiencyEvaluator.addTrigger(triggerName, filterCutQuad45        , "allJetPt_sum"                  , normalizationCutQuad45        , "L1filterHT; #sum p_{T} [GeV]; online efficiency"                 ,100, 100,1500, theColor);
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCutQuad45        , "caloJetSum"                  , normalizationCutQuad45        , "L1filterHT; #sum p_{T} [GeV]; online efficiency"                 ,100, 100,1500, theColor);
     
     normalizationCutQuad45 = filterCutQuad45;
     filterCutQuad45 = normalizationCutQuad45 + "&& QuadCentralJet45>=4";
@@ -333,7 +333,7 @@ void ProduceAllTriggerEfficiencyInAFile2016(std::vector<std::tuple<std::shared_p
     std::string normalizationCutAnd = filterCutDouble90Quad30;
     std::string filterCutAnd = normalizationCutAnd + "&& QuadCentralJet45>=1";
     // theEfficiencyEvaluator.addTrigger(triggerName, filterCutAnd           , "fourHighestJetPt_sum"          , normalizationCutAnd           , "L1filterQuad45; #sum p_{T} [GeV]; online efficiency"             ,100, 100,1500, theColor);
-    theEfficiencyEvaluator.addTrigger(triggerName, filterCutAnd           , "allJetPt_sum"                  , normalizationCutAnd           , "L1filterQuad45HT; #sum p_{T} [GeV]; online efficiency"           ,35, 100,1500, theColor);
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCutAnd           , "caloJetSum"                  , normalizationCutAnd           , "L1filterQuad45HT; #sum p_{T} [GeV]; online efficiency"           ,35, 100,1500, theColor);
     
     normalizationCutAnd = filterCutAnd;
     filterCutAnd = normalizationCutAnd + "&& QuadCentralJet45>=4";
@@ -433,7 +433,7 @@ void ProduceAllTriggerEfficiencies2016()
 
     // std::thread theMatchedTriggerThread          (ProduceAllTriggerEfficienciesFiles2016, "SingleMuon_Data_forTrigger_MuonPt30_matched.root"  , "TTbar_MC_forTrigger_MuonPt30_matched.root"  , "WJetsToLNu_Data_forTrigger_MuonPt30_matched.root"  , "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_matched.root",   "TriggerEfficiencies_MuonPt30_matched.root"           , false);
     // std::thread theUnMatchedTriggerThread        (ProduceAllTriggerEfficienciesFiles2016, "SingleMuon_Data_forTrigger_MuonPt30_unMatched.root", "TTbar_MC_forTrigger_MuonPt30_unMatched.root", "WJetsToLNu_Data_forTrigger_MuonPt30_unMatched.root", "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_unMatched.root", "TriggerEfficiencies_MuonPt30_unMatched.root"         , false);
-    std::thread theMatchedTriggerThreadTTbarCut  (ProduceAllTriggerEfficienciesFiles2016, "SingleMuon_Data_forTrigger_2016.root"  , "TTbar_MC_forTrigger_2016.root"  ,  "NMSSM_forTrigger_2018.root",  "TriggerEfficiencies_2016_TTBarCut.root", true );
+    std::thread theMatchedTriggerThreadTTbarCut  (ProduceAllTriggerEfficienciesFiles2016, "SingleMuon_Data_forTrigger_2016.root"  , "TTbar_MC_forTrigger_2016.root"  ,  "NMSSM_forTrigger_2016.root",  "TriggerEfficiencies_2016_TTBarCut.root", true );
     // std::thread theMatchedTriggerThreadTTbarCut  (ProduceAllTriggerEfficienciesFiles2016, "SingleMuon_Data_forTrigger_MuonPt30_matched.root"  , "TTbar_MC_forTrigger_MuonPt30_matched.root"  , "WJetsToLNu_Data_forTrigger_MuonPt30_matched.root"  , "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_matched.root",   "TriggerEfficiencies_MuonPt30_matched_TTBarCut.root"  , true );
     // std::thread theUnMatchedTriggerThreadTTbarCut(ProduceAllTriggerEfficienciesFiles2016, "SingleMuon_Data_forTrigger_MuonPt30_unMatched.root", "TTbar_MC_forTrigger_MuonPt30_unMatched.root", "WJetsToLNu_Data_forTrigger_MuonPt30_unMatched.root", "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_unMatched.root", "TriggerEfficiencies_MuonPt30_unMatched_TTBarCut.root", true );
     // theMatchedTriggerThread          .join();
@@ -462,7 +462,7 @@ void ProduceAllTriggerEfficiencyInAFile2017(std::vector<std::tuple<std::shared_p
 
     std::string normalizationCut = preselectionCut;
     std::string filterCut = normalizationCut + "&& QuadCentralJet30>=1";
-    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "allJetAbove30Eta24_sum"                  , normalizationCut, "L1filterHT; #sum p_{T} [GeV]; online efficiency"                 ,100, 100., 1500., theColor);
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "caloJetSum"                  , normalizationCut, "L1filterHT; #sum p_{T} [GeV]; online efficiency"                 ,100, 100., 1500., theColor);
     
     normalizationCut = filterCut;
     filterCut = normalizationCut + "&& QuadCentralJet30>=4";
@@ -471,8 +471,8 @@ void ProduceAllTriggerEfficiencyInAFile2017(std::vector<std::tuple<std::shared_p
     theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "jetForthHighestPt_pt"          , normalizationCut, "QuadCentralJet30; p_{T}^{4} [GeV]; online efficiency"           , customBinning, theColor);
     
     normalizationCut = filterCut;
-    filterCut = normalizationCut + " && CaloQuadJet30HT300_MaxHT>=300";
-    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "allJetPtAbove30_sum"                  , normalizationCut, "CaloQuadJet30HT300; #sum p_{T} with p_{T}>30 GeV [GeV]; online efficiency"         ,50, 20 , 1200, theColor);
+    filterCut = normalizationCut + " && CaloQuadJet30HT300_MaxHT>=300 && numberOfJetsCaloHT>=4";
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "caloJetSum"                  , normalizationCut, "CaloQuadJet30HT300; #sum p_{T} with p_{T}>30 GeV [GeV]; online efficiency"         ,50, 20 , 1200, theColor);
 
     normalizationCut = filterCut;
     filterCut = normalizationCut + "&& BTagCaloCSVp05Double_jetFirstHighestDeepFlavB_triggerFlag>=1";
@@ -509,8 +509,8 @@ void ProduceAllTriggerEfficiencyInAFile2017(std::vector<std::tuple<std::shared_p
     theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "jetForthHighestPt_pt"         , normalizationCut, "4PFCentralJetLooseID40; p_{T}^{4} [GeV]; online efficiency"         , customBinning, theColor);
     
     normalizationCut = filterCut;
-    filterCut = normalizationCut + " && PFCentralJetsLooseIDQuad30HT300_MaxHT>=300";
-    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "allJetPtAbove30_sum"                  , normalizationCut, "PFCentralJetsLooseIDQuad30HT300; #sum p_{T} with p_{T}>30 GeV [GeV]; online efficiency"         ,50, 20 , 1500, theColor);
+    filterCut = normalizationCut + " && PFCentralJetsLooseIDQuad30HT300_MaxHT>=300 && numberOfJetsPfHT>=4";
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "pfJetSum"                  , normalizationCut, "PFCentralJetsLooseIDQuad30HT300; #sum p_{T} with p_{T}>30 GeV [GeV]; online efficiency"         ,50, 20 , 1500, theColor);
 
     normalizationCut = filterCut;
     filterCut = normalizationCut + "&& BTagPFCSVp070Triple_jetFirstHighestDeepFlavB_triggerFlag>=1";
@@ -605,7 +605,7 @@ void ProduceAllTriggerEfficiencyInAFile2018(std::vector<std::tuple<std::shared_p
 
     std::string normalizationCut = preselectionCut;
     std::string filterCut = normalizationCut + "&& QuadCentralJet30>=1";
-    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "allJetAbove30Eta24_sum"                  , normalizationCut, "L1filterHT; #sum p_{T} [GeV]; online efficiency"                 ,100, 100, 1500, theColor);
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "caloJetSum"                  , normalizationCut, "L1filterHT; #sum p_{T} [GeV]; online efficiency"                 ,100, 100, 1500, theColor);
     
     normalizationCut = filterCut;
     filterCut = normalizationCut + "&& QuadCentralJet30>=4";
@@ -614,8 +614,8 @@ void ProduceAllTriggerEfficiencyInAFile2018(std::vector<std::tuple<std::shared_p
     theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "jetForthHighestPt_pt"          , normalizationCut, "QuadCentralJet30; p_{T}^{4} [GeV]; online efficiency"           , customBinning, theColor);
     
     normalizationCut = filterCut;
-    filterCut = normalizationCut + "&& CaloQuadJet30HT320_MaxHT>=320";
-    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "allJetPtAbove30_sum"                  , normalizationCut, "CaloQuadJet30HT320; #sum p_{T} with p_{T}>30 GeV [GeV]; online efficiency"         ,50, 20 , 1200, theColor);
+    filterCut = normalizationCut + "&& CaloQuadJet30HT320_MaxHT>=320 && numberOfJetsCaloHT>=4";
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "caloJetSum"                  , normalizationCut, "CaloQuadJet30HT320; #sum p_{T} with p_{T}>30 GeV [GeV]; online efficiency"         ,50, 20 , 1200, theColor);
 
     normalizationCut = filterCut;
     filterCut = normalizationCut + "&& BTagCaloDeepCSVp17Double_jetFirstHighestDeepFlavB_triggerFlag>=1";
@@ -648,8 +648,8 @@ void ProduceAllTriggerEfficiencyInAFile2018(std::vector<std::tuple<std::shared_p
     theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "jetForthHighestPt_pt"         , normalizationCut, "4PFCentralJetLooseID40; p_{T}^{4} [GeV]; online efficiency"         ,40, 20 , 200, theColor);
     
     normalizationCut = filterCut;
-    filterCut = normalizationCut + "&& PFCentralJetsLooseIDQuad30HT330_MaxHT>=330";
-    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "allJetPtAbove30_sum"                  , normalizationCut, "PFCentralJetsLooseIDQuad30HT330; #sum p_{T} with p_{T}>30 GeV [GeV]; online efficiency"         ,50, 20 , 1500, theColor);
+    filterCut = normalizationCut + "&& PFCentralJetsLooseIDQuad30HT330_MaxHT>=330 && numberOfJetsPfHT>=4";
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "pfJetSum"                  , normalizationCut, "PFCentralJetsLooseIDQuad30HT330; #sum p_{T} with p_{T}>30 GeV [GeV]; online efficiency"         ,50, 20 , 1500, theColor);
 
     normalizationCut = filterCut;
     filterCut = normalizationCut + "&& BTagPFDeepCSV4p5Triple_jetFirstHighestDeepFlavB_triggerFlag>=1";

@@ -504,26 +504,6 @@ void TriggerEfficiencyCalculator_2016::extractInformationFromEvent(std::vector<J
         // here preselect jets
         Jet jet (ij, &theNanoAODTree_);
 
-        // Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto
-        // but note that bit1 means idx 0 and so on
-        // int jetId = get_property(jet, Jet_jetId); 
-
-        // if (!(jetId & (1 << 1))) // tight jet Id
-        //     continue;
-
-        bool isElectron = false;
-        for (uint candIt = 0; candIt < *(theNanoAODTree_.nElectron); ++candIt)
-        {
-            Electron theElectron (candIt, &theNanoAODTree_);
-            if(get_property(theElectron, Electron_pfRelIso03_all) > 0.3) continue;
-            if(jet.getIdx() == get_property(theElectron, Electron_jetIdx))
-            {
-                isElectron = true;
-                break;
-            }
-        }
-        if(isElectron) continue;
-
         bool isMuon = false;
         for (uint candIt = 0; candIt < *(theNanoAODTree_.nMuon); ++candIt)
         {
@@ -537,8 +517,7 @@ void TriggerEfficiencyCalculator_2016::extractInformationFromEvent(std::vector<J
         }
         if(isMuon) continue;
 
-        if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 3.) sumPt_ += jet.P4().Pt();
-
+        if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.5) sumPt_ += jet.P4().Pt();
     }
 
     theOutputTree_->userFloat("HLT_Pt2"  ) = pt2_  ;
@@ -633,10 +612,9 @@ void  TriggerEfficiencyCalculator_2017::createTriggerSimulatedBranches()
     theOutputTree_->declareUserFloatBranch("HLT_Pt2"             , 0);
     theOutputTree_->declareUserFloatBranch("HLT_Pt3"             , 0);
     theOutputTree_->declareUserFloatBranch("HLT_Pt4"             , 0);
-    theOutputTree_->declareUserFloatBranch("HLT_SumPt"           , 0);
-    theOutputTree_->declareUserFloatBranch("HLT_SumPtEtaRes"     , 0);
-    theOutputTree_->declareUserFloatBranch("HLT_SumPtAbove30"    , 0);
-    theOutputTree_->declareUserFloatBranch("HLT_allJetAbove30Eta24_sum"    , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_SumPtCaloJet"    , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_SumPtPfJet"      , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_SumPtJetOnly"    , 0.);
 
     theOutputTree_->declareUserFloatBranch("HLT_Data_effL1"              , 0.);
     theOutputTree_->declareUserFloatBranch("HLT_Data_effQuad30CaloJet"   , 0.);
@@ -694,34 +672,15 @@ void TriggerEfficiencyCalculator_2017::extractInformationFromEvent(std::vector<J
     pt3_ = selectedJets[2].P4().Pt();
     pt4_ = selectedJets[3].P4().Pt();
 
-    sumPt_ = 0.;
-    sumPtEtaRestricted_ = 0.;
-    sumPtAbove30_ = 0.;
-    allJetAbove30Eta24_sum_ = 0.;
+    caloJetSum_ = 0.;
+    pfJetSum_   = 0.;
+    onlyJetSum_ = 0.;
     for (uint ij = 0; ij < *(theNanoAODTree_.nJet); ++ij)
     {
         // here preselect jets
         Jet jet (ij, &theNanoAODTree_);
 
-        // Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto
-        // but note that bit1 means idx 0 and so on
-        // int jetId = get_property(jet, Jet_jetId); 
-
-        // if (!(jetId & (1 << 1))) // tight jet Id
-        //     continue;
-
-        bool isElectron = false;
-        for (uint candIt = 0; candIt < *(theNanoAODTree_.nElectron); ++candIt)
-        {
-            Electron theElectron (candIt, &theNanoAODTree_);
-            if(get_property(theElectron, Electron_pfRelIso03_all) > 0.3) continue;
-            if(jet.getIdx() == get_property(theElectron, Electron_jetIdx))
-            {
-                isElectron = true;
-                break;
-            }
-        }
-        if(isElectron) continue;
+        if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.5) pfJetSum_ += jet.P4().Pt();
 
         bool isMuon = false;
         for (uint candIt = 0; candIt < *(theNanoAODTree_.nMuon); ++candIt)
@@ -736,10 +695,22 @@ void TriggerEfficiencyCalculator_2017::extractInformationFromEvent(std::vector<J
         }
         if(isMuon) continue;
 
-        if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 3.) sumPt_ += jet.P4().Pt();
-        if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 2.1) sumPtEtaRestricted_ += jet.P4().Pt();
-        if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.4) allJetAbove30Eta24_sum_ += jet.P4().Pt();
-        if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.5) sumPtAbove30_ += jet.P4().Pt();
+        if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.5) caloJetSum_ += jet.P4().Pt();
+        
+        bool isElectron = false;
+        for (uint candIt = 0; candIt < *(theNanoAODTree_.nElectron); ++candIt)
+        {
+            Electron theElectron (candIt, &theNanoAODTree_);
+            if(get_property(theElectron, Electron_pfRelIso03_all) > 0.3) continue;
+            if(jet.getIdx() == get_property(theElectron, Electron_jetIdx))
+            {
+                isElectron = true;
+                break;
+            }
+        }
+        if(isElectron) continue;
+  
+        if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.5) onlyJetSum_ += jet.P4().Pt();
 
     }
 
@@ -747,10 +718,9 @@ void TriggerEfficiencyCalculator_2017::extractInformationFromEvent(std::vector<J
     theOutputTree_->userFloat("HLT_Pt2"         ) = pt2_         ;
     theOutputTree_->userFloat("HLT_Pt3"         ) = pt3_         ;
     theOutputTree_->userFloat("HLT_Pt4"         ) = pt4_         ;
-    theOutputTree_->userFloat("HLT_SumPt"       ) = sumPt_       ;
-    theOutputTree_->userFloat("HLT_SumPtEtaRes" ) = sumPtEtaRestricted_ ;
-    theOutputTree_->userFloat("HLT_SumPtAbove30") = sumPtAbove30_;
-    theOutputTree_->userFloat("HLT_allJetAbove30Eta24_sum") = allJetAbove30Eta24_sum_;
+    theOutputTree_->userFloat("HLT_SumPtCaloJet") = caloJetSum_  ;
+    theOutputTree_->userFloat("HLT_SumPtPfJet"  ) = pfJetSum_    ;
+    theOutputTree_->userFloat("HLT_SumPtJetOnly") = onlyJetSum_  ;
 
 }
 
@@ -778,25 +748,25 @@ std::tuple<float, float, float> TriggerEfficiencyCalculator_2017::calculateDataT
         static_assert(false, "Do not use fit not implemented for TriggerEfficiencyCalculator_2017");
     #endif
     
-    float effL1            = fTriggerFitCurves.fSingleMuon__Efficiency_L1filterHTPair.first                     ->Eval(allJetAbove30Eta24_sum_);
-    float effQuad30CaloJet = fTriggerFitCurves.fSingleMuon__Efficiency_QuadCentralJet30Pair.first               ->Eval(pt4_         );
-    float effCaloHT        = fTriggerFitCurves.fSingleMuon__Efficiency_CaloQuadJet30HT300Pair.first             ->Eval(sumPtAbove30_);
-    float effQuad30PFJet   = fTriggerFitCurves.fSingleMuon__Efficiency_PFCentralJetLooseIDQuad30Pair.first      ->Eval(pt4_         );
-    float effSingle75PFJet = fTriggerFitCurves.fSingleMuon__Efficiency_1PFCentralJetLooseID75Pair.first         ->Eval(pt1_         );
-    float effDouble60PFJet = fTriggerFitCurves.fSingleMuon__Efficiency_2PFCentralJetLooseID60Pair.first         ->Eval(pt2_         );
-    float effTriple54PFJet = fTriggerFitCurves.fSingleMuon__Efficiency_3PFCentralJetLooseID45Pair.first         ->Eval(pt3_         );
-    float effQuad40PFJet   = fTriggerFitCurves.fSingleMuon__Efficiency_4PFCentralJetLooseID40Pair.first         ->Eval(pt4_         );
-    float effPFHT          = fTriggerFitCurves.fSingleMuon__Efficiency_PFCentralJetsLooseIDQuad30HT300Pair.first->Eval(sumPtAbove30_);
+    float effL1            = fTriggerFitCurves.fSingleMuon__Efficiency_L1filterHTPair.first                     ->Eval(caloJetSum_);
+    float effQuad30CaloJet = fTriggerFitCurves.fSingleMuon__Efficiency_QuadCentralJet30Pair.first               ->Eval(pt4_       );
+    float effCaloHT        = fTriggerFitCurves.fSingleMuon__Efficiency_CaloQuadJet30HT300Pair.first             ->Eval(caloJetSum_);
+    float effQuad30PFJet   = fTriggerFitCurves.fSingleMuon__Efficiency_PFCentralJetLooseIDQuad30Pair.first      ->Eval(pt4_       );
+    float effSingle75PFJet = fTriggerFitCurves.fSingleMuon__Efficiency_1PFCentralJetLooseID75Pair.first         ->Eval(pt1_       );
+    float effDouble60PFJet = fTriggerFitCurves.fSingleMuon__Efficiency_2PFCentralJetLooseID60Pair.first         ->Eval(pt2_       );
+    float effTriple54PFJet = fTriggerFitCurves.fSingleMuon__Efficiency_3PFCentralJetLooseID45Pair.first         ->Eval(pt3_       );
+    float effQuad40PFJet   = fTriggerFitCurves.fSingleMuon__Efficiency_4PFCentralJetLooseID40Pair.first         ->Eval(pt4_       );
+    float effPFHT          = fTriggerFitCurves.fSingleMuon__Efficiency_PFCentralJetsLooseIDQuad30HT300Pair.first->Eval(pfJetSum_  );
        
-    float effL1Error            = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_L1filterHTPair.second                     , allJetAbove30Eta24_sum_);
-    float effQuad30CaloJetError = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_QuadCentralJet30Pair.second               , pt4_         );
-    float effCaloHTError        = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_CaloQuadJet30HT300Pair.second             , sumPtAbove30_);
-    float effQuad30PFJetError   = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_PFCentralJetLooseIDQuad30Pair.second      , pt4_         );
-    float effSingle75PFJetError = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_1PFCentralJetLooseID75Pair.second         , pt1_         );
-    float effDouble60PFJetError = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_2PFCentralJetLooseID60Pair.second         , pt2_         );
-    float effTriple54PFJetError = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_3PFCentralJetLooseID45Pair.second         , pt3_         );
-    float effQuad40PFJetError   = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_4PFCentralJetLooseID40Pair.second         , pt4_         );
-    float effPFHTError          = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_PFCentralJetsLooseIDQuad30HT300Pair.second, sumPtAbove30_);
+    float effL1Error            = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_L1filterHTPair.second                     , caloJetSum_);
+    float effQuad30CaloJetError = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_QuadCentralJet30Pair.second               , pt4_       );
+    float effCaloHTError        = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_CaloQuadJet30HT300Pair.second             , caloJetSum_);
+    float effQuad30PFJetError   = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_PFCentralJetLooseIDQuad30Pair.second      , pt4_       );
+    float effSingle75PFJetError = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_1PFCentralJetLooseID75Pair.second         , pt1_       );
+    float effDouble60PFJetError = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_2PFCentralJetLooseID60Pair.second         , pt2_       );
+    float effTriple54PFJetError = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_3PFCentralJetLooseID45Pair.second         , pt3_       );
+    float effQuad40PFJetError   = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_4PFCentralJetLooseID40Pair.second         , pt4_       );
+    float effPFHTError          = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_PFCentralJetsLooseIDQuad30HT300Pair.second, pfJetSum_  );
     
     float threeBtagEfficiency          = computeThreeBtagEfficiency(bTagEffJet0ForTriple, bTagEffJet1ForTriple, bTagEffJet2ForTriple, bTagEffJet3ForTriple);
     float threeBtagEfficiencyErrorUp   = computeThreeBtagEfficiency(bTagEffJet0ForTriple + bTagEffJet0ForTripleError, bTagEffJet1ForTriple + bTagEffJet1ForTripleError, bTagEffJet2ForTriple + bTagEffJet2ForTripleError, bTagEffJet3ForTriple + bTagEffJet3ForTripleError);
@@ -854,25 +824,25 @@ std::tuple<float, float, float> TriggerEfficiencyCalculator_2017::calculateMonte
         static_assert(false, "Do not use fit not implemented for TriggerEfficiencyCalculator_2017");
     #endif
     
-    float effL1            = fTriggerFitCurves.fTTbar__Efficiency_L1filterHTPair.first                     ->Eval(allJetAbove30Eta24_sum_);
-    float effQuad30CaloJet = fTriggerFitCurves.fTTbar__Efficiency_QuadCentralJet30Pair.first               ->Eval(pt4_         );
-    float effCaloHT        = fTriggerFitCurves.fTTbar__Efficiency_CaloQuadJet30HT300Pair.first             ->Eval(sumPtAbove30_);
-    float effQuad30PFJet   = fTriggerFitCurves.fTTbar__Efficiency_PFCentralJetLooseIDQuad30Pair.first      ->Eval(pt4_         );
-    float effSingle75PFJet = fTriggerFitCurves.fTTbar__Efficiency_1PFCentralJetLooseID75Pair.first         ->Eval(pt1_         );
-    float effDouble60PFJet = fTriggerFitCurves.fTTbar__Efficiency_2PFCentralJetLooseID60Pair.first         ->Eval(pt2_         );
-    float effTriple54PFJet = fTriggerFitCurves.fTTbar__Efficiency_3PFCentralJetLooseID45Pair.first         ->Eval(pt3_         );
-    float effQuad40PFJet   = fTriggerFitCurves.fTTbar__Efficiency_4PFCentralJetLooseID40Pair.first         ->Eval(pt4_         );
-    float effPFHT          = fTriggerFitCurves.fTTbar__Efficiency_PFCentralJetsLooseIDQuad30HT300Pair.first->Eval(sumPtAbove30_);
+    float effL1            = fTriggerFitCurves.fTTbar__Efficiency_L1filterHTPair.first                     ->Eval(caloJetSum_);
+    float effQuad30CaloJet = fTriggerFitCurves.fTTbar__Efficiency_QuadCentralJet30Pair.first               ->Eval(pt4_       );
+    float effCaloHT        = fTriggerFitCurves.fTTbar__Efficiency_CaloQuadJet30HT300Pair.first             ->Eval(caloJetSum_);
+    float effQuad30PFJet   = fTriggerFitCurves.fTTbar__Efficiency_PFCentralJetLooseIDQuad30Pair.first      ->Eval(pt4_       );
+    float effSingle75PFJet = fTriggerFitCurves.fTTbar__Efficiency_1PFCentralJetLooseID75Pair.first         ->Eval(pt1_       );
+    float effDouble60PFJet = fTriggerFitCurves.fTTbar__Efficiency_2PFCentralJetLooseID60Pair.first         ->Eval(pt2_       );
+    float effTriple54PFJet = fTriggerFitCurves.fTTbar__Efficiency_3PFCentralJetLooseID45Pair.first         ->Eval(pt3_       );
+    float effQuad40PFJet   = fTriggerFitCurves.fTTbar__Efficiency_4PFCentralJetLooseID40Pair.first         ->Eval(pt4_       );
+    float effPFHT          = fTriggerFitCurves.fTTbar__Efficiency_PFCentralJetsLooseIDQuad30HT300Pair.first->Eval(pfJetSum_  );
        
-    float effL1Error            = getFitError(fTriggerFitCurves.fTTbar__Efficiency_L1filterHTPair.second                     , allJetAbove30Eta24_sum_);
-    float effQuad30CaloJetError = getFitError(fTriggerFitCurves.fTTbar__Efficiency_QuadCentralJet30Pair.second               , pt4_         );
-    float effCaloHTError        = getFitError(fTriggerFitCurves.fTTbar__Efficiency_CaloQuadJet30HT300Pair.second             , sumPtAbove30_);
-    float effQuad30PFJetError   = getFitError(fTriggerFitCurves.fTTbar__Efficiency_PFCentralJetLooseIDQuad30Pair.second      , pt4_         );
-    float effSingle75PFJetError = getFitError(fTriggerFitCurves.fTTbar__Efficiency_1PFCentralJetLooseID75Pair.second         , pt1_         );
-    float effDouble60PFJetError = getFitError(fTriggerFitCurves.fTTbar__Efficiency_2PFCentralJetLooseID60Pair.second         , pt2_         );
-    float effTriple54PFJetError = getFitError(fTriggerFitCurves.fTTbar__Efficiency_3PFCentralJetLooseID45Pair.second         , pt3_         );
-    float effQuad40PFJetError   = getFitError(fTriggerFitCurves.fTTbar__Efficiency_4PFCentralJetLooseID40Pair.second         , pt4_         );
-    float effPFHTError          = getFitError(fTriggerFitCurves.fTTbar__Efficiency_PFCentralJetsLooseIDQuad30HT300Pair.second, sumPtAbove30_);
+    float effL1Error            = getFitError(fTriggerFitCurves.fTTbar__Efficiency_L1filterHTPair.second                     , caloJetSum_);
+    float effQuad30CaloJetError = getFitError(fTriggerFitCurves.fTTbar__Efficiency_QuadCentralJet30Pair.second               , pt4_       );
+    float effCaloHTError        = getFitError(fTriggerFitCurves.fTTbar__Efficiency_CaloQuadJet30HT300Pair.second             , caloJetSum_);
+    float effQuad30PFJetError   = getFitError(fTriggerFitCurves.fTTbar__Efficiency_PFCentralJetLooseIDQuad30Pair.second      , pt4_       );
+    float effSingle75PFJetError = getFitError(fTriggerFitCurves.fTTbar__Efficiency_1PFCentralJetLooseID75Pair.second         , pt1_       );
+    float effDouble60PFJetError = getFitError(fTriggerFitCurves.fTTbar__Efficiency_2PFCentralJetLooseID60Pair.second         , pt2_       );
+    float effTriple54PFJetError = getFitError(fTriggerFitCurves.fTTbar__Efficiency_3PFCentralJetLooseID45Pair.second         , pt3_       );
+    float effQuad40PFJetError   = getFitError(fTriggerFitCurves.fTTbar__Efficiency_4PFCentralJetLooseID40Pair.second         , pt4_       );
+    float effPFHTError          = getFitError(fTriggerFitCurves.fTTbar__Efficiency_PFCentralJetsLooseIDQuad30HT300Pair.second, pfJetSum_  );
     
     float threeBtagEfficiency          = computeThreeBtagEfficiency(bTagEffJet0ForTriple, bTagEffJet1ForTriple, bTagEffJet2ForTriple, bTagEffJet3ForTriple);
     float threeBtagEfficiencyErrorUp   = computeThreeBtagEfficiency(bTagEffJet0ForTriple + bTagEffJet0ForTripleError, bTagEffJet1ForTriple + bTagEffJet1ForTripleError, bTagEffJet2ForTriple + bTagEffJet2ForTripleError, bTagEffJet3ForTriple + bTagEffJet3ForTripleError);
@@ -933,10 +903,9 @@ void  TriggerEfficiencyCalculator_2018::createTriggerSimulatedBranches()
     theOutputTree_->declareUserFloatBranch("HLT_Pt2"             , 0.);
     theOutputTree_->declareUserFloatBranch("HLT_Pt3"             , 0.);
     theOutputTree_->declareUserFloatBranch("HLT_Pt4"             , 0.);
-    theOutputTree_->declareUserFloatBranch("HLT_SumPt"           , 0.);
-    theOutputTree_->declareUserFloatBranch("HLT_SumPtEtaRes"     , 0);
-    theOutputTree_->declareUserFloatBranch("HLT_SumPtAbove30"    , 0.);
-    theOutputTree_->declareUserFloatBranch("HLT_allJetAbove30Eta24_sum"    , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_SumPtCaloJet"    , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_SumPtPfJet"      , 0.);
+    theOutputTree_->declareUserFloatBranch("HLT_SumPtJetOnly"    , 0.);
 
     theOutputTree_->declareUserFloatBranch("HLT_Data_effL1"              , 0.);
     theOutputTree_->declareUserFloatBranch("HLT_Data_effQuad30CaloJet"   , 0.);
@@ -986,34 +955,15 @@ void TriggerEfficiencyCalculator_2018::extractInformationFromEvent(std::vector<J
     pt3_ = selectedJets[2].P4().Pt();
     pt4_ = selectedJets[3].P4().Pt();
 
-    sumPt_ = 0;
-    sumPtEtaRestricted_ = 0.;
-    sumPtAbove30_ = 0;
-    allJetAbove30Eta24_sum_ = 0.;
+    caloJetSum_ = 0.;
+    pfJetSum_   = 0.;
+    onlyJetSum_ = 0.;
     for (uint ij = 0; ij < *(theNanoAODTree_.nJet); ++ij)
     {
         // here preselect jets
         Jet jet (ij, &theNanoAODTree_);
 
-        // Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto
-        // but note that bit1 means idx 0 and so on
-        // int jetId = get_property(jet, Jet_jetId); 
-
-        // if (!(jetId & (1 << 1))) // tight jet Id
-        //     continue;
-
-        bool isElectron = false;
-        for (uint candIt = 0; candIt < *(theNanoAODTree_.nElectron); ++candIt)
-        {
-            Electron theElectron (candIt, &theNanoAODTree_);
-            if(get_property(theElectron, Electron_pfRelIso03_all) > 0.3) continue;
-            if(jet.getIdx() == get_property(theElectron, Electron_jetIdx))
-            {
-                isElectron = true;
-                break;
-            }
-        }
-        if(isElectron) continue;
+        if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.5) pfJetSum_ += jet.P4().Pt();
 
         bool isMuon = false;
         for (uint candIt = 0; candIt < *(theNanoAODTree_.nMuon); ++candIt)
@@ -1028,10 +978,22 @@ void TriggerEfficiencyCalculator_2018::extractInformationFromEvent(std::vector<J
         }
         if(isMuon) continue;
 
-        if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 3.) sumPt_ += jet.P4().Pt();
-        if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 2.1) sumPtEtaRestricted_ += jet.P4().Pt();
-        if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.4) allJetAbove30Eta24_sum_ += jet.P4().Pt();
-        if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.5) sumPtAbove30_ += jet.P4().Pt();
+        if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.5) caloJetSum_ += jet.P4().Pt();
+        
+        bool isElectron = false;
+        for (uint candIt = 0; candIt < *(theNanoAODTree_.nElectron); ++candIt)
+        {
+            Electron theElectron (candIt, &theNanoAODTree_);
+            if(get_property(theElectron, Electron_pfRelIso03_all) > 0.3) continue;
+            if(jet.getIdx() == get_property(theElectron, Electron_jetIdx))
+            {
+                isElectron = true;
+                break;
+            }
+        }
+        if(isElectron) continue;
+  
+        if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.5) onlyJetSum_ += jet.P4().Pt();
 
     }
 
@@ -1039,10 +1001,9 @@ void TriggerEfficiencyCalculator_2018::extractInformationFromEvent(std::vector<J
     theOutputTree_->userFloat("HLT_Pt2"         ) = pt2_         ;
     theOutputTree_->userFloat("HLT_Pt3"         ) = pt3_         ;
     theOutputTree_->userFloat("HLT_Pt4"         ) = pt4_         ;
-    theOutputTree_->userFloat("HLT_SumPt"       ) = sumPt_       ;
-    theOutputTree_->userFloat("HLT_SumPtEtaRes" ) = sumPtEtaRestricted_ ;
-    theOutputTree_->userFloat("HLT_SumPtAbove30") = sumPtAbove30_;
-    theOutputTree_->userFloat("HLT_allJetAbove30Eta24_sum") = allJetAbove30Eta24_sum_;
+    theOutputTree_->userFloat("HLT_SumPtCaloJet") = caloJetSum_  ;
+    theOutputTree_->userFloat("HLT_SumPtPfJet"  ) = pfJetSum_    ;
+    theOutputTree_->userFloat("HLT_SumPtJetOnly") = onlyJetSum_  ;
 
 }
 
@@ -1071,24 +1032,24 @@ std::tuple<float, float, float> TriggerEfficiencyCalculator_2018::calculateDataT
         static_assert(false, "Do not use fit not implemented for TriggerEfficiencyCalculator_2018");
     #endif
     
-    float effL1            = fTriggerFitCurves.fSingleMuon__Efficiency_L1filterHTPair.first                     ->Eval(allJetAbove30Eta24_sum_);
-    float effQuad30CaloJet = fTriggerFitCurves.fSingleMuon__Efficiency_QuadCentralJet30Pair.first               ->Eval(pt4_         );
-    float effCaloHT        = fTriggerFitCurves.fSingleMuon__Efficiency_CaloQuadJet30HT320Pair.first             ->Eval(sumPtAbove30_);
-    float effQuad30PFJet   = fTriggerFitCurves.fSingleMuon__Efficiency_PFCentralJetLooseIDQuad30Pair.first      ->Eval(pt4_         );
-    float effSingle75PFJet = fTriggerFitCurves.fSingleMuon__Efficiency_1PFCentralJetLooseID75Pair.first         ->Eval(pt1_         );
-    float effDouble60PFJet = fTriggerFitCurves.fSingleMuon__Efficiency_2PFCentralJetLooseID60Pair.first         ->Eval(pt2_         );
-    float effTriple54PFJet = fTriggerFitCurves.fSingleMuon__Efficiency_3PFCentralJetLooseID45Pair.first         ->Eval(pt3_         );
-    float effQuad40PFJet   = fTriggerFitCurves.fSingleMuon__Efficiency_4PFCentralJetLooseID40Pair.first         ->Eval(pt4_         );
-    float effPFHT          = fTriggerFitCurves.fSingleMuon__Efficiency_PFCentralJetsLooseIDQuad30HT330Pair.first->Eval(sumPtAbove30_);
-    float effL1Error            = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_L1filterHTPair.second                     , allJetAbove30Eta24_sum_);
-    float effQuad30CaloJetError = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_QuadCentralJet30Pair.second               , pt4_         );
-    float effCaloHTError        = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_CaloQuadJet30HT320Pair.second             , sumPtAbove30_);
-    float effQuad30PFJetError   = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_PFCentralJetLooseIDQuad30Pair.second      , pt4_         );
-    float effSingle75PFJetError = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_1PFCentralJetLooseID75Pair.second         , pt1_         );
-    float effDouble60PFJetError = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_2PFCentralJetLooseID60Pair.second         , pt2_         );
-    float effTriple54PFJetError = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_3PFCentralJetLooseID45Pair.second         , pt3_         );
-    float effQuad40PFJetError   = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_4PFCentralJetLooseID40Pair.second         , pt4_         );
-    float effPFHTError          = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_PFCentralJetsLooseIDQuad30HT330Pair.second, sumPtAbove30_);
+    float effL1            = fTriggerFitCurves.fSingleMuon__Efficiency_L1filterHTPair.first                     ->Eval(caloJetSum_);
+    float effQuad30CaloJet = fTriggerFitCurves.fSingleMuon__Efficiency_QuadCentralJet30Pair.first               ->Eval(pt4_       );
+    float effCaloHT        = fTriggerFitCurves.fSingleMuon__Efficiency_CaloQuadJet30HT320Pair.first             ->Eval(caloJetSum_);
+    float effQuad30PFJet   = fTriggerFitCurves.fSingleMuon__Efficiency_PFCentralJetLooseIDQuad30Pair.first      ->Eval(pt4_       );
+    float effSingle75PFJet = fTriggerFitCurves.fSingleMuon__Efficiency_1PFCentralJetLooseID75Pair.first         ->Eval(pt1_       );
+    float effDouble60PFJet = fTriggerFitCurves.fSingleMuon__Efficiency_2PFCentralJetLooseID60Pair.first         ->Eval(pt2_       );
+    float effTriple54PFJet = fTriggerFitCurves.fSingleMuon__Efficiency_3PFCentralJetLooseID45Pair.first         ->Eval(pt3_       );
+    float effQuad40PFJet   = fTriggerFitCurves.fSingleMuon__Efficiency_4PFCentralJetLooseID40Pair.first         ->Eval(pt4_       );
+    float effPFHT          = fTriggerFitCurves.fSingleMuon__Efficiency_PFCentralJetsLooseIDQuad30HT330Pair.first->Eval(pfJetSum_  );
+    float effL1Error            = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_L1filterHTPair.second                     , caloJetSum_);
+    float effQuad30CaloJetError = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_QuadCentralJet30Pair.second               , pt4_       );
+    float effCaloHTError        = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_CaloQuadJet30HT320Pair.second             , caloJetSum_);
+    float effQuad30PFJetError   = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_PFCentralJetLooseIDQuad30Pair.second      , pt4_       );
+    float effSingle75PFJetError = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_1PFCentralJetLooseID75Pair.second         , pt1_       );
+    float effDouble60PFJetError = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_2PFCentralJetLooseID60Pair.second         , pt2_       );
+    float effTriple54PFJetError = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_3PFCentralJetLooseID45Pair.second         , pt3_       );
+    float effQuad40PFJetError   = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_4PFCentralJetLooseID40Pair.second         , pt4_       );
+    float effPFHTError          = getFitError(fTriggerFitCurves.fSingleMuon__Efficiency_PFCentralJetsLooseIDQuad30HT330Pair.second, pfJetSum_  );
     
     float threeBtagEfficiency          = computeThreeBtagEfficiency(bTagEffJet0ForTriple, bTagEffJet1ForTriple, bTagEffJet2ForTriple, bTagEffJet3ForTriple);
     float threeBtagEfficiencyErrorUp   = computeThreeBtagEfficiency(bTagEffJet0ForTriple + bTagEffJet0ForTripleError, bTagEffJet1ForTriple + bTagEffJet1ForTripleError, bTagEffJet2ForTriple + bTagEffJet2ForTripleError, bTagEffJet3ForTriple + bTagEffJet3ForTripleError);
@@ -1146,25 +1107,25 @@ std::tuple<float, float, float> TriggerEfficiencyCalculator_2018::calculateMonte
         static_assert(false, "Do not use fit not implemented for TriggerEfficiencyCalculator_2018");
     #endif
     
-    float effL1            = fTriggerFitCurves.fTTbar__Efficiency_L1filterHTPair.first                     ->Eval(allJetAbove30Eta24_sum_);
-    float effQuad30CaloJet = fTriggerFitCurves.fTTbar__Efficiency_QuadCentralJet30Pair.first               ->Eval(pt4_         );
-    float effCaloHT        = fTriggerFitCurves.fTTbar__Efficiency_CaloQuadJet30HT320Pair.first             ->Eval(sumPtAbove30_);
-    float effQuad30PFJet   = fTriggerFitCurves.fTTbar__Efficiency_PFCentralJetLooseIDQuad30Pair.first      ->Eval(pt4_         );
-    float effSingle75PFJet = fTriggerFitCurves.fTTbar__Efficiency_1PFCentralJetLooseID75Pair.first         ->Eval(pt1_         );
-    float effDouble60PFJet = fTriggerFitCurves.fTTbar__Efficiency_2PFCentralJetLooseID60Pair.first         ->Eval(pt2_         );
-    float effTriple54PFJet = fTriggerFitCurves.fTTbar__Efficiency_3PFCentralJetLooseID45Pair.first         ->Eval(pt3_         );
-    float effQuad40PFJet   = fTriggerFitCurves.fTTbar__Efficiency_4PFCentralJetLooseID40Pair.first         ->Eval(pt4_         );
-    float effPFHT          = fTriggerFitCurves.fTTbar__Efficiency_PFCentralJetsLooseIDQuad30HT330Pair.first->Eval(sumPtAbove30_);
+    float effL1            = fTriggerFitCurves.fTTbar__Efficiency_L1filterHTPair.first                     ->Eval(caloJetSum_);
+    float effQuad30CaloJet = fTriggerFitCurves.fTTbar__Efficiency_QuadCentralJet30Pair.first               ->Eval(pt4_       );
+    float effCaloHT        = fTriggerFitCurves.fTTbar__Efficiency_CaloQuadJet30HT320Pair.first             ->Eval(caloJetSum_);
+    float effQuad30PFJet   = fTriggerFitCurves.fTTbar__Efficiency_PFCentralJetLooseIDQuad30Pair.first      ->Eval(pt4_       );
+    float effSingle75PFJet = fTriggerFitCurves.fTTbar__Efficiency_1PFCentralJetLooseID75Pair.first         ->Eval(pt1_       );
+    float effDouble60PFJet = fTriggerFitCurves.fTTbar__Efficiency_2PFCentralJetLooseID60Pair.first         ->Eval(pt2_       );
+    float effTriple54PFJet = fTriggerFitCurves.fTTbar__Efficiency_3PFCentralJetLooseID45Pair.first         ->Eval(pt3_       );
+    float effQuad40PFJet   = fTriggerFitCurves.fTTbar__Efficiency_4PFCentralJetLooseID40Pair.first         ->Eval(pt4_       );
+    float effPFHT          = fTriggerFitCurves.fTTbar__Efficiency_PFCentralJetsLooseIDQuad30HT330Pair.first->Eval(pfJetSum_  );
        
-    float effL1Error            = getFitError(fTriggerFitCurves.fTTbar__Efficiency_L1filterHTPair.second                     , allJetAbove30Eta24_sum_);
-    float effQuad30CaloJetError = getFitError(fTriggerFitCurves.fTTbar__Efficiency_QuadCentralJet30Pair.second               , pt4_         );
-    float effCaloHTError        = getFitError(fTriggerFitCurves.fTTbar__Efficiency_CaloQuadJet30HT320Pair.second             , sumPtAbove30_);
-    float effQuad30PFJetError   = getFitError(fTriggerFitCurves.fTTbar__Efficiency_PFCentralJetLooseIDQuad30Pair.second      , pt4_         );
-    float effSingle75PFJetError = getFitError(fTriggerFitCurves.fTTbar__Efficiency_1PFCentralJetLooseID75Pair.second         , pt1_         );
-    float effDouble60PFJetError = getFitError(fTriggerFitCurves.fTTbar__Efficiency_2PFCentralJetLooseID60Pair.second         , pt2_         );
-    float effTriple54PFJetError = getFitError(fTriggerFitCurves.fTTbar__Efficiency_3PFCentralJetLooseID45Pair.second         , pt3_         );
-    float effQuad40PFJetError   = getFitError(fTriggerFitCurves.fTTbar__Efficiency_4PFCentralJetLooseID40Pair.second         , pt4_         );
-    float effPFHTError          = getFitError(fTriggerFitCurves.fTTbar__Efficiency_PFCentralJetsLooseIDQuad30HT330Pair.second, sumPtAbove30_);
+    float effL1Error            = getFitError(fTriggerFitCurves.fTTbar__Efficiency_L1filterHTPair.second                     , caloJetSum_);
+    float effQuad30CaloJetError = getFitError(fTriggerFitCurves.fTTbar__Efficiency_QuadCentralJet30Pair.second               , pt4_       );
+    float effCaloHTError        = getFitError(fTriggerFitCurves.fTTbar__Efficiency_CaloQuadJet30HT320Pair.second             , caloJetSum_);
+    float effQuad30PFJetError   = getFitError(fTriggerFitCurves.fTTbar__Efficiency_PFCentralJetLooseIDQuad30Pair.second      , pt4_       );
+    float effSingle75PFJetError = getFitError(fTriggerFitCurves.fTTbar__Efficiency_1PFCentralJetLooseID75Pair.second         , pt1_       );
+    float effDouble60PFJetError = getFitError(fTriggerFitCurves.fTTbar__Efficiency_2PFCentralJetLooseID60Pair.second         , pt2_       );
+    float effTriple54PFJetError = getFitError(fTriggerFitCurves.fTTbar__Efficiency_3PFCentralJetLooseID45Pair.second         , pt3_       );
+    float effQuad40PFJetError   = getFitError(fTriggerFitCurves.fTTbar__Efficiency_4PFCentralJetLooseID40Pair.second         , pt4_       );
+    float effPFHTError          = getFitError(fTriggerFitCurves.fTTbar__Efficiency_PFCentralJetsLooseIDQuad30HT330Pair.second, pfJetSum_  );
     
     float threeBtagEfficiency          = computeThreeBtagEfficiency(bTagEffJet0ForTriple, bTagEffJet1ForTriple, bTagEffJet2ForTriple, bTagEffJet3ForTriple);
     float threeBtagEfficiencyErrorUp   = computeThreeBtagEfficiency(bTagEffJet0ForTriple + bTagEffJet0ForTripleError, bTagEffJet1ForTriple + bTagEffJet1ForTripleError, bTagEffJet2ForTriple + bTagEffJet2ForTripleError, bTagEffJet3ForTriple + bTagEffJet3ForTripleError);

@@ -39,6 +39,9 @@ def getExitCode(fname, text='job ended with status'):
     code = -888
     for line in f:
         # if not '... cmsRun finished with status' in line:
+        if '[ERROR] Server responded with an error' in line:
+            code = 100
+            break
         if not '... %s' % text in line:
             continue
         # code = int(re.search('... cmsRun finished with status (\d+)', line).group(1))
