@@ -220,25 +220,18 @@ class OfflineProducerHelper{
             {
                 int year = std::any_cast<int>(parameterList_->at("DatasetYear"));
                 std::string triggerEfficiencyFileName = std::any_cast<std::string>(parameterList_->at("TriggerEfficiencyFileName"));
+                bool matchWithTriggerObjects = std::any_cast<bool>(parameterList_->at("MatchWithSelectedObjects"));
                 if(year == 2016) 
                 {
-                    theTriggerEfficiencyCalculator_ = new TriggerEfficiencyCalculator_2016(triggerEfficiencyFileName, nat);
-                    static_cast<TriggerEfficiencyCalculator_2016*>(theTriggerEfficiencyCalculator_)->setTurnOnCuts
-                    (
-                        std::any_cast<float>(parameterList_->at("Double90Double30_minSumPt")),
-                        std::any_cast<float>(parameterList_->at("Double90Double30_minPt2"  )),
-                        std::any_cast<float>(parameterList_->at("Double90Double30_minPt4"  )),
-                        std::any_cast<float>(parameterList_->at("Quad45_minSumPt"          )),
-                        std::any_cast<float>(parameterList_->at("Quad45_minPt4"            ))
-                    );
+                    theTriggerEfficiencyCalculator_ = new TriggerEfficiencyCalculator_2016(triggerEfficiencyFileName, nat, matchWithTriggerObjects);
                 }
                 else if(year == 2017) 
                 {
-                    theTriggerEfficiencyCalculator_ = new TriggerEfficiencyCalculator_2017(triggerEfficiencyFileName, nat);
+                    theTriggerEfficiencyCalculator_ = new TriggerEfficiencyCalculator_2017(triggerEfficiencyFileName, nat, matchWithTriggerObjects);
                 }
                 else if(year == 2018)
                 {
-                    theTriggerEfficiencyCalculator_ = new TriggerEfficiencyCalculator_2018(triggerEfficiencyFileName, nat);
+                    theTriggerEfficiencyCalculator_ = new TriggerEfficiencyCalculator_2018(triggerEfficiencyFileName, nat, matchWithTriggerObjects);
                 }
                 else
                 {

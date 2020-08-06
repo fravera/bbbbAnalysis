@@ -763,7 +763,9 @@ int main(int argc, char** argv)
                     else
                     {
                         ++triggerFilter.second;
-                        if(jetFirstHighestDeepFlavB_triggerFlag_.find(triggerFilter.first) != jetFirstHighestDeepFlavB_triggerFlag_.end()) ++jetFirstHighestDeepFlavB_triggerFlag_[triggerFilter.first];
+                        if(jetFirstHighestDeepFlavB_triggerFlag_.find(triggerFilter.first) != jetFirstHighestDeepFlavB_triggerFlag_.end()) 
+                            if(std::get<0>(getClosestJetIndexToTriggerObject(nat.TrigObj_eta.At(trigObjIt), nat.TrigObj_phi.At(trigObjIt), all_jets, 0.5)) == highestDeepFlavBjetPosition)
+                                jetFirstHighestDeepFlavB_triggerFlag_[triggerFilter.first] = 1;
                     }
 
                     if(triggerObjectId == 3 /*is HT*/)

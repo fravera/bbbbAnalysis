@@ -10,7 +10,7 @@
 class TriggerEfficiencyCalculator
 {
 public:
-    TriggerEfficiencyCalculator(NanoAODTree& nat);
+    TriggerEfficiencyCalculator(NanoAODTree& nat, bool matchWithTriggerObjects);
     virtual ~TriggerEfficiencyCalculator();
 
     virtual std::tuple<float, float, float> getMonteCarloTriggerEfficiency(const std::vector<Jet>& selectedJets);
@@ -43,6 +43,8 @@ protected:
         }
         return yRetrievedValue;
     }
+
+    inline bool checkBit(int number, int bitpos) {return (number & (1 << bitpos));}
     virtual void   createTriggerSimulatedBranches()                              = 0;
     virtual void   extractInformationFromEvent   (std::vector<Jet> selectedJets) = 0;
     inline  float  fixInLimits                   (float efficiency)
@@ -100,6 +102,7 @@ protected:
     OutputTree* theOutputTree_ {nullptr};
     bool simulateTrigger_ {false};
     bool applyTurnOnCut_ {false};
+    bool matchWithTriggerObjects_{true};
 
 };
 
@@ -107,7 +110,7 @@ protected:
 class TriggerEfficiencyCalculator_2016 : public TriggerEfficiencyCalculator
 {
 public:
-    TriggerEfficiencyCalculator_2016(std::string inputFileName, NanoAODTree& nat);
+    TriggerEfficiencyCalculator_2016(std::string inputFileName, NanoAODTree& nat, bool matchWithTriggerObjects);
     ~TriggerEfficiencyCalculator_2016();
     bool isPassingTurnOnCuts(std::vector<std::string> listOfPassedTriggers, const std::vector<Jet>& selectedJets) override;
     void setTurnOnCuts(float double90Double30_minSumPt, float double90Double30_minPt2, float double90Double30_minPt4, float quad45_minSumPt, float quad45_minPt4)
@@ -168,7 +171,7 @@ private:
 class TriggerEfficiencyCalculator_2017 : public TriggerEfficiencyCalculator
 {
 public:
-    TriggerEfficiencyCalculator_2017(std::string inputFileName, NanoAODTree& nat);
+    TriggerEfficiencyCalculator_2017(std::string inputFileName, NanoAODTree& nat, bool matchWithTriggerObjects);
     ~TriggerEfficiencyCalculator_2017();
     bool isPassingTurnOnCuts(std::vector<std::string> listOfPassedTriggers, const std::vector<Jet>& selectedJets) override {return false;}
     
@@ -199,7 +202,7 @@ private:
 class TriggerEfficiencyCalculator_2018 : public TriggerEfficiencyCalculator
 {
 public:
-    TriggerEfficiencyCalculator_2018(std::string inputFileName, NanoAODTree& nat);
+    TriggerEfficiencyCalculator_2018(std::string inputFileName, NanoAODTree& nat, bool matchWithTriggerObjects);
     ~TriggerEfficiencyCalculator_2018();
     bool isPassingTurnOnCuts(std::vector<std::string> listOfPassedTriggers, const std::vector<Jet>& selectedJets) override {return false;}
     

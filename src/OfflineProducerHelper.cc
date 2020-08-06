@@ -1414,7 +1414,7 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
     // }
 
     // if(any_cast<bool>(parameterList_->at("MatchWithSelectedObjects"))) calculateTriggerMatching(candidatesForTriggerMatching,*highestDeepCSVjet,nat,ot);
-    if(any_cast<bool>(parameterList_->at("MatchWithSelectedObjects"))) calculateTriggerMatching(candidatesForTriggerMatching,nat);
+    if(any_cast<bool>(parameterList_->at("MatchWithSelectedObjects")) && any_cast<bool>(parameterList_->at("isFastSim"))) calculateTriggerMatching(candidatesForTriggerMatching,nat);
 
     for(auto & triggerFired : listOfPassedTriggers)
     {

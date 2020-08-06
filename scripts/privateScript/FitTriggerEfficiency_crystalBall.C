@@ -239,8 +239,8 @@ void doAllFit2016(std::string inputFileName, bool fullRange = true)
 
     TCanvas *theCanvasSingleMuonDouble90Quad30Ratio = new TCanvas("SingleMuon_Double90Quad30", "SingleMuon_Double90Quad30", 1400, 800);
     theCanvasSingleMuonDouble90Quad30Ratio->DivideSquare(6,0.005,0.005);
-    initialParameters = { 232.,  71.7, 0., 1.,  1.01,  2.46, 77.5 };
-    doFit(outputRootFile, theCanvasSingleMuonDouble90Quad30Ratio->cd(1),theInputFile, "SingleMuon_Double90Quad30_Efficiency_L1filterHT"                 , crystalBallAndErrorFunction, initialParameters, fullRange ? 100. : 300,1500.);
+    initialParameters = { 232.,  71.7, 0., 1.,  1.6,  0.8, 77.5 };
+    doFit(outputRootFile, theCanvasSingleMuonDouble90Quad30Ratio->cd(1),theInputFile, "SingleMuon_Double90Quad30_Efficiency_L1filterHT"                 , crystalBallFunction, initialParameters, fullRange ? 100. : 300,1500.);
     initialParameters = { 31.4358,  15.9878,  2.56566e-10,  0.976469 };
     doFit(outputRootFile, theCanvasSingleMuonDouble90Quad30Ratio->cd(2),theInputFile, "SingleMuon_Double90Quad30_Efficiency_QuadCentralJet30"           , crystalBallAndErrorFunction, initialParameters,  fullRange ? 25. : 30, 300.);
     initialParameters = { 91.4671,  23.0038,  3.24185e-13,  0.995492 };
@@ -405,8 +405,9 @@ void doAllFit2017(std::string inputFileName)
 
     TCanvas *theCanvasSingleMuonRatio2 = new TCanvas("SingleMuon_2017_2", "SingleMuon_2017_2", 1400, 800);
     theCanvasSingleMuonRatio2->DivideSquare(6,0.005,0.005);
+    initialParameters = { 70.5,  14.66,  0.83,  1., 1.01, 1.7, 10.7 };
     doFit(outputRootFile, theCanvasSingleMuonRatio2->cd(1),theInputFile, "SingleMuon__Efficiency_2PFCentralJetLooseID60"         , crystalBallAndErrorFunction, initialParameters,  40., 300.);
-    initialParameters = { 50,  13,  0.12,  1., 1., 2.3, 10. };
+    initialParameters = { 70.5,  14.66,  0.83,  1., 1.01, 1.7, 10.7 };
     doFit(outputRootFile, theCanvasSingleMuonRatio2->cd(2),theInputFile, "SingleMuon__Efficiency_3PFCentralJetLooseID45"         , crystalBallAndErrorFunction, initialParameters,  40., 300.);
     initialParameters = { 31.4358,  15.9878,  2.56566e-10,  0.976469 };
     doFit(outputRootFile, theCanvasSingleMuonRatio2->cd(3),theInputFile, "SingleMuon__Efficiency_4PFCentralJetLooseID40"         , crystalBallAndErrorFunction, initialParameters,  40., 200.);
@@ -445,7 +446,7 @@ void doAllFit2017(std::string inputFileName)
     doFit(outputRootFile, theCanvasTTbarRatio2->cd(1),theInputFile, "TTbar__Efficiency_2PFCentralJetLooseID60"         , crystalBallAndErrorFunction, initialParameters,  40., 300.);
     initialParameters = { 31.4358,  15.9878,  2.56566e-10,  0.976469 };
     doFit(outputRootFile, theCanvasTTbarRatio2->cd(2),theInputFile, "TTbar__Efficiency_3PFCentralJetLooseID45"         , crystalBallAndErrorFunction, initialParameters,  40., 300.);
-    initialParameters = { 31.4358,  15.9878,  2.56566e-10,  0.976469 };
+    initialParameters = { 40.4,  22., 0.78, 1., 1.03, 0.65, 10. };
     doFit(outputRootFile, theCanvasTTbarRatio2->cd(3),theInputFile, "TTbar__Efficiency_4PFCentralJetLooseID40"         , crystalBallAndErrorFunction, initialParameters,  40., 200.);
     initialParameters = { 300, 0., 0.88, 1., 1.82, 8.45, 48. };
     doFit(outputRootFile, theCanvasTTbarRatio2->cd(4),theInputFile, "TTbar__Efficiency_PFCentralJetsLooseIDQuad30HT300", crystalBallAndErrorFunction, initialParameters, 300., 1500.);
@@ -565,7 +566,7 @@ void doAllFit2018(std::string inputFileName)
     doFit(outputRootFile, theCanvasTTbarRatio2->cd(1),theInputFile, "TTbar__Efficiency_2PFCentralJetLooseID60"         , crystalBallAndErrorFunction, initialParameters,  40., 300.);
     initialParameters = { 31.4358,  15.9878,  2.56566e-10,  0.976469 };
     doFit(outputRootFile, theCanvasTTbarRatio2->cd(2),theInputFile, "TTbar__Efficiency_3PFCentralJetLooseID45"         , crystalBallAndErrorFunction, initialParameters,  40., 300.);
-    initialParameters = { 31.4358,  15.9878,  2.56566e-10,  0.976469 };
+    initialParameters = { 29., 35.4, 0.16, 1., 1.4, 0.015, 14.52 };
     doFit(outputRootFile, theCanvasTTbarRatio2->cd(3),theInputFile, "TTbar__Efficiency_4PFCentralJetLooseID40"         , crystalBallAndErrorFunction, initialParameters,  40., 200.);
     initialParameters = { 340., 73.7, 0.81, 1., 1., 2.3, 50.4 };
     doFit(outputRootFile, theCanvasTTbarRatio2->cd(4),theInputFile, "TTbar__Efficiency_PFCentralJetsLooseIDQuad30HT330", crystalBallAndErrorFunction, initialParameters, 300., 1500.);

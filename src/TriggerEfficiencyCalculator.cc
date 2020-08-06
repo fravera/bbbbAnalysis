@@ -5,8 +5,9 @@
 
 #define useFit
 
-TriggerEfficiencyCalculator::TriggerEfficiencyCalculator(NanoAODTree& nat)
+TriggerEfficiencyCalculator::TriggerEfficiencyCalculator(NanoAODTree& nat, bool matchWithTriggerObjects)
 : theNanoAODTree_(nat)
+, matchWithTriggerObjects_(matchWithTriggerObjects)
 {}
 
 TriggerEfficiencyCalculator::~TriggerEfficiencyCalculator()
@@ -59,8 +60,8 @@ void TriggerEfficiencyCalculator::simulateTrigger(OutputTree* theOutputTree)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TriggerEfficiencyCalculator_2016::TriggerEfficiencyCalculator_2016(std::string inputFileName, NanoAODTree& nat)
-: TriggerEfficiencyCalculator(nat)
+TriggerEfficiencyCalculator_2016::TriggerEfficiencyCalculator_2016(std::string inputFileName, NanoAODTree& nat, bool matchWithTriggerObjects)
+: TriggerEfficiencyCalculator(nat, matchWithTriggerObjects)
 , fTriggerFitCurves(inputFileName)
 {}
 
@@ -484,19 +485,8 @@ void TriggerEfficiencyCalculator_2016::extractInformationFromEvent(std::vector<J
 
     assert(selectedJets.size()==4);
 
-    uint16_t positionInVector = 0;
-    for(const auto& theJet : selectedJets)
-    {
-        deepFlavBVector[positionInVector++] = get_property(theJet, Jet_btagDeepFlavB); //This has to be the deep flavor!!
-    }
-    
-    stable_sort(selectedJets.begin(), selectedJets.end(), [](const Jet & a, const Jet & b) -> bool
-    {
-        return ( a.P4().Pt() > b.P4().Pt() );
-    });
-
-    pt2_ = selectedJets[1].P4().Pt();
-    pt4_ = selectedJets[3].P4().Pt();
+    std::vector<Jet> all_jets;
+    all_jets.reserve(*(theNanoAODTree_.nJet));
 
     sumPt_ = 0;
     for (uint ij = 0; ij < *(theNanoAODTree_.nJet); ++ij)
@@ -518,7 +508,60 @@ void TriggerEfficiencyCalculator_2016::extractInformationFromEvent(std::vector<J
         if(isMuon) continue;
 
         if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.5) sumPt_ += jet.P4().Pt();
+
+        if(!matchWithTriggerObjects_)
+        {
+            bool isElectron = false;
+            for (uint candIt = 0; candIt < *(theNanoAODTree_.nElectron); ++candIt)
+            {
+                Electron theElectron (candIt, &theNanoAODTree_);
+                if(get_property(theElectron, Electron_pfRelIso03_all) > 0.3) continue;
+                if(jet.getIdx() == get_property(theElectron, Electron_jetIdx))
+                {
+                    isElectron = true;
+                    break;
+                }
+            }
+            if(isElectron) continue;
+
+            // Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto
+            // but note that bit1 means idx 0 and so on
+            int jetid = get_property(jet, Jet_jetId); 
+
+            if (!checkBit(jetid, 1)) // tight jet Id
+                continue;
+
+            if (jet.P4().Pt() <= 25)
+                continue;
+
+            if (std::abs(jet.P4().Eta()) > 2.4)
+                continue;
+
+            if(jet.bTagScore() < 0.) continue; 
+            if (!checkBit(get_property( jet,Jet_puId), 1) && jet.P4().Pt() <= 50) // medium PU Id - NOTE : not to be applied beyond 50 GeV: https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupJetID
+                continue;
+
+            all_jets.emplace_back(jet);
+        }
     }
+
+    if(!matchWithTriggerObjects_) selectedJets = all_jets;
+
+    uint16_t positionInVector = 0;
+    for(const auto& theJet : selectedJets)
+    {
+        deepFlavBVector[positionInVector++] = get_property(theJet, Jet_btagDeepFlavB); //This has to be the deep flavor!!
+        if(positionInVector==4) break;
+    }
+    
+    stable_sort(selectedJets.begin(), selectedJets.end(), [](const Jet & a, const Jet & b) -> bool
+    {
+        return ( a.P4().Pt() > b.P4().Pt() );
+    });
+
+    pt2_ = selectedJets[1].P4().Pt();
+    pt4_ = selectedJets[3].P4().Pt();
+
 
     theOutputTree_->userFloat("HLT_Pt2"  ) = pt2_  ;
     theOutputTree_->userFloat("HLT_Pt4"  ) = pt4_  ;
@@ -643,8 +686,8 @@ void  TriggerEfficiencyCalculator_2017::createTriggerSimulatedBranches()
 }
 
 
-TriggerEfficiencyCalculator_2017::TriggerEfficiencyCalculator_2017(std::string inputFileName, NanoAODTree& nat)
-: TriggerEfficiencyCalculator(nat)
+TriggerEfficiencyCalculator_2017::TriggerEfficiencyCalculator_2017(std::string inputFileName, NanoAODTree& nat, bool matchWithTriggerObjects)
+: TriggerEfficiencyCalculator(nat, matchWithTriggerObjects)
 , fTriggerFitCurves(inputFileName)
 {}
 
@@ -656,21 +699,8 @@ void TriggerEfficiencyCalculator_2017::extractInformationFromEvent(std::vector<J
 
     assert(selectedJets.size()==4);
 
-    uint16_t positionInVector = 0;
-    for(const auto& theJet : selectedJets)
-    {
-        deepFlavBVector[positionInVector++] = get_property(theJet, Jet_btagDeepFlavB); //This has to be the deep flavor!!
-    }
-    
-    stable_sort(selectedJets.begin(), selectedJets.end(), [](const Jet & a, const Jet & b) -> bool
-    {
-        return ( a.P4().Pt() > b.P4().Pt() );
-    });
-
-    pt1_ = selectedJets[0].P4().Pt();
-    pt2_ = selectedJets[1].P4().Pt();
-    pt3_ = selectedJets[2].P4().Pt();
-    pt4_ = selectedJets[3].P4().Pt();
+    std::vector<Jet> all_jets;
+    all_jets.reserve(*(theNanoAODTree_.nJet));
 
     caloJetSum_ = 0.;
     pfJetSum_   = 0.;
@@ -712,7 +742,47 @@ void TriggerEfficiencyCalculator_2017::extractInformationFromEvent(std::vector<J
   
         if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.5) onlyJetSum_ += jet.P4().Pt();
 
+        if(!matchWithTriggerObjects_)
+        {
+            // Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto
+            // but note that bit1 means idx 0 and so on
+            int jetid = get_property(jet, Jet_jetId); 
+
+            if (!checkBit(jetid, 1)) // tight jet Id
+                continue;
+
+            if (jet.P4().Pt() <= 25)
+                continue;
+
+            if (std::abs(jet.P4().Eta()) > 2.4)
+                continue;
+
+            if(jet.bTagScore() < 0.) continue; 
+            if (!checkBit(get_property( jet,Jet_puId), 1) && jet.P4().Pt() <= 50) // medium PU Id - NOTE : not to be applied beyond 50 GeV: https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupJetID
+                continue;
+
+            all_jets.emplace_back(jet);
+        }
     }
+
+    if(!matchWithTriggerObjects_) selectedJets = all_jets;
+
+    uint16_t positionInVector = 0;
+    for(const auto& theJet : selectedJets)
+    {
+        deepFlavBVector[positionInVector++] = get_property(theJet, Jet_btagDeepFlavB); //This has to be the deep flavor!!
+        if(positionInVector==4) break;
+    }
+    
+    stable_sort(selectedJets.begin(), selectedJets.end(), [](const Jet & a, const Jet & b) -> bool
+    {
+        return ( a.P4().Pt() > b.P4().Pt() );
+    });
+
+    pt1_ = selectedJets[0].P4().Pt();
+    pt2_ = selectedJets[1].P4().Pt();
+    pt3_ = selectedJets[2].P4().Pt();
+    pt4_ = selectedJets[3].P4().Pt();
 
     theOutputTree_->userFloat("HLT_Pt1"         ) = pt1_         ;
     theOutputTree_->userFloat("HLT_Pt2"         ) = pt2_         ;
@@ -881,8 +951,8 @@ std::tuple<float, float, float> TriggerEfficiencyCalculator_2017::calculateMonte
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TriggerEfficiencyCalculator_2018::TriggerEfficiencyCalculator_2018(std::string inputFileName, NanoAODTree& nat)
-: TriggerEfficiencyCalculator(nat)
+TriggerEfficiencyCalculator_2018::TriggerEfficiencyCalculator_2018(std::string inputFileName, NanoAODTree& nat, bool matchWithTriggerObjects)
+: TriggerEfficiencyCalculator(nat, matchWithTriggerObjects)
 , fTriggerFitCurves(inputFileName)
 {}
 
@@ -939,21 +1009,8 @@ void TriggerEfficiencyCalculator_2018::extractInformationFromEvent(std::vector<J
 
     assert(selectedJets.size()==4);
 
-    uint16_t positionInVector = 0;
-    for(const auto& theJet : selectedJets)
-    {
-        deepFlavBVector[positionInVector++] = get_property(theJet, Jet_btagDeepFlavB); //This has to be the deep flavor!!
-    }
-    
-    stable_sort(selectedJets.begin(), selectedJets.end(), [](const Jet & a, const Jet & b) -> bool
-    {
-        return ( a.P4().Pt() > b.P4().Pt() );
-    });
-
-    pt1_ = selectedJets[0].P4().Pt();
-    pt2_ = selectedJets[1].P4().Pt();
-    pt3_ = selectedJets[2].P4().Pt();
-    pt4_ = selectedJets[3].P4().Pt();
+    std::vector<Jet> all_jets;
+    all_jets.reserve(*(theNanoAODTree_.nJet));
 
     caloJetSum_ = 0.;
     pfJetSum_   = 0.;
@@ -995,7 +1052,47 @@ void TriggerEfficiencyCalculator_2018::extractInformationFromEvent(std::vector<J
   
         if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.5) onlyJetSum_ += jet.P4().Pt();
 
+        if(!matchWithTriggerObjects_)
+        {
+            // Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto
+            // but note that bit1 means idx 0 and so on
+            int jetid = get_property(jet, Jet_jetId); 
+
+            if (!checkBit(jetid, 1)) // tight jet Id
+                continue;
+
+            if (jet.P4().Pt() <= 25)
+                continue;
+
+            if (std::abs(jet.P4().Eta()) > 2.4)
+                continue;
+
+            if(jet.bTagScore() < 0.) continue; 
+            if (!checkBit(get_property( jet,Jet_puId), 1) && jet.P4().Pt() <= 50) // medium PU Id - NOTE : not to be applied beyond 50 GeV: https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupJetID
+                continue;
+
+            all_jets.emplace_back(jet);
+        }
     }
+
+    if(!matchWithTriggerObjects_) selectedJets = all_jets;
+
+    uint16_t positionInVector = 0;
+    for(const auto& theJet : selectedJets)
+    {
+        deepFlavBVector[positionInVector++] = get_property(theJet, Jet_btagDeepFlavB); //This has to be the deep flavor!!
+        if(positionInVector==4) break;
+    }
+    
+    stable_sort(selectedJets.begin(), selectedJets.end(), [](const Jet & a, const Jet & b) -> bool
+    {
+        return ( a.P4().Pt() > b.P4().Pt() );
+    });
+
+    pt1_ = selectedJets[0].P4().Pt();
+    pt2_ = selectedJets[1].P4().Pt();
+    pt3_ = selectedJets[2].P4().Pt();
+    pt4_ = selectedJets[3].P4().Pt();
 
     theOutputTree_->userFloat("HLT_Pt1"         ) = pt1_         ;
     theOutputTree_->userFloat("HLT_Pt2"         ) = pt2_         ;
