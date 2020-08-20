@@ -286,7 +286,12 @@ int main(int argc, char** argv)
     parameterList.emplace("KinematicFitFile"        ,config.readStringOpt("parameters::KinematicFitFile"       ));
 
     // MC only procedures
-    if(!is_data){
+    if(is_data)
+    {
+            parameterList.emplace("isFastSim"               ,false);
+    }
+    else
+    {
 
         //Btag Scale factors
         const string bTagscaleFactorMethod = config.readStringOpt("parameters::BTagScaleFactorMethod");

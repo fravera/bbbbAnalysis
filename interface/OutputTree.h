@@ -97,6 +97,25 @@ class OutputTree {
         DECLARE_m_pt_ptRegressed_eta_phi_p4(H2_b1_kinFit)
         DECLARE_m_pt_ptRegressed_eta_phi_p4(H2_b2_kinFit)
 
+        DECLARE_m_pt_ptRegressed_eta_phi_p4(FirstBtaggedJet)
+        float FirstBtaggedJet_deepCSV  ;
+        float FirstBtaggedJet_PtRegRes ;
+        DECLARE_m_pt_ptRegressed_eta_phi_p4(SecondBtaggedJet)
+        float SecondBtaggedJet_deepCSV ;
+        float SecondBtaggedJet_PtRegRes;
+        DECLARE_m_pt_ptRegressed_eta_phi_p4(ThirdBtaggedJet)
+        float ThirdBtaggedJet_deepCSV  ;
+        float ThirdBtaggedJet_PtRegRes ;
+        DECLARE_m_pt_ptRegressed_eta_phi_p4(FourthBtaggedJet)
+        float FourthBtaggedJet_deepCSV ;
+        float FourthBtaggedJet_PtRegRes;
+
+        float minDeltaRbJets  ;
+        float maxDeltaRbJets  ;
+        float minDeltaEtabJets;
+        float maxDeltaEtabJets;
+        float minDeltaPhibJets;
+        float maxDeltaPhibJets;
 
         DECLARE_m_pt_ptRegressed_eta_phi_p4(offShell_H1_b1)
         DECLARE_m_pt_ptRegressed_eta_phi_p4(offShell_H1_b2)

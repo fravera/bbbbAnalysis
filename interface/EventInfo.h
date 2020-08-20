@@ -97,6 +97,17 @@ struct EventInfo{
     boost::optional<Jet> H2_b2_kinFit;
     boost::optional<float> kinFit_chi2;
 
+    boost::optional<float> minDeltaRbJets  ;
+    boost::optional<float> maxDeltaRbJets  ;
+    boost::optional<float> minDeltaEtabJets;
+    boost::optional<float> maxDeltaEtabJets;
+    boost::optional<float> minDeltaPhibJets;
+    boost::optional<float> maxDeltaPhibJets;
+    boost::optional<Jet>   FirstBtaggedJet ;
+    boost::optional<Jet>   SecondBtaggedJet;
+    boost::optional<Jet>   ThirdBtaggedJet ;
+    boost::optional<Jet>   FourthBtaggedJet;
+
     //Non-resonant analysis and studies
     boost::optional<int>  gen_H1_b1_matched;
     boost::optional<int>  gen_H1_b2_matched;

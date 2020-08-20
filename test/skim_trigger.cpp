@@ -301,6 +301,10 @@ int main(int argc, char** argv)
     float electronTimesMuoncharge_;
 
     // jets
+    float jetFirstHighestPtCalo_pt_;
+    float jetSecondHighestPtCalo_pt_;
+    float jetThirdHighestPtCalo_pt_;
+    float jetForthHighestPtCalo_pt_;
     float jetFirstHighestPt_pt_;
     float jetSecondHighestPt_pt_;
     float jetThirdHighestPt_pt_;
@@ -330,6 +334,11 @@ int main(int argc, char** argv)
 
     tOut->Branch("highestIsoElecton_pt"    , &highestIsoElecton_pt_ );
     tOut->Branch("electronTimesMuoncharge" , &electronTimesMuoncharge_ );
+
+    tOut->Branch("jetFirstHighestPtCalo_pt" , &jetFirstHighestPtCalo_pt_ );
+    tOut->Branch("jetSecondHighestPtCalo_pt", &jetSecondHighestPtCalo_pt_);
+    tOut->Branch("jetThirdHighestPtCalo_pt" , &jetThirdHighestPtCalo_pt_ );
+    tOut->Branch("jetForthHighestPtCalo_pt" , &jetForthHighestPtCalo_pt_ );
 
     tOut->Branch("jetFirstHighestPt_pt" , &jetFirstHighestPt_pt_ );
     tOut->Branch("jetSecondHighestPt_pt", &jetSecondHighestPt_pt_);
@@ -449,8 +458,19 @@ int main(int argc, char** argv)
         }
 
     }
+    int datasetYear = config.readIntOpt("triggers::DatasetYear");
 
-
+    float maxEtaForJets = 2.4;
+    if(!matchWithFourHighestBjets)
+    {
+        if(datasetYear == 2016) maxEtaForJets = 2.6;
+        else if(datasetYear == 2017 || datasetYear == 2018 ) maxEtaForJets = 2.5;
+        else
+        {
+            std::cout<<"triggers::DatasetYear is invalid. Aborting..."<<std::endl;
+            abort();
+        }
+    }
 
 
     ////////////////////////////////////////////////////////////////////////
@@ -524,6 +544,8 @@ int main(int argc, char** argv)
 
         std::vector<Jet> all_jets;
         all_jets.reserve(*(nat.nJet));
+        std::vector<Jet> all_CaloJets;
+        all_CaloJets.reserve(*(nat.nJet));
         // allJetPt_sum_ = 0.;
         // allJetPtEtaRestricted_sum_ =0.;
         // allJetAbove30Eta24_sum_ = 0.;
@@ -556,17 +578,18 @@ int main(int argc, char** argv)
                     break;
                 }
             }
-            if(isMuon) continue;
+            // if(isMuon) continue;
 
 
             // if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 3.) allJetPt_sum_ += jet.P4().Pt();
             // if (jet.P4().Pt() >= 10. && std::abs(jet.P4().Eta()) < 2.1) allJetPtEtaRestricted_sum_ += jet.P4().Pt();
             // if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.4) allJetAbove30Eta24_sum_ += jet.P4().Pt();
-            if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.5) 
-            {
-                caloJetSum_ += jet.P4().Pt();
-                numberOfJetsCaloHT_++;
-            }
+            if(!isMuon)
+                if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.5) 
+                {
+                    caloJetSum_ += jet.P4().Pt();
+                    numberOfJetsCaloHT_++;
+                }
             
             bool isElectron = false;
             for (uint candIt = 0; candIt < *(nat.nElectron); ++candIt)
@@ -579,31 +602,42 @@ int main(int argc, char** argv)
                     break;
                 }
             }
-            if(isElectron) continue;
+            // if(isElectron) continue;
 
             
-            if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.5) 
-            {
-                onlyJetSum_ += jet.P4().Pt();
-                numberOfJetsOnlyHT_++;
-            }
+            if(!isMuon && !isElectron)
+                if (jet.P4().Pt() >= 30. && std::abs(jet.P4().Eta()) < 2.5) 
+                {
+                    onlyJetSum_ += jet.P4().Pt();
+                    numberOfJetsOnlyHT_++;
+                }
 
+            if( (isMuon || isElectron) && matchWithFourHighestBjets ) continue;
+            // if( isMuon ) continue;
             // Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto
             // but note that bit1 means idx 0 and so on
             int jetid = get_property(jet, Jet_jetId); 
 
-            if (!checkBit(jetid, 1)) // tight jet Id
-                continue;
-
             if (jet.P4().Pt() <= 25)
                 continue;
 
-            if (std::abs(jet.P4().Eta()) > 2.4)
+            if (std::abs(jet.P4().Eta()) > maxEtaForJets)
                 continue;
 
-            if(jet.bTagScore() < 0.) continue; 
-            if (!checkBit(get_property( jet,Jet_puId), 1) && jet.P4().Pt() <= 50) // medium PU Id - NOTE : not to be applied beyond 50 GeV: https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupJetID
-                continue;
+            if(matchWithFourHighestBjets) 
+            {
+                if (!checkBit(jetid, 1)) // tight jet Id
+                    continue;
+                if (!checkBit(get_property( jet,Jet_puId), 1) && jet.P4().Pt() <= 50) // medium PU Id - NOTE : not to be applied beyond 50 GeV: https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupJetID
+                    continue;
+                if(jet.bTagScore() < 0.) continue; 
+            }
+            // else
+            // {
+            //     if (!checkBit(jetid, 1)) // tight jet Id
+            //         continue;
+            // }
+            
 
             // bool isPhoton = false;
             // for (uint ij = 0; ij < *(nat.nPhoton); ++ij)
@@ -631,9 +665,10 @@ int main(int argc, char** argv)
             // if(isMuon) continue;
 
             all_jets.emplace_back(jet);
+            if(!isMuon) all_CaloJets.emplace_back(jet);
         }
 
-        if (all_jets.size() < 4) // I don't have 4 preselected jets
+        if (all_jets.size() < 4 || all_CaloJets.size() < 4) // I don't have 4 preselected jets
             continue;
 
         highestIsoElecton_pt_ = -999.;
@@ -663,11 +698,30 @@ int main(int argc, char** argv)
             return ( a.P4().Pt() > b.P4().Pt() );
         });
 
+
+        stable_sort(all_CaloJets.begin(), all_CaloJets.end(), [](const Jet & a, const Jet & b) -> bool
+        {
+            return ( a.P4().Pt() > b.P4().Pt() );
+        });
+
         jetFirstHighestPt_pt_  = all_jets.at(0).P4().Pt();
         jetSecondHighestPt_pt_ = all_jets.at(1).P4().Pt();
         jetThirdHighestPt_pt_  = all_jets.at(2).P4().Pt();
         jetForthHighestPt_pt_  = all_jets.at(3).P4().Pt();
         fourHighestJetPt_sum_  = jetFirstHighestPt_pt_ + jetSecondHighestPt_pt_ + jetThirdHighestPt_pt_ + jetForthHighestPt_pt_;
+
+        jetFirstHighestPtCalo_pt_  = all_CaloJets.at(0).P4().Pt();
+        jetSecondHighestPtCalo_pt_ = all_CaloJets.at(1).P4().Pt();
+        jetThirdHighestPtCalo_pt_  = all_CaloJets.at(2).P4().Pt();
+        jetForthHighestPtCalo_pt_  = all_CaloJets.at(3).P4().Pt();
+
+        if(matchWithFourHighestBjets)
+        {
+            jetFirstHighestPtCalo_pt_  = all_jets.at(0).P4().Pt();
+            jetSecondHighestPtCalo_pt_ = all_jets.at(1).P4().Pt();
+            jetThirdHighestPtCalo_pt_  = all_jets.at(2).P4().Pt();
+            jetForthHighestPtCalo_pt_  = all_jets.at(3).P4().Pt();
+        }
 
         // NOTE that this sorts from small to large, with A < B implemented as btagA > btagB, so the first element in the vector has the largest btag score
         stable_sort(all_jets.begin(), all_jets.end(), [](const Jet & a, const Jet & b) -> bool

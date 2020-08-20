@@ -233,11 +233,11 @@ void ProduceAllTriggerEfficiencyInAFile2016(std::vector<std::tuple<std::shared_p
     filterCutDouble90Quad30 = normalizationCutDouble90Quad30 + "&& QuadCentralJet30>=4";
     customBinning.clear();
     customBinCreator(customBinning, 20., 100., 3.,  180., 8.,  220., 15.,  300., 30.);
-    theEfficiencyEvaluator.addTrigger(triggerName, filterCutDouble90Quad30, "jetForthHighestPt_pt"          , normalizationCutDouble90Quad30, "QuadCentralJet30; p_{T}^{4} [GeV]; online efficiency"           , customBinning, theColor);
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCutDouble90Quad30, "jetForthHighestPtCalo_pt"          , normalizationCutDouble90Quad30, "QuadCentralJet30; p_{T}^{4} [GeV]; online efficiency"           , customBinning, theColor);
     
     normalizationCutDouble90Quad30 = filterCutDouble90Quad30;
     filterCutDouble90Quad30 = normalizationCutDouble90Quad30 + "&& DoubleCentralJet90>=2";
-    theEfficiencyEvaluator.addTrigger(triggerName, filterCutDouble90Quad30, "jetSecondHighestPt_pt"         , normalizationCutDouble90Quad30, "DoubleCentralJet90; p_{T}^{2} [GeV]; online efficiency"         ,100, 20 , 500, theColor);
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCutDouble90Quad30, "jetSecondHighestPtCalo_pt"         , normalizationCutDouble90Quad30, "DoubleCentralJet90; p_{T}^{2} [GeV]; online efficiency"         ,100, 20 , 500, theColor);
     
     normalizationCutDouble90Quad30 = filterCutDouble90Quad30;
     filterCutDouble90Quad30 = normalizationCutDouble90Quad30 + "&& BTagCaloCSVp087Triple_jetFirstHighestDeepFlavB_triggerFlag>=1";  //for the future
@@ -291,7 +291,7 @@ void ProduceAllTriggerEfficiencyInAFile2016(std::vector<std::tuple<std::shared_p
     filterCutQuad45 = normalizationCutQuad45 + "&& QuadCentralJet45>=4";
     customBinning.clear();
     customBinCreator(customBinning, 20., 60., 4., 100., 8., 160., 15.,  280., 30.);
-    theEfficiencyEvaluator.addTrigger(triggerName, filterCutQuad45        , "jetForthHighestPt_pt"          , normalizationCutQuad45        , "QuadCentralJet45; p_{T}^{4} [GeV]; online efficiency"           , customBinning, theColor);
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCutQuad45        , "jetForthHighestPtCalo_pt"          , normalizationCutQuad45        , "QuadCentralJet45; p_{T}^{4} [GeV]; online efficiency"           , customBinning, theColor);
     
     normalizationCutQuad45 = filterCutQuad45;
     filterCutQuad45 = normalizationCutQuad45 + "&& BTagCaloCSVp087Triple_jetFirstHighestDeepFlavB_triggerFlag>=1";  //for the future
@@ -339,7 +339,7 @@ void ProduceAllTriggerEfficiencyInAFile2016(std::vector<std::tuple<std::shared_p
     filterCutAnd = normalizationCutAnd + "&& QuadCentralJet45>=4";
     customBinning.clear();
     customBinCreator(customBinning, 20., 30., 10.,  100., 6.,  130., 15.,  160., 30.,  300., 70.);
-    theEfficiencyEvaluator.addTrigger(triggerName, filterCutAnd           , "jetForthHighestPt_pt"          , normalizationCutAnd           , "QuadCentralJet45; p_{T}^{4} [GeV]; online efficiency"           , customBinning, theColor);
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCutAnd           , "jetForthHighestPtCalo_pt"          , normalizationCutAnd           , "QuadCentralJet45; p_{T}^{4} [GeV]; online efficiency"           , customBinning, theColor);
     
     normalizationCutAnd = filterCutAnd;
     filterCutAnd = normalizationCutAnd + "&& BTagCaloCSVp087Triple_jetFirstHighestDeepFlavB_triggerFlag>=1"; //for the future
@@ -468,7 +468,7 @@ void ProduceAllTriggerEfficiencyInAFile2017(std::vector<std::tuple<std::shared_p
     filterCut = normalizationCut + "&& QuadCentralJet30>=4";
     customBinning.clear();
     customBinCreator(customBinning, 20., 100., 3.,  180., 10.,  220., 30.,  300., 40.);
-    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "jetForthHighestPt_pt"          , normalizationCut, "QuadCentralJet30; p_{T}^{4} [GeV]; online efficiency"           , customBinning, theColor);
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "jetForthHighestPtCalo_pt"          , normalizationCut, "QuadCentralJet30; p_{T}^{4} [GeV]; online efficiency"           , customBinning, theColor);
     
     normalizationCut = filterCut;
     filterCut = normalizationCut + " && CaloQuadJet30HT300_MaxHT>=300 && numberOfJetsCaloHT>=4";
@@ -611,7 +611,7 @@ void ProduceAllTriggerEfficiencyInAFile2018(std::vector<std::tuple<std::shared_p
     filterCut = normalizationCut + "&& QuadCentralJet30>=4";
     customBinning.clear();
     customBinCreator(customBinning, 20., 100., 3.,  180., 8.,  220., 15.,  300., 30.);
-    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "jetForthHighestPt_pt"          , normalizationCut, "QuadCentralJet30; p_{T}^{4} [GeV]; online efficiency"           , customBinning, theColor);
+    theEfficiencyEvaluator.addTrigger(triggerName, filterCut, "jetForthHighestPtCalo_pt"          , normalizationCut, "QuadCentralJet30; p_{T}^{4} [GeV]; online efficiency"           , customBinning, theColor);
     
     normalizationCut = filterCut;
     filterCut = normalizationCut + "&& CaloQuadJet30HT320_MaxHT>=320 && numberOfJetsCaloHT>=4";

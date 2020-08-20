@@ -506,8 +506,8 @@ void doMeasureShape(float minEntriesPerRectangle, int year)
 {
     gROOT->SetBatch(true);
     MeasureBackgroundSystematicShape( std::to_string(year) + "DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root",
-        "data_BTagCSV/selectionbJets_ControlRegionBlinded/data_BTagCSV_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
-        "data_BTagCSV_dataDriven/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
+        "data_BTagCSV/selectionbJets_ControlRegionBlinded/data_BTagCSV_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
+        "data_BTagCSV_dataDriven/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
         minEntriesPerRectangle, year);
     gROOT->SetBatch(false);
 }
@@ -760,34 +760,34 @@ void doMeasureCRhole(int year)
 
     
     MeasureBackgroundSystematicCRhole(theCanvas->cd(1), inputFileName,
-        "data_BTagCSV/selectionbJets_ControlRegionBlinded/data_BTagCSV_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
-        "data_BTagCSV_dataDriven/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
-        "data_BTagCSV_dataDriven_VRcutForSyst_65_105/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_VRcutForSyst_65_105_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
+        "data_BTagCSV/selectionbJets_ControlRegionBlinded/data_BTagCSV_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
+        "data_BTagCSV_dataDriven/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
+        "data_BTagCSV_dataDriven_VRcutForSyst_65_105/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_VRcutForSyst_65_105_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
         65, 105, 4, year);
     MeasureBackgroundSystematicCRhole(theCanvas->cd(2), inputFileName,
-        "data_BTagCSV/selectionbJets_ControlRegionBlinded/data_BTagCSV_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
-        "data_BTagCSV_dataDriven/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
-        "data_BTagCSV_dataDriven_VRcutForSyst_145_185/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_VRcutForSyst_145_185_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
+        "data_BTagCSV/selectionbJets_ControlRegionBlinded/data_BTagCSV_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
+        "data_BTagCSV_dataDriven/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
+        "data_BTagCSV_dataDriven_VRcutForSyst_145_185/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_VRcutForSyst_145_185_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
         145, 185, 4, year);
     MeasureBackgroundSystematicCRhole(theCanvas->cd(3), inputFileName,
-        "data_BTagCSV/selectionbJets_ControlRegionBlinded/data_BTagCSV_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
-        "data_BTagCSV_dataDriven/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
-        "data_BTagCSV_dataDriven_VRcutForSyst_185_225/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_VRcutForSyst_185_225_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
+        "data_BTagCSV/selectionbJets_ControlRegionBlinded/data_BTagCSV_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
+        "data_BTagCSV_dataDriven/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
+        "data_BTagCSV_dataDriven_VRcutForSyst_185_225/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_VRcutForSyst_185_225_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
         185, 225, 4, year);
     MeasureBackgroundSystematicCRhole(theCanvas->cd(4), inputFileName,
-        "data_BTagCSV/selectionbJets_ControlRegionBlinded/data_BTagCSV_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
-        "data_BTagCSV_dataDriven/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
-        "data_BTagCSV_dataDriven_VRcutForSyst_225_265/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_VRcutForSyst_225_265_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
+        "data_BTagCSV/selectionbJets_ControlRegionBlinded/data_BTagCSV_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
+        "data_BTagCSV_dataDriven/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
+        "data_BTagCSV_dataDriven_VRcutForSyst_225_265/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_VRcutForSyst_225_265_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
         225, 265, 4, year);
     MeasureBackgroundSystematicCRhole(theCanvas->cd(5), inputFileName,
-        "data_BTagCSV/selectionbJets_ControlRegionBlinded/data_BTagCSV_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
-        "data_BTagCSV_dataDriven/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
-        "data_BTagCSV_dataDriven_VRcutForSyst_265_305/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_VRcutForSyst_265_305_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
+        "data_BTagCSV/selectionbJets_ControlRegionBlinded/data_BTagCSV_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
+        "data_BTagCSV_dataDriven/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
+        "data_BTagCSV_dataDriven_VRcutForSyst_265_305/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_VRcutForSyst_265_305_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
         265, 305, 4, year);
     MeasureBackgroundSystematicCRhole(theCanvas->cd(6), inputFileName,
-        "data_BTagCSV/selectionbJets_ControlRegionBlinded/data_BTagCSV_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
-        "data_BTagCSV_dataDriven/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
-        "data_BTagCSV_dataDriven_VRcutForSyst_305_345/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_VRcutForSyst_305_345_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
+        "data_BTagCSV/selectionbJets_ControlRegionBlinded/data_BTagCSV_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
+        "data_BTagCSV_dataDriven/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
+        "data_BTagCSV_dataDriven_VRcutForSyst_305_345/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_VRcutForSyst_305_345_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
         305, 345, 4, year);
 
     theCanvas->SaveAs((std::string(theCanvas->GetName()) + ".png").data());
@@ -878,7 +878,7 @@ void applyAllBackgroundShapeVariations()
     std::vector<int> minBinContentList = {700, 800, 900, 1000, 1200, 1500};
     std::string datasetName = "data_BTagCSV_dataDriven";
     std::string selectionName = "selectionbJets_SignalRegion";
-    std::string variable = "HH_m_H2_m";
+    std::string variable = "HH_kinFit_m_H2_m";
 
     for(auto year : yearList)
     {

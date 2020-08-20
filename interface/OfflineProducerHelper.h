@@ -323,6 +323,7 @@ class OfflineProducerHelper{
         // compute events weight for four b
         // void compute_scaleFactors_fourBtag_eventScaleFactor (const std::vector<Jet> &jets, NanoAODTree& nat, OutputTree &ot);
 
+        void doAll2JetCombinations (const std::vector<Jet>& jetList, std::vector<float>& valueList, float (*theFunction)(const Jet&,const Jet&)) const;
 
         BTagCalibrationReader *btagCalibrationReader_lightJets_;
         BTagCalibrationReader *btagCalibrationReader_cJets_;
@@ -330,7 +331,7 @@ class OfflineProducerHelper{
         float Get_bRegRes(Jet jet);
         float Get_bRegCorr(Jet jet);
         //functions fo apply preselection cuts:
-        void doAll2JetCombinations (std::vector<TLorentzVector>& jetList, std::vector<float>& valueList, float (*function)(TLorentzVector&, TLorentzVector&));
+        void doAll2VectorCombinations (std::vector<TLorentzVector>& jetList, std::vector<float>& valueList, float (*function)(TLorentzVector&, TLorentzVector&));
         void bJets_PreselectionCut(std::vector<Jet> &jets);
         void fourBjetCut_PreselectionCut(std::vector<Jet> &jets, EventInfo& ei);
         std::vector<Jet> bjJets_PreselectionCut(NanoAODTree& nat, EventInfo& ei, OutputTree &ot, std::vector<Jet> jets);
