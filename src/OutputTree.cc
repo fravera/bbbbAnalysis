@@ -96,6 +96,26 @@ void OutputTree::init_branches(bool initAllBranches)
     BRANCH_m_pt_ptRegressed_eta_phi_p4(H2_b1_kinFit)
     BRANCH_m_pt_ptRegressed_eta_phi_p4(H2_b2_kinFit)
 
+    BRANCH_m_pt_ptRegressed_eta_phi_p4(FirstBtaggedJet)
+    tree_->Branch("FirstBtaggedJet_deepCSV"  , &FirstBtaggedJet_deepCSV  );
+    tree_->Branch("FirstBtaggedJet_PtRegRes" , &FirstBtaggedJet_PtRegRes );
+    BRANCH_m_pt_ptRegressed_eta_phi_p4(SecondBtaggedJet)
+    tree_->Branch("SecondBtaggedJet_deepCSV" , &SecondBtaggedJet_deepCSV );
+    tree_->Branch("SecondBtaggedJet_PtRegRes", &SecondBtaggedJet_PtRegRes);
+    BRANCH_m_pt_ptRegressed_eta_phi_p4(ThirdBtaggedJet)
+    tree_->Branch("ThirdBtaggedJet_deepCSV"  , &ThirdBtaggedJet_deepCSV  );
+    tree_->Branch("ThirdBtaggedJet_PtRegRes" , &ThirdBtaggedJet_PtRegRes );
+    BRANCH_m_pt_ptRegressed_eta_phi_p4(FourthBtaggedJet)
+    tree_->Branch("FourthBtaggedJet_deepCSV" , &FourthBtaggedJet_deepCSV );
+    tree_->Branch("FourthBtaggedJet_PtRegRes", &FourthBtaggedJet_PtRegRes);
+
+    tree_->Branch("minDeltaRbJets"  , &minDeltaRbJets  );
+    tree_->Branch("maxDeltaRbJets"  , &maxDeltaRbJets  );
+    tree_->Branch("minDeltaEtabJets", &minDeltaEtabJets);
+    tree_->Branch("maxDeltaEtabJets", &maxDeltaEtabJets);
+    tree_->Branch("minDeltaPhibJets", &minDeltaPhibJets);
+    tree_->Branch("maxDeltaPhibJets", &maxDeltaPhibJets);
+
     BRANCH_m_pt_ptRegressed_eta_phi_p4(offShell_H1_b1)
     BRANCH_m_pt_ptRegressed_eta_phi_p4(offShell_H1_b2)
     BRANCH_m_pt_ptRegressed_eta_phi_p4(offShell_H2_b1)
@@ -475,6 +495,26 @@ void OutputTree::clear()
     CLEAR_m_pt_ptRegressed_eta_phi_p4(H1_b2_kinFit)
     CLEAR_m_pt_ptRegressed_eta_phi_p4(H2_b1_kinFit)
     CLEAR_m_pt_ptRegressed_eta_phi_p4(H2_b2_kinFit)
+
+    CLEAR_m_pt_ptRegressed_eta_phi_p4(FirstBtaggedJet)
+    FirstBtaggedJet_deepCSV   = -1.;
+    FirstBtaggedJet_PtRegRes  = -1.;
+    CLEAR_m_pt_ptRegressed_eta_phi_p4(SecondBtaggedJet)
+    SecondBtaggedJet_deepCSV  = -1.;
+    SecondBtaggedJet_PtRegRes = -1.;
+    CLEAR_m_pt_ptRegressed_eta_phi_p4(ThirdBtaggedJet)
+    ThirdBtaggedJet_deepCSV   = -1.;
+    ThirdBtaggedJet_PtRegRes  = -1.;
+    CLEAR_m_pt_ptRegressed_eta_phi_p4(FourthBtaggedJet)
+    FourthBtaggedJet_deepCSV  = -1.;
+    FourthBtaggedJet_PtRegRes = -1.;
+
+    minDeltaRbJets   = -1.;
+    maxDeltaRbJets   = -1.;
+    minDeltaEtabJets = -1.;
+    maxDeltaEtabJets = -1.;
+    minDeltaPhibJets = -1.;
+    maxDeltaPhibJets = -1.;
 
     CLEAR_m_pt_eta_phi_p4(H1_kinFit)
     CLEAR_m_pt_eta_phi_p4(H2_kinFit)

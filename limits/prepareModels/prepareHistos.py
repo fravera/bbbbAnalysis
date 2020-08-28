@@ -208,6 +208,8 @@ def RunPreparation(dataset,directory,processes,categandobs,folder, process_renam
 parser = argparse.ArgumentParser(description='Command line parser of skim options')
 parser.add_argument('--config', dest='cfgfile',  help='Name of config file with MC information',   required = True)
 parser.add_argument('--signal', dest='signal',   help='Name of the signal',                        required = True)
+parser.add_argument('--folder',    dest='folder',          help='override config folder' , default="None")
+parser.add_argument('--directory',    dest='directory',          help='override config directory' , default="None")
 args = parser.parse_args()
 configfilename = args.cfgfile
 
@@ -225,6 +227,7 @@ dataset     = ast.literal_eval(cfgparser.get("configuration","dataset"))
 print "    -The dataset:"
 print "      *",dataset
 directory   = ast.literal_eval(cfgparser.get("configuration","directory"))
+if args.directory != "None": directory = args.directory
 print "    -The location of the input histograms:"
 print "      *",directory
 processes   = ast.literal_eval(cfgparser.get("configuration","processes"))
@@ -236,6 +239,8 @@ print "    -The list of categories and observables:"
 for x in range(len(categandobs)):
   print "      *The category",categandobs[x][0]," has observable ",categandobs[x][1]
 folder         = ast.literal_eval(cfgparser.get("configuration","folder"))
+if args.folder != "None": folder = args.folder
+
 print "    -The name of the folder to save the results:"
 print "      *",folder
 process_rename = ast.literal_eval(cfgparser.get("configuration", "replacements"))

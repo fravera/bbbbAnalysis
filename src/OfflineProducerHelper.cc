@@ -1140,7 +1140,7 @@ std::vector<Jet> OfflineProducerHelper::applyJESshift(NanoAODTree &nat, const st
 //     return;
 // }
 
-void OfflineProducerHelper::doAll2JetCombinations (std::vector<TLorentzVector>& jetList, std::vector<float>& valueList, float (*function)(TLorentzVector&, TLorentzVector&))
+void OfflineProducerHelper::doAll2VectorCombinations (std::vector<TLorentzVector>& jetList, std::vector<float>& valueList, float (*function)(TLorentzVector&, TLorentzVector&))
 {
     if(jetList.size() == 1) return;
     else
@@ -1151,7 +1151,7 @@ void OfflineProducerHelper::doAll2JetCombinations (std::vector<TLorentzVector>& 
         {
             valueList.emplace_back(function(firstJet,jet));
         }
-        doAll2JetCombinations(subList,valueList,function);
+        doAll2VectorCombinations(subList,valueList,function);
     }
 }
 
@@ -1315,7 +1315,7 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
         ei.TotalFourJetPt = theTotalVector.Pt();
 
         std::vector<float> deltaEtaList;
-        doAll2JetCombinations (theJetVector, deltaEtaList, 
+        doAll2VectorCombinations (theJetVector, deltaEtaList, 
         [](TLorentzVector& jet1, TLorentzVector& jet2) ->float {return abs(jet1.Eta() - jet2.Eta());}
         );
 
@@ -1534,23 +1534,26 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
     
     ei.HH_2DdeltaM = pow(ei.H1->P4().M() - targetHiggsMass,2) + pow(ei.H2->P4().M() - targetHiggsMass,2);
 
-    ei.kinFit_chi2 = theKinFitter_->constrainHH_signalMeasurement(&ordered_jets.at(0).p4Regressed_, &ordered_jets.at(1).p4Regressed_, &ordered_jets.at(2).p4Regressed_, &ordered_jets.at(3).p4Regressed_, 125., -1);
 
-    ei.H1_b1_kinFit = ordered_jets.at(0);
-    ei.H1_b2_kinFit = ordered_jets.at(1);
-    ei.H2_b1_kinFit = ordered_jets.at(2);
-    ei.H2_b2_kinFit = ordered_jets.at(3);
+    std::vector<Jet> ordered_jets_forKinFit = ordered_jets;
 
-    CompositeCandidate H1kf = CompositeCandidate(ordered_jets.at(0), ordered_jets.at(1));
+    ei.kinFit_chi2 = theKinFitter_->constrainHH_signalMeasurement(&ordered_jets_forKinFit.at(0).p4Regressed_, &ordered_jets_forKinFit.at(1).p4Regressed_, &ordered_jets_forKinFit.at(2).p4Regressed_, &ordered_jets_forKinFit.at(3).p4Regressed_, 125., -1);
+
+    ei.H1_b1_kinFit = ordered_jets_forKinFit.at(0);
+    ei.H1_b2_kinFit = ordered_jets_forKinFit.at(1);
+    ei.H2_b1_kinFit = ordered_jets_forKinFit.at(2);
+    ei.H2_b2_kinFit = ordered_jets_forKinFit.at(3);
+
+    CompositeCandidate H1kf = CompositeCandidate(ordered_jets_forKinFit.at(0), ordered_jets_forKinFit.at(1));
     H1kf.rebuildP4UsingRegressedPt(true,true);
     ei.H1_kinFit = H1kf;
     
-    CompositeCandidate H2kf = CompositeCandidate(ordered_jets.at(2), ordered_jets.at(3));
+    CompositeCandidate H2kf = CompositeCandidate(ordered_jets_forKinFit.at(2), ordered_jets_forKinFit.at(3));
     H2kf.rebuildP4UsingRegressedPt(true,true);
     ei.H2_kinFit = H2kf;
 
-    ei.H1_kinFit_bb_DeltaR = sqrt(pow(ordered_jets.at(0).P4Regressed().Eta() - ordered_jets.at(1).P4Regressed().Eta(),2) + pow(deltaPhi(ordered_jets.at(0).P4Regressed().Phi(), ordered_jets.at(1).P4Regressed().Phi()),2));
-    ei.H2_kinFit_bb_DeltaR = sqrt(pow(ordered_jets.at(2).P4Regressed().Eta() - ordered_jets.at(3).P4Regressed().Eta(),2) + pow(deltaPhi(ordered_jets.at(2).P4Regressed().Phi(), ordered_jets.at(3).P4Regressed().Phi()),2));
+    ei.H1_kinFit_bb_DeltaR = sqrt(pow(ordered_jets_forKinFit.at(0).P4Regressed().Eta() - ordered_jets_forKinFit.at(1).P4Regressed().Eta(),2) + pow(deltaPhi(ordered_jets_forKinFit.at(0).P4Regressed().Phi(), ordered_jets_forKinFit.at(1).P4Regressed().Phi()),2));
+    ei.H2_kinFit_bb_DeltaR = sqrt(pow(ordered_jets_forKinFit.at(2).P4Regressed().Eta() - ordered_jets_forKinFit.at(3).P4Regressed().Eta(),2) + pow(deltaPhi(ordered_jets_forKinFit.at(2).P4Regressed().Phi(), ordered_jets_forKinFit.at(3).P4Regressed().Phi()),2));
 
     ei.HH_kinFit = CompositeCandidate(H1kf, H2kf);
 
@@ -1586,6 +1589,46 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
     ei.LumiSec = *(nat.luminosityBlock);
     ei.Event = *(nat.event);
     if(parameterList_->find("BTagScaleFactorMethod") != parameterList_->end()) ei.pileUp = *(nat.Pileup_nTrueInt);;
+
+    std::vector<float> bJetDeltaRlist;
+    doAll2JetCombinations (ordered_jets, bJetDeltaRlist, 
+        [](const Jet& firstJet,const Jet& secondJet) -> float
+        {
+            return sqrt(pow(firstJet.P4Regressed().Eta() - secondJet.P4Regressed().Eta(),2) + pow(deltaPhi(firstJet.P4Regressed().Phi(), secondJet.P4Regressed().Phi()),2));
+        }
+    );
+    ei.minDeltaRbJets = *std::min_element(bJetDeltaRlist.begin(), bJetDeltaRlist.end());
+    ei.maxDeltaRbJets = *std::max_element(bJetDeltaRlist.begin(), bJetDeltaRlist.end());
+
+    std::vector<float> bJetDeltaEtalist;
+    doAll2JetCombinations (ordered_jets, bJetDeltaEtalist, 
+        [](const Jet& firstJet,const Jet& secondJet) -> float
+        {
+            return abs(firstJet.P4Regressed().Eta() - secondJet.P4Regressed().Eta());
+        }
+    );
+    ei.minDeltaEtabJets = *std::min_element(bJetDeltaEtalist.begin(), bJetDeltaEtalist.end());
+    ei.maxDeltaEtabJets = *std::max_element(bJetDeltaEtalist.begin(), bJetDeltaEtalist.end());
+
+    std::vector<float> bJetDeltaPhilist;
+    doAll2JetCombinations (ordered_jets, bJetDeltaPhilist, 
+        [](const Jet& firstJet,const Jet& secondJet) -> float 
+        {
+            return abs(deltaPhi(firstJet.P4Regressed().Phi(), secondJet.P4Regressed().Phi()));
+        }
+    );
+    ei.minDeltaPhibJets = *std::min_element(bJetDeltaPhilist.begin(), bJetDeltaPhilist.end());
+    ei.maxDeltaPhibJets = *std::max_element(bJetDeltaPhilist.begin(), bJetDeltaPhilist.end());
+
+    stable_sort(ordered_jets.begin(), ordered_jets.end(), [](const Jet & a, const Jet & b) -> bool
+    {
+        return ( a.bTagScore() > b.bTagScore() );
+    });
+
+    ei.FirstBtaggedJet  = ordered_jets.at(0);
+    ei.SecondBtaggedJet = ordered_jets.at(1);
+    ei.ThirdBtaggedJet  = ordered_jets.at(2);
+    ei.FourthBtaggedJet = ordered_jets.at(3);
 
 
     // }
@@ -1662,6 +1705,21 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
     return true;
 }
 
+
+void OfflineProducerHelper::doAll2JetCombinations (const std::vector<Jet>& jetList, std::vector<float>& valueList, float (*theFunction)(const Jet&,const Jet&)) const
+{
+    if(jetList.size() == 1) return;
+    else
+    {
+        const Jet& firstJet = jetList.at(0);
+        const std::vector<Jet>&& subList = std::vector<Jet>(jetList.begin()+1,jetList.end());
+        for(const auto& jet : subList)
+        {
+            valueList.emplace_back(theFunction(firstJet,jet));
+        }
+        doAll2JetCombinations(subList, valueList, theFunction);
+    }   
+}
 
 //functions for apply preselection cuts:
 void OfflineProducerHelper::bJets_PreselectionCut(std::vector<Jet> &jets)

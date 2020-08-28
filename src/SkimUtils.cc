@@ -99,6 +99,27 @@ void SkimUtils::fill_output_tree(OutputTree& ot, NanoAODTree& nat, EventInfo& ei
     COPY_OPTIONAL_m_pt_ptRegressed_eta_phi_p4(H2_b1_kinFit)
     COPY_OPTIONAL_m_pt_ptRegressed_eta_phi_p4(H2_b2_kinFit)
 
+    COPY_OPTIONAL_m_pt_ptRegressed_eta_phi_p4(FirstBtaggedJet)
+    if (ei.FirstBtaggedJet) ot.FirstBtaggedJet_deepCSV = ei.FirstBtaggedJet.get().bTagScore();   
+    if (ei.FirstBtaggedJet) ot.FirstBtaggedJet_PtRegRes = get_property(ei.FirstBtaggedJet.get(), Jet_bRegRes);   
+    COPY_OPTIONAL_m_pt_ptRegressed_eta_phi_p4(SecondBtaggedJet)
+    if (ei.SecondBtaggedJet) ot.SecondBtaggedJet_deepCSV = ei.SecondBtaggedJet.get().bTagScore();
+    if (ei.SecondBtaggedJet) ot.SecondBtaggedJet_PtRegRes = get_property(ei.SecondBtaggedJet.get(), Jet_bRegRes);
+    COPY_OPTIONAL_m_pt_ptRegressed_eta_phi_p4(ThirdBtaggedJet)
+    if (ei.ThirdBtaggedJet) ot.ThirdBtaggedJet_deepCSV = ei.ThirdBtaggedJet.get().bTagScore();
+    if (ei.ThirdBtaggedJet) ot.ThirdBtaggedJet_PtRegRes = get_property(ei.ThirdBtaggedJet.get(), Jet_bRegRes);
+    COPY_OPTIONAL_m_pt_ptRegressed_eta_phi_p4(FourthBtaggedJet)
+    if (ei.FourthBtaggedJet) ot.FourthBtaggedJet_deepCSV = ei.FourthBtaggedJet.get().bTagScore();
+    if (ei.FourthBtaggedJet) ot.FourthBtaggedJet_PtRegRes = get_property(ei.FourthBtaggedJet.get(), Jet_bRegRes);
+
+    if (ei.minDeltaRbJets  ) ot.minDeltaRbJets   = *ei.minDeltaRbJets  ;
+    if (ei.maxDeltaRbJets  ) ot.maxDeltaRbJets   = *ei.maxDeltaRbJets  ;
+    if (ei.minDeltaEtabJets) ot.minDeltaEtabJets = *ei.minDeltaEtabJets;
+    if (ei.maxDeltaEtabJets) ot.maxDeltaEtabJets = *ei.maxDeltaEtabJets;
+    if (ei.minDeltaPhibJets) ot.minDeltaPhibJets = *ei.minDeltaPhibJets;
+    if (ei.maxDeltaPhibJets) ot.maxDeltaPhibJets = *ei.maxDeltaPhibJets;
+
+
     COPY_OPTIONAL_m_pt_eta_phi_p4(H1)
     if(ei.H1_bb_DeltaR) ot.H1_bb_DeltaR  = *ei.H1_bb_DeltaR;
     COPY_OPTIONAL_m_pt_eta_phi_p4(H2)

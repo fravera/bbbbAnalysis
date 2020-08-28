@@ -297,7 +297,7 @@ int main(int argc, char *argv[])
 
     if(argc < 8)
     {
-        std::cout << "Usage: ./Unroll2Dplots <fileName> <dataset> <selection> <variable> <mYmin> <mYmax> <otherSelectionToUnroll - optional>" << std::endl;
+        std::cout << "Usage: ./Unroll2Dplots <fileName> <dataset> <selection> <variable> <mYmin> <mYmax> <minMumberOfEntries> <otherSelectionToUnroll - optional>" << std::endl;
         return EXIT_FAILURE;
     }
 

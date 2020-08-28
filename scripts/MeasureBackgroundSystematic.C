@@ -505,9 +505,9 @@ void MeasureBackgroundSystematicShape(std::string inputFileName, std::string Fou
 void doMeasureShape(float minEntriesPerRectangle, int year)
 {
     gROOT->SetBatch(true);
-    MeasureBackgroundSystematicShape( std::to_string(year) + "DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root",
-        "data_BTagCSV/selectionbJets_ControlRegionBlinded/data_BTagCSV_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
-        "data_BTagCSV_dataDriven/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
+    MeasureBackgroundSystematicShape( std::to_string(year) + "DataPlots_NMSSM_XYH_bbbb_Full_syst_trgData_SumRegResLess030/outPlotter.root",
+        "data_BTagCSV/selectionbJets_ControlRegionBlinded/data_BTagCSV_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
+        "data_BTagCSV_dataDriven_kinFit/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_kinFit_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
         minEntriesPerRectangle, year);
     gROOT->SetBatch(false);
 }
@@ -560,8 +560,8 @@ void MeasureBackgroundSystematicNormalization(std::string inputFileName, std::st
     ratio->SetLineColor(kRed);
     ratio->SetLineWidth(2);
     ratio->SetMarkerColor(kRed);
-    ratio->SetMinimum(0.9);  // Define Y ..
-    ratio->SetMaximum(1.2); // .. range
+    ratio->SetMinimum(0.1);  // Define Y ..
+    ratio->SetMaximum(1.9); // .. range
     ratio->SetStats(0);      // No statistics on lower plot
     // ratio->Divide(referenceHistogram);
     ratio->SetMarkerStyle(21);
@@ -583,7 +583,7 @@ void MeasureBackgroundSystematicNormalization(std::string inputFileName, std::st
     theCanvasNormalization->SaveAs((std::string(theCanvasNormalization->GetName()) + "_" + std::to_string(year) + ".png").data());
 
 
-    TH1F * ratioDeviationHistogram = new TH1F("Ratio deviation", "Ratio deviation", 12, -0.1, 0.1);
+    TH1F * ratioDeviationHistogram = new TH1F("Ratio deviation", "Ratio deviation", 12, -0.6, 0.6);
 
     float maxDeviation = -1.;
     float minBinContent = 1e20;
@@ -612,12 +612,12 @@ void MeasureBackgroundSystematicNormalization(std::string inputFileName, std::st
 void doMeasureNorm(int year)
 {
     gROOT->SetBatch(true);
-    std::string inputFileName = std::to_string(year) + "DataPlots_NMSSM_XYH_bbbb_dataDrivenStudies/outPlotter.root";
+    std::string inputFileName = std::to_string(year) + "DataPlots_NMSSM_XYH_bbbb_Full_syst_trgData_SumRegResLess030/outPlotter.root";
 
     gROOT->ForceStyle();
     MeasureBackgroundSystematicNormalization(inputFileName,
         "data_BTagCSV/selectionbJets_ControlRegionBlinded/data_BTagCSV_selectionbJets_ControlRegionBlinded_H1_m",
-        "data_BTagCSV_dataDriven/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_selectionbJets_ControlRegionBlinded_H1_m", year);
+        "data_BTagCSV_dataDriven_kinFit/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_kinFit_selectionbJets_ControlRegionBlinded_H1_m", year);
     gROOT->SetBatch(false);
 }
 
@@ -760,34 +760,34 @@ void doMeasureCRhole(int year)
 
     
     MeasureBackgroundSystematicCRhole(theCanvas->cd(1), inputFileName,
-        "data_BTagCSV/selectionbJets_ControlRegionBlinded/data_BTagCSV_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
-        "data_BTagCSV_dataDriven/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
-        "data_BTagCSV_dataDriven_VRcutForSyst_65_105/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_VRcutForSyst_65_105_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
+        "data_BTagCSV/selectionbJets_ControlRegionBlinded/data_BTagCSV_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
+        "data_BTagCSV_dataDriven_kinFit/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_kinFit_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
+        "data_BTagCSV_dataDriven_kinFit_VRcutForSyst_65_105/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_kinFit_VRcutForSyst_65_105_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
         65, 105, 4, year);
     MeasureBackgroundSystematicCRhole(theCanvas->cd(2), inputFileName,
-        "data_BTagCSV/selectionbJets_ControlRegionBlinded/data_BTagCSV_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
-        "data_BTagCSV_dataDriven/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
-        "data_BTagCSV_dataDriven_VRcutForSyst_145_185/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_VRcutForSyst_145_185_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
+        "data_BTagCSV/selectionbJets_ControlRegionBlinded/data_BTagCSV_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
+        "data_BTagCSV_dataDriven_kinFit/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_kinFit_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
+        "data_BTagCSV_dataDriven_kinFit_VRcutForSyst_145_185/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_kinFit_VRcutForSyst_145_185_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
         145, 185, 4, year);
     MeasureBackgroundSystematicCRhole(theCanvas->cd(3), inputFileName,
-        "data_BTagCSV/selectionbJets_ControlRegionBlinded/data_BTagCSV_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
-        "data_BTagCSV_dataDriven/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
-        "data_BTagCSV_dataDriven_VRcutForSyst_185_225/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_VRcutForSyst_185_225_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
+        "data_BTagCSV/selectionbJets_ControlRegionBlinded/data_BTagCSV_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
+        "data_BTagCSV_dataDriven_kinFit/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_kinFit_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
+        "data_BTagCSV_dataDriven_kinFit_VRcutForSyst_185_225/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_kinFit_VRcutForSyst_185_225_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
         185, 225, 4, year);
     MeasureBackgroundSystematicCRhole(theCanvas->cd(4), inputFileName,
-        "data_BTagCSV/selectionbJets_ControlRegionBlinded/data_BTagCSV_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
-        "data_BTagCSV_dataDriven/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
-        "data_BTagCSV_dataDriven_VRcutForSyst_225_265/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_VRcutForSyst_225_265_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
+        "data_BTagCSV/selectionbJets_ControlRegionBlinded/data_BTagCSV_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
+        "data_BTagCSV_dataDriven_kinFit/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_kinFit_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
+        "data_BTagCSV_dataDriven_kinFit_VRcutForSyst_225_265/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_kinFit_VRcutForSyst_225_265_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
         225, 265, 4, year);
     MeasureBackgroundSystematicCRhole(theCanvas->cd(5), inputFileName,
-        "data_BTagCSV/selectionbJets_ControlRegionBlinded/data_BTagCSV_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
-        "data_BTagCSV_dataDriven/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
-        "data_BTagCSV_dataDriven_VRcutForSyst_265_305/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_VRcutForSyst_265_305_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
+        "data_BTagCSV/selectionbJets_ControlRegionBlinded/data_BTagCSV_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
+        "data_BTagCSV_dataDriven_kinFit/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_kinFit_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
+        "data_BTagCSV_dataDriven_kinFit_VRcutForSyst_265_305/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_kinFit_VRcutForSyst_265_305_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
         265, 305, 4, year);
     MeasureBackgroundSystematicCRhole(theCanvas->cd(6), inputFileName,
-        "data_BTagCSV/selectionbJets_ControlRegionBlinded/data_BTagCSV_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
-        "data_BTagCSV_dataDriven/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
-        "data_BTagCSV_dataDriven_VRcutForSyst_305_345/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_VRcutForSyst_305_345_selectionbJets_ControlRegionBlinded_HH_m_H2_m",
+        "data_BTagCSV/selectionbJets_ControlRegionBlinded/data_BTagCSV_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
+        "data_BTagCSV_dataDriven_kinFit/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_kinFit_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
+        "data_BTagCSV_dataDriven_kinFit_VRcutForSyst_305_345/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_kinFit_VRcutForSyst_305_345_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
         305, 345, 4, year);
 
     theCanvas->SaveAs((std::string(theCanvas->GetName()) + ".png").data());
@@ -805,7 +805,7 @@ void measureAllBkgSystematics(int year)
     doMeasureShape(1200, year);
     doMeasureShape(1500, year);
     doMeasureNorm(year);
-    doMeasureCRhole(year);
+    // doMeasureCRhole(year);
     gROOT->SetBatch(false);
 }
 
@@ -876,13 +876,13 @@ void applyAllBackgroundShapeVariations()
 {
     std::vector<int> yearList = {2016, 2017, 2018};
     std::vector<int> minBinContentList = {700, 800, 900, 1000, 1200, 1500};
-    std::string datasetName = "data_BTagCSV_dataDriven";
+    std::string datasetName = "data_BTagCSV_dataDriven_kinFit";
     std::string selectionName = "selectionbJets_SignalRegion";
-    std::string variable = "HH_m_H2_m";
+    std::string variable = "HH_kinFit_m_H2_m";
 
     for(auto year : yearList)
     {
-        std::string inputFileName = std::to_string(year) + "DataPlots_NMSSM_XYH_bbbb_Full_syst_trgData/outPlotter.root";
+        std::string inputFileName = std::to_string(year) + "DataPlots_NMSSM_XYH_bbbb_Full_syst_trgData_SumRegResLess030/outPlotter.root";
         std::cout<<inputFileName<<std::endl;
         for(auto minBinContent : minBinContentList)
         {

@@ -1,0 +1,5 @@
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/NMSSM_XYH_bbbb_MX_300_MY_150_2017_Closure_triggered_v15/SKIM_NMSSM_XYH_bbbb_MX_300_NANOAOD_v7_Full/output/bbbbNtuple_0.root
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/NMSSM_XYH_bbbb_MX_300_MY_150_2017_Closure_triggered_v15/SKIM_NMSSM_XYH_bbbb_MX_300_NANOAOD_v7_Full/output/bbbbNtuple_1.root
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/NMSSM_XYH_bbbb_MX_300_MY_150_2017_Closure_triggered_v15/SKIM_NMSSM_XYH_bbbb_MX_300_NANOAOD_v7_Full/output/bbbbNtuple_2.root
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/NMSSM_XYH_bbbb_MX_300_MY_150_2017_Closure_triggered_v15/SKIM_NMSSM_XYH_bbbb_MX_300_NANOAOD_v7_Full/output/bbbbNtuple_3.root
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/NMSSM_XYH_bbbb_MX_300_MY_150_2017_Closure_triggered_v15/SKIM_NMSSM_XYH_bbbb_MX_300_NANOAOD_v7_Full/output/bbbbNtuple_4.root

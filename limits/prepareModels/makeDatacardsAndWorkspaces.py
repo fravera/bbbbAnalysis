@@ -84,6 +84,8 @@ parser.add_argument('--card-only', dest='doworkspace',    help='Just make the tx
 parser.add_argument('--no-comb',   dest='docombination',  help='Do not make the combined cards',            action='store_false', default=True)
 parser.add_argument('--no-bbb',    dest='dobbb',          help='Do not add the bin-by-bin uncs',            action='store_false', default=True)
 parser.add_argument('--addScaleSignal',    dest='addScaleSignal',          help='add scale signal',         action='store_true' , default=False)
+parser.add_argument('--folder',    dest='folder',          help='override config folder' , default="None")
+
 args = parser.parse_args()
 configfilename = args.cfgfile
 
@@ -107,6 +109,8 @@ card_name    = "datacard%s"%dsetname
 categories   = [categandobs[k][0] for k in range(0,len(categandobs)) ]
 combinations = ast.literal_eval(cfgparser.get("configuration","combinations"))
 datacards    = []
+
+if args.folder != "None": folder = args.folder
 
 ## consider the renamings
 def apply_rename(renames, values):

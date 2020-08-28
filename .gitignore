@@ -3,7 +3,6 @@
 *.o
 *.lib
 *.pyc
-*.root
 *.tar.gz
 jobs_*/
 *_C.d
@@ -13,3 +12,5 @@ limits/datacard_*.txt
 core.*
 *.pdf
 2016DataPlots_*
+2017DataPlots_*
+2018DataPlots_*

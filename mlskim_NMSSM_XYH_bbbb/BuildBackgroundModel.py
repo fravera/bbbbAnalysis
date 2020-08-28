@@ -112,7 +112,7 @@ if os.path.isdir(outputDirectory):
 	print "... working folder", outputDirectory, " already exists, exit"
 	sys.exit()
 
-cmd='mkdir ' + outputDirectory
+cmd='mkdir -p ' + outputDirectory
 if os.system(cmd) != 0:
 	print "... Not able to execute command \"", cmd, "\", exit"
 	sys.exit()

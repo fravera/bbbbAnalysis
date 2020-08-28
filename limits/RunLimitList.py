@@ -54,13 +54,13 @@ limitMap2sigmaUp   = TH2D("LimitMap2sigmaUp"  ,"2 Sigma Up Limit [pb]; m_{X} [Ge
 
 parser = argparse.ArgumentParser(description='Command line parser of skim options')
 parser.add_argument('--year'  , dest='year', help='Output Directory', default = ""   , required = True)
-parser.add_argument('--kinFit', dest='kinFit', help='use kinfit', default = False   , action='store_true', required = False)
+# parser.add_argument('--kinFit', dest='kinFit', help='use kinfit', default = False   , action='store_true', required = False)
 parser.add_argument('--addScaleSignal',    dest='addScaleSignal',          help='add scale signal',         action='store_true' , default=False)
 
 args = parser.parse_args()
 
 year = args.year
-kinFit = args.kinFit
+kinFit = True
 
 
 yMassesList = []
