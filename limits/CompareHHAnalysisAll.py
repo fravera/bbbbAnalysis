@@ -10,8 +10,8 @@ from array import array
 ROOT.gROOT.SetBatch(True)
 
 parser = argparse.ArgumentParser(description='Command line parser of skim options')
+parser.add_argument('--input'    , dest = 'input'    , help = 'input file' , required = True)
 parser.add_argument('--systematics'   , dest='systematics'   , help='systematics'   , action="store_true", default = False, required = False)
-parser.add_argument('--kinFit', dest='kinFit', help='use kinfit', default = False   , action='store_true', required = False)
 
 args = parser.parse_args()
 append = "statOnly"
@@ -78,15 +78,12 @@ for line in inputFile:
 yearList = [2016, 2017, 2018]
 colorList = [ROOT.kRed, ROOT.kBlue, ROOT.kGreen]
 comparisonPlotList = []
-kinFit = args.kinFit
-kinFitTag = ""
-if kinFit: kinFitTag = "_kinFit_"
+inputComparison = TFile(args.input)
 
 for it in range(len(yearList)):
-    inputComparisonName = "Limits" + kinFitTag + str(yearList[it]) + "Limits_" + append +  ".root"
 
-    inputComparison = TFile(inputComparisonName)
-    comparisonPlot = inputComparison.Get("CentralLimit_massY_125.0")
+    histogramName = "Limits_%s/Option_%s/CentralLimit_%s_%s_massY_125" % (str(yearList[it]), append, str(yearList[it]), append)
+    comparisonPlot = inputComparison.Get(histogramName)
     comparisonPlot.SetName("DiHiggsLimits" + str(yearList[it]))
     comparisonPlot.SetLineColor(colorList[it])
     comparisonPlot.SetMarkerColor(colorList[it])
@@ -96,7 +93,7 @@ for it in range(len(yearList)):
     comparisonPlotList.append(comparisonPlot)
 
 
-outputFile = TFile("HHanalysisComparison_" + kinFitTag + append +  ".root","RECREATE")
+outputFile = TFile("HHanalysisComparison_" + append +  ".root","RECREATE")
 for plot in brazilianPlots:
     plot.Write()
 theBrazilianCanvas = TCanvas("BrazilianLimits", "BrazilianLimits", 1200, 800)
@@ -119,5 +116,5 @@ for it in range(len(yearList)):
     theLegend.AddEntry(comparisonPlotList[it]   , "X #rightarrow Y(bb)H(bb), m_{Y} = 125 GeV - "+ str(yearList[it]), "lp")
 theLegend.Draw("same")
 
-theBrazilianCanvas.SaveAs("HHanalysisComparison_" + kinFitTag + append +  ".png")
+theBrazilianCanvas.SaveAs("HHanalysisComparison_" + append +  ".png")
 

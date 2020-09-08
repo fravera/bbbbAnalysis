@@ -140,9 +140,9 @@ ntot = nsig + nbkg
 writelnarr (fcard, ['bin'] + (['bin1',]*ntot) , addEmptyAtIdx=1)
 writelnarr (fcard, ['process'] + sigs + bkgs ,  addEmptyAtIdx=1)
 writelnarr (fcard, ['process'] + range(-len(sigs)+1, 1) + range(1, len(bkgs)+1), addEmptyAtIdx=1)
-writelnarr (fcard, ['rate']
-                + ["%.6f" % get_histo(fIn, hname, selection, final_var).Integral() for hname in sigs]
-                + ["%.6f" % get_histo(fIn, hname, selection, final_var).Integral() for hname in bkgs], addEmptyAtIdx=1)
+# writelnarr (fcard, ['rate']
+#                 + ["%.6f" % get_histo(fIn, hname, selection, final_var).Integral() for hname in sigs]
+#                 + ["%.6f" % get_histo(fIn, hname, selection, final_var).Integral() for hname in bkgs], addEmptyAtIdx=1)
 writeln    (fcard, '----------------------------------------------------------------------------------------------------------------------------------')
 
 for syst_source in systs.keys():
