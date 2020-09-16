@@ -75,16 +75,16 @@ for line in inputFile:
         brazilianPlots[1].SetPointError(brazilianPlots[1].GetN()-1, 0., 0., limitCentral - limit1SigmaDown, limit1SigmaUp - limitCentral)
         brazilianPlots[2].SetPointError(brazilianPlots[2].GetN()-1, 0., 0., limitCentral - limit2SigmaDown, limit2SigmaUp - limitCentral)
 
-yearList = [2016, 2017, 2018]
-colorList = [ROOT.kRed, ROOT.kBlue, ROOT.kGreen]
+yearList = ["2016", "2017", "2018", "RunII"]
+colorList = [ROOT.kRed, ROOT.kCyan, ROOT.kBlue, ROOT.kBlack]
 comparisonPlotList = []
 inputComparison = TFile(args.input)
 
 for it in range(len(yearList)):
 
-    histogramName = "Limits_%s/Option_%s/CentralLimit_%s_%s_massY_125" % (str(yearList[it]), append, str(yearList[it]), append)
+    histogramName = "Limits_%s/Option_%s/CentralLimit_%s_%s_massY_125" % (yearList[it], append, yearList[it], append)
     comparisonPlot = inputComparison.Get(histogramName)
-    comparisonPlot.SetName("DiHiggsLimits" + str(yearList[it]))
+    comparisonPlot.SetName("DiHiggsLimits" + yearList[it])
     comparisonPlot.SetLineColor(colorList[it])
     comparisonPlot.SetMarkerColor(colorList[it])
     comparisonPlot.SetLineWidth(3)
@@ -113,7 +113,7 @@ theLegend.AddEntry(brazilianPlots[0], "2016 X #rightarrow h(bb)h(bb)"         , 
 theLegend.AddEntry(brazilianPlots[1], "68% expected"                             , "f" )
 theLegend.AddEntry(brazilianPlots[2], "95% expected"                             , "f" )
 for it in range(len(yearList)):
-    theLegend.AddEntry(comparisonPlotList[it]   , "X #rightarrow Y(bb)H(bb), m_{Y} = 125 GeV - "+ str(yearList[it]), "lp")
+    theLegend.AddEntry(comparisonPlotList[it]   , "X #rightarrow Y(bb)H(bb), m_{Y} = 125 GeV - "+ yearList[it], "lp")
 theLegend.Draw("same")
 
 theBrazilianCanvas.SaveAs("HHanalysisComparison_" + append +  ".png")

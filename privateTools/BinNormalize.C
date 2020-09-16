@@ -72,11 +72,16 @@ void normalizeByBinSize2D(TH2D* inputPlot)
 
 }
 
-void plot2D(std::string inputFileName, std::string dataset, std::string selection, std::string variable, std::string title, int year)
+void plot2D(std::string inputFileName, std::string dataset, std::string selection, std::string variable, std::string title, int year, bool logZ=false)
 {
     TFile inputFile(inputFileName.data());
     std::string inputHistogramName = dataset +  "/" + selection + "/" + dataset +  "_" + selection + "_" + variable;
     TH2D *inputHistogram = (TH2D*)inputFile.Get(inputHistogramName.data());
+    if(inputHistogram==nullptr) 
+    {
+        std::cout<<"Plot " << inputHistogramName << " does not exist, aborting..." << std::endl;
+        return;
+    }
     inputHistogram->SetDirectory(0);
     inputHistogram->SetStats(0);
     inputHistogram->SetTitle(title.data());
@@ -95,17 +100,18 @@ void plot2D(std::string inputFileName, std::string dataset, std::string selectio
 
     TCanvas *theCanvas = new TCanvas((variable + "_" + dataset + "_" + std::to_string(year)).data(),"",1400,800);
     inputHistogram->Draw("colz");
+    if(logZ) theCanvas->SetLogz();
     theCanvas->SaveAs((std::string(theCanvas->GetName()) + ".png").data());
 
 }
 
 void doPlot2D(int year)
 {
-    gROOT->SetBatch(true);
+    // gROOT->SetBatch(true);
     gROOT->ForceStyle();
-    plot2D(std::to_string(year) + "DataPlots_NMSSM_XYH_bbbb_Full_syst/outPlotter.root", "data_BTagCSV_dataDriven"     , "selectionbJets_SignalRegion", "HH_m_H2_m", "Extimated background distribution"                     , year);
-    plot2D(std::to_string(year) + "DataPlots_NMSSM_XYH_bbbb_Full_syst/outPlotter.root", "sig_NMSSM_bbbb_MX_700_MY_300", "selectionbJets_SignalRegion", "HH_m_H2_m", "Signal distribution - m_{X} = 700 GeV  m_{Y} = 300 GeV", year);
-    gROOT->SetBatch(false);
+    plot2D(std::to_string(year) + "DataPlots_NMSSM_XYH_bbbb_Full_syst_trgData/outPlotter.root", "data_BTagCSV_dataDriven_kinFit", "selectionbJets_SignalRegion", "HH_kinFit_m_H2_m", "Extimated background distribution"                     , year, true);
+    // plot2D(std::to_string(year) + "DataPlots_NMSSM_XYH_bbbb_Full_syst_trgData/outPlotter.root", "sig_NMSSM_bbbb_MX_700_MY_300"  , "selectionbJets_SignalRegion", "HH_kinFit_m_H2_m", "Signal distribution - m_{X} = 700 GeV  m_{Y} = 300 GeV", year, true);
+    // gROOT->SetBatch(false);
 }
 
 // void doPlot2D(int year, std::string datasetName)

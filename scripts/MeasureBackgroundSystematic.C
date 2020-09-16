@@ -63,16 +63,16 @@ class ImprovedPloty : public TH2Poly
             TH2Poly::AddBin(theRectBin.fXmin, theRectBin.fYmin, theRectBin.fXmax, theRectBin.fYmax);
         }
 
-        void fillFromHistogram(TH2F* theInputHisogram)
+        void fillFromHistogram(TH2F* theInputHistogram)
         {
-            for(int nBinX = 1; nBinX<=theInputHisogram->GetNbinsX(); ++nBinX)
+            for(int nBinX = 1; nBinX<=theInputHistogram->GetNbinsX(); ++nBinX)
             {
-                float xValue = theInputHisogram->GetXaxis()->GetBinCenter(nBinX);
-                for(int nBinY = 1; nBinY<=theInputHisogram->GetNbinsY(); ++nBinY)
+                float xValue = theInputHistogram->GetXaxis()->GetBinCenter(nBinX);
+                for(int nBinY = 1; nBinY<=theInputHistogram->GetNbinsY(); ++nBinY)
                 {
-                    float yValue      = theInputHisogram->GetYaxis()->GetBinCenter(nBinY);
-                    float zValue      = theInputHisogram->GetBinContent(nBinX,nBinY);
-                    float zValueError = theInputHisogram->GetBinError(nBinX,nBinY);
+                    float yValue      = theInputHistogram->GetYaxis()->GetBinCenter(nBinY);
+                    float zValue      = theInputHistogram->GetBinContent(nBinX,nBinY);
+                    float zValueError = theInputHistogram->GetBinError(nBinX,nBinY);
                     int polyBin = FindBin(xValue, yValue);
                     if(polyBin<0) std::cout<<"Bin overflow!!!"<<std::endl;
                     SetBinContent(polyBin, zValue + GetBinContent(polyBin));
@@ -107,172 +107,127 @@ std::array<Hist*, sizeof...(Name)> getHistogramList(std::string inputFileName, N
     return theOutputArray;
 }
 
-float getEntriesInRectangle(const TH2F *theInputHisogram, const Rectangle& theRectangle)
+float getEntriesInRectangle(const TH2F *theInputHistogram, const Rectangle& theRectangle)
 {
     float totalEntries = 0.;
-    int nBinsX = theInputHisogram->GetNbinsX();
-    int nBinsY = theInputHisogram->GetNbinsY();
+    int nBinsX = theInputHistogram->GetNbinsX();
+    int nBinsY = theInputHistogram->GetNbinsY();
     for(int nBinX = 1; nBinX<=nBinsX; ++nBinX)
     {
-        float xValue = theInputHisogram->GetXaxis()->GetBinCenter(nBinX);
+        float xValue = theInputHistogram->GetXaxis()->GetBinCenter(nBinX);
         for(int nBinY = 1; nBinY<=nBinsY; ++nBinY)
         {
-            float yValue = theInputHisogram->GetYaxis()->GetBinCenter(nBinY);
-            if(theRectangle.isInRectangle(xValue, yValue)) totalEntries += theInputHisogram->GetBinContent(nBinX,nBinY);
+            float yValue = theInputHistogram->GetYaxis()->GetBinCenter(nBinY);
+            if(theRectangle.isInRectangle(xValue, yValue)) totalEntries += theInputHistogram->GetBinContent(nBinX,nBinY);
         }
     }
     return totalEntries;
 }
 
-std::pair<Rectangle,Rectangle> getRectangleWithEntries(const TH2F *theInputHisogram, const Rectangle& theRectangle, float numberOfEntries, bool horizontal, bool entriesInLowerRectangle)
+std::pair<Rectangle,Rectangle> getRectangleWithEntries(const TH2F *theInputHistogram, const Rectangle& theRectangle, float numberOfEntries, bool horizontal, bool entriesInLowerRectangle)
 {
-    float totalEntries = getEntriesInRectangle(theInputHisogram, theRectangle);
-    int nBinsX = theInputHisogram->GetNbinsX();
-    int nBinsY = theInputHisogram->GetNbinsY();
+    float totalEntries = getEntriesInRectangle(theInputHistogram, theRectangle);
+    
+    int nBinsX = theInputHistogram->GetNbinsX();
+    int nBinsY = theInputHistogram->GetNbinsY();
     
     int firstNBins;
     int secondNBins;
     
-    if(horizontal)
-    {
-        firstNBins  = nBinsY;
-        secondNBins = nBinsX;
-    }
-    else
-    {
-        firstNBins  = nBinsY;
-        secondNBins = nBinsX;
-    }
+    if(horizontal) firstNBins  = nBinsY;
+    else firstNBins  = nBinsY;
 
     float entriesInNeededRectangle = 0;
-    float partialEntries = 0.;
-    float dividerValue;
-    for(int nBin1 = 1; nBin1<=firstNBins; ++nBin1)
+    float dividerValue = 0;
+    for(int bin = 1; bin<=firstNBins; ++bin)
     {
-        for(int nBin2 = 1; nBin2<=secondNBins; ++nBin2)
-        {
-            float xValue;
-            float yValue;
-            float zValue;
-            if(horizontal)
-            {
-                xValue = theInputHisogram->GetXaxis()->GetBinCenter(nBin2);
-                yValue = theInputHisogram->GetYaxis()->GetBinCenter(nBin1);
-                zValue = theInputHisogram->GetBinContent(nBin2, nBin1);
-            }
-            else
-            {
-                xValue = theInputHisogram->GetXaxis()->GetBinCenter(nBin1);
-                yValue = theInputHisogram->GetYaxis()->GetBinCenter(nBin2);
-                zValue = theInputHisogram->GetBinContent(nBin1, nBin2);
-            }
-            if(theRectangle.isInRectangle(xValue, yValue)) partialEntries += zValue;
-        }
+        Rectangle *theNewRectangle;
+        float tmpDividerValue;
         if(horizontal)
         {
-            dividerValue = theInputHisogram->GetYaxis()->GetBinLowEdge(nBin1);
-            if(entriesInLowerRectangle) dividerValue += theInputHisogram->GetYaxis()->GetBinWidth(nBin1);
+            tmpDividerValue = theInputHistogram->GetYaxis()->GetBinLowEdge(bin);
+            if(entriesInLowerRectangle)
+            {
+                tmpDividerValue += theInputHistogram->GetYaxis()->GetBinWidth(bin);
+                theNewRectangle = new Rectangle(theRectangle.fXmin, theRectangle.fXmax, theRectangle.fYmin, tmpDividerValue);
+            }
+            else
+                theNewRectangle = new Rectangle(theRectangle.fXmin, theRectangle.fXmax, tmpDividerValue, theRectangle.fYmax);  
         }
         else
         {
-            dividerValue = theInputHisogram->GetXaxis()->GetBinLowEdge(nBin1);
-            if(entriesInLowerRectangle) dividerValue += theInputHisogram->GetXaxis()->GetBinWidth(nBin1);
+            tmpDividerValue = theInputHistogram->GetXaxis()->GetBinLowEdge(bin);
+            if(entriesInLowerRectangle)
+            {
+                tmpDividerValue += theInputHistogram->GetXaxis()->GetBinWidth(bin);
+                theNewRectangle = new Rectangle(theRectangle.fXmin, tmpDividerValue, theRectangle.fYmin, theRectangle.fYmax);
+            }
+            else
+                theNewRectangle = new Rectangle(tmpDividerValue, theRectangle.fXmax, theRectangle.fYmin, theRectangle.fYmax);
         }
-        if(entriesInLowerRectangle)
-        {
-            if(partialEntries >= numberOfEntries) break;
-        }
-        else
-        {
-            if(totalEntries - partialEntries <= numberOfEntries) break;
-        }
+        if(getEntriesInRectangle(theInputHistogram,*theNewRectangle) <= numberOfEntries) break;
+        dividerValue = tmpDividerValue;
     }
 
     return theRectangle.divide(dividerValue, horizontal);
 }
 
 
-std::pair<Rectangle,Rectangle> divideFromRatio(const TH2F *theInputHisogram, const Rectangle& theRectangle, float ratioContentLowRectangle, bool horizontal)
+std::pair<Rectangle,Rectangle> divideFromRatio(const TH2F *theInputHistogram, const Rectangle& theRectangle, float ratioContentLowRectangle, bool horizontal)
 {
     // Measure normalization
-    float totalEntries = 0.;
-    int nBinsX = theInputHisogram->GetNbinsX();
-    int nBinsY = theInputHisogram->GetNbinsY();
-    for(int nBinX = 1; nBinX<=nBinsX; ++nBinX)
-    {
-        float xValue = theInputHisogram->GetXaxis()->GetBinCenter(nBinX);
-        for(int nBinY = 1; nBinY<=nBinsY; ++nBinY)
-        {
-            float yValue = theInputHisogram->GetYaxis()->GetBinCenter(nBinY);
-            if(theRectangle.isInRectangle(xValue, yValue)) totalEntries += theInputHisogram->GetBinContent(nBinX,nBinY);
-        }
-    }
-
+    float totalEntries = getEntriesInRectangle(theInputHistogram,theRectangle);
+    int nBinsX = theInputHistogram->GetNbinsX();
+    int nBinsY = theInputHistogram->GetNbinsY();
+    
     int firstNBins;
-    int secondNBins;
     if(horizontal)
     {
         firstNBins  = nBinsY;
-        secondNBins = nBinsX;
     }
     else
     {
         firstNBins  = nBinsY;
-        secondNBins = nBinsX;
     }
 
-    float partialEntries = 0.;
-    float partialEntriesBeforeLast = 0.;
-    float dividerValue;
-    float dividerValueBeforeLast;
+    float currentRatio = 0.;
+    float previousRatio = 0.;
+    float dividerValue = 0.;
+    float dividerValueBeforeLast = 0.;
     for(int nBin1 = 1; nBin1<=firstNBins; ++nBin1)
     {
-        for(int nBin2 = 1; nBin2<=secondNBins; ++nBin2)
-        {
-            float xValue;
-            float yValue;
-            float zValue;
-            if(horizontal)
-            {
-                xValue = theInputHisogram->GetXaxis()->GetBinCenter(nBin2);
-                yValue = theInputHisogram->GetYaxis()->GetBinCenter(nBin1);
-                zValue = theInputHisogram->GetBinContent(nBin2, nBin1);
-            }
-            else
-            {
-                xValue = theInputHisogram->GetXaxis()->GetBinCenter(nBin1);
-                yValue = theInputHisogram->GetYaxis()->GetBinCenter(nBin2);
-                zValue = theInputHisogram->GetBinContent(nBin1, nBin2);
-            }
-            if(theRectangle.isInRectangle(xValue, yValue)) partialEntries += zValue;
-        }
+        Rectangle *theNewRectangle;
         if(horizontal)
         {
-            dividerValue = theInputHisogram->GetYaxis()->GetBinLowEdge(nBin1) + theInputHisogram->GetYaxis()->GetBinWidth(nBin1);
+            dividerValue = theInputHistogram->GetYaxis()->GetBinLowEdge(nBin1);
+            theNewRectangle = new Rectangle(theRectangle.fXmin, theRectangle.fXmax, theRectangle.fYmin, dividerValue);
+            float binCenter = theInputHistogram->GetYaxis()->GetBinCenter(nBin1);
+            if(binCenter < theRectangle.fYmin || binCenter > theRectangle.fYmax) continue;
         }
         else
         {
-            dividerValue = theInputHisogram->GetXaxis()->GetBinLowEdge(nBin1) + theInputHisogram->GetXaxis()->GetBinWidth(nBin1);
+            dividerValue = theInputHistogram->GetXaxis()->GetBinLowEdge(nBin1);
+            theNewRectangle = new Rectangle(theRectangle.fXmin, dividerValue, theRectangle.fYmin, theRectangle.fYmax);
+            float binCenter = theInputHistogram->GetXaxis()->GetBinCenter(nBin1);
+            if(binCenter < theRectangle.fXmin || binCenter > theRectangle.fXmax) continue;
         }
-        if(partialEntries/totalEntries >= ratioContentLowRectangle) break;
+        currentRatio = getEntriesInRectangle(theInputHistogram,*theNewRectangle)/totalEntries; 
+        if(currentRatio >= ratioContentLowRectangle) break;
         else
         {
-            partialEntriesBeforeLast = partialEntries;
+            previousRatio = currentRatio;
             dividerValueBeforeLast = dividerValue;
         }
-        
     }
 
     //get the closest ratio
     float theFinalDividerValue = dividerValue;
-    float currentRatio = partialEntries/totalEntries;
-    float previousRatio = partialEntriesBeforeLast/totalEntries;
     if( abs(previousRatio-ratioContentLowRectangle) <  abs(currentRatio-ratioContentLowRectangle)) theFinalDividerValue = dividerValueBeforeLast;
 
     return theRectangle.divide(theFinalDividerValue, horizontal);
 }
 
-std::vector<Rectangle> divideEqually(const TH2F *theInputHisogram, const Rectangle& theRectangle, uint numberOfDivisions, bool horizontal)
+std::vector<Rectangle> divideEqually(const TH2F *theInputHistogram, const Rectangle& theRectangle, uint numberOfDivisions, bool horizontal)
 {
 
 
@@ -280,7 +235,7 @@ std::vector<Rectangle> divideEqually(const TH2F *theInputHisogram, const Rectang
     std::pair<Rectangle,Rectangle> theRectanglePair = std::make_pair(Rectangle(0., 0., 0., 0.), theRectangle);
     for(uint nDiv=numberOfDivisions; nDiv>1; --nDiv)
     {
-        theRectanglePair =  divideFromRatio(theInputHisogram, theRectanglePair.second, 1./float(nDiv), horizontal);
+        theRectanglePair =  divideFromRatio(theInputHistogram, theRectanglePair.second, 1./float(nDiv), horizontal);
         theOutputRectangleVector.push_back(theRectanglePair.first);
     }
     theOutputRectangleVector.push_back(theRectanglePair.second);
@@ -290,7 +245,7 @@ std::vector<Rectangle> divideEqually(const TH2F *theInputHisogram, const Rectang
 }
 
 
-std::vector<Rectangle> alternateHalfDivide(const TH2F *theInputHisogram, const Rectangle& theRectangle, uint numberOfIterations)
+std::vector<Rectangle> alternateHalfDivide(const TH2F *theInputHistogram, const Rectangle& theRectangle, uint numberOfIterations)
 {
 
     bool horizontal = true;
@@ -300,7 +255,7 @@ std::vector<Rectangle> alternateHalfDivide(const TH2F *theInputHisogram, const R
         std::vector<std::pair<Rectangle,Rectangle>> vectorOfPairs;
         for(auto theCurrentRectangle : theOutputRectangleVector)
         {
-            vectorOfPairs.emplace_back(divideFromRatio(theInputHisogram, theCurrentRectangle, 0.5, horizontal));
+            vectorOfPairs.emplace_back(divideFromRatio(theInputHistogram, theCurrentRectangle, 0.5, horizontal));
         }
         horizontal = !horizontal;
         theOutputRectangleVector.clear();
@@ -315,7 +270,7 @@ std::vector<Rectangle> alternateHalfDivide(const TH2F *theInputHisogram, const R
 
 }
 
-std::vector<Rectangle> alternateDivideUntil(const TH2F *theInputHisogram, const Rectangle& theRectangle, uint nMaxXdivision, uint nMaxYdivision, float minBinContent)
+std::vector<Rectangle> alternateDivideUntil(const TH2F *theInputHistogram, const Rectangle& theRectangle, uint nMaxXdivision, uint nMaxYdivision, float minBinContent)
 {
 
     bool horizontal = true;
@@ -330,7 +285,7 @@ std::vector<Rectangle> alternateDivideUntil(const TH2F *theInputHisogram, const 
             uint numberOfDivision = 0;
             if(horizontal) numberOfDivision = nMaxYdivision;
             else           numberOfDivision = nMaxXdivision;
-            float totalEventsInRectangle = getEntriesInRectangle(theInputHisogram, theCurrentRectangle);
+            float totalEventsInRectangle = getEntriesInRectangle(theInputHistogram, theCurrentRectangle);
             if(totalEventsInRectangle/minBinContent < numberOfDivision) numberOfDivision = totalEventsInRectangle/minBinContent;
             else stillToBeDivided = true;
             if(numberOfDivision == 1)
@@ -338,7 +293,7 @@ std::vector<Rectangle> alternateDivideUntil(const TH2F *theInputHisogram, const 
                 theCurrentRectangleVector.emplace_back(theCurrentRectangle);
                 continue;
             }
-            auto theNewRectangleVector = divideEqually(theInputHisogram, theCurrentRectangle, numberOfDivision, horizontal);
+            auto theNewRectangleVector = divideEqually(theInputHistogram, theCurrentRectangle, numberOfDivision, horizontal);
             theCurrentRectangleVector.insert(theCurrentRectangleVector.end(),theNewRectangleVector.begin(), theNewRectangleVector.end());
         }
         horizontal = !horizontal;
@@ -367,6 +322,7 @@ void MeasureBackgroundSystematicShape(std::string inputFileName, std::string Fou
             FourBtagHistogram->GetYaxis()->GetXmin(), 
             FourBtagHistogram->GetYaxis()->GetXmax()
         );
+    std::cout<<FourBtagHistogram->GetXaxis()->GetXmax()<<std::endl;
 
     float numberOfDivisions;
 
@@ -376,7 +332,7 @@ void MeasureBackgroundSystematicShape(std::string inputFileName, std::string Fou
     auto rectanglePair_1c = divideFromRatio(FourBtagHistogram, rectanglePair_1b.first, 1./2., false);
     theBinList.push_back(rectanglePair_1c.first);
     theBinList.push_back(rectanglePair_1c.second);
-
+    
     // auto rectanglePair_1d = rectanglePair_1.first.divide(1100.,true);
     // theBinList.push_back(rectanglePair_1d.second);
 
@@ -478,7 +434,7 @@ void MeasureBackgroundSystematicShape(std::string inputFileName, std::string Fou
     }
 
     float sysMin = 0.;
-    float sysMax = 15.;
+    float sysMax = 20.;
     theCanvasShapeSystematic->cd(2);
     SystematicPolyNo4Bstat->SetMinimum(sysMin);
     SystematicPolyNo4Bstat->SetMaximum(sysMax);
@@ -505,7 +461,7 @@ void MeasureBackgroundSystematicShape(std::string inputFileName, std::string Fou
 void doMeasureShape(float minEntriesPerRectangle, int year)
 {
     gROOT->SetBatch(true);
-    MeasureBackgroundSystematicShape( std::to_string(year) + "DataPlots_NMSSM_XYH_bbbb_Full_syst_trgData_SumRegResLess030/outPlotter.root",
+    MeasureBackgroundSystematicShape( std::to_string(year) + "DataPlots_NMSSM_XYH_bbbb_Full_syst_trgData/outPlotter.root",
         "data_BTagCSV/selectionbJets_ControlRegionBlinded/data_BTagCSV_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
         "data_BTagCSV_dataDriven_kinFit/selectionbJets_ControlRegionBlinded/data_BTagCSV_dataDriven_kinFit_selectionbJets_ControlRegionBlinded_HH_kinFit_m_H2_m",
         minEntriesPerRectangle, year);
@@ -560,8 +516,8 @@ void MeasureBackgroundSystematicNormalization(std::string inputFileName, std::st
     ratio->SetLineColor(kRed);
     ratio->SetLineWidth(2);
     ratio->SetMarkerColor(kRed);
-    ratio->SetMinimum(0.1);  // Define Y ..
-    ratio->SetMaximum(1.9); // .. range
+    ratio->SetMinimum(0.9);  // Define Y ..
+    ratio->SetMaximum(1.2); // .. range
     ratio->SetStats(0);      // No statistics on lower plot
     // ratio->Divide(referenceHistogram);
     ratio->SetMarkerStyle(21);
@@ -583,7 +539,7 @@ void MeasureBackgroundSystematicNormalization(std::string inputFileName, std::st
     theCanvasNormalization->SaveAs((std::string(theCanvasNormalization->GetName()) + "_" + std::to_string(year) + ".png").data());
 
 
-    TH1F * ratioDeviationHistogram = new TH1F("Ratio deviation", "Ratio deviation", 12, -0.6, 0.6);
+    TH1F * ratioDeviationHistogram = new TH1F("Ratio deviation", "Ratio deviation", 12, -0.1, 0.1);
 
     float maxDeviation = -1.;
     float minBinContent = 1e20;
@@ -612,7 +568,7 @@ void MeasureBackgroundSystematicNormalization(std::string inputFileName, std::st
 void doMeasureNorm(int year)
 {
     gROOT->SetBatch(true);
-    std::string inputFileName = std::to_string(year) + "DataPlots_NMSSM_XYH_bbbb_Full_syst_trgData_SumRegResLess030/outPlotter.root";
+    std::string inputFileName = std::to_string(year) + "DataPlots_NMSSM_XYH_bbbb_Full_syst_trgData/outPlotter.root";
 
     gROOT->ForceStyle();
     MeasureBackgroundSystematicNormalization(inputFileName,
@@ -882,7 +838,7 @@ void applyAllBackgroundShapeVariations()
 
     for(auto year : yearList)
     {
-        std::string inputFileName = std::to_string(year) + "DataPlots_NMSSM_XYH_bbbb_Full_syst_trgData_SumRegResLess030/outPlotter.root";
+        std::string inputFileName = std::to_string(year) + "DataPlots_NMSSM_XYH_bbbb_Full_syst_trgData/outPlotter.root";
         std::cout<<inputFileName<<std::endl;
         for(auto minBinContent : minBinContentList)
         {
