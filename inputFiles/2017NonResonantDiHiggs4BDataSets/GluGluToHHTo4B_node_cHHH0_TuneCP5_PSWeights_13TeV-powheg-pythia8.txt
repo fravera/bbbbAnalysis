@@ -1,0 +1,2 @@
+root://cmsxrootd.fnal.gov//store/mc/RunIIFall17NanoAODv7/GluGluToHHTo4B_node_cHHH0_TuneCP5_PSWeights_13TeV-powheg-pythia8/NANOAODSIM/PU2017_12Apr2018_Nano02Apr2020_102X_mc2017_realistic_v8-v1/60000/9B3C747D-F363-D341-9C7D-06B6E71558CE.root
+root://cmsxrootd.fnal.gov//store/mc/RunIIFall17NanoAODv7/GluGluToHHTo4B_node_cHHH0_TuneCP5_PSWeights_13TeV-powheg-pythia8/NANOAODSIM/PU2017_12Apr2018_Nano02Apr2020_102X_mc2017_realistic_v8-v1/60000/162F27B7-AE6E-D343-9DEF-1D0824997576.root

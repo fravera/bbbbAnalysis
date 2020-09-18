@@ -34,7 +34,7 @@ int main(int argc, char** argv)
         ("realPU_up", po::value<string>()->required(), "File containing real PU with inslastic xs +4.6%")
         ("realPU_down", po::value<string>()->required(), "File containing real PU with inslastic xs -4.6%")
         ("input" , po::value<string>()->required(), "input file with MC file list")
-        ("ouputFolder" , po::value<string>()->required(), "input file with MC file list")
+        ("outputFolder" , po::value<string>()->required(), "input file with MC file list")
         // optional
         ("output", po::value<string>(), "output file with weight histogram, if not specified weights/<input>_PUweights.root")
     ;
@@ -53,13 +53,13 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    std::string ouputFolder = opts["ouputFolder"].as<string>();
+    std::string outputFolder = opts["outputFolder"].as<string>();
 
     TChain ch("Events");
     int nFiles = su::appendFromFileList(&ch, opts["input"].as<string>());
     
     if (nFiles == 0){
-        cerr << "** [ERROR] The input file list contains no files, aborting" << endl;
+        cerr << "** [ERROR] The input file list " << opts["input"].as<string>() << " contains no files, aborting" << endl;
         return 1;
     }
     cout << "[INFO] ... file list contains " << nFiles << " files" << endl;
@@ -130,7 +130,7 @@ int main(int argc, char** argv)
             return 1;
         }
         outputFileName = outputFileName.substr(begin, end-begin);
-        outputFileName = ouputFolder + "/" + outputFileName + "_PUweights.root";
+        outputFileName = outputFolder + "/" + outputFileName + "_PUweights.root";
     }
 
     TFile *outputFile = new TFile(outputFileName.data(),"RECREATE");
