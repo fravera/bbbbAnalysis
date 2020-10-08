@@ -51,6 +51,7 @@ for currentFolder in folderList:
             print "Failed jobs for ", fullFolderName
         for line in statusStdout.splitlines():
             if ("** Success        :" in line) and ("(100.0%)" in line) : totalNumberOfCompletedJobs += 1
+            elif ("** Success        :" in line) and ("(100.0%)" not in line): print "Jobs still running for ", fullFolderName
 
 print "Completed jobs = ", totalNumberOfCompletedJobs, " over ", totalNumberOfJobs
 

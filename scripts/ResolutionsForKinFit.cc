@@ -18,7 +18,7 @@
 #include <fstream>
 #include <iostream>
 
-#define numberOfThreads 12
+#define numberOfThreads 6
 
 /*
 cd scripts && g++  -std=c++17 -I `root-config --incdir` -o ResolutionsForKinFit ResolutionsForKinFit.cc `root-config --libs` -O3 -g; cd ..
@@ -294,7 +294,8 @@ struct ResolutionContainer
     {
         TFile outputFile((fileName + ".root").data(), "RECREATE");
         std::string fitFunction  = "[0] + [1]/x + [2]/sqrt(x) + [3]/pow(x,1./3.) + [4]/pow(x,1./4.)";
-
+        gStyle->SetOptFit();
+        
         fResolutionPt_barrel ->Write();
         fResolutionEta_barrel->Write();
         fResolutionPhi_barrel->Write();

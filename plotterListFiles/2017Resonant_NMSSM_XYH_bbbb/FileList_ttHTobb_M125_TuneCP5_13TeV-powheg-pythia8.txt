@@ -1,0 +1,8 @@
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2017_v14/SKIM_ttHTobb_M125_TuneCP5_13TeV-powheg-pythia8/output/bbbbNtuple_0.root
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2017_v14/SKIM_ttHTobb_M125_TuneCP5_13TeV-powheg-pythia8/output/bbbbNtuple_1.root
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2017_v14/SKIM_ttHTobb_M125_TuneCP5_13TeV-powheg-pythia8/output/bbbbNtuple_2.root
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2017_v14/SKIM_ttHTobb_M125_TuneCP5_13TeV-powheg-pythia8/output/bbbbNtuple_3.root
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2017_v14/SKIM_ttHTobb_M125_TuneCP5_13TeV-powheg-pythia8/output/bbbbNtuple_4.root
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2017_v14/SKIM_ttHTobb_M125_TuneCP5_13TeV-powheg-pythia8/output/bbbbNtuple_5.root
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2017_v14/SKIM_ttHTobb_M125_TuneCP5_13TeV-powheg-pythia8/output/bbbbNtuple_6.root
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2017_v14/SKIM_ttHTobb_M125_TuneCP5_13TeV-powheg-pythia8/output/bbbbNtuple_7.root

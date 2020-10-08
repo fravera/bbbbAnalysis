@@ -74,7 +74,8 @@ job_proto = folder + '/job_{0}.sh'
 log_proto = folder + '/job_{0}.sh_{1}.stdout'
 
 jobs_sh = glob.glob(job_proto.format('*'))
-jobs_ID = [int(re.search(job_proto.format('(\d+)'), x).group(1)) for x in jobs_sh]
+# jobs_ID = [int(re.search(job_proto.format('(\d+)'), x).group(1)) for x in jobs_sh]
+jobs_ID = [(re.search(job_proto.format('(\w+)'), x).group(1)) for x in jobs_sh]
 # print jobs_ID
 # print "** Found", len(jobs_ID), 'jobs'
 
