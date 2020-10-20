@@ -214,10 +214,10 @@ void OfflineProducerHelper::save_IsolatedLeptons (NanoAODTree& nat, OutputTree &
     //Look for the good electrons in the event. 
     for (uint eIt = 0; eIt < *(nat.nElectron); ++eIt){
         Electron IsolatedElectron(eIt, &nat);
-        if( abs(get_property(IsolatedElectron,Electron_eta)) < 1.2 && abs(get_property(IsolatedElectron,Electron_dz))   > any_cast<float>(parameterList_->at("ElectronMaxBarrelDz"))  ) continue;
-        if( abs(get_property(IsolatedElectron,Electron_eta)) < 1.2 && abs(get_property(IsolatedElectron,Electron_dxy))  > any_cast<float>(parameterList_->at("ElectronMaxBarrelDxy")) ) continue;
-        if( abs(get_property(IsolatedElectron,Electron_eta)) < 2.4 && abs(get_property(IsolatedElectron,Electron_dz))   > any_cast<float>(parameterList_->at("ElectronMaxEndcapDz"))  ) continue;
-        if( abs(get_property(IsolatedElectron,Electron_eta)) < 2.4 && abs(get_property(IsolatedElectron,Electron_dxy))  > any_cast<float>(parameterList_->at("ElectronMaxEndcapDxy")) ) continue;
+        if( abs(get_property(IsolatedElectron,Electron_eta)) < 1.479  && abs(get_property(IsolatedElectron,Electron_dz))  > any_cast<float>(parameterList_->at("ElectronMaxBarrelDz"))  ) continue;
+        if( abs(get_property(IsolatedElectron,Electron_eta)) < 1.479  && abs(get_property(IsolatedElectron,Electron_dxy)) > any_cast<float>(parameterList_->at("ElectronMaxBarrelDxy")) ) continue;
+        if( abs(get_property(IsolatedElectron,Electron_eta)) >= 1.479 && abs(get_property(IsolatedElectron,Electron_eta)) <= 2.5 && abs(get_property(IsolatedElectron,Electron_dz))   > any_cast<float>(parameterList_->at("ElectronMaxEndcapDz"))  ) continue;
+        if( abs(get_property(IsolatedElectron,Electron_eta)) >= 1.479 && abs(get_property(IsolatedElectron,Electron_eta)) <= 2.5 && abs(get_property(IsolatedElectron,Electron_dxy))  > any_cast<float>(parameterList_->at("ElectronMaxEndcapDxy")) ) continue;
         if(     get_property(IsolatedElectron,Electron_pt)   < any_cast<float>(parameterList_->at("ElectronMinPt"))     ) continue;
         if( abs(get_property(IsolatedElectron,Electron_eta)) > any_cast<float>(parameterList_->at("ElectronMaxAbsEta")) ) continue;
         if( any_cast<int>(parameterList_->at("ElectronID"))==0 && !get_property(IsolatedElectron,Electron_mvaFall17V2Iso_WPL) ) continue;
@@ -229,15 +229,15 @@ void OfflineProducerHelper::save_IsolatedLeptons (NanoAODTree& nat, OutputTree &
     //Look for the good muons in the event. 
     for (uint eIt = 0; eIt < *(nat.nMuon); ++eIt){
         Muon IsolatedMuon(eIt, &nat);
-        if( abs(get_property(IsolatedMuon,Muon_eta)) < 1.2 && abs(get_property(IsolatedMuon,Muon_dz))   > any_cast<float>(parameterList_->at("MuonMaxBarrelDz"))  ) continue;
-        if( abs(get_property(IsolatedMuon,Muon_eta)) < 1.2 && abs(get_property(IsolatedMuon,Muon_dxy))  > any_cast<float>(parameterList_->at("MuonMaxBarrelDxy")) ) continue;
-        if( abs(get_property(IsolatedMuon,Muon_eta)) < 2.4 && abs(get_property(IsolatedMuon,Muon_dz))   > any_cast<float>(parameterList_->at("MuonMaxEndcapDz"))  ) continue;
-        if( abs(get_property(IsolatedMuon,Muon_eta)) < 2.4 && abs(get_property(IsolatedMuon,Muon_dxy))  > any_cast<float>(parameterList_->at("MuonMaxEndcapDxy")) ) continue;
-        if(     get_property(IsolatedMuon,Muon_pt)    < any_cast<float>(parameterList_->at("MuonMinPt")) ) continue;
-        if( abs(get_property(IsolatedMuon,Muon_eta))  > any_cast<float>(parameterList_->at("MuonMaxAbsEta")) ) continue;
-        if( any_cast<int>(parameterList_->at("MuonID"))==0) if(!get_property(IsolatedMuon,Muon_looseId)  ) continue;
-        if( any_cast<int>(parameterList_->at("MuonID"))==1) if(!get_property(IsolatedMuon,Muon_mediumId) ) continue;
-        if( any_cast<int>(parameterList_->at("MuonID"))==2) if(!get_property(IsolatedMuon,Muon_tightId)  ) continue;
+        if( abs(get_property(IsolatedMuon,Muon_eta)) < 1.2  && abs(get_property(IsolatedMuon,Muon_dz))  > any_cast<float>(parameterList_->at("MuonMaxBarrelDz"))  ) continue;
+        if( abs(get_property(IsolatedMuon,Muon_eta)) < 1.2  && abs(get_property(IsolatedMuon,Muon_dxy)) > any_cast<float>(parameterList_->at("MuonMaxBarrelDxy")) ) continue;
+        if( abs(get_property(IsolatedMuon,Muon_eta)) >= 1.2 && abs(get_property(IsolatedMuon,Muon_eta)) <= 2.4 && abs(get_property(IsolatedMuon,Muon_dz))   > any_cast<float>(parameterList_->at("MuonMaxEndcapDz"))  ) continue;
+        if( abs(get_property(IsolatedMuon,Muon_eta)) >= 1.2 && abs(get_property(IsolatedMuon,Muon_eta)) <= 2.4 && abs(get_property(IsolatedMuon,Muon_dxy))  > any_cast<float>(parameterList_->at("MuonMaxEndcapDxy")) ) continue;
+        if(     get_property(IsolatedMuon,Muon_pt)   < any_cast<float>(parameterList_->at("MuonMinPt")) ) continue;
+        if( abs(get_property(IsolatedMuon,Muon_eta)) > any_cast<float>(parameterList_->at("MuonMaxAbsEta")) ) continue;
+        if( any_cast<int>(parameterList_->at("MuonID"))==0 && !get_property(IsolatedMuon,Muon_looseId)  ) continue;
+        if( any_cast<int>(parameterList_->at("MuonID"))==1 && !get_property(IsolatedMuon,Muon_mediumId) ) continue;
+        if( any_cast<int>(parameterList_->at("MuonID"))==2 && !get_property(IsolatedMuon,Muon_tightId)  ) continue;
         if( get_property(IsolatedMuon,Muon_pfRelIso04_all    ) > any_cast<float>(parameterList_->at("MuonMaxPfIso"))  ) continue;
         IsolatedMuons.emplace_back(IsolatedMuon);
     }

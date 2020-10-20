@@ -37,7 +37,12 @@ class HH4b_kinFit
     TF1* fPhiResolutionFunction_endcap {nullptr}; 
     inline double ErrPt_Signal (double pt, double eta)
     {
-      if(eta <= 1.4) return pow(fPtResolutionFunction_barrel->Eval(pt),2);
+      if(eta <= 1.4) 
+      {
+        double theLocalPt = pt;
+        if(theLocalPt>700) theLocalPt = 700;
+        return pow(fPtResolutionFunction_barrel->Eval(theLocalPt),2);
+      }
       else           return pow(fPtResolutionFunction_endcap->Eval(pt),2);
     }
     inline double ErrEta_Signal(double pt, double eta)

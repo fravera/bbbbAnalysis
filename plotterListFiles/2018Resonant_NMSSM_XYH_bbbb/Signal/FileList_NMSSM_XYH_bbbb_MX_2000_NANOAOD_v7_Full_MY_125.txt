@@ -1,0 +1,10 @@
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/kinFitSubmission_2018_v1/SKIM_NMSSM_XYH_bbbb_MX_2000_NANOAOD_v7_Full_MY_125/output/bbbbNtuple_0.root
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/kinFitSubmission_2018_v1/SKIM_NMSSM_XYH_bbbb_MX_2000_NANOAOD_v7_Full_MY_125/output/bbbbNtuple_1.root
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/kinFitSubmission_2018_v1/SKIM_NMSSM_XYH_bbbb_MX_2000_NANOAOD_v7_Full_MY_125/output/bbbbNtuple_2.root
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/kinFitSubmission_2018_v1/SKIM_NMSSM_XYH_bbbb_MX_2000_NANOAOD_v7_Full_MY_125/output/bbbbNtuple_3.root
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/kinFitSubmission_2018_v1/SKIM_NMSSM_XYH_bbbb_MX_2000_NANOAOD_v7_Full_MY_125/output/bbbbNtuple_4.root
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/kinFitSubmission_2018_v1/SKIM_NMSSM_XYH_bbbb_MX_2000_NANOAOD_v7_Full_MY_125/output/bbbbNtuple_5.root
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/kinFitSubmission_2018_v1/SKIM_NMSSM_XYH_bbbb_MX_2000_NANOAOD_v7_Full_MY_125/output/bbbbNtuple_6.root
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/kinFitSubmission_2018_v1/SKIM_NMSSM_XYH_bbbb_MX_2000_NANOAOD_v7_Full_MY_125/output/bbbbNtuple_7.root
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/kinFitSubmission_2018_v1/SKIM_NMSSM_XYH_bbbb_MX_2000_NANOAOD_v7_Full_MY_125/output/bbbbNtuple_8.root
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/kinFitSubmission_2018_v1/SKIM_NMSSM_XYH_bbbb_MX_2000_NANOAOD_v7_Full_MY_125/output/bbbbNtuple_9.root

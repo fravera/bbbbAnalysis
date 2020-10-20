@@ -18,6 +18,9 @@ args = parser.parse_args()
 username = getpass.getuser()
 print "... Welcome", username
 
+allSignalSampleFileName = fileListProtoName.format(args.year, "Signal", "NMSSM_XYH_bbbb_All")
+allSignalSampleFile = open(allSignalSampleFileName, "w")
+
 for signalVariation in signalVariationList:
 	eosBaseFolder = eosProtoPath.format(username,args.tag,signalVariation)
 	out = subprocess.Popen(['eos', eosPath, 'ls', eosBaseFolder], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -35,4 +38,6 @@ for signalVariation in signalVariationList:
 		# print outputFileName
 		for skimFileName in stdoutSecond.split():
 			outputFile.write(eosPath + "/" + eosDatasetFolder + skimFileName + "\n")
+			if "NMSSM_XYH_bbbb_MX_" in datasetName and signalVariation == "": 
+				allSignalSampleFile.write(eosPath + "/" + eosDatasetFolder + skimFileName + "\n")
 			# print eosPath + "/" + eosDatasetFolder + skimFileName
