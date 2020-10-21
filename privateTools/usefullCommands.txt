@@ -130,6 +130,7 @@ hadd -f NMSSM_forTrigger_2016.root `xrdfsls -u /store/user/fravera/bbbb_ntuples/
 hadd -f TTbar_MC_forTrigger_2016.root `xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2016_v14/SKIM_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/output`
 
 hadd -f SingleMuon_Data_forTrigger_2017.root `xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2017_v14/SKIM_SingleMuon_Data/output`
+hadd -f NMSSM_forTrigger_2017.root `xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2017_v14/SKIM_NMSSM_XYH_bbbb_MX_300_NANOAOD_v7_Full/output`
 hadd -f TTbar_MC_forTrigger_2017.root `xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2017_v14/SKIM_TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/output`
 
 hadd -f SingleMuon_Data_forTrigger_2018.root `xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2018_v14/SKIM_SingleMuon_Data/output`

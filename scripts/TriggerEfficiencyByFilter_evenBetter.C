@@ -540,10 +540,10 @@ void ProduceAllTriggerEfficienciesFiles2017(std::string singleMuonInputFileName,
     
     
     gROOT->SetBatch();
-    std::vector<std::string> inputFilesNames = {singleMuonInputFileName, ttbarInputFileName };
-    std::vector<std::string> datasetName     = {"SingleMuon"           , "TTbar"            };
-    std::vector<float>       expectedEvents  = {-1.                    , ttbarExpectedEvents};
-    std::vector<Color_t>     theColorVector =  {kBlack                 , kBlue              };
+    std::vector<std::string> inputFilesNames = {singleMuonInputFileName, ttbarInputFileName , xyhInputSignal     };
+    std::vector<std::string> datasetName     = {"SingleMuon"           , "TTbar"            , "NMSSM"            };
+    std::vector<float>       expectedEvents  = {-1.                    , ttbarExpectedEvents, xyhExpectedEvents  };
+    std::vector<Color_t>     theColorVector =  {kBlack                 , kBlue              , kRed               };
     std::vector<std::vector<std::tuple<std::shared_ptr<TGraphAsymmErrors>,std::shared_ptr<TH1F> > > > vectorOfDatasetResults(inputFilesNames.size());
 
     std::vector<std::thread> theThreadList;
@@ -575,7 +575,7 @@ void ProduceAllTriggerEfficiencies2017()
 {
     ROOT::EnableThreadSafety();
 
-    std::thread theMatchedTriggerThread          (ProduceAllTriggerEfficienciesFiles2017, "SingleMuon_Data_forTrigger_2017.root"  , "TTbar_MC_forTrigger_2017.root"  , "gg_HH_4B_SM_2017_forTrigger_new.root",   "TriggerEfficiencies_2017_TTBarCut.root"           , true);
+    std::thread theMatchedTriggerThread          (ProduceAllTriggerEfficienciesFiles2017, "SingleMuon_Data_forTrigger_2017.root"  , "TTbar_MC_forTrigger_2017.root"  , "NMSSM_forTrigger_2017.root",   "TriggerEfficiencies_2017_TTBarCut.root"           , true);
     // std::thread theUnMatchedTriggerThread        (ProduceAllTriggerEfficienciesFiles2017, "SingleMuon_Data_forTrigger_MuonPt30_unMatched.root", "TTbar_MC_forTrigger_MuonPt30_unMatched.root", "WJetsToLNu_Data_forTrigger_MuonPt30_unMatched.root", "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_unMatched.root", "TriggerEfficiencies_MuonPt30_unMatched.root"         , false);
     // std::thread theMatchedTriggerThreadTTbarCut  (ProduceAllTriggerEfficienciesFiles2017, "SingleMuon_Data_forTrigger_MuonPt30_matched.root"  , "TTbar_MC_forTrigger_MuonPt30_matched.root"  , "WJetsToLNu_Data_forTrigger_MuonPt30_matched.root"  , "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_matched.root",   "TriggerEfficiencies_MuonPt30_matched_TTBarCut.root"  , true );
     // std::thread theUnMatchedTriggerThreadTTbarCut(ProduceAllTriggerEfficienciesFiles2017, "SingleMuon_Data_forTrigger_MuonPt30_unMatched.root", "TTbar_MC_forTrigger_MuonPt30_unMatched.root", "WJetsToLNu_Data_forTrigger_MuonPt30_unMatched.root", "NMSSM_XYHbbbb_privateProduction_forTrigger_MuonPt30_unMatched.root", "TriggerEfficiencies_MuonPt30_unMatched_TTBarCut.root", true );

@@ -1,0 +1,5 @@
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2016_v16/SKIM_GluGluHToBB_M125_13TeV_powheg_pythia8/output/bbbbNtuple_0.root
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2016_v16/SKIM_GluGluHToBB_M125_13TeV_powheg_pythia8/output/bbbbNtuple_1.root
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2016_v16/SKIM_GluGluHToBB_M125_13TeV_powheg_pythia8/output/bbbbNtuple_2.root
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2016_v16/SKIM_GluGluHToBB_M125_13TeV_powheg_pythia8/output/bbbbNtuple_3.root
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2016_v16/SKIM_GluGluHToBB_M125_13TeV_powheg_pythia8/output/bbbbNtuple_4.root

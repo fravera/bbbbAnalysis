@@ -8,6 +8,8 @@
 #include <vector>
 #include <map>
 #include "TText.h"
+#include "TChain.h"
+
 
 std::string selection = "NbJets >= 4 && H1_m > 125-20 && H1_m < 125+20";
 // std::string selection = "";
@@ -23,6 +25,44 @@ bool replace(std::string& str, const std::string& from, const std::string& to) {
     return true;
 }
 
+
+
+std::vector<std::string> splitByLine(const std::string& inputFileName)
+{
+    std::vector<std::string> fileNameList;
+    std::ifstream fList (inputFileName);
+    if (!fList.good())
+    {
+        std::cerr << "*** Sample::openFileAndTree : ERROR : could not open file " << inputFileName << std::endl;
+        abort();
+    }
+    std::string line;
+    while (std::getline(fList, line))
+    {
+        line = line.substr(0, line.find("#", 0)); // remove comments introduced by #
+        while (line.find(" ") != std::string::npos) line = line.erase(line.find(" "), 1); // remove white spaces
+        while (line.find("\n") != std::string::npos) line = line.erase(line.find("\n"), 1); // remove new line characters
+        while (line.find("\r") != std::string::npos) line = line.erase(line.find("\r"), 1); // remove carriage return characters
+        if (!line.empty()) fileNameList.emplace_back(line);
+    }
+    return fileNameList;
+}
+
+std::unique_ptr<TChain> getChainFromFileList(std::vector<std::string>& fileNameList, const std::string& treeName)
+{
+    std::unique_ptr<TChain> theChain = std::make_unique<TChain>(treeName.c_str());
+    for(const auto& fileName : fileNameList) theChain->Add(fileName.c_str());
+
+    return std::move(theChain);
+}
+
+std::string getSampleNameFromFile(std::string fileName)
+{
+    size_t end_pos = fileName.rfind('.');
+    size_t start_pos = fileName.rfind('/')+1;
+    return fileName.substr(start_pos, end_pos-start_pos);
+
+}
 
 void TriggerEfficiencyTable(std::string fileName, int year)
 {
@@ -40,10 +80,9 @@ void TriggerEfficiencyTable(std::string fileName, int year)
     triggerFiltersMap.emplace(2017, vectorFilters2017and2018);
     triggerFiltersMap.emplace(2018, vectorFilters2017and2018);
 
-    // std::string fileName = "test_NMSSM_XYH_bbbb_MC_" + std::to_string(year) + ".root";
     gROOT->SetBatch(true);
-    TFile *inputFile = TFile::Open(fileName.data());
-    TTree* theTree = (TTree*)inputFile->Get("bbbbTree");
+    std::vector<std::string> fileList     = splitByLine(fileName    );
+    auto theTree     = getChainFromFileList(fileList    , "bbbbTree");
 
     TCanvas theCanvas("c1","c2", 1100, 900);
     theCanvas.DivideSquare(triggerFiltersMap[year].size() + 1);
@@ -170,9 +209,24 @@ void TriggerEfficiencyTable(std::string fileName, int year)
     scaleFactorDownString.resize(writtenDown);
     scaleFactorDownLabel -> DrawText(0.2, 0.65, ("SF Down= " + scaleFactorDownString).data());
 
-    theCanvas.SaveAs(("TriggerFilterEfficiencies_" + std::to_string(year) + ".png").data());
 
-    inputFile->Close();
+    theCanvas.SaveAs(("TriggerFilterEfficiencies_" + getSampleNameFromFile(fileName) + "_" + std::to_string(year) + ".png").data());
+
     gROOT->SetBatch(false);
 
+}
+
+void ProduceAllTriggerEfficiencyTablePerYear(int year)
+{
+    TriggerEfficiencyTable("plotterListFiles/" + std::to_string(year) + "Resonant_NMSSM_XYH_bbbb/Signal/FileList_NMSSM_XYH_bbbb_MX_300_NANOAOD_v7_Full_MY_125.txt" , year);
+    TriggerEfficiencyTable("plotterListFiles/" + std::to_string(year) + "Resonant_NMSSM_XYH_bbbb/Signal/FileList_NMSSM_XYH_bbbb_MX_500_NANOAOD_v7_Full_MY_200.txt" , year);
+    TriggerEfficiencyTable("plotterListFiles/" + std::to_string(year) + "Resonant_NMSSM_XYH_bbbb/Signal/FileList_NMSSM_XYH_bbbb_MX_700_NANOAOD_v7_Full_MY_300.txt" , year);
+    TriggerEfficiencyTable("plotterListFiles/" + std::to_string(year) + "Resonant_NMSSM_XYH_bbbb/Signal/FileList_NMSSM_XYH_bbbb_MX_1200_NANOAOD_v7_Full_MY_600.txt", year);
+}
+
+void ProduceAllTriggerEfficiencyTable()
+{
+    ProduceAllTriggerEfficiencyTablePerYear(2016);
+    ProduceAllTriggerEfficiencyTablePerYear(2017);
+    ProduceAllTriggerEfficiencyTablePerYear(2018);
 }

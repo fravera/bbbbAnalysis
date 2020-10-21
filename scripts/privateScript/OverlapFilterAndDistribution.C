@@ -315,7 +315,7 @@ void OverlapAllEfficiencyAndDistributionsInFile2017(std::string inputFileName, b
 void OverlapAllEfficiencyAndDistributions2017(bool plotHistograms = false)
 {
     gROOT->SetBatch(true);
-    OverlapAllEfficiencyAndDistributionsInFile2017<>("TriggerEfficiencies_2017_TTBarCut.root"           , plotHistograms, "SingleMuon", "", "TTbar");
+    OverlapAllEfficiencyAndDistributionsInFile2017<>("TriggerEfficiencies_2017_TTBarCut.root"           , plotHistograms, "SingleMuon", "NMSSM", "TTbar");
     // OverlapAllEfficiencyAndDistributionsInFile2017<std::string, std::string>("TriggerEfficiencies_MuonPt30_matched.root"           , "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
     // OverlapAllEfficiencyAndDistributionsInFile2017<std::string, std::string>("TriggerEfficiencies_MuonPt30_unMatched.root"         , "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
     // OverlapAllEfficiencyAndDistributionsInFile2017<std::string, std::string>("TriggerEfficiencies_MuonPt30_matched_TTBarCut.root"  , "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
