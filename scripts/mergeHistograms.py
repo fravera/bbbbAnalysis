@@ -24,7 +24,7 @@ if os.system(cmd) != 0:
     print "... Not able to execute command \"", cmd, "\", exit"
     sys.exit()
 
-haddCmd = "hadd -f " + outputFileName + " `xrdfs root://cmseos.fnal.gov ls -u /store/user/" + username + "/bbbb_histograms/" + args.tag + " | grep .root`"
+haddCmd = "hadd -f0 " + outputFileName + " `xrdfs root://cmseos.fnal.gov ls -u /store/user/" + username + "/bbbb_histograms/" + args.tag + " | grep '\.root'`"
 
 if os.system(haddCmd) != 0:
     print "... Not able to execute command \"", haddCmd, "\", exit"
