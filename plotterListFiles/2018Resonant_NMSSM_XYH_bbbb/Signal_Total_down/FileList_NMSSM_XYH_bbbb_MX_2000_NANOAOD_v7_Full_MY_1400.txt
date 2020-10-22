@@ -1,15 +1,2 @@
-root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2018_v16_Total_down/SKIM_NMSSM_XYH_bbbb_MX_2000_NANOAOD_v7_Full_MY_1400/output/Unable
-root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2018_v16_Total_down/SKIM_NMSSM_XYH_bbbb_MX_2000_NANOAOD_v7_Full_MY_1400/output/to
-root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2018_v16_Total_down/SKIM_NMSSM_XYH_bbbb_MX_2000_NANOAOD_v7_Full_MY_1400/output/stat
-root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2018_v16_Total_down/SKIM_NMSSM_XYH_bbbb_MX_2000_NANOAOD_v7_Full_MY_1400/output//eos/uscms/store/user/fravera/bbbb_ntuples/fullSubmission_2018_v16_Total_down/SKIM_NMSSM_XYH_bbbb_MX_2000_NANOAOD_v7_Full_MY_1400/output;
-root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2018_v16_Total_down/SKIM_NMSSM_XYH_bbbb_MX_2000_NANOAOD_v7_Full_MY_1400/output/No
-root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2018_v16_Total_down/SKIM_NMSSM_XYH_bbbb_MX_2000_NANOAOD_v7_Full_MY_1400/output/such
-root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2018_v16_Total_down/SKIM_NMSSM_XYH_bbbb_MX_2000_NANOAOD_v7_Full_MY_1400/output/file
-root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2018_v16_Total_down/SKIM_NMSSM_XYH_bbbb_MX_2000_NANOAOD_v7_Full_MY_1400/output/or
-root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2018_v16_Total_down/SKIM_NMSSM_XYH_bbbb_MX_2000_NANOAOD_v7_Full_MY_1400/output/directory
-root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2018_v16_Total_down/SKIM_NMSSM_XYH_bbbb_MX_2000_NANOAOD_v7_Full_MY_1400/output/(errc=2)
-root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2018_v16_Total_down/SKIM_NMSSM_XYH_bbbb_MX_2000_NANOAOD_v7_Full_MY_1400/output/(No
-root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2018_v16_Total_down/SKIM_NMSSM_XYH_bbbb_MX_2000_NANOAOD_v7_Full_MY_1400/output/such
-root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2018_v16_Total_down/SKIM_NMSSM_XYH_bbbb_MX_2000_NANOAOD_v7_Full_MY_1400/output/file
-root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2018_v16_Total_down/SKIM_NMSSM_XYH_bbbb_MX_2000_NANOAOD_v7_Full_MY_1400/output/or
-root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2018_v16_Total_down/SKIM_NMSSM_XYH_bbbb_MX_2000_NANOAOD_v7_Full_MY_1400/output/directory)
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2018_v16_Total_down/SKIM_NMSSM_XYH_bbbb_MX_2000_NANOAOD_v7_Full_MY_1400/output/bbbbNtuple_0.root
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2018_v16_Total_down/SKIM_NMSSM_XYH_bbbb_MX_2000_NANOAOD_v7_Full_MY_1400/output/bbbbNtuple_1.root

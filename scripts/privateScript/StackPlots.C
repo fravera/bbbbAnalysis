@@ -398,13 +398,13 @@ void StackAllDatasets(TVirtualPad *theCanvas, TFile* inputFile, const std::strin
 
 }
 
-void StackAllVariables(const std::string& inputFileName, const std::string& selectionAndRegion, const std::string& modelDataset=NO_PLOT, const std::string& modelName="BKG model",  const std::vector<std::string>& signalDatasetList = {}, const std::string& signalName="X{#rightarrow}YH", const std::string& dataDataset=NO_PLOT, const std::string& dataName="data")
+void StackAllVariables(const std::string& inputFileName, const std::string& selectionAndRegion, int year, const std::string& modelDataset=NO_PLOT, const std::string& modelName="BKG model",  const std::vector<std::string>& signalDatasetList = {}, const std::string& signalName="X{#rightarrow}YH", const std::string& dataDataset=NO_PLOT, const std::string& dataName="data")
 {
     gROOT->SetBatch();
 
     TFile inputFile(inputFileName.data());
 
-    std::string canvasName = "BackgroundOverlap_" + selectionAndRegion;
+    std::string canvasName = "BackgroundOverlap_" + selectionAndRegion + "_" + std::to_string(year);
     TCanvas *theCanvas = new TCanvas(canvasName.data(), canvasName.data(), 1400, 900);
 
     std::vector<std::string> variableVector = {"HH_m"};
@@ -508,8 +508,14 @@ void doAllStack()
     // StackAllVariables("2016DataPlots_NMSSM_XYH_bbbb_all_v1/outPlotter.root", "selectionbJetsLMR_ControlRegionBlinded", "data_BTagCSV_dataDriven_backgroundLMR", "Bkg model", {}, "X{#rightarrow}YH", "data_BTagCSV_background", "data");
     // StackAllVariables("2016DataPlots_NMSSM_XYH_bbbb_all_v1/outPlotter.root", "selectionbJetsHMR_ControlRegionBlinded", "data_BTagCSV_dataDriven_backgroundHMR", "Bkg model", {}, "X{#rightarrow}YH", "data_BTagCSV_background", "data");
 
-    StackAllVariables("2016DataPlots_NMSSM_XYH_bbbb_all_Full_background_withSignal/outPlotter.root", "selectionbJets_SignalRegion"        , "data_BTagCSV_dataDriven_background", "Bkg model", {"sig_NMSSM_bbbb_MX_700_MY_300"}, "X#rightarrowYH (m_{X} = 700 GeV, m_{Y} = 300 GeV)");
-    StackAllVariables("2016DataPlots_NMSSM_XYH_bbbb_all_Full_background_withSignal/outPlotter.root", "selectionbJets_ControlRegionBlinded", "data_BTagCSV_dataDriven_background", "Bkg model", {"sig_NMSSM_bbbb_MX_700_MY_300"}, "X#rightarrowYH (m_{X} = 700 GeV, m_{Y} = 300 GeV)", "data_BTagCSV_background", "data");
+    StackAllVariables("2016DataPlots_NMSSM_XYH_bbbb_all_Full_background_withSignal/outPlotter.root", "selectionbJets_SignalRegion"           , 2016, "data_BTagCSV_dataDriven_background", "Bkg model", {"sig_NMSSM_bbbb_MX_700_MY_300"}, "X#rightarrowYH (m_{X} = 700 GeV, m_{Y} = 300 GeV)");
+    StackAllVariables("2016DataPlots_NMSSM_XYH_bbbb_all_Full_background_withSignal/outPlotter.root", "selectionbJets_ValidationRegionBlinded", 2016, "data_BTagCSV_dataDriven_background", "Bkg model", {"sig_NMSSM_bbbb_MX_700_MY_300"}, "X#rightarrowYH (m_{X} = 700 GeV, m_{Y} = 300 GeV)", "data_BTagCSV_background", "data");
+
+    StackAllVariables("2017DataPlots_NMSSM_XYH_bbbb_all_Full_background_withSignal/outPlotter.root", "selectionbJets_SignalRegion"           , 2017, "data_BTagCSV_dataDriven_background", "Bkg model", {"sig_NMSSM_bbbb_MX_700_MY_300"}, "X#rightarrowYH (m_{X} = 700 GeV, m_{Y} = 300 GeV)");
+    StackAllVariables("2017DataPlots_NMSSM_XYH_bbbb_all_Full_background_withSignal/outPlotter.root", "selectionbJets_ValidationRegionBlinded", 2017, "data_BTagCSV_dataDriven_background", "Bkg model", {"sig_NMSSM_bbbb_MX_700_MY_300"}, "X#rightarrowYH (m_{X} = 700 GeV, m_{Y} = 300 GeV)", "data_BTagCSV_background", "data");
+
+    StackAllVariables("2018DataPlots_NMSSM_XYH_bbbb_all_Full_background_withSignal/outPlotter.root", "selectionbJets_SignalRegion"           , 2018, "data_BTagCSV_dataDriven_background", "Bkg model", {"sig_NMSSM_bbbb_MX_700_MY_300"}, "X#rightarrowYH (m_{X} = 700 GeV, m_{Y} = 300 GeV)");
+    StackAllVariables("2018DataPlots_NMSSM_XYH_bbbb_all_Full_background_withSignal/outPlotter.root", "selectionbJets_ValidationRegionBlinded", 2018, "data_BTagCSV_dataDriven_background", "Bkg model", {"sig_NMSSM_bbbb_MX_700_MY_300"}, "X#rightarrowYH (m_{X} = 700 GeV, m_{Y} = 300 GeV)", "data_BTagCSV_background", "data");
 
 }
 

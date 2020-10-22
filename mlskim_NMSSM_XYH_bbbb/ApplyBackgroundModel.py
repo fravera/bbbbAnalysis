@@ -67,7 +67,7 @@ def ApplyBDTweightsToFileList(fileList, treeName, trainingVariables, theReweight
 		branchAlreadyExists = False
 		for branch in theTree.GetListOfBranches():
 			if branch.GetName() == backgroundWeightName :
-				print "Error: branch ", backgroundWeightName, " already exists!!! skypping..."
+				print "Error: branch ", backgroundWeightName, " already exists in file", theRootFileName, " skypping..."
 				branchAlreadyExists = True
 		theRootFile.Close()
 		if branchAlreadyExists: continue

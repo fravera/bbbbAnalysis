@@ -122,6 +122,10 @@ MergeCanvas<>("ScaleFactor_L1triggerQuad45AndPrevious_FourHighetJetPtSum", "Scal
 
 python mlskim_NMSSM_XYH_bbbb/BuildBackgroundModel.py --config=mlskim_NMSSM_XYH_bbbb/config/outputskim_2016.cfg 
 python mlskim_NMSSM_XYH_bbbb/BuildBackgroundModel.py --config=mlskim_NMSSM_XYH_bbbb/config/outputskim_2016.cfg 
+apply weights to data
+python mlskim_NMSSM_XYH_bbbb/ApplyBackgroundModel.py --dir BackgroundModels/Reweight_fullSubmission_2016_v16_PtRegressedAndHigherLevel_kinFit/
+apply weights to signals
+python mlskim_NMSSM_XYH_bbbb/ApplyBackgroundModel.py --dir BackgroundModels/Reweight_fullSubmission_2016_v16_PtRegressedAndHigherLevel_kinFit/ --signals /store/user/fravera/bbbb_ntuples/fullSubmission_2016_v16
 
 ./scripts/Unroll2Dplots 2016DataPlots_NMSSM_XYH_bbbb_Full_syst_trgData/outPlotter.root data_BTagCSV_dataDriven_kinFit selectionbJets_SignalRegion HH_kinFit_m_H2_m 0 2400 0
 

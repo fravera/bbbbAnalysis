@@ -4,7 +4,7 @@ import ast
 class ConfigurationReader:
     def __init__(self, configFileName): 
         ###########Read Config file
-        print "[INFO] Reading skim configuration file . . ."
+        print "[INFO] Reading skim configuration file from file", configFileName
         cfgparser = ConfigParser()
         cfgparser.read('%s'%configFileName)
         ##########Get skim variables
