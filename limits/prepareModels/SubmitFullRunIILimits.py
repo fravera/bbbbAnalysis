@@ -52,7 +52,8 @@ LimitOptions           = { "statOnly" : "--freezeParameters allConstrainedNuisan
 folderYearName         = "DatacardFolder_{0}"
 folderRunIIName        = "DatacardFolder_RunII"
 
-if args.impacts: LimitOptions.update(LimitOptionsForImpacts)
+allLimitOptions = LimitOptions
+if args.impacts: allLimitOptions.update(LimitOptionsForImpacts)
 cmssw_base    = os.environ['CMSSW_BASE']
 cmssw_version = os.environ['CMSSW_VERSION']
 scram_arch    = os.environ['SCRAM_ARCH']
@@ -165,7 +166,7 @@ for signalRaw in open("prepareModels/listOfSamples.txt", 'rb').readlines():
     
     for year in yearList:
         workspaceName = folderYearName.format(year) + "/datacard" + str(year) + "_selectionbJets_SignalRegion.root"
-        for option, combineCommand in LimitOptions.items(): 
+        for option, combineCommand in allLimitOptions.items(): 
             writeln(outScript, 'echo "... running %s %s datacard"' % (year,option))
             writeln(outScript, 'combine %s -M AsymptoticLimits --run blind --X-rtd  MINIMIZER_analytic --X-rtd  FAST_VERTICAL_MORPH %s' % (workspaceName,combineCommand))
             writeln(outScript, 'echo "... execution finished with status $?"')

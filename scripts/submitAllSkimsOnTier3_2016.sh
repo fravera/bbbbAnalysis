@@ -15,11 +15,11 @@
 
 
 # data sample Run2016
-python scripts/submitSkimOnTier3.py --input=inputFiles/2016_NMSSM_XYH_bbbb_Datasets/BTagCSV_Data.txt                       --tag=$1  --cfg=config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb.cfg --is-data --njobs=200 --maxDeltaR=0.25
+# python scripts/submitSkimOnTier3.py --input=inputFiles/2016_NMSSM_XYH_bbbb_Datasets/BTagCSV_Data.txt                       --tag=$1  --cfg=config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb.cfg --is-data --njobs=200 --maxDeltaR=0.25
 
 
 # background composition Run2016
-python scripts/submitSkimOnTier3.py --input inputFiles/2016_NMSSM_XYH_bbbb_Datasets/QCD_HT200to300_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt       --tag=$1  --cfg=config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb.cfg --puWeight weights/2016_NMSSM_XYH_bbbb_weights/QCD_HT200to300_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_PUweights.root   --xs=1710000 --njobs=100 --no-tar --no-xrdcp-tar
+python scripts/submitSkimOnTier3.py --input inputFiles/2016_NMSSM_XYH_bbbb_Datasets/QCD_HT200to300_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt       --tag=$1  --cfg=config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb.cfg --puWeight weights/2016_NMSSM_XYH_bbbb_weights/QCD_HT200to300_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_PUweights.root   --xs=1710000 --njobs=100 
 python scripts/submitSkimOnTier3.py --input inputFiles/2016_NMSSM_XYH_bbbb_Datasets/QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt       --tag=$1  --cfg=config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb.cfg --puWeight weights/2016_NMSSM_XYH_bbbb_weights/QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_PUweights.root   --xs=347500  --njobs=100 --no-tar --no-xrdcp-tar
 python scripts/submitSkimOnTier3.py --input inputFiles/2016_NMSSM_XYH_bbbb_Datasets/QCD_HT500to700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt       --tag=$1  --cfg=config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb.cfg --puWeight weights/2016_NMSSM_XYH_bbbb_weights/QCD_HT500to700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_PUweights.root   --xs=32060   --njobs=100 --no-tar --no-xrdcp-tar
 python scripts/submitSkimOnTier3.py --input inputFiles/2016_NMSSM_XYH_bbbb_Datasets/QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt      --tag=$1  --cfg=config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb.cfg --puWeight weights/2016_NMSSM_XYH_bbbb_weights/QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_PUweights.root  --xs=6829    --njobs=100 --no-tar --no-xrdcp-tar

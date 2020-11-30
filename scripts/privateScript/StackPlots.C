@@ -10,6 +10,8 @@
 
 #define NO_PLOT "null"
 
+int rebinValue = 4;
+
 template<typename THA, typename THB>
 std::tuple<TH1F*, TH1F*> dividePlots(const THA* referencePlot, const THB* inputPlot)
 {
@@ -118,6 +120,7 @@ void StackPlot(TVirtualPad *theCanvas, TFile* inputFile, const std::string& sele
         TH1F* datasetPlot = (TH1F*)inputFile->Get( plotName.data() );
         if(datasetPlot == nullptr) std::cout<<"Plot "<< plotName << " does not exist" <<std::endl;
         datasetPlot->SetDirectory(0);
+        datasetPlot->Rebin(rebinValue);
         datasetPlot->SetFillColor(colorList[dIt]);
         datasetPlot->SetFillStyle(3002);
         datasetPlot->SetNameTitle(datasetName.data(), datasetName.data());
@@ -171,6 +174,7 @@ void StackPlot(TVirtualPad *theCanvas, TFile* inputFile, const std::string& sele
     TH1F* bkgModelPlot = (TH1F*)inputFile->Get( plotName.data() );
     if(bkgModelPlot == nullptr) std::cout<<"Plot "<< plotName << " does not exist" <<std::endl;
     bkgModelPlot->SetDirectory(0);
+    bkgModelPlot->Rebin(rebinValue);
     if(normalizeBinByBin) normalizeByBinSize1D(bkgModelPlot);
     bkgModelPlot->SetNameTitle(modelName.data(), modelName.data());
     bkgModelPlot->SetMarkerStyle(20);
@@ -188,6 +192,7 @@ void StackPlot(TVirtualPad *theCanvas, TFile* inputFile, const std::string& sele
         TH1F* datasetPlot = (TH1F*)inputFile->Get( plotName.data() );
         if(datasetPlot == nullptr) std::cout<<"Plot "<< plotName << " does not exist" <<std::endl;
         datasetPlot->SetDirectory(0);
+        datasetPlot->Rebin(rebinValue);
         if(normalizeBinByBin) normalizeByBinSize1D(datasetPlot);
         datasetPlot->SetNameTitle(dataName.data(), dataName.data());
         datasetPlot->SetMarkerStyle(20);
@@ -244,7 +249,7 @@ void StackPlot(TVirtualPad *theCanvas, TFile* inputFile, const std::string& sele
     // ratio->SetLineColor(plotColorVector.at(hIt));
     // ratio->SetMarkerColor(plotColorVector.at(hIt));
     ratio->SetMinimum(0.5);  // Define Y ..
-    ratio->SetMaximum(1.5); // .. range
+    ratio->SetMaximum(3.); // .. range
     ratio->SetStats(0);      // No statistics on lower plot
     // ratio->Divide(referenceHistogram);
     ratio->SetMarkerStyle(21);
@@ -508,14 +513,14 @@ void doAllStack()
     // StackAllVariables("2016DataPlots_NMSSM_XYH_bbbb_all_v1/outPlotter.root", "selectionbJetsLMR_ControlRegionBlinded", "data_BTagCSV_dataDriven_backgroundLMR", "Bkg model", {}, "X{#rightarrow}YH", "data_BTagCSV_background", "data");
     // StackAllVariables("2016DataPlots_NMSSM_XYH_bbbb_all_v1/outPlotter.root", "selectionbJetsHMR_ControlRegionBlinded", "data_BTagCSV_dataDriven_backgroundHMR", "Bkg model", {}, "X{#rightarrow}YH", "data_BTagCSV_background", "data");
 
-    StackAllVariables("DataPlots_fullSubmission_2016_v16/outPlotter.root", "selectionbJets_SignalRegion"           , 2016, "data_BTagCSV_dataDriven_kinFit", "Bkg model", {"sig_NMSSM_bbbb_MX_700_MY_300"}, "X#rightarrowYH (m_{X} = 700 GeV, m_{Y} = 300 GeV)");
-    StackAllVariables("DataPlots_fullSubmission_2016_v16/outPlotter.root", "selectionbJets_ValidationRegionBlinded", 2016, "data_BTagCSV_dataDriven_kinFit", "Bkg model", {"sig_NMSSM_bbbb_MX_700_MY_300"}, "X#rightarrowYH (m_{X} = 700 GeV, m_{Y} = 300 GeV)", "data_BTagCSV", "data");
+    StackAllVariables("DataPlots_fullSubmission_2016_v17/outPlotter.root", "selectionbJets_SignalRegion"           , 2016, "data_BTagCSV_dataDriven_kinFit", "Bkg model", {"sig_NMSSM_bbbb_MX_700_MY_300"}, "X#rightarrowYH (m_{X} = 700 GeV, m_{Y} = 300 GeV)");
+    StackAllVariables("DataPlots_fullSubmission_2016_v17/outPlotter.root", "selectionbJets_ValidationRegionBlinded", 2016, "data_BTagCSV_dataDriven_kinFit", "Bkg model", {"sig_NMSSM_bbbb_MX_700_MY_300"}, "X#rightarrowYH (m_{X} = 700 GeV, m_{Y} = 300 GeV)", "data_BTagCSV", "data");
 
-    StackAllVariables("DataPlots_fullSubmission_2017_v16/outPlotter.root", "selectionbJets_SignalRegion"           , 2017, "data_BTagCSV_dataDriven_kinFit", "Bkg model", {"sig_NMSSM_bbbb_MX_700_MY_300"}, "X#rightarrowYH (m_{X} = 700 GeV, m_{Y} = 300 GeV)");
-    StackAllVariables("DataPlots_fullSubmission_2017_v16/outPlotter.root", "selectionbJets_ValidationRegionBlinded", 2017, "data_BTagCSV_dataDriven_kinFit", "Bkg model", {"sig_NMSSM_bbbb_MX_700_MY_300"}, "X#rightarrowYH (m_{X} = 700 GeV, m_{Y} = 300 GeV)", "data_BTagCSV", "data");
+    StackAllVariables("DataPlots_fullSubmission_2017_v17/outPlotter.root", "selectionbJets_SignalRegion"           , 2017, "data_BTagCSV_dataDriven_kinFit", "Bkg model", {"sig_NMSSM_bbbb_MX_700_MY_300"}, "X#rightarrowYH (m_{X} = 700 GeV, m_{Y} = 300 GeV)");
+    StackAllVariables("DataPlots_fullSubmission_2017_v17/outPlotter.root", "selectionbJets_ValidationRegionBlinded", 2017, "data_BTagCSV_dataDriven_kinFit", "Bkg model", {"sig_NMSSM_bbbb_MX_700_MY_300"}, "X#rightarrowYH (m_{X} = 700 GeV, m_{Y} = 300 GeV)", "data_BTagCSV", "data");
 
-    StackAllVariables("DataPlots_fullSubmission_2018_v16/outPlotter.root", "selectionbJets_SignalRegion"           , 2018, "data_BTagCSV_dataDriven_kinFit", "Bkg model", {"sig_NMSSM_bbbb_MX_700_MY_300"}, "X#rightarrowYH (m_{X} = 700 GeV, m_{Y} = 300 GeV)");
-    StackAllVariables("DataPlots_fullSubmission_2018_v16/outPlotter.root", "selectionbJets_ValidationRegionBlinded", 2018, "data_BTagCSV_dataDriven_kinFit", "Bkg model", {"sig_NMSSM_bbbb_MX_700_MY_300"}, "X#rightarrowYH (m_{X} = 700 GeV, m_{Y} = 300 GeV)", "data_BTagCSV", "data");
+    StackAllVariables("DataPlots_fullSubmission_2018_v17/outPlotter.root", "selectionbJets_SignalRegion"           , 2018, "data_BTagCSV_dataDriven_kinFit", "Bkg model", {"sig_NMSSM_bbbb_MX_700_MY_300"}, "X#rightarrowYH (m_{X} = 700 GeV, m_{Y} = 300 GeV)");
+    StackAllVariables("DataPlots_fullSubmission_2018_v17/outPlotter.root", "selectionbJets_ValidationRegionBlinded", 2018, "data_BTagCSV_dataDriven_kinFit", "Bkg model", {"sig_NMSSM_bbbb_MX_700_MY_300"}, "X#rightarrowYH (m_{X} = 700 GeV, m_{Y} = 300 GeV)", "data_BTagCSV", "data");
 
 }
 

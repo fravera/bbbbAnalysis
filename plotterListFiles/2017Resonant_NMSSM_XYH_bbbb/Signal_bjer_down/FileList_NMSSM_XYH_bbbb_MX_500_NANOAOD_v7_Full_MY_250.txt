@@ -1,2 +1,2 @@
-root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2017_v16_bjer_down/SKIM_NMSSM_XYH_bbbb_MX_500_NANOAOD_v7_Full_MY_250/output/bbbbNtuple_0.root
-root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/fullSubmission_2017_v16_bjer_down/SKIM_NMSSM_XYH_bbbb_MX_500_NANOAOD_v7_Full_MY_250/output/bbbbNtuple_1.root
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/signalOnlySubmission_2017_v17_bjer_down/SKIM_NMSSM_XYH_bbbb_MX_500_NANOAOD_v7_Full_MY_250/output/bbbbNtuple_0.root
+root://cmseos.fnal.gov//store/user/fravera/bbbb_ntuples/signalOnlySubmission_2017_v17_bjer_down/SKIM_NMSSM_XYH_bbbb_MX_500_NANOAOD_v7_Full_MY_250/output/bbbbNtuple_1.root

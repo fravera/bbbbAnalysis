@@ -301,8 +301,8 @@ void OfflineProducerHelper::initializeObjectsBJetForScaleFactors(OutputTree &ot)
         else
         {
             btagCalibrationReader_lightJets_->load(btagCalibration, BTagEntry::FLAV_UDSG, "incl"  );
-            btagCalibrationReader_cJets_    ->load(btagCalibration, BTagEntry::FLAV_C   , "mujets");
-            btagCalibrationReader_bJets_    ->load(btagCalibration, BTagEntry::FLAV_B   , "mujets");
+            btagCalibrationReader_cJets_    ->load(btagCalibration, BTagEntry::FLAV_C   , "comb"  );
+            btagCalibrationReader_bJets_    ->load(btagCalibration, BTagEntry::FLAV_B   , "comb"  );
         }
 
     }
@@ -311,8 +311,14 @@ void OfflineProducerHelper::initializeObjectsBJetForScaleFactors(OutputTree &ot)
 
 }
 
-void OfflineProducerHelper::compute_scaleFactors_fourBtag_eventScaleFactor (const std::vector<Jet> &jets, NanoAODTree& nat, OutputTree &ot){
+void OfflineProducerHelper::compute_scaleFactors_fourBtag_eventScaleFactor (const std::vector<Jet> &jets, NanoAODTree& nat, OutputTree &ot)
+{
 
+    if(jets.size()!=4)
+    {
+        std::cout<< "Number of jets for btag SF must be exactly 4."<<std::endl;
+        abort();
+    }
     float tmpScaleFactor_bJets_central     = 1.;
     float tmpScaleFactor_bJets_up          = 1.;
     float tmpScaleFactor_bJets_down        = 1.;

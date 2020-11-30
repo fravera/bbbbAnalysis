@@ -35,6 +35,8 @@ skim_ntuple.exe --cfg config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbb
 
 skim_ntuple.exe --cfg config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb_Fast.cfg --input inputFiles/2017_NMSSM_XYH_bbbb_Datasets/NMSSM_XYH_bbbb_MX_900_NANOAOD_v7.txt --output test_NMSSM_XYH_bbbb_MC.root --is-signal --xs=1 --puWeight weights/2017_NMSSM_XYH_bbbb_weights/NMSSM_XYH_bbbb_MX_900_NANOAOD_v7_PUweights.root --maxEvt 100000 --yMassSelection=125
 
+skim_ntuple.exe --input=inputFiles/2018_NMSSM_XYH_bbbb_Datasets/NMSSM_XYH_bbbb_MX_900_NANOAOD_v7_Full.txt   --cfg=config/Resonant_NMSSM_bbbb/skim_2018Resonant_NMSSM_XYH_bbbb.cfg  --puWeight=weights/2018_NMSSM_XYH_bbbb_weights/NMSSM_XYH_bbbb_MX_900_NANOAOD_v7_Full_PUweights.root  --is-signal --xs=0.1   --output test_NMSSM_XYH_bbbb_MC.root --yMassSelection=125  --maxDeltaR=0.25 --maxEvt 100000 
+
 
 
 skim_ntuple.exe --input=inputFiles/2016ResonantDiHiggs4BDataSets/MC_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8.txt --cfg=config/Resonant_NMSSM_bbbb/skim_2016Resonant_NMSSM_XYH_bbbb.cfg                  --puWeight=weights/MC_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8_PUweights.root --xs=1 --maxEvt 10000 --output test_TTbar_MC_trigger_noCut.root
@@ -127,7 +129,7 @@ python mlskim_NMSSM_XYH_bbbb/ApplyBackgroundModel.py --dir BackgroundModels/Rewe
 apply weights to signals
 python mlskim_NMSSM_XYH_bbbb/ApplyBackgroundModel.py --dir BackgroundModels/Reweight_fullSubmission_2016_v16_PtRegressedAndHigherLevel_kinFit/ --signals /store/user/fravera/bbbb_ntuples/fullSubmission_2016_v16
 
-./scripts/Unroll2Dplots 2016DataPlots_NMSSM_XYH_bbbb_Full_syst_trgData/outPlotter.root data_BTagCSV_dataDriven_kinFit selectionbJets_SignalRegion HH_kinFit_m_H2_m 0 2400 0
+./scripts/Unroll2Dplots DataPlots_fullSubmission_2017_v16/outPlotter.root data_BTagCSV_dataDriven_kinFit selectionbJets_SignalRegion HH_kinFit_m_H2_m 0 2400 0
 
 hadd -f SingleMuon_Data_forTrigger_2016.root `xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2016_v14/SKIM_SingleMuon_Data/output`
 hadd -f NMSSM_forTrigger_2016.root `xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2016_v14/SKIM_NMSSM_XYH_bbbb_MX_300_NANOAOD_v7_Full/output`
@@ -143,3 +145,5 @@ hadd -f TTbar_MC_forTrigger_2018.root `xrdfsls -u /store/user/fravera/bbbb_ntupl
 
 
 python scripts/createListForHistogrammer.py --tag fullSubmission_2016_v14 --year 2016
+
+python prepareModels/SubmitFullRunIILimits.py --tag fullSubmission_v16 --year RunII --impacts

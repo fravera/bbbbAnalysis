@@ -11,6 +11,7 @@
 #include <TLegend.h>
 #include <TPaveText.h>
 #include <TLatex.h>
+#include "TROOT.h"
 
 
 void normalizeByBinSize1D(TH1D* inputPlot)
@@ -109,16 +110,20 @@ void doPlot2D(int year)
 {
     // gROOT->SetBatch(true);
     gROOT->ForceStyle();
-    plot2D(std::to_string(year) + "DataPlots_NMSSM_XYH_bbbb_Full_syst_trgData/outPlotter.root", "data_BTagCSV_dataDriven_kinFit", "selectionbJets_SignalRegion", "HH_kinFit_m_H2_m", "Extimated background distribution"                     , year, true);
+    plot2D("DataPlots_fullSubmission_" + std::to_string(year) + "_v17/outPlotter.root", "data_BTagCSV_dataDriven_kinFit", "selectionbJets_SignalRegion", "HH_kinFit_m_H2_m", "Extimated background distribution"                     , year, false);
+    plot2D("DataPlots_fullSubmission_" + std::to_string(year) + "_v17/outPlotter.root", "sig_NMSSM_bbbb_MX_700_MY_300", "selectionbJets_SignalRegion", "HH_kinFit_m_H2_m", "Signal distribution - m_{X} = 700 GeV  m_{Y} = 300 GeV"  , year, false);
     // plot2D(std::to_string(year) + "DataPlots_NMSSM_XYH_bbbb_Full_syst_trgData/outPlotter.root", "sig_NMSSM_bbbb_MX_700_MY_300"  , "selectionbJets_SignalRegion", "HH_kinFit_m_H2_m", "Signal distribution - m_{X} = 700 GeV  m_{Y} = 300 GeV", year, true);
     // gROOT->SetBatch(false);
 }
 
-// void doPlot2D(int year, std::string datasetName)
-// {
-
-// }
-
+void plotAll2D()
+{
+    gROOT->SetBatch(true );
+    doPlot2D(2016);
+    doPlot2D(2017);
+    doPlot2D(2018);
+    gROOT->SetBatch(false);
+}
 
 void overlapSlices(std::string inputFileName, std::string backgroundDataset, std::string signalDataset, std::string selection, std::string variable, float yMin, float yMax, float scale = 1.)
 {

@@ -1,0 +1,12 @@
+python privateTools/getSkimFileList.py --tag TTbar_2016_Closure_notTriggered_v16                        --sample SKIM_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8 --output plotterListFiles/2016TriggerStudies/ClosureTest_TTBar_notTriggered.txt
+python privateTools/getSkimFileList.py --tag TTbar_2016_Closure_triggered_v16                           --sample SKIM_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8 --output plotterListFiles/2016TriggerStudies/ClosureTest_TTBar_triggered.txt
+python privateTools/getSkimFileList.py --tag NMSSM_XYH_bbbb_MX_300_MY_150_2016_Closure_notTriggered_v16 --sample SKIM_NMSSM_XYH_bbbb_MX_300_NANOAOD_v7_Full  --output plotterListFiles/2016TriggerStudies/ClosureTest_NMSSM_XYH_bbbb_MX_300_MY_150_notTriggered.txt
+python privateTools/getSkimFileList.py --tag NMSSM_XYH_bbbb_MX_300_MY_150_2016_Closure_triggered_v16    --sample SKIM_NMSSM_XYH_bbbb_MX_300_NANOAOD_v7_Full  --output plotterListFiles/2016TriggerStudies/ClosureTest_NMSSM_XYH_bbbb_MX_300_MY_150_triggered.txt
+
+python privateTools/getSkimFileList.py --tag TTbar_2017_Closure_notTriggered_v16                        --sample SKIM_TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8 --output plotterListFiles/2017TriggerStudies/ClosureTest_TTBarFullLeptonic_notTriggered.txt
+python privateTools/getSkimFileList.py --tag TTbar_2017_Closure_triggered_v16                           --sample SKIM_TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8 --output plotterListFiles/2017TriggerStudies/ClosureTest_TTBarFullLeptonic_triggered.txt
+
+python privateTools/getSkimFileList.py --tag TTbar_2018_Closure_notTriggered_v16                        --sample SKIM_TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8 --output plotterListFiles/2018TriggerStudies/ClosureTest_TTBarFullLeptonic_notTriggered.txt
+python privateTools/getSkimFileList.py --tag TTbar_2018_Closure_triggered_v16                           --sample SKIM_TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8 --output plotterListFiles/2018TriggerStudies/ClosureTest_TTBarFullLeptonic_triggered.txt
+python privateTools/getSkimFileList.py --tag NMSSM_XYH_bbbb_MX_300_MY_150_2018_Closure_notTriggered_v16 --sample SKIM_NMSSM_XYH_bbbb_MX_300_NANOAOD_v7_Full  --output plotterListFiles/2018TriggerStudies/ClosureTest_NMSSM_XYH_bbbb_MX_300_MY_150_notTriggered.txt
+python privateTools/getSkimFileList.py --tag NMSSM_XYH_bbbb_MX_300_MY_150_2018_Closure_triggered_v16    --sample SKIM_NMSSM_XYH_bbbb_MX_300_NANOAOD_v7_Full  --output plotterListFiles/2018TriggerStudies/ClosureTest_NMSSM_XYH_bbbb_MX_300_MY_150_triggered.txt
