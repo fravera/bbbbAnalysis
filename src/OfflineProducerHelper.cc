@@ -266,6 +266,37 @@ void OfflineProducerHelper::save_IsolatedLeptons (NanoAODTree& nat, OutputTree &
 
 // ----------------- Compute scaleFactors - BEGIN ----------------- //
 
+void OfflineProducerHelper::initializeObjectsL1PrefiringForScaleFactors(OutputTree &ot)
+{
+    //save_objects_for_l1prefiring = [=](NanoAODTree& nat, OutputTree &ot, EventInfo& ei) -> void {this -> compute_scaleFactors_l1prefiring(nat, ot, ei);};
+    ot.declareUserFloatBranch("L1PreFiringWeight_Nom", 1.);
+    ot.declareUserFloatBranch("L1PreFiringWeight_Up",  1.);
+    ot.declareUserFloatBranch("L1PreFiringWeight_Dn",  1.);
+    return;
+}
+
+void OfflineProducerHelper::CalculateL1prefiringScaleFactor(NanoAODTree& nat,OutputTree &ot, EventInfo& ei)
+{
+
+   if( parameterList_->find("L1PrefiringSFMethod") != parameterList_->end()) //only defined when it is MC
+   {
+       if(any_cast<string>(parameterList_->at("L1PrefiringSFMethod")) == "Standard" && any_cast<int>(parameterList_->at("DatasetYear")) != 2018)
+       {
+            ot.userFloat("L1PreFiringWeight_Nom") = *(nat.L1PreFiringWeight_Nom);
+            ot.userFloat("L1PreFiringWeight_Up")  = *(nat.L1PreFiringWeight_Up);
+            ot.userFloat("L1PreFiringWeight_Dn")  = *(nat.L1PreFiringWeight_Dn);
+       }
+       else{
+        //do nothing
+       }
+   }
+   else{
+        //do nothing
+   }
+
+   return;
+}
+
 void OfflineProducerHelper::initializeObjectsBJetForScaleFactors(OutputTree &ot)
 {
 
@@ -519,7 +550,7 @@ float OfflineProducerHelper::calculateEventWeight_AllWeights(NanoAODTree& nat, E
     eventWeight *= tmpWeight;
     // LHEPdfWeight weight variations
     if(storeVariations)
-        for(unsigned int var = 0; var<=*(nat.nLHEPdfWeight); ++var)
+        for(unsigned int var = 0; var<*(nat.nLHEPdfWeight); ++var)
         {
             tmpWeight = nat.LHEPdfWeight.At(var);
             tmpWeight = tmpWeight==0 ? 1 : tmpWeight; //set to 1 if weight is 0
@@ -1469,6 +1500,8 @@ bool OfflineProducerHelper::select_bbbb_jets(NanoAODTree& nat, EventInfo& ei, Ou
         ot.triggerDataEfficiencyDown = std::get<2>(std::get<1>(triggerScaleFactorDataAndMonteCarloEfficiency));
         ot.triggerMcEfficiencyDown   = std::get<2>(std::get<2>(triggerScaleFactorDataAndMonteCarloEfficiency));
     }
+
+    CalculateL1prefiringScaleFactor(nat,ot,ei);
 
     // order H1, H2 by pT: pT(H1) > pT (H2)
     CompositeCandidate H1 = CompositeCandidate(ordered_jets.at(0), ordered_jets.at(1));
@@ -4335,6 +4368,83 @@ bool OfflineProducerHelper::select_gen_bb_bb_forXYH (NanoAODTree& nat, EventInfo
     ei.recoJetMatchedToGenJet4 = matchedRecoToGen[3];
 
     return all_ok;
+}
+
+
+bool OfflineProducerHelper::select_gen_bb_bb_forXYH_swapped (NanoAODTree& nat, EventInfo& ei, const float maxDeltaR)
+{
+
+    //match generated H2
+    std::vector<double> candidateFromH2Phi {ei.H2_b1->P4().Phi()    , ei.H2_b2->P4().Phi()    };
+    std::vector<double> candidateFromH2Eta {ei.H2_b1->P4().Eta()    , ei.H2_b2->P4().Eta()    };
+    std::vector<double> genBJetFromH1Phi   {ei.gen_H1_b1->P4().Phi(), ei.gen_H1_b2->P4().Phi()};
+    std::vector<double> genBJetFromH1Eta   {ei.gen_H1_b1->P4().Eta(), ei.gen_H1_b2->P4().Eta()};
+    std::vector<bool> isCandidateFromH2Matched(2,false);
+    std::vector<int>  matchedCandidateFromH2(2,-1);
+
+    for(uint8_t itGenBJet=0; itGenBJet<2; ++itGenBJet)
+    {
+        double deltaR = 1024;
+        int    candidateMatched=-1;
+        for(uint8_t itCandidate=0; itCandidate<2; ++itCandidate)
+        {
+            if(isCandidateFromH2Matched[itCandidate]) continue;
+            double tmpDeltaR = deltaPhi(candidateFromH2Phi[itCandidate],genBJetFromH1Phi[itGenBJet])*deltaPhi(candidateFromH2Phi[itCandidate],genBJetFromH1Phi[itGenBJet]) + (candidateFromH2Eta[itCandidate]-genBJetFromH1Eta[itGenBJet])*(candidateFromH2Eta[itCandidate]-genBJetFromH1Eta[itGenBJet]);
+            if(tmpDeltaR<deltaR)
+            {
+                deltaR = tmpDeltaR;
+                candidateMatched = itCandidate;
+            }
+        }
+        if(deltaR< (maxDeltaR*maxDeltaR))
+        {
+            isCandidateFromH2Matched[candidateMatched] = true;
+            matchedCandidateFromH2[itGenBJet] = candidateMatched;
+        }
+
+    }
+
+    ei.gen_H1_b1_matchedflag_swapped = matchedCandidateFromH2[0];
+    ei.gen_H1_b2_matchedflag_swapped = matchedCandidateFromH2[1];
+    if(matchedCandidateFromH2[0] == matchedCandidateFromH2[1] && matchedCandidateFromH2[0]!=-1) std::cout<< "Something went really bad\n";
+    
+    
+    //match generated H2
+    std::vector<double> candidateFromH1Phi {ei.H1_b1->P4().Phi()    , ei.H1_b2->P4().Phi()    };
+    std::vector<double> candidateFromH1Eta {ei.H1_b1->P4().Eta()    , ei.H1_b2->P4().Eta()    };
+    std::vector<double> genBJetFromH2Phi   {ei.gen_H2_b1->P4().Phi(), ei.gen_H2_b2->P4().Phi()};
+    std::vector<double> genBJetFromH2Eta   {ei.gen_H2_b1->P4().Eta(), ei.gen_H2_b2->P4().Eta()};
+    std::vector<bool> isCandidateFromH1Matched(2,false);
+    std::vector<int>  matchedCandidateFromH1(2,-1);
+
+    for(uint8_t itGenBJet=0; itGenBJet<2; ++itGenBJet)
+    {
+        double deltaR = 1024;
+        int    candidateMatched=-1;
+        for(uint8_t itCandidate=0; itCandidate<2; ++itCandidate)
+        {
+            if(isCandidateFromH1Matched[itCandidate]) continue;
+            double tmpDeltaR = deltaPhi(candidateFromH1Phi[itCandidate],genBJetFromH2Phi[itGenBJet])*deltaPhi(candidateFromH1Phi[itCandidate],genBJetFromH2Phi[itGenBJet]) + (candidateFromH1Eta[itCandidate]-genBJetFromH2Eta[itGenBJet])*(candidateFromH1Eta[itCandidate]-genBJetFromH2Eta[itGenBJet]);
+            if(tmpDeltaR<deltaR)
+            {
+                deltaR = tmpDeltaR;
+                candidateMatched = itCandidate;
+            }
+        }
+        if(deltaR< (maxDeltaR*maxDeltaR))
+        {
+            isCandidateFromH1Matched[candidateMatched] = true;
+            matchedCandidateFromH1[itGenBJet] = candidateMatched;
+        }
+
+    }
+
+    ei.gen_H2_b1_matchedflag_swapped = matchedCandidateFromH1[0];
+    ei.gen_H2_b2_matchedflag_swapped = matchedCandidateFromH1[1];
+
+    if(matchedCandidateFromH1[0] == matchedCandidateFromH1[1] && matchedCandidateFromH1[0]!=-1) std::cout<< "Something went really bad\n";
+
+    return true;
 }
 
 

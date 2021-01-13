@@ -99,7 +99,7 @@ void ProduceLimitTable(std::string year, std::string plotInputFileName, std::str
         if (xMass >=  600.) crossSection = 10.;
         if (xMass >= 1600.) crossSection = 1.;
 
-        std::cout<<"\\begin{table}[htb]"<<std::endl;
+        std::cout<<"\\begin{table}[htb!]"<<std::endl;
         std::cout<<"\\centering"<<std::endl;
         if(year!="RunII")
         {

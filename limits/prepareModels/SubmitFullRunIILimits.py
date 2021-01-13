@@ -6,6 +6,7 @@ import argparse
 from  ConfigParser import *
 from StringIO import StringIO
 import subprocess
+import copy
 
 t3SubmitScript = '/uscms/home/fravera/nobackup/DiHiggs_v2/CMSSW_10_2_5/src/bbbbAnalysis/scripts/t3submit'
 
@@ -34,7 +35,7 @@ print "... Welcome", username
 
 outputDir = "root://cmseos.fnal.gov//store/user/{0}/bbbb_limits/"
 outputDir = outputDir.format(username)
-listOfSystematics = ["CMS_bkgnorm", "CMS_bkgShape", "lumi_13TeV", "CMS_trg_eff", "CMS_eff_b_b", "CMS_eff_b_c", "CMS_eff_b_udsg", "CMS_PU", "CMS_scale_j_Total", "CMS_res_j", "CMS_res_j_breg"]
+listOfSystematics = ["CMS_bkgnorm", "CMS_bkgShape", "lumi_13TeV", "CMS_trg_eff", "CMS_l1prefiring", "CMS_eff_b_b", "CMS_eff_b_c", "CMS_eff_b_udsg", "CMS_PU", "CMS_scale_j_Total", "CMS_res_j", "CMS_res_j_breg"]
 
 LimitOptionsForImpacts = {}
 for systematic in listOfSystematics:
@@ -51,8 +52,9 @@ plotFileFolderProto    = outputDir + '/' + args.tag + '/HistogramFiles_{0}/'
 LimitOptions           = { "statOnly" : "--freezeParameters allConstrainedNuisances", "syst" : "" }
 folderYearName         = "DatacardFolder_{0}"
 folderRunIIName        = "DatacardFolder_RunII"
+outPlotFileNameProto   = "outPlotter_{0}_{1}.root"
 
-allLimitOptions = LimitOptions
+allLimitOptions = copy.deepcopy(LimitOptions)
 if args.impacts: allLimitOptions.update(LimitOptionsForImpacts)
 cmssw_base    = os.environ['CMSSW_BASE']
 cmssw_version = os.environ['CMSSW_VERSION']
@@ -157,10 +159,16 @@ for signalRaw in open("prepareModels/listOfSamples.txt", 'rb').readlines():
         datacardName = folderName + "/datacard" + str(year) + "_selectionbJets_SignalRegion.txt"
         outputDatacardFile  = plotFileFolderProto.format(year) + outFileDatacardProto.format(year,signal)
         writeln(outScript, 'xrdcp -s -f %s %s' % (datacardName, outputDatacardFile)) ## no force overwrite output in destination
-    
+        plotFileName       = outPlotFileNameProto.format(year,signal)
+        inputPlotFileName  = folderName + "/" + plotFileName
+        outputPlotFileName = plotFileFolderProto.format(year) + "/" + plotFileName
+        writeln(outScript, 'xrdcp -s -f %s %s' % (inputPlotFileName, outputPlotFileName)) ## no force overwrite output in destination
+
     if args.year == "RunII":
         writeln(outScript, 'mkdir %s' % folderRunIIName)
         writeln(outScript, 'combineCards.py c2016=DatacardFolder_2016/datacard2016_selectionbJets_SignalRegion.txt c2017=DatacardFolder_2017/datacard2017_selectionbJets_SignalRegion.txt c2018=DatacardFolder_2018/datacard2018_selectionbJets_SignalRegion.txt > %s/datacardRunII_selectionbJets_SignalRegion.txt' % folderRunIIName)
+        outputDatacardFile  = plotFileFolderProto.format("RunII") + outFileDatacardProto.format("RunII",signal)
+        writeln(outScript, 'xrdcp -s -f %s %s' % (datacardName, outputDatacardFile)) ## no force overwrite output in destination
         writeln(outScript, 'text2workspace.py %s/datacardRunII_selectionbJets_SignalRegion.txt' % folderRunIIName)
         writeln(outScript, 'sleep 15')
     

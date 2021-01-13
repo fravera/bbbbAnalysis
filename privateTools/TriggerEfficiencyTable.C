@@ -148,34 +148,36 @@ void TriggerEfficiencyTable(std::string fileName, int year)
     std::string triggerSFBranch = "triggerScaleFactor";
     TH1F *triggerSF = new TH1F(triggerSFBranch.data(), triggerSFBranch.data(), 100, -1., 2.);
     triggerSF->SetLineColor(kBlue);
-    triggerSF->SetLineWidth(4);
+    triggerSF->SetLineWidth(3);
     triggerSF->SetStats(false);
     triggerSF->GetXaxis()->SetTitle("trigger SF");
     // triggerSF->GetYaxis()->SetTitle("entries [a.u.]");
     std::string triggerSFCommand = triggerSFBranch + ">>" + triggerSFBranch.data();
-    theTree->Draw(triggerSFCommand.data(), ("triggerMcEfficiency*(" + selection + ")").data());
+    theTree->Draw(triggerSFCommand.data(), ("triggerMcEfficiency*(" + selection + ")").data(), "hist");
     float currentMaximum = triggerSF->GetMaximum();
     if(currentMaximum > maximum) maximum = currentMaximum;
 
     std::string triggerSFUpBranch = "triggerScaleFactorUp";
     TH1F *triggerSFUp = new TH1F(triggerSFUpBranch.data(), triggerSFUpBranch.data(), 100, -1., 2.);
     triggerSFUp->SetLineColor(kRed);
-    triggerSFUp->SetLineWidth(4);
+    triggerSFUp->SetLineWidth(3);
     triggerSFUp->SetStats(false);
     std::string triggerSFUpCommand = triggerSFUpBranch + ">>" + triggerSFUpBranch.data();
-    theTree->Draw(triggerSFUpCommand.data(), ("triggerMcEfficiency*(" + selection + ")").data(), "same");
+    theTree->Draw(triggerSFUpCommand.data(), ("triggerMcEfficiency*(" + selection + ")").data(), "hist same");
     currentMaximum = triggerSFUp->GetMaximum();
     if(currentMaximum > maximum) maximum = currentMaximum;
 
     std::string triggerSFDownBranch = "triggerScaleFactorDown";
     TH1F *triggerSFDown = new TH1F(triggerSFDownBranch.data(), triggerSFDownBranch.data(), 100, -1., 2.);
     triggerSFDown->SetLineColor(kGreen);
-    triggerSFDown->SetLineWidth(4);
+    triggerSFDown->SetLineWidth(3);
     triggerSFDown->SetStats(false);
     std::string triggerSFDownCommand = triggerSFDownBranch + ">>" + triggerSFDownBranch.data();
-    theTree->Draw(triggerSFDownCommand.data(), ("triggerMcEfficiency*(" + selection + ")").data(), "same");
+    theTree->Draw(triggerSFDownCommand.data(), ("triggerMcEfficiency*(" + selection + ")").data(), "hist same");
     currentMaximum = triggerSFDown->GetMaximum();
     if(currentMaximum > maximum) maximum = currentMaximum;
+
+    std::cout<<triggerSF->Integral()<< "  " <<triggerSFDown->Integral()<< "  " <<triggerSFUp->Integral()<<std::endl;
 
     triggerSF->SetMaximum(maximum*1.10);
 

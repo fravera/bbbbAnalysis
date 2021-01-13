@@ -161,7 +161,7 @@ void OverlapAllEfficiencyAndDistributionsInFile2016(std::string inputFileName, b
     // OverlapEfficiencyAndDistributions(theCanvasAndOverlap->cd(1), inputFile, triggerName, "L1filterQuad45"            , dataDataset, signalDataset, backgrounds..., plotHistograms);
     OverlapEfficiencyAndDistributions(theCanvasAndOverlap->cd(2), inputFile, triggerName, "QuadCentralJet45"          , dataDataset, signalDataset, backgrounds..., plotHistograms);
     // OverlapEfficiencyAndDistributions(theCanvasAndOverlap->cd(3), inputFile, triggerName, "BTagCaloCSVp087TripleBflav", dataDataset, signalDataset, backgrounds..., plotHistograms);
-    OverlapEfficiencyAndDistributions(theCanvasAndOverlap->cd(3), inputFile, triggerName, "BTagCaloCSVp087Triple"     , dataDataset, signalDataset, backgrounds..., plotHistograms);
+    // OverlapEfficiencyAndDistributions(theCanvasAndOverlap->cd(3), inputFile, triggerName, "BTagCaloCSVp087Triple"     , dataDataset, signalDataset, backgrounds..., plotHistograms);
     OverlapEfficiencyAndDistributions(theCanvasAndOverlap->cd(4), inputFile, triggerName, "QuadPFCentralJetLooseID45" , dataDataset, signalDataset, backgrounds..., plotHistograms);
     theCanvasAndOverlap->SaveAs((std::string(inputFileName.substr(0,inputFileName.length()-5) + "_" + theCanvasAndOverlap->GetName()) + ".png").data());
     // delete theCanvasAndOverlap;
@@ -173,7 +173,7 @@ void OverlapAllEfficiencyAndDistributions2016(bool plotHistograms = false)
     gROOT->SetBatch(true);
     // OverlapAllEfficiencyAndDistributionsInFile2016<std::string, std::string>("TriggerEfficiencies_MuonPt30_matched.root"           , "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
     // OverlapAllEfficiencyAndDistributionsInFile2016<std::string, std::string>("TriggerEfficiencies_MuonPt30_unMatched.root"         , "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
-    OverlapAllEfficiencyAndDistributionsInFile2016<std::string>("TriggerEfficiencies_2016_TTBarCut.root"  , plotHistograms, "SingleMuon", "NMSSM", "TTbar");
+    OverlapAllEfficiencyAndDistributionsInFile2016<std::string>("TriggerEfficiencies_2016_TTBarCut_Rebin.root"  , plotHistograms, "SingleMuon", "NMSSM", "TTbar");
     // OverlapAllEfficiencyAndDistributionsInFile2016<std::string, std::string>("TriggerEfficiencies_MuonPt30_unMatched_TTBarCut.root", "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
     gROOT->SetBatch(false);
 }
@@ -315,7 +315,7 @@ void OverlapAllEfficiencyAndDistributionsInFile2017(std::string inputFileName, b
 void OverlapAllEfficiencyAndDistributions2017(bool plotHistograms = false)
 {
     gROOT->SetBatch(true);
-    OverlapAllEfficiencyAndDistributionsInFile2017<>("TriggerEfficiencies_2017_TTBarCut.root"           , plotHistograms, "SingleMuon", "NMSSM", "TTbar");
+    OverlapAllEfficiencyAndDistributionsInFile2017<>("TriggerEfficiencies_2017_TTBarCut_Rebin.root"           , plotHistograms, "SingleMuon", "NMSSM", "TTbar");
     // OverlapAllEfficiencyAndDistributionsInFile2017<std::string, std::string>("TriggerEfficiencies_MuonPt30_matched.root"           , "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
     // OverlapAllEfficiencyAndDistributionsInFile2017<std::string, std::string>("TriggerEfficiencies_MuonPt30_unMatched.root"         , "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
     // OverlapAllEfficiencyAndDistributionsInFile2017<std::string, std::string>("TriggerEfficiencies_MuonPt30_matched_TTBarCut.root"  , "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
@@ -354,7 +354,7 @@ void OverlapAllEfficiencyAndDistributionsInFile2018(std::string inputFileName, b
 void OverlapAllEfficiencyAndDistributions2018(bool plotHistograms = false)
 {
     gROOT->SetBatch(true);
-    OverlapAllEfficiencyAndDistributionsInFile2018<>("TriggerEfficiencies_2018_TTBarCut.root"           , plotHistograms, "SingleMuon", "NMSSM", "TTbar");
+    OverlapAllEfficiencyAndDistributionsInFile2018<>("TriggerEfficiencies_2018_TTBarCut_Rebin.root"           , plotHistograms, "SingleMuon", "NMSSM", "TTbar");
     // OverlapAllEfficiencyAndDistributionsInFile2018<std::string, std::string>("TriggerEfficiencies_MuonPt30_matched.root"           , "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
     // OverlapAllEfficiencyAndDistributionsInFile2018<std::string, std::string>("TriggerEfficiencies_MuonPt30_unMatched.root"         , "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");
     // OverlapAllEfficiencyAndDistributionsInFile2018<std::string, std::string>("TriggerEfficiencies_MuonPt30_matched_TTBarCut.root"  , "SingleMuon", "NMSSM_XYH_bbbb", "TTbar", "WJetsToLNu");

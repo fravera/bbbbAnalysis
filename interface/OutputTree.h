@@ -160,6 +160,11 @@ class OutputTree {
         DECLARE_m_pt_eta_phi_p4(gen_q1_out)
         DECLARE_m_pt_eta_phi_p4(gen_q2_out)
 
+        float gen_H1_b1_matchedflag_swapped;
+        float gen_H1_b2_matchedflag_swapped;
+        float gen_H2_b1_matchedflag_swapped;
+        float gen_H2_b2_matchedflag_swapped;
+
 
     // Suzanne added these variables
 

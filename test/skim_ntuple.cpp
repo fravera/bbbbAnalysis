@@ -194,7 +194,19 @@ int main(int argc, char** argv)
     // }  
     else throw std::runtime_error("cannot recognize event choice ObjectsForCut " + preselectionCutStrategy);
 
-
+    //L1prefiring scale factor
+    const string L1PrefiringSFMethod = config.readStringOpt("parameters::L1PrefiringSFMethod");
+    parameterList.emplace("L1PrefiringSFMethod",L1PrefiringSFMethod);
+    if(L1PrefiringSFMethod == "Standard"){
+    cout << "[INFO] ... Standard L1Prefiring weights are added in the MC sample" << endl;  
+    }
+    else if(config.readStringOpt("parameters::L1PrefiringSFMethod") == "None"){
+    cout << "[INFO] ... No L1Prefiring weights are added in the MC sample" << endl;      
+    }  
+    // else if(other selection type){
+    //     parameters fo be retreived;
+    // }  
+    else throw std::runtime_error("cannot recognize event choice L1PrefiringScaleFactorMethod " + config.readStringOpt("parameters::L1PrefiringSFMethod"));
 
     const string objectsForCut = config.readStringOpt("parameters::ObjectsForCut");
     parameterList.emplace("ObjectsForCut",objectsForCut);
@@ -499,6 +511,7 @@ int main(int argc, char** argv)
     {
         // oph.initializeJERsmearingAndVariations(ot);
         // oph.initializeJECVariations(ot);
+        oph.initializeObjectsL1PrefiringForScaleFactors(ot);
         oph.initializeApplyJERAndBregSmearing(opts["jer-shift-syst"].as<string>());
         oph.initializeApplyJESshift(opts["jes-shift-syst"].as<string>());
         oph.initializeObjectsForEventWeight(ot,ec,opts["puWeight"].as<string>());
@@ -561,6 +574,15 @@ int main(int argc, char** argv)
                 std::cout << __PRETTY_FUNCTION__ << __LINE__ << "no gen matching found!!!" << std::endl;
                 continue; 
             }
+            if(yMassSelection == "125")
+            {
+                if (!oph.select_gen_bb_bb_forXYH_swapped (nat, ei, maxDeltaR))
+                {
+                    std::cout << __PRETTY_FUNCTION__ << __LINE__ << "no gen matching found!!!" << std::endl;
+                    continue;  
+                }
+            }
+
         }
 
         if (is_VBF_sig){

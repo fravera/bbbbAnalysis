@@ -73,7 +73,7 @@ void normalizeByBinSize2D(TH2D* inputPlot)
 
 }
 
-void plot2D(std::string inputFileName, std::string dataset, std::string selection, std::string variable, std::string title, int year, bool logZ=false)
+void plot2D(std::string inputFileName, std::string dataset, std::string selection, std::string variable, std::string title, int year, bool logZ=false, float xMax = -1, float yMax = -1)
 {
     TFile inputFile(inputFileName.data());
     std::string inputHistogramName = dataset +  "/" + selection + "/" + dataset +  "_" + selection + "_" + variable;
@@ -98,8 +98,12 @@ void plot2D(std::string inputFileName, std::string dataset, std::string selectio
     inputHistogram->GetZaxis()->SetLabelFont(62);
     inputHistogram->GetZaxis()->SetLabelSize(0.04);
 
+    if(xMax > 0) inputHistogram->GetXaxis()->SetRangeUser(212, xMax);
+    if(yMax > 0) inputHistogram->GetYaxis()->SetRangeUser( 36, yMax);
 
-    TCanvas *theCanvas = new TCanvas((variable + "_" + dataset + "_" + std::to_string(year)).data(),"",1400,800);
+    std::string canvasName = variable + "_" + dataset + "_" + std::to_string(year);
+    if(xMax > 0 || yMax > 0) canvasName += "_zoom";
+    TCanvas *theCanvas = new TCanvas(canvasName.data(),"",1400,800);
     inputHistogram->Draw("colz");
     if(logZ) theCanvas->SetLogz();
     theCanvas->SaveAs((std::string(theCanvas->GetName()) + ".png").data());
@@ -110,7 +114,8 @@ void doPlot2D(int year)
 {
     // gROOT->SetBatch(true);
     gROOT->ForceStyle();
-    plot2D("DataPlots_fullSubmission_" + std::to_string(year) + "_v17/outPlotter.root", "data_BTagCSV_dataDriven_kinFit", "selectionbJets_SignalRegion", "HH_kinFit_m_H2_m", "Extimated background distribution"                     , year, false);
+    plot2D("DataPlots_fullSubmission_" + std::to_string(year) + "_v17/outPlotter.root", "data_BTagCSV_dataDriven_kinFit", "selectionbJets_SignalRegion", "HH_kinFit_m_H2_m", "Estimated background distribution"                     , year, false);
+    plot2D("DataPlots_fullSubmission_" + std::to_string(year) + "_v17/outPlotter.root", "data_BTagCSV_dataDriven_kinFit", "selectionbJets_SignalRegion", "HH_kinFit_m_H2_m", "Estimated background distribution"                     , year, false, 1024, 508);
     plot2D("DataPlots_fullSubmission_" + std::to_string(year) + "_v17/outPlotter.root", "sig_NMSSM_bbbb_MX_700_MY_300", "selectionbJets_SignalRegion", "HH_kinFit_m_H2_m", "Signal distribution - m_{X} = 700 GeV  m_{Y} = 300 GeV"  , year, false);
     // plot2D(std::to_string(year) + "DataPlots_NMSSM_XYH_bbbb_Full_syst_trgData/outPlotter.root", "sig_NMSSM_bbbb_MX_700_MY_300"  , "selectionbJets_SignalRegion", "HH_kinFit_m_H2_m", "Signal distribution - m_{X} = 700 GeV  m_{Y} = 300 GeV", year, true);
     // gROOT->SetBatch(false);

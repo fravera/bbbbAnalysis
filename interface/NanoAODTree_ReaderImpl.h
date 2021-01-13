@@ -482,6 +482,10 @@ class NanoAODTree_ReaderImpl {
         NanoReaderArray<Float_t>   SV_x                                 {fReader, "SV_x"};
         NanoReaderArray<Float_t>   SV_y                                 {fReader, "SV_y"};
         NanoReaderArray<Float_t>   SV_z                                 {fReader, "SV_z"};
+
+        NanoReaderValue<Float_t>   L1PreFiringWeight_Nom                 {fReader, "L1PreFiringWeight_Nom"};
+        NanoReaderValue<Float_t>   L1PreFiringWeight_Up                  {fReader, "L1PreFiringWeight_Up"};
+        NanoReaderValue<Float_t>   L1PreFiringWeight_Dn                  {fReader, "L1PreFiringWeight_Dn"};
 };
 
 #endif

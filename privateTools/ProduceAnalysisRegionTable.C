@@ -128,7 +128,7 @@ void ProduceAnalysisRegionTable(int version)
     for(auto mXTable : mapEventsInRegions)
     {
 
-        std::cout <<"\\begin{table}[htb]" << std::endl;
+        std::cout <<"\\begin{table}[htb!]" << std::endl;
         std::cout <<"\\centering" << std::endl;
         std::cout <<"\\begin{tabular}{l| c| c| c| c| c| c| c| c| c}" << std::endl;
         std::cout <<"\\mY [GeV]  \t & \\multicolumn{3}{c|}{2016}  & \\multicolumn{3}{c|}{2017}  & \\multicolumn{3}{c}{2018}   \\\\    " << std::endl;

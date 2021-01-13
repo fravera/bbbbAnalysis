@@ -102,12 +102,13 @@ int main(int argc, char** argv)
     std::string username = getenv ("USER");
     
     const std::vector<std::string> yearList          {"2016", "2017", "2018", "RunII"};
-    const std::vector<std::string> listOfSystematics {"freeze_CMS_bkgnorm", "freeze_CMS_bkgShape", "freeze_lumi_13TeV", "freeze_CMS_trg_eff", "freeze_CMS_eff_b_b", "freeze_CMS_eff_b_c", "freeze_CMS_eff_b_udsg", "freeze_CMS_PU", "freeze_CMS_scale_j_Total", "freeze_CMS_res_j", "freeze_CMS_res_j_breg", "freeze_autoMCStats"};
-    std::vector<std::string> limitOptions      {"statOnly", "syst"};
+    const std::vector<std::string> listOfSystematics {"freeze_CMS_bkgnorm", "freeze_CMS_bkgShape", "freeze_lumi_13TeV", "freeze_CMS_trg_eff", "freeze_CMS_l1prefiring", "freeze_CMS_eff_b_b", "freeze_CMS_eff_b_c", "freeze_CMS_eff_b_udsg", "freeze_CMS_PU", "freeze_CMS_scale_j_Total", "freeze_CMS_res_j", "freeze_CMS_res_j_breg", "freeze_autoMCStats"};
+    std::vector<std::string> minLimitOptions      {"statOnly", "syst"};
+    std::vector<std::string> allLimitOptions = minLimitOptions;
 
     if(runImpacts)
         for(const auto systematic : listOfSystematics)
-            limitOptions.push_back(systematic);
+            allLimitOptions.push_back(systematic);
 
     std::vector<std::string> signalList = splitByLine("prepareModels/listOfSamples.txt");
 
@@ -132,9 +133,13 @@ int main(int argc, char** argv)
     std::cout<<std::endl;
 
     std::map<std::string, std::map<std::string, std::tuple<std::map<std::string, TH2D*>, std::map<float, std::tuple<TGraph*, TGraphAsymmErrors*, TGraphAsymmErrors*>>>>> theFullMapOfPlots;
+    std::map<float, std::tuple<TGraph*, TGraphAsymmErrors*, TGraphAsymmErrors*>> mapOfLimitsVsY;
 
     for(const auto & year : yearList)
     {
+        std::vector<std::string> limitOptions;
+        if(year == "RunII") limitOptions = minLimitOptions;
+        else limitOptions = allLimitOptions;
         for(const auto & option : limitOptions)
         {
             std::map<std::string, TH2D*> the2Dmap;
@@ -149,24 +154,49 @@ int main(int argc, char** argv)
             {
                 the1Dmap[yMass] = std::make_tuple(new TGraph(), new TGraphAsymmErrors(), new TGraphAsymmErrors());
                 std::get<0>(the1Dmap[yMass])->SetNameTitle(("CentralLimit_" + year + "_" + option + "_massY_" + std::to_string(int(yMass))).c_str(), ("Central Limit - " + year + " " + option + " m_{Y} = " + std::to_string(int(yMass))).c_str());
-                std::get<0>(the1Dmap[yMass])->GetXaxis()->SetTitle("m_{Y} [GeV]");
+                std::get<0>(the1Dmap[yMass])->GetXaxis()->SetTitle("m_{X} [GeV]");
                 std::get<0>(the1Dmap[yMass])->SetMaximum(10000);
                 std::get<0>(the1Dmap[yMass])->SetMinimum(1);
                 std::get<0>(the1Dmap[yMass])->GetYaxis()->SetTitle("#sigma(pp #rightarrow X) #times BR(Y(b#bar{b}) H(b#bar{b})) [fb]");
                 std::get<1>(the1Dmap[yMass])->SetNameTitle(("1SigmaLimit_" + year + "_" + option + "_massY_" + std::to_string(int(yMass))).c_str(),  ("1 Sigma Limit - " + year + " " + option + " m_{Y} = " + std::to_string(int(yMass))).c_str());
                 std::get<0>(the1Dmap[yMass])->SetMaximum(10000);
                 std::get<0>(the1Dmap[yMass])->SetMinimum(1);
-                std::get<1>(the1Dmap[yMass])->GetXaxis()->SetTitle("m_{Y} [GeV]");
+                std::get<1>(the1Dmap[yMass])->GetXaxis()->SetTitle("m_{X} [GeV]");
                 std::get<1>(the1Dmap[yMass])->GetYaxis()->SetTitle("#sigma(pp #rightarrow X) #times BR(Y(b#bar{b}) H(b#bar{b})) [fb]");
                 std::get<2>(the1Dmap[yMass])->SetNameTitle(("2SigmaLimit_" + year + "_" + option + "_massY_" + std::to_string(int(yMass))).c_str(),  ("2 Sigma Limit - " + year + " " + option + " m_{Y} = " + std::to_string(int(yMass))).c_str());
                 std::get<0>(the1Dmap[yMass])->SetMaximum(10000);
                 std::get<0>(the1Dmap[yMass])->SetMinimum(1);
-                std::get<2>(the1Dmap[yMass])->GetXaxis()->SetTitle("m_{Y} [GeV]");
+                std::get<2>(the1Dmap[yMass])->GetXaxis()->SetTitle("m_{X} [GeV]");
                 std::get<2>(the1Dmap[yMass])->GetYaxis()->SetTitle("#sigma(pp #rightarrow X) #times BR(Y(b#bar{b}) H(b#bar{b})) [fb]");
                 std::get<1>(the1Dmap[yMass])->SetFillColor(kGreen);
                 std::get<2>(the1Dmap[yMass])->SetFillColor(kYellow);
             }
             theFullMapOfPlots[year][option] = {the2Dmap, the1Dmap};
+
+            if(option == "syst" && year == "RunII")
+            {
+                for(const auto xMass : xMassList)
+                {
+                    mapOfLimitsVsY[xMass] = std::make_tuple(new TGraph(), new TGraphAsymmErrors(), new TGraphAsymmErrors());
+                    std::get<0>(mapOfLimitsVsY[xMass])->SetNameTitle(("CentralLimit_" + year + "_" + option + "_massX_" + std::to_string(int(xMass))).c_str(), ("Central Limit - " + year + " " + option + " m_{Y} = " + std::to_string(int(xMass))).c_str());
+                    std::get<0>(mapOfLimitsVsY[xMass])->GetXaxis()->SetTitle("m_{Y} [GeV]");
+                    std::get<0>(mapOfLimitsVsY[xMass])->SetMaximum(10000);
+                    std::get<0>(mapOfLimitsVsY[xMass])->SetMinimum(1);
+                    std::get<0>(mapOfLimitsVsY[xMass])->GetYaxis()->SetTitle("#sigma(pp #rightarrow X) #times BR(Y(b#bar{b}) H(b#bar{b})) [fb]");
+                    std::get<1>(mapOfLimitsVsY[xMass])->SetNameTitle(("1SigmaLimit_" + year + "_" + option + "_massX_" + std::to_string(int(xMass))).c_str(),  ("1 Sigma Limit - " + year + " " + option + " m_{Y} = " + std::to_string(int(xMass))).c_str());
+                    std::get<0>(mapOfLimitsVsY[xMass])->SetMaximum(10000);
+                    std::get<0>(mapOfLimitsVsY[xMass])->SetMinimum(1);
+                    std::get<1>(mapOfLimitsVsY[xMass])->GetXaxis()->SetTitle("m_{Y} [GeV]");
+                    std::get<1>(mapOfLimitsVsY[xMass])->GetYaxis()->SetTitle("#sigma(pp #rightarrow X) #times BR(Y(b#bar{b}) H(b#bar{b})) [fb]");
+                    std::get<2>(mapOfLimitsVsY[xMass])->SetNameTitle(("2SigmaLimit_" + year + "_" + option + "_massX_" + std::to_string(int(xMass))).c_str(),  ("2 Sigma Limit - " + year + " " + option + " m_{Y} = " + std::to_string(int(xMass))).c_str());
+                    std::get<0>(mapOfLimitsVsY[xMass])->SetMaximum(10000);
+                    std::get<0>(mapOfLimitsVsY[xMass])->SetMinimum(1);
+                    std::get<2>(mapOfLimitsVsY[xMass])->GetXaxis()->SetTitle("m_{Y} [GeV]");
+                    std::get<2>(mapOfLimitsVsY[xMass])->GetYaxis()->SetTitle("#sigma(pp #rightarrow X) #times BR(Y(b#bar{b}) H(b#bar{b})) [fb]");
+                    std::get<1>(mapOfLimitsVsY[xMass])->SetFillColor(kGreen);
+                    std::get<2>(mapOfLimitsVsY[xMass])->SetFillColor(kYellow);
+                }
+            }
         }
     }
 
@@ -184,6 +214,10 @@ int main(int argc, char** argv)
 
         for(const auto & year : yearList)
         {
+            if(year == "RunII" && xMass == 1000 && yMass == 150) continue; // TMP !!!!!!!!!!!!!!!!!!!!!
+            std::vector<std::string> limitOptions;
+            if(year == "RunII") limitOptions = minLimitOptions;
+            else limitOptions = allLimitOptions;
             for(const auto & option : limitOptions)
             {
                 auto theSignalMap2Dmap = std::get<0>(theFullMapOfPlots[year][option]);
@@ -207,6 +241,14 @@ int main(int argc, char** argv)
                 theTree->GetEntry(2); float limitCentral    = limit*multiplier;
                 theTree->GetEntry(3); float limit1SigmaUp   = limit*multiplier;
                 theTree->GetEntry(4); float limit2SigmaUp   = limit*multiplier;
+                // if( (year == "RunII" || year == "2017") && xMass == 1000 && yMass == 150)
+                // {
+                //     limit2SigmaDown = 0.;
+                //     limit1SigmaDown = 0.;
+                //     limitCentral    = 0.;
+                //     limit1SigmaUp   = 0.;
+                //     limit2SigmaUp   = 0.;
+                // }
                 // std::cout << limitCentral << std::endl;
                 theFile->Close();
                 delete theFile;
@@ -225,6 +267,15 @@ int main(int argc, char** argv)
                 std::get<2>(theSignalMap1Dmap[yMass])->SetPoint     (std::get<2>(theSignalMap1Dmap[yMass])->GetN()  , xMass, limitCentral);
                 std::get<1>(theSignalMap1Dmap[yMass])->SetPointError(std::get<1>(theSignalMap1Dmap[yMass])->GetN()-1, 0., 0., limitCentral - limit1SigmaDown, limit1SigmaUp - limitCentral);
                 std::get<2>(theSignalMap1Dmap[yMass])->SetPointError(std::get<2>(theSignalMap1Dmap[yMass])->GetN()-1, 0., 0., limitCentral - limit2SigmaDown, limit2SigmaUp - limitCentral);             
+                
+                if(option == "syst" && year == "RunII")
+                {
+                    std::get<0>(mapOfLimitsVsY[xMass])->SetPoint     (std::get<0>(mapOfLimitsVsY[xMass])->GetN()  , yMass, limitCentral);
+                    std::get<1>(mapOfLimitsVsY[xMass])->SetPoint     (std::get<1>(mapOfLimitsVsY[xMass])->GetN()  , yMass, limitCentral);
+                    std::get<2>(mapOfLimitsVsY[xMass])->SetPoint     (std::get<2>(mapOfLimitsVsY[xMass])->GetN()  , yMass, limitCentral);
+                    std::get<1>(mapOfLimitsVsY[xMass])->SetPointError(std::get<1>(mapOfLimitsVsY[xMass])->GetN()-1, 0., 0., limitCentral - limit1SigmaDown, limit1SigmaUp - limitCentral);
+                    std::get<2>(mapOfLimitsVsY[xMass])->SetPointError(std::get<2>(mapOfLimitsVsY[xMass])->GetN()-1, 0., 0., limitCentral - limit2SigmaDown, limit2SigmaUp - limitCentral);             
+                }
             }
         }
     }
@@ -234,6 +285,9 @@ int main(int argc, char** argv)
     for(const auto& year : yearList)
     {
         outputFile.mkdir(("Limits_" + year).c_str());
+            std::vector<std::string> limitOptions;
+        if(year == "RunII") limitOptions = minLimitOptions;
+        else limitOptions = allLimitOptions;
         for(const auto& option : limitOptions)
         {
             outputFile.mkdir(("Limits_" + year + "/Option_" + option).c_str());
@@ -248,6 +302,15 @@ int main(int argc, char** argv)
                 std::get<0>(std::get<1>(theFullMapOfPlots[year][option])[yMass])->Write();
                 std::get<1>(std::get<1>(theFullMapOfPlots[year][option])[yMass])->Write();
                 std::get<2>(std::get<1>(theFullMapOfPlots[year][option])[yMass])->Write();
+            }
+            if(option == "syst" && year == "RunII")
+            {
+                for(const auto xMass : xMassList)
+                {
+                    std::get<0>(mapOfLimitsVsY[xMass])->Write();
+                    std::get<1>(mapOfLimitsVsY[xMass])->Write();
+                    std::get<2>(mapOfLimitsVsY[xMass])->Write();
+                }
             }
             outputFile.cd();
         }

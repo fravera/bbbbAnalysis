@@ -514,13 +514,16 @@ void doAllStack()
     // StackAllVariables("2016DataPlots_NMSSM_XYH_bbbb_all_v1/outPlotter.root", "selectionbJetsHMR_ControlRegionBlinded", "data_BTagCSV_dataDriven_backgroundHMR", "Bkg model", {}, "X{#rightarrow}YH", "data_BTagCSV_background", "data");
 
     StackAllVariables("DataPlots_fullSubmission_2016_v17/outPlotter.root", "selectionbJets_SignalRegion"           , 2016, "data_BTagCSV_dataDriven_kinFit", "Bkg model", {"sig_NMSSM_bbbb_MX_700_MY_300"}, "X#rightarrowYH (m_{X} = 700 GeV, m_{Y} = 300 GeV)");
-    StackAllVariables("DataPlots_fullSubmission_2016_v17/outPlotter.root", "selectionbJets_ValidationRegionBlinded", 2016, "data_BTagCSV_dataDriven_kinFit", "Bkg model", {"sig_NMSSM_bbbb_MX_700_MY_300"}, "X#rightarrowYH (m_{X} = 700 GeV, m_{Y} = 300 GeV)", "data_BTagCSV", "data");
+    StackAllVariables("DataPlots_fullSubmission_2016_v17/outPlotter.root", "selectionbJets_ValidationRegionBlinded", 2016, "data_BTagCSV_dataDriven_kinFit", "Bkg model", {"sig_NMSSM_bbbb_MX_700_MY_300"}, "X#rightarrowYH (m_{X} = 700 GeV, m_{Y} = 300 GeV)");
+    // StackAllVariables("DataPlots_fullSubmission_2016_v17/outPlotter.root", "selectionbJets_ValidationRegionBlinded", 2016, "data_BTagCSV_dataDriven_kinFit", "Bkg model", {"sig_NMSSM_bbbb_MX_700_MY_300"}, "X#rightarrowYH (m_{X} = 700 GeV, m_{Y} = 300 GeV)", "data_BTagCSV", "data");
 
     StackAllVariables("DataPlots_fullSubmission_2017_v17/outPlotter.root", "selectionbJets_SignalRegion"           , 2017, "data_BTagCSV_dataDriven_kinFit", "Bkg model", {"sig_NMSSM_bbbb_MX_700_MY_300"}, "X#rightarrowYH (m_{X} = 700 GeV, m_{Y} = 300 GeV)");
-    StackAllVariables("DataPlots_fullSubmission_2017_v17/outPlotter.root", "selectionbJets_ValidationRegionBlinded", 2017, "data_BTagCSV_dataDriven_kinFit", "Bkg model", {"sig_NMSSM_bbbb_MX_700_MY_300"}, "X#rightarrowYH (m_{X} = 700 GeV, m_{Y} = 300 GeV)", "data_BTagCSV", "data");
+    StackAllVariables("DataPlots_fullSubmission_2017_v17/outPlotter.root", "selectionbJets_ValidationRegionBlinded", 2017, "data_BTagCSV_dataDriven_kinFit", "Bkg model", {"sig_NMSSM_bbbb_MX_700_MY_300"}, "X#rightarrowYH (m_{X} = 700 GeV, m_{Y} = 300 GeV)");
+    // StackAllVariables("DataPlots_fullSubmission_2017_v17/outPlotter.root", "selectionbJets_ValidationRegionBlinded", 2017, "data_BTagCSV_dataDriven_kinFit", "Bkg model", {"sig_NMSSM_bbbb_MX_700_MY_300"}, "X#rightarrowYH (m_{X} = 700 GeV, m_{Y} = 300 GeV)", "data_BTagCSV", "data");
 
     StackAllVariables("DataPlots_fullSubmission_2018_v17/outPlotter.root", "selectionbJets_SignalRegion"           , 2018, "data_BTagCSV_dataDriven_kinFit", "Bkg model", {"sig_NMSSM_bbbb_MX_700_MY_300"}, "X#rightarrowYH (m_{X} = 700 GeV, m_{Y} = 300 GeV)");
-    StackAllVariables("DataPlots_fullSubmission_2018_v17/outPlotter.root", "selectionbJets_ValidationRegionBlinded", 2018, "data_BTagCSV_dataDriven_kinFit", "Bkg model", {"sig_NMSSM_bbbb_MX_700_MY_300"}, "X#rightarrowYH (m_{X} = 700 GeV, m_{Y} = 300 GeV)", "data_BTagCSV", "data");
+    StackAllVariables("DataPlots_fullSubmission_2018_v17/outPlotter.root", "selectionbJets_ValidationRegionBlinded", 2018, "data_BTagCSV_dataDriven_kinFit", "Bkg model", {"sig_NMSSM_bbbb_MX_700_MY_300"}, "X#rightarrowYH (m_{X} = 700 GeV, m_{Y} = 300 GeV)");
+    // StackAllVariables("DataPlots_fullSubmission_2018_v17/outPlotter.root", "selectionbJets_ValidationRegionBlinded", 2018, "data_BTagCSV_dataDriven_kinFit", "Bkg model", {"sig_NMSSM_bbbb_MX_700_MY_300"}, "X#rightarrowYH (m_{X} = 700 GeV, m_{Y} = 300 GeV)", "data_BTagCSV", "data");
 
 }
 

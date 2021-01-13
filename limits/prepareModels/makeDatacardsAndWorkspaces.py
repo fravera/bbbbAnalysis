@@ -165,7 +165,7 @@ for categ in categories:
     datacards.append("%s_%s.txt"%(card_name,categ))
     print " - %s/%s "%(folder,fname)
     fcard = open(fname, 'w')
-    inputfile = "outPlotter_%s.root"%(categ)
+    inputfile = "outPlotter_%s_%s.root"%(dsetname,args.signal)
 
     root_inputfile = ROOT.TFile.Open(inputfile) # for parsing variations after
 

@@ -277,6 +277,8 @@ class OfflineProducerHelper{
         // reject events with leptons that may come from W and Z decays
         float calculateEventWeight_AllWeights(NanoAODTree& nat, EventInfo& ei, OutputTree &ot, SkimEffCounter &ec);
         
+        void initializeObjectsL1PrefiringForScaleFactors(OutputTree &ot);
+        void CalculateL1prefiringScaleFactor(NanoAODTree& nat,OutputTree &ot, EventInfo& ei);
 
         void initializeObjectsBJetForScaleFactors(OutputTree &ot);
         // compute events weight for four b
@@ -410,6 +412,8 @@ class OfflineProducerHelper{
         bool select_gen_YH           (NanoAODTree& nat, EventInfo& ei);
         bool select_gen_bb_bb        (NanoAODTree& nat, EventInfo& ei);
         bool select_gen_bb_bb_forXYH (NanoAODTree& nat, EventInfo& ei, const float deltaR_threshold);
+        bool select_gen_bb_bb_forXYH_swapped (NanoAODTree& nat, EventInfo& ei, const float maxDeltaR);
+
         bool checkReco_gen_bbbb      (NanoAODTree& nat, EventInfo& ei);
         bool select_gen_VBF_partons  (NanoAODTree& nat, EventInfo& ei);
 

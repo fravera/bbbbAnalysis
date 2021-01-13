@@ -132,16 +132,59 @@ python mlskim_NMSSM_XYH_bbbb/ApplyBackgroundModel.py --dir BackgroundModels/Rewe
 ./scripts/Unroll2Dplots DataPlots_fullSubmission_2017_v16/outPlotter.root data_BTagCSV_dataDriven_kinFit selectionbJets_SignalRegion HH_kinFit_m_H2_m 0 2400 0
 
 hadd -f SingleMuon_Data_forTrigger_2016.root `xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2016_v14/SKIM_SingleMuon_Data/output`
-hadd -f NMSSM_forTrigger_2016.root `xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2016_v14/SKIM_NMSSM_XYH_bbbb_MX_300_NANOAOD_v7_Full/output`
 hadd -f TTbar_MC_forTrigger_2016.root `xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2016_v14/SKIM_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/output`
-
+hadd -f NMSSM_forTrigger_2016.root `xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2016_v14/SKIM_NMSSM_XYH_bbbb_MX_300_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2016_v14/SKIM_NMSSM_XYH_bbbb_MX_400_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2016_v14/SKIM_NMSSM_XYH_bbbb_MX_500_NANOAOD_v7_Full/output; `
+    \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2016_v14/SKIM_NMSSM_XYH_bbbb_MX_600_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2016_v14/SKIM_NMSSM_XYH_bbbb_MX_700_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2016_v14/SKIM_NMSSM_XYH_bbbb_MX_800_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2016_v14/SKIM_NMSSM_XYH_bbbb_MX_900_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2016_v14/SKIM_NMSSM_XYH_bbbb_MX_1000_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2016_v14/SKIM_NMSSM_XYH_bbbb_MX_1100_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2016_v14/SKIM_NMSSM_XYH_bbbb_MX_1200_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2016_v14/SKIM_NMSSM_XYH_bbbb_MX_1400_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2016_v14/SKIM_NMSSM_XYH_bbbb_MX_1600_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2016_v14/SKIM_NMSSM_XYH_bbbb_MX_1800_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2016_v14/SKIM_NMSSM_XYH_bbbb_MX_2000_NANOAOD_v7_Full/output; `
+ 
 hadd -f SingleMuon_Data_forTrigger_2017.root `xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2017_v14/SKIM_SingleMuon_Data/output`
-hadd -f NMSSM_forTrigger_2017.root `xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2017_v14/SKIM_NMSSM_XYH_bbbb_MX_300_NANOAOD_v7_Full/output`
 hadd -f TTbar_MC_forTrigger_2017.root `xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2017_v14/SKIM_TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/output`
-
+hadd -f NMSSM_forTrigger_2017.root `xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2017_v14/SKIM_NMSSM_XYH_bbbb_MX_300_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2017_v14/SKIM_NMSSM_XYH_bbbb_MX_400_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2017_v14/SKIM_NMSSM_XYH_bbbb_MX_500_NANOAOD_v7_Full/output; `
+    \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2017_v14/SKIM_NMSSM_XYH_bbbb_MX_600_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2017_v14/SKIM_NMSSM_XYH_bbbb_MX_700_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2017_v14/SKIM_NMSSM_XYH_bbbb_MX_800_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2017_v14/SKIM_NMSSM_XYH_bbbb_MX_900_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2017_v14/SKIM_NMSSM_XYH_bbbb_MX_1000_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2017_v14/SKIM_NMSSM_XYH_bbbb_MX_1100_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2017_v14/SKIM_NMSSM_XYH_bbbb_MX_1200_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2017_v14/SKIM_NMSSM_XYH_bbbb_MX_1400_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2017_v14/SKIM_NMSSM_XYH_bbbb_MX_1600_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2017_v14/SKIM_NMSSM_XYH_bbbb_MX_1800_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2017_v14/SKIM_NMSSM_XYH_bbbb_MX_2000_NANOAOD_v7_Full/output; `
+ 
 hadd -f SingleMuon_Data_forTrigger_2018.root `xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2018_v14/SKIM_SingleMuon_Data/output`
-hadd -f NMSSM_forTrigger_2018.root `xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2018_v14/SKIM_NMSSM_XYH_bbbb_MX_300_NANOAOD_v7_Full/output`
 hadd -f TTbar_MC_forTrigger_2018.root `xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2018_v14/SKIM_TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/output`
+hadd -f NMSSM_forTrigger_2018.root `xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2018_v14/SKIM_NMSSM_XYH_bbbb_MX_300_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2018_v14/SKIM_NMSSM_XYH_bbbb_MX_400_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2018_v14/SKIM_NMSSM_XYH_bbbb_MX_500_NANOAOD_v7_Full/output; `
+    \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2018_v14/SKIM_NMSSM_XYH_bbbb_MX_600_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2018_v14/SKIM_NMSSM_XYH_bbbb_MX_700_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2018_v14/SKIM_NMSSM_XYH_bbbb_MX_800_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2018_v14/SKIM_NMSSM_XYH_bbbb_MX_900_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2018_v14/SKIM_NMSSM_XYH_bbbb_MX_1000_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2018_v14/SKIM_NMSSM_XYH_bbbb_MX_1100_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2018_v14/SKIM_NMSSM_XYH_bbbb_MX_1200_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2018_v14/SKIM_NMSSM_XYH_bbbb_MX_1400_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2018_v14/SKIM_NMSSM_XYH_bbbb_MX_1600_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2018_v14/SKIM_NMSSM_XYH_bbbb_MX_1800_NANOAOD_v7_Full/output; \
+    xrdfsls -u /store/user/fravera/bbbb_ntuples/TriggerScaleFactor_Run2018_v14/SKIM_NMSSM_XYH_bbbb_MX_2000_NANOAOD_v7_Full/output; `
+    `
 
 
 python scripts/createListForHistogrammer.py --tag fullSubmission_2016_v14 --year 2016

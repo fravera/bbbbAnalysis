@@ -76,7 +76,7 @@ def get_h_nominal_name(process, categ, obs):
 	s = "{process}/{categ}/{process}_{categ}_{obs}".format(process=process, categ=categ, obs=obs) + addForUnrolling
 	return s
 
-def RunPreparation(dataset,directory,processes,categandobs,folder, process_rename, syst_list, syst_to_comb):
+def RunPreparation(dataset,directory,processes,categandobs,folder, process_rename, syst_list, syst_to_comb, signalName):
 	#Get root file
 	# file = ROOT.TFile.Open("../../MyHistos/%s/outPlotter.root"%directory)
 	file = ROOT.TFile.Open("%s/outPlotter.root" % directory)
@@ -85,7 +85,7 @@ def RunPreparation(dataset,directory,processes,categandobs,folder, process_renam
 	os.system('mkdir -p %s'%folder)
 	#Open output file
 	for k in range(0,len(categandobs)):
-		hfile = ROOT.TFile('%s/outPlotter_%s.root'%(folder,categandobs[k][0]), 'RECREATE')
+		hfile = ROOT.TFile('%s/outPlotter_%s_%s.root'%(folder,dataset,signalName), 'RECREATE')
 		for process in processes:
 			#Get histograms
 			# h=ROOT.TH1F()
@@ -136,9 +136,9 @@ def RunPreparation(dataset,directory,processes,categandobs,folder, process_renam
 						continue ## some cases (e.g. the data) won't have it
 
 					outname_proto = '{sample}_{syst}{Dir}'
-					if sd == 'up' or sd == '_up' or sd == 'Up' :
+					if sd == 'up' or sd == '_up' or sd == 'Up' or sd == "_Up":
 						Dir = 'Up'
-					elif sd == 'down' or sd == '_down' or sd == 'Down' :
+					elif sd == 'down' or sd == '_down' or sd == 'Down' or sd == "_Dn":
 						Dir = 'Down'
 					elif sd is None:
 						Dir = ''
@@ -273,4 +273,5 @@ RunPreparation(
 	process_rename  = process_rename,
 	syst_list       = syst_list,
 	syst_to_comb    = syst_to_comb,
+	signalName      = args.signal
 )

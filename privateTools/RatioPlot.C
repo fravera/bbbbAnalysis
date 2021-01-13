@@ -481,8 +481,15 @@ void RatioAllVariables(std::string canvasName, std::string referenceFileName, st
     theCanvas->SaveAs((std::string(theCanvas->GetName()) + ".png").data());
     delete theCanvas;
 
-    RatioSlices(canvasName, referenceFileName, referenceHistPrototype + "_HH" + append + "_m_H2_m", targetFileName, targetHistPrototype + "_HH" + append + "_m_H2_m", normalize, scaleValue, 250, 2200, 3, "m" + append + "_{Xreco} [GeV]","events/GeV");
-  
+    std::string secondCanvasName = canvasName + "_2";
+    TCanvas *theSecondCanvas = new TCanvas(secondCanvasName.data(), secondCanvasName.data(), 1400, 800);
+    theSecondCanvas->DivideSquare(2,0.005,0.005);
+    RatioPlotFromFile(theSecondCanvas->cd(1),referenceFileName ,referenceHistPrototype + "_H1_m"                       , {targetFileName} , {targetHistPrototype + "_H1_m"                      }, {kRed} , normalize, scaleValue,     90,   160, 1, "m_{Yreco} [GeV]","events","4b-tag",{legEntry});
+    scaleValue = -1;
+    RatioPlotFromFile(theCanvas->cd(2),referenceFileName ,referenceHistPrototype + "_H2_m"                        , {targetFileName} , {targetHistPrototype + "_H2_m"                       }, {kRed} , normalize, scaleValue, 30, 300, 1, "m_{Yreco} [GeV]","events/GeV","4b-tag",{legEntry},true);
+    scaleValue = -1;
+    theSecondCanvas->SaveAs((std::string(theSecondCanvas->GetName()) + ".png").data());
+    delete theSecondCanvas;  
 }
 
 
@@ -640,43 +647,43 @@ void RatioAll(bool useKinFitVariables=true, std::string dataDrivenDatasetName="d
 }
 
 
-void RatioAllBackground()
-{
-    gROOT->SetBatch();
+// void RatioAllBackground()
+// {
+//     gROOT->SetBatch();
 
-    RatioAllVariables("ControlRegionAfterBDTBackgroundHMR", "2016DataPlots_NMSSM_XYH_bbbb_background/outPlotter.root", "data_BTagCSV_background" , "selectionbJetsHMR_ControlRegionBlinded", 
-    "2016DataPlots_NMSSM_XYH_bbbb_background/outPlotter.root", "data_BTagCSV_dataDriven_backgroundHMR" , "selectionbJetsHMR_ControlRegionBlinded",false);
+//     RatioAllVariables("ControlRegionAfterBDTBackgroundHMR", "2016DataPlots_NMSSM_XYH_bbbb_background/outPlotter.root", "data_BTagCSV_background" , "selectionbJetsHMR_ControlRegionBlinded", 
+//     "2016DataPlots_NMSSM_XYH_bbbb_background/outPlotter.root", "data_BTagCSV_dataDriven_backgroundHMR" , "selectionbJetsHMR_ControlRegionBlinded",false);
 
-    RatioAllVariables("SideBandAfterBDTBackgroundHMR", "2016DataPlots_NMSSM_XYH_bbbb_background/outPlotter.root", "data_BTagCSV_background" , "selectionbJetsHMR_SideBandBlinded", 
-    "2016DataPlots_NMSSM_XYH_bbbb_background/outPlotter.root", "data_BTagCSV_dataDriven_backgroundHMR" , "selectionbJetsHMR_SideBandBlinded",false);
+//     RatioAllVariables("SideBandAfterBDTBackgroundHMR", "2016DataPlots_NMSSM_XYH_bbbb_background/outPlotter.root", "data_BTagCSV_background" , "selectionbJetsHMR_SideBandBlinded", 
+//     "2016DataPlots_NMSSM_XYH_bbbb_background/outPlotter.root", "data_BTagCSV_dataDriven_backgroundHMR" , "selectionbJetsHMR_SideBandBlinded",false);
 
-    RatioAllVariables("ControlRegionAfterBDTBackgroundLMR", "2016DataPlots_NMSSM_XYH_bbbb_background/outPlotter.root", "data_BTagCSV_background" , "selectionbJetsLMR_ControlRegionBlinded", 
-    "2016DataPlots_NMSSM_XYH_bbbb_background/outPlotter.root", "data_BTagCSV_dataDriven_backgroundLMR" , "selectionbJetsLMR_ControlRegionBlinded",false);
+//     RatioAllVariables("ControlRegionAfterBDTBackgroundLMR", "2016DataPlots_NMSSM_XYH_bbbb_background/outPlotter.root", "data_BTagCSV_background" , "selectionbJetsLMR_ControlRegionBlinded", 
+//     "2016DataPlots_NMSSM_XYH_bbbb_background/outPlotter.root", "data_BTagCSV_dataDriven_backgroundLMR" , "selectionbJetsLMR_ControlRegionBlinded",false);
 
-    RatioAllVariables("SideBandAfterBDTBackgroundLMR", "2016DataPlots_NMSSM_XYH_bbbb_background/outPlotter.root", "data_BTagCSV_background" , "selectionbJetsLMR_SideBandBlinded", 
-    "2016DataPlots_NMSSM_XYH_bbbb_background/outPlotter.root", "data_BTagCSV_dataDriven_backgroundLMR" , "selectionbJetsLMR_SideBandBlinded",false);
+//     RatioAllVariables("SideBandAfterBDTBackgroundLMR", "2016DataPlots_NMSSM_XYH_bbbb_background/outPlotter.root", "data_BTagCSV_background" , "selectionbJetsLMR_SideBandBlinded", 
+//     "2016DataPlots_NMSSM_XYH_bbbb_background/outPlotter.root", "data_BTagCSV_dataDriven_backgroundLMR" , "selectionbJetsLMR_SideBandBlinded",false);
    
-    gROOT->SetBatch(false);
+//     gROOT->SetBatch(false);
 
-}
+// }
 
 
 
-void DivideTH2D()
-{
+// void DivideTH2D()
+// {
 
-    gStyle->SetPalette(kRainBow);
-    TFile theFile("2016DataPlots_NMSSM_XYH_bbbb_triggerMatchedBKGNorm/outPlotter.root");
-    TH2F *extimatedHistogram = (TH2F*)theFile.Get("data_BTagCSV_Plus_Background/selectionbJetsAndTrigger_SignalRegionPlus/data_BTagCSV_Plus_Background_selectionbJetsAndTrigger_SignalRegionPlus_HH_m_H2_m");
-    extimatedHistogram->SetDirectory(0);
-    extimatedHistogram->RebinX(2);
-    extimatedHistogram->RebinY(2);
-    TH2F *referenceHistogram = (TH2F*)theFile.Get("data_BTagCSV_Plus/selectionbJetsAndTrigger_SignalRegionPlusBlinded/data_BTagCSV_Plus_selectionbJetsAndTrigger_SignalRegionPlusBlinded_HH_m_H2_m");
-    referenceHistogram->SetDirectory(0);
-    referenceHistogram->RebinX(2);
-    referenceHistogram->RebinY(2);
+//     gStyle->SetPalette(kRainBow);
+//     TFile theFile("2016DataPlots_NMSSM_XYH_bbbb_triggerMatchedBKGNorm/outPlotter.root");
+//     TH2F *extimatedHistogram = (TH2F*)theFile.Get("data_BTagCSV_Plus_Background/selectionbJetsAndTrigger_SignalRegionPlus/data_BTagCSV_Plus_Background_selectionbJetsAndTrigger_SignalRegionPlus_HH_m_H2_m");
+//     extimatedHistogram->SetDirectory(0);
+//     extimatedHistogram->RebinX(2);
+//     extimatedHistogram->RebinY(2);
+//     TH2F *referenceHistogram = (TH2F*)theFile.Get("data_BTagCSV_Plus/selectionbJetsAndTrigger_SignalRegionPlusBlinded/data_BTagCSV_Plus_selectionbJetsAndTrigger_SignalRegionPlusBlinded_HH_m_H2_m");
+//     referenceHistogram->SetDirectory(0);
+//     referenceHistogram->RebinX(2);
+//     referenceHistogram->RebinY(2);
     
-    extimatedHistogram->Divide(referenceHistogram);
+//     extimatedHistogram->Divide(referenceHistogram);
 
-    extimatedHistogram->Draw("colz");
-}
+//     extimatedHistogram->Draw("colz");
+// }
